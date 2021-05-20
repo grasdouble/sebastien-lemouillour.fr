@@ -12,13 +12,6 @@ import LinkedInIcon from "@material-ui/icons/LinkedIn";
 import AlternateEmailIcon from "@material-ui/icons/AlternateEmail";
 import CodeIcon from "@material-ui/icons/Code";
 
-import AboutMe from "./AboutMe";
-import Background from "./Background";
-import Skills from "./Skills";
-import ContactMe from "./ContactMe";
-import ThemePage from "./Theme";
-import Logbook from "./Logbook";
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -66,36 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface MyProps {
-  children?: React.ReactNode;
-  pageState: String;
-  pageFct: Function;
-  sidepanelFct: Function;
-}
-
-const getPage = (page: String, pageFct: Function, sidepanelFct: Function) => {
-  switch (page) {
-    case "background":
-      return <Background />;
-    case "skills":
-      return <Skills />;
-    case "contactme":
-      return <ContactMe />;
-    case "theme":
-      return <ThemePage />;
-    case "logbook":
-      return <Logbook />;
-    case "aboutme":
-    default:
-      return <AboutMe openPage={pageFct} openSidePanel={sidepanelFct} />;
-  }
-};
-
-const Main: React.FunctionComponent<MyProps> = ({
-  pageState,
-  pageFct,
-  sidepanelFct,
-}) => {
+const Main: React.FunctionComponent = (props) => {
   const classes = useStyles();
 
   return (
@@ -160,8 +124,8 @@ const Main: React.FunctionComponent<MyProps> = ({
               </Grid>
             </Grid>
           </Grid>
-          <Grid key="aboutMe" item sm={12} md={9} lg={10}>
-            {getPage(pageState, pageFct, sidepanelFct)}
+          <Grid key="content" item sm={12} md={9} lg={10}>
+            {props.children}
           </Grid>
         </Grid>
       </Container>

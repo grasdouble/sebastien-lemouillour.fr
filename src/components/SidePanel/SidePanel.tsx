@@ -1,5 +1,8 @@
 import React from "react";
 import clsx from "clsx";
+
+import { Link as LinkRouter, useLocation } from "react-router-dom";
+
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
@@ -45,6 +48,7 @@ const SidePanel: React.FunctionComponent<MyProps> = ({
   pageFct,
 }) => {
   const classes = useStyles();
+  const location = useLocation();
 
   const toggleDrawer =
     (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -59,37 +63,35 @@ const SidePanel: React.FunctionComponent<MyProps> = ({
       sidepanelFct(open);
     };
 
+  const CustomLink = (path: string, props: any) => {
+    return <LinkRouter to={path} {...props} />;
+  };
+
   return (
     <div>
-      <React.Fragment>
-        <Drawer
-          anchor="left"
-          open={sidepanelState}
-          onClose={toggleDrawer(false)}
+      <Drawer anchor="left" open={sidepanelState} onClose={toggleDrawer(false)}>
+        <div
+          className={clsx(classes.list)}
+          role="presentation"
+          onClick={toggleDrawer(false)}
+          onKeyDown={toggleDrawer(false)}
         >
-          <div
-            className={clsx(classes.list)}
-            role="presentation"
-            onClick={toggleDrawer(false)}
-            onKeyDown={toggleDrawer(false)}
-          >
-            <List>
-              {config.map((item) => (
-                <ListItem
-                  button
-                  key={item.key}
-                  selected={item.key === pageState}
-                  onClick={() => pageFct(item.key)}
-                >
-                  <ListItemIcon>{mapIcons.get(item.key)}</ListItemIcon>
-                  <ListItemText primary={item.text} />
-                </ListItem>
-              ))}
-            </List>
-            <Divider />
-          </div>
-        </Drawer>
-      </React.Fragment>
+          <List>
+            {config.map((item) => (
+              <ListItem
+                button
+                key={item.key}
+                selected={item.path === location.pathname}
+                component={(props) => CustomLink(item.path, props)}
+              >
+                <ListItemIcon>{mapIcons.get(item.key)}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItem>
+            ))}
+          </List>
+          <Divider />
+        </div>
+      </Drawer>
     </div>
   );
 };

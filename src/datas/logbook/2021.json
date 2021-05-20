@@ -21,6 +21,23 @@
     ]
   },
   {
+    "date": "2021-05-21",
+    "entries": [
+      {
+        "value": "React-router integration",
+        "type": "title"
+      },
+      {
+        "value": "I decided to integrate react-router on the site and seems i waited too lot to do that. ",
+        "type": "text"
+      },
+      {
+        "value": "I had to refactor lot of things but the result is better than expected",
+        "type": "text"
+      }
+    ]
+  },
+  {
     "date": "2021-05-18",
     "entries": [
       {
@@ -34,10 +51,6 @@
       {
         "value": "Like each time this is a first version, improvement will come later. I just need to know if i will keep those two things there or not",
         "type": "text"
-      },
-      {
-        "value": "",
-        "type": "caption"
       }
     ]
   },

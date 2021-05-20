@@ -14,6 +14,8 @@ import Steria from "./Steria";
 import Infotel from "./Infotel";
 import Talend from "./Talend";
 
+import MainTemplate from "../../Templates/Main";
+
 const getSteps = () => {
   return ["IM'Info", "Sopra/Steria", "Infotel", "Talend"];
 };
@@ -51,47 +53,49 @@ const Background: React.FunctionComponent = () => {
   };
 
   return (
-    <div className={classes.root}>
-      <Stepper
-        alternativeLabel
-        nonLinear
-        activeStep={activeStep}
-        connector={<StyleConnector />}
-      >
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepButton onClick={handleStep(index)}>
-              <StepLabel StepIconComponent={StyleStepIcon}>{label}</StepLabel>
-            </StepButton>
-          </Step>
-        ))}
-      </Stepper>
-      <div>
+    <MainTemplate>
+      <div className={classes.root}>
+        <Stepper
+          alternativeLabel
+          nonLinear
+          activeStep={activeStep}
+          connector={<StyleConnector />}
+        >
+          {steps.map((label, index) => (
+            <Step key={label}>
+              <StepButton onClick={handleStep(index)}>
+                <StepLabel StepIconComponent={StyleStepIcon}>{label}</StepLabel>
+              </StepButton>
+            </Step>
+          ))}
+        </Stepper>
         <div>
-          <Typography className={classes.instructions}>
-            {getStepContent(activeStep)}
-          </Typography>
           <div>
-            <Button
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              className={classes.button}
-            >
-              Back
-            </Button>
-            <Button
-              disabled={activeStep === steps.length - 1}
-              variant="contained"
-              color="primary"
-              onClick={handleNext}
-              className={classes.button}
-            >
-              Next
-            </Button>
+            <Typography className={classes.instructions}>
+              {getStepContent(activeStep)}
+            </Typography>
+            <div>
+              <Button
+                disabled={activeStep === 0}
+                onClick={handleBack}
+                className={classes.button}
+              >
+                Back
+              </Button>
+              <Button
+                disabled={activeStep === steps.length - 1}
+                variant="contained"
+                color="primary"
+                onClick={handleNext}
+                className={classes.button}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </MainTemplate>
   );
 };
 
