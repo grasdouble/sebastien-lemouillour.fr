@@ -1,7 +1,7 @@
 [
   {
     "date": "0000-00-00",
-    "entries": [
+    "contents": [
       {
         "value": "",
         "type": "title"
@@ -22,7 +22,7 @@
   },
   {
     "date": "2021-05-24",
-    "entries": [
+    "contents": [
       {
         "value": "Projects and Fix for mobile",
         "type": "title"
@@ -55,7 +55,7 @@
   },
   {
     "date": "2021-05-21",
-    "entries": [
+    "contents": [
       {
         "value": "Cosmetic changes in code",
         "type": "title"
@@ -72,7 +72,7 @@
   },
   {
     "date": "2021-05-21",
-    "entries": [
+    "contents": [
       {
         "value": "The website is online",
         "type": "title"
@@ -101,7 +101,7 @@
   },
   {
     "date": "2021-05-18",
-    "entries": [
+    "contents": [
       {
         "value": "Changes on the home page",
         "type": "title"
@@ -118,7 +118,7 @@
   },
   {
     "date": "2021-05-17",
-    "entries": [
+    "contents": [
       {
         "value": "About the logbook",
         "type": "title"
@@ -167,7 +167,7 @@
   },
   {
     "date": "2021-05-15",
-    "entries": [
+    "contents": [
       {
         "value": "Add a logbook?? Why??",
         "type": "title"

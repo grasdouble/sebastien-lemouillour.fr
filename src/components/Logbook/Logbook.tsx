@@ -14,20 +14,42 @@ import {
 import data2021 from "datas/logbook/2021.json";
 import { ClassNameMap } from "@material-ui/styles";
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    divider: {
+      marginBottom: "20px",
+    },
+    wrapText: {
+      overflowWrap: "break-word",
+      hyphens: "auto",
+    },
+  })
+);
+
+interface logbookEntryContent {
+  type: string;
+  value: string;
+}
+
+interface logbookEntry {
+  date: string;
+  contents: logbookEntryContent[];
+}
+
 const generateLogbookContent = (
-  entries: any[],
-  date: string,
+  day: logbookEntry,
   classes: ClassNameMap<"wrapText">
 ) => {
   const result: JSX.Element[] = [];
-  entries.forEach((entry, idx) => {
+
+  day.contents.forEach((entry: logbookEntryContent, idx: Number) => {
     switch (entry.type) {
       case "title":
         result.push(
           <Typography
             {...typoH3Props}
             className={classes.wrapText}
-            key={`logbook_item_${date}_${idx}`}
+            key={`logbook_item_${day.date}_${idx}`}
           >
             {entry.value}
           </Typography>
@@ -38,7 +60,7 @@ const generateLogbookContent = (
           <Typography
             {...typoH4Props}
             className={classes.wrapText}
-            key={`logbook_item_${date}_${idx}`}
+            key={`logbook_item_${day.date}_${idx}`}
           >
             {entry.value}
           </Typography>
@@ -49,7 +71,7 @@ const generateLogbookContent = (
           <Typography
             {...typoCaptionProps}
             className={classes.wrapText}
-            key={`logbook_item_${date}_${idx}`}
+            key={`logbook_item_${day.date}_${idx}`}
           >
             {entry.value}
           </Typography>
@@ -61,7 +83,7 @@ const generateLogbookContent = (
           <Typography
             {...typoTextProps}
             className={classes.wrapText}
-            key={`logbook_item_${date}_${idx}`}
+            key={`logbook_item_${day.date}_${idx}`}
           >
             {entry.value}
           </Typography>
@@ -72,21 +94,10 @@ const generateLogbookContent = (
 };
 
 export const LogbookFull = () => {
-  const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-      divider: {
-        marginBottom: "20px",
-      },
-      wrapText: {
-        overflowWrap: "break-word",
-        hyphens: "auto",
-      },
-    })
-  );
   const classes = useStyles();
-
   const result: JSX.Element[] = [];
-  data2021.forEach((day) => {
+
+  data2021.forEach((day:logbookEntry) => {
     if (day.date !== "0000-00-00") {
       result.push(
         <Divider
@@ -99,24 +110,13 @@ export const LogbookFull = () => {
           {day.date}
         </Typography>
       );
-      result.push(...generateLogbookContent(day.entries, day.date, classes));
+      result.push(...generateLogbookContent(day, classes));
     }
   });
   return <React.Fragment>{result}</React.Fragment>;
 };
 
 export const LogbookLastEntry = () => {
-  const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-      divider: {
-        marginBottom: "20px",
-      },
-      wrapText: {
-        overflowWrap: "break-word",
-        hyphens: "auto",
-      },
-    })
-  );
   const classes = useStyles();
 
   const result: JSX.Element[] = [];
@@ -130,7 +130,7 @@ export const LogbookLastEntry = () => {
         {day.date}
       </Typography>
     );
-    result.push(...generateLogbookContent(day.entries, day.date, classes));
+    result.push(...generateLogbookContent(day, classes));
   });
   return <React.Fragment>{result}</React.Fragment>;
 };
