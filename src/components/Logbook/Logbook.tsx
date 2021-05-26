@@ -29,31 +29,33 @@ const useStyles = makeStyles((theme: Theme) =>
 type logbookDayContent = {
   type: string;
   value: string;
-}
+};
 
 type logbookDay = {
   date: string;
   contents: logbookDayContent[];
-}
+};
 
 type LogbookProps = {
-  onlyLast?: boolean,
-}
+  onlyLast?: boolean;
+};
 
 const generateLogbookContent = (
-  day: logbookDay,
+  { date, contents }: logbookDay,
   classes: ClassNameMap<"wrapText">
 ) => {
-  const result: JSX.Element[] = [];
-
-  day.contents.forEach((entry: logbookDayContent, idx: Number) => {
+  const getContent = (
+    result: JSX.Element[],
+    entry: logbookDayContent,
+    idx: Number
+  ) => {
     switch (entry.type) {
       case "title":
         result.push(
           <Typography
             {...typoH3Props}
             className={classes.wrapText}
-            key={`logbook_item_${day.date}_${idx}`}
+            key={`logbook_item_${date}_${idx}`}
           >
             {entry.value}
           </Typography>
@@ -64,7 +66,7 @@ const generateLogbookContent = (
           <Typography
             {...typoH4Props}
             className={classes.wrapText}
-            key={`logbook_item_${day.date}_${idx}`}
+            key={`logbook_item_${date}_${idx}`}
           >
             {entry.value}
           </Typography>
@@ -75,7 +77,7 @@ const generateLogbookContent = (
           <Typography
             {...typoCaptionProps}
             className={classes.wrapText}
-            key={`logbook_item_${day.date}_${idx}`}
+            key={`logbook_item_${date}_${idx}`}
           >
             {entry.value}
           </Typography>
@@ -87,37 +89,42 @@ const generateLogbookContent = (
           <Typography
             {...typoTextProps}
             className={classes.wrapText}
-            key={`logbook_item_${day.date}_${idx}`}
+            key={`logbook_item_${date}_${idx}`}
           >
             {entry.value}
           </Typography>
         );
     }
-  });
-  return result;
+    return result;
+  };
+  return contents.reduce(getContent, []);
 };
 
-export const Logbook: React.FunctionComponent<LogbookProps> = ({onlyLast}) => {
+export const Logbook: React.FunctionComponent<LogbookProps> = ({
+  onlyLast,
+}) => {
   const classes = useStyles();
-  const result: JSX.Element[] = [];
-
   const data = onlyLast ? [data2021[1]] : data2021;
 
-  data.forEach((day:logbookDay) => {
-    if (day.date !== "0000-00-00") {
+  const getLogbook = (result: JSX.Element[], logbookItem: logbookDay) => {
+    if (logbookItem.date !== "0000-00-00") {
       result.push(
         <Divider
           className={classes.divider}
-          key={`logbook_item_divider_${day.date}`}
+          key={`logbook_item_divider_${logbookItem.date}`}
         />
       );
       result.push(
-        <Typography {...typoH2Props} key={`logbook_item_date_${day.date}`}>
-          {day.date}
+        <Typography
+          {...typoH2Props}
+          key={`logbook_item_date_${logbookItem.date}`}
+        >
+          {logbookItem.date}
         </Typography>
       );
-      result.push(...generateLogbookContent(day, classes));
+      result.push(...generateLogbookContent(logbookItem, classes));
     }
-  });
-  return <React.Fragment>{result}</React.Fragment>;
+    return result;
+  };
+  return <React.Fragment>{data.reduce(getLogbook, [])}</React.Fragment>;
 };
