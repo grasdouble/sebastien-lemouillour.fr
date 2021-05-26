@@ -14,33 +14,41 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+type fetchState = {
+  isLoading: boolean;
+  content: string | undefined;
+};
+
 const Leetcode: React.FunctionComponent = () => {
   const classes = useStyles();
 
-  const [data, setData] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState<fetchState>({
+    isLoading: false,
+    content: undefined,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
+      setData({ isLoading: true, content: undefined });
 
       const res = await fetch(
         "https://raw.githubusercontent.com/grasdouble/leetcode/main/README.md"
       );
       const text = await res.text();
 
-      setData(text);
-      setIsLoading(false);
+      setData({ isLoading: false, content: text });
     };
     fetchData();
   }, [setData]);
 
   return (
     <MainTemplate>
-      {isLoading ? (
+      {data.isLoading ? (
         <div>Loading ...</div>
       ) : (
-        <ReactMarkdown className={classes.markdown}>{data}</ReactMarkdown>
+        <ReactMarkdown className={classes.markdown}>
+          {data.content || "Oops! There was a problem retrieving data"}
+        </ReactMarkdown>
       )}
     </MainTemplate>
   );

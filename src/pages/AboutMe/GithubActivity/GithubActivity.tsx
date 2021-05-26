@@ -38,6 +38,11 @@ type GithubActivityItem = {
 
 type GithubCommitInfo = { sha: string; message: string };
 
+type fetchState = {
+  isLoading: boolean;
+  content: GithubActivityItem[];
+};
+
 const formatActivityItem = (
   activity: GithubActivityItem,
   classes: { inline: string; divider: string }
@@ -117,18 +122,17 @@ const formatActivities = (activities: any[], classes: any) => {
 const GithubActivity: React.FunctionComponent = () => {
   const classes = useStyles();
 
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState<fetchState>({
+    isLoading: false,
+    content: [],
+  });
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
-
+      setData({ isLoading: true, content: [] });
       const res = await fetch("https://api.github.com/users/Noofreuuuh/events");
       const json = await res.json();
-
-      setData(json);
-      setIsLoading(false);
+      setData({ isLoading: false, content: json });
     };
     fetchData();
   }, [setData]);
@@ -137,10 +141,12 @@ const GithubActivity: React.FunctionComponent = () => {
     <Container maxWidth="lg">
       <Typography {...typoH1Props}>Github Activity</Typography>
       <Divider className={classes.divider} />
-      {isLoading ? (
+      {data.isLoading ? (
         <div>Loading ...</div>
       ) : (
-        <List className={classes.root}>{formatActivities(data, classes)}</List>
+        <List className={classes.root}>
+          {formatActivities(data.content, classes)}
+        </List>
       )}
     </Container>
   );
