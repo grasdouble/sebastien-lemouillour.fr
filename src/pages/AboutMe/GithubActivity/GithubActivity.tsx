@@ -29,72 +29,89 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+type GithubActivityItem = {
+  actor: { display_login: string; avatar_url: string };
+  repo: { name: string };
+  created_at: string;
+  payload: { commits: GithubCommitInfo[]; ref: string };
+};
+
+type GithubCommitInfo = { sha: string; message: string };
+
 const formatActivityItem = (
-  activity: {
-    actor: { display_login: any; avatar_url: any };
-    repo: { name: any };
-    created_at: any;
-    payload: { commits: never[] };
-  },
+  activity: GithubActivityItem,
   classes: { inline: string; divider: string }
 ) => {
   const login = activity.actor.display_login;
   const avatarUrl = activity.actor.avatar_url;
   const repoName = activity.repo.name;
+  const branchName = activity.payload.ref;
   const activityPush = activity.created_at;
   const commits = activity.payload.commits || [];
 
-  const result: JSX.Element[] = [];
-
-  commits.forEach((commit: { sha: string; message: string }, idx) => {
+  const getGithubContent = (
+    result: JSX.Element[],
+    commit: GithubCommitInfo
+  ) => {
     result.push(
-      <ListItem alignItems="flex-start" key={commit.sha}>
-        <ListItemAvatar key={`avatar_${commit.sha}`}>
-          <Avatar alt={login} src={avatarUrl} />
-        </ListItemAvatar>
-        <ListItemText
-          key={`info_${commit.sha}`}
-          primary={commit.message}
-          secondary={
-            <React.Fragment>
-              <Typography
-                component="span"
-                variant="body2"
-                className={classes.inline}
-                color="textPrimary"
-              >
-                On:{" "}
-              </Typography>
-              {repoName}
-              <br />
-              <Typography
-                component="span"
-                variant="body2"
-                className={classes.inline}
-                color="textPrimary"
-              >
-                Date:{" "}
-              </Typography>
-              {activityPush}
-            </React.Fragment>
-          }
-        />
-      </ListItem>
+      <React.Fragment>
+        <ListItem alignItems="flex-start" key={commit.sha}>
+          <ListItemAvatar key={`avatar_${commit.sha}`}>
+            <Avatar alt={login} src={avatarUrl} />
+          </ListItemAvatar>
+          <ListItemText
+            key={`info_${commit.sha}`}
+            primary={commit.message}
+            secondary={
+              <React.Fragment>
+                <Typography
+                  component="span"
+                  variant="body2"
+                  className={classes.inline}
+                  color="textPrimary"
+                >
+                  On:{" "}
+                </Typography>
+                {repoName}
+                <br />
+                <Typography
+                  component="span"
+                  variant="body2"
+                  className={classes.inline}
+                  color="textPrimary"
+                >
+                  branch:{" "}
+                </Typography>
+                {branchName.replace("refs/heads/", "")}
+                <br />
+                <Typography
+                  component="span"
+                  variant="body2"
+                  className={classes.inline}
+                  color="textPrimary"
+                >
+                  Date:{" "}
+                </Typography>
+                {activityPush}
+              </React.Fragment>
+            }
+          />
+        </ListItem>
+        <Divider className={classes.divider} key={`divider_${commit.sha}`} />
+      </React.Fragment>
     );
-    result.push(
-      <Divider className={classes.divider} key={`divider_${commit.sha}`} />
-    );
-  });
 
-  return result;
+    return result;
+  };
+
+  return commits.reduce(getGithubContent, []);
 };
 
 const formatActivities = (activities: any[], classes: any) => {
-  const result: JSX.Element[] = [];
-  activities.forEach((activity) => {
+  return activities.reduce((result, activity) => {
     result.push(...formatActivityItem(activity, classes));
-  });
-  return result;
+    return result;
+  }, []);
 };
 
 const GithubActivity: React.FunctionComponent = () => {
