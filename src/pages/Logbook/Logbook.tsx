@@ -3,7 +3,7 @@ import React from "react";
 import Typography from "@material-ui/core/Typography";
 
 import { typoH1Props, typoH3Props } from "utils/typoProps";
-import { LogbookFull } from "components/Logbook";
+import LogbookComponent from "components/Logbook";
 
 import MainTemplate from "layouts/Main";
 
@@ -14,7 +14,7 @@ const Logbook: React.FunctionComponent = () => {
       <Typography {...typoH3Props}>
         A Logbook to talk about all and nothing in the same place
       </Typography>
-      <LogbookFull />
+      <LogbookComponent />
     </MainTemplate>
   );
 };

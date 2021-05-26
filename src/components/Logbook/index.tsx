@@ -1,3 +1,3 @@
-import { LogbookFull, LogbookLastEntry } from "./Logbook";
+import { Logbook } from "./Logbook";
 
-export { LogbookFull, LogbookLastEntry };
+export default Logbook;

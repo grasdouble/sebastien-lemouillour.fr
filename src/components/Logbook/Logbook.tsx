@@ -26,23 +26,27 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface logbookEntryContent {
+type logbookDayContent = {
   type: string;
   value: string;
 }
 
-interface logbookEntry {
+type logbookDay = {
   date: string;
-  contents: logbookEntryContent[];
+  contents: logbookDayContent[];
+}
+
+type LogbookProps = {
+  onlyLast?: boolean,
 }
 
 const generateLogbookContent = (
-  day: logbookEntry,
+  day: logbookDay,
   classes: ClassNameMap<"wrapText">
 ) => {
   const result: JSX.Element[] = [];
 
-  day.contents.forEach((entry: logbookEntryContent, idx: Number) => {
+  day.contents.forEach((entry: logbookDayContent, idx: Number) => {
     switch (entry.type) {
       case "title":
         result.push(
@@ -93,11 +97,13 @@ const generateLogbookContent = (
   return result;
 };
 
-export const LogbookFull = () => {
+export const Logbook: React.FunctionComponent<LogbookProps> = ({onlyLast}) => {
   const classes = useStyles();
   const result: JSX.Element[] = [];
 
-  data2021.forEach((day:logbookEntry) => {
+  const data = onlyLast ? [data2021[1]] : data2021;
+
+  data.forEach((day:logbookDay) => {
     if (day.date !== "0000-00-00") {
       result.push(
         <Divider
@@ -112,25 +118,6 @@ export const LogbookFull = () => {
       );
       result.push(...generateLogbookContent(day, classes));
     }
-  });
-  return <React.Fragment>{result}</React.Fragment>;
-};
-
-export const LogbookLastEntry = () => {
-  const classes = useStyles();
-
-  const result: JSX.Element[] = [];
-  const days = [data2021[1]];
-  days.forEach((day) => {
-    result.push(
-      <Divider className={classes.divider} key="logbook_top_divider" />
-    );
-    result.push(
-      <Typography {...typoH2Props} key="logbook_date">
-        {day.date}
-      </Typography>
-    );
-    result.push(...generateLogbookContent(day, classes));
   });
   return <React.Fragment>{result}</React.Fragment>;
 };

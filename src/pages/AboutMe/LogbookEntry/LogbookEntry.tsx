@@ -5,13 +5,13 @@ import Container from "@material-ui/core/Container";
 import { Link } from "react-router-dom";
 
 import { typoH1Props } from "utils/typoProps";
-import { LogbookLastEntry } from "components/Logbook";
+import LogbookComponent from "components/Logbook";
 
 const LogbookEntry: React.FunctionComponent = () => {
   return (
     <Container maxWidth="lg">
       <Typography {...typoH1Props}>Last logbook entry</Typography>
-      <LogbookLastEntry />
+      <LogbookComponent onlyLast={true} />
       <Typography align="right">
         <Link to="/logbook">See more -&gt;</Link>
       </Typography>
