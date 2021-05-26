@@ -44,14 +44,10 @@ const generateLogbookContent = (
   { date, contents }: LogbookDay,
   classes: ClassNameMap<"wrapText">
 ) => {
-  const getContent = (
-    result: JSX.Element[],
-    entry: LogbookDayContent,
-    idx: Number
-  ) => {
+  const getContent = (entry: LogbookDayContent, idx: Number) => {
     switch (entry.type) {
       case "title":
-        result.push(
+        return (
           <Typography
             {...typoH3Props}
             className={classes.wrapText}
@@ -60,9 +56,8 @@ const generateLogbookContent = (
             {entry.value}
           </Typography>
         );
-        break;
       case "subtitle":
-        result.push(
+        return (
           <Typography
             {...typoH4Props}
             className={classes.wrapText}
@@ -71,9 +66,8 @@ const generateLogbookContent = (
             {entry.value}
           </Typography>
         );
-        break;
       case "caption":
-        result.push(
+        return (
           <Typography
             {...typoCaptionProps}
             className={classes.wrapText}
@@ -82,10 +76,9 @@ const generateLogbookContent = (
             {entry.value}
           </Typography>
         );
-        break;
       case "text":
       default:
-        result.push(
+        return (
           <Typography
             {...typoTextProps}
             className={classes.wrapText}
@@ -95,9 +88,8 @@ const generateLogbookContent = (
           </Typography>
         );
     }
-    return result;
   };
-  return contents.reduce(getContent, []);
+  return contents.map(getContent);
 };
 
 export const Logbook: React.FunctionComponent<LogbookProps> = ({
@@ -106,25 +98,24 @@ export const Logbook: React.FunctionComponent<LogbookProps> = ({
   const classes = useStyles();
   const data = onlyLast ? [data2021[1]] : data2021;
 
-  const getLogbook = (result: JSX.Element[], logbookItem: LogbookDay) => {
-    if (logbookItem.date !== "0000-00-00") {
-      result.push(
-        <Divider
-          className={classes.divider}
-          key={`logbook_item_divider_${logbookItem.date}`}
-        />
-      );
-      result.push(
-        <Typography
-          {...typoH2Props}
-          key={`logbook_item_date_${logbookItem.date}`}
-        >
-          {logbookItem.date}
-        </Typography>
-      );
-      result.push(...generateLogbookContent(logbookItem, classes));
-    }
-    return result;
+  const getLogbook = (logbookItem: LogbookDay) => {
+    return (
+      logbookItem.date !== "0000-00-00" && (
+        <React.Fragment>
+          <Divider
+            className={classes.divider}
+            key={`logbook_item_divider_${logbookItem.date}`}
+          />
+          <Typography
+            {...typoH2Props}
+            key={`logbook_item_date_${logbookItem.date}`}
+          >
+            {logbookItem.date}
+          </Typography>
+          {generateLogbookContent(logbookItem, classes)}
+        </React.Fragment>
+      )
+    );
   };
-  return <React.Fragment>{data.reduce(getLogbook, [])}</React.Fragment>;
+  return <React.Fragment>{data.map(getLogbook)}</React.Fragment>;
 };

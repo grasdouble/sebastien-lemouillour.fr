@@ -80,9 +80,9 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
   const classes = useStyles();
   const location = useLocation();
 
-  const getSidePanelContent = (result: JSX.Element[], route: RouteConfig) => {
+  const getSidePanelContent = (route: RouteConfig) => {
     if (route.path !== "#") {
-      result.push(
+      return (
         <ListItem
           button
           key={route.key}
@@ -95,7 +95,7 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
       );
     } else {
       const isOpen = open.get(route.key);
-      result.push(
+      return (
         <React.Fragment>
           <ListItem button onClick={(e) => handleClick(route.key, e)}>
             <ListItemIcon>{mapIcons.get(route.key)}</ListItemIcon>
@@ -104,14 +104,12 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
           </ListItem>
           <Collapse in={isOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {(route.nested || []).reduce(getSidePanelContent, [])}
+              {(route.nested || []).map(getSidePanelContent)}
             </List>
           </Collapse>
         </React.Fragment>
       );
     }
-
-    return result;
   };
 
   const [open, setOpen] = React.useState(new Map<string, boolean>());
@@ -138,7 +136,7 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
           onClick={toggleDrawer(false, sidepanelFct)}
           onKeyDown={toggleDrawer(false, sidepanelFct)}
         >
-          <List>{config.reduce(getSidePanelContent, [])}</List>
+          <List>{config.map(getSidePanelContent)}</List>
           <Divider />
         </div>
       </Drawer>

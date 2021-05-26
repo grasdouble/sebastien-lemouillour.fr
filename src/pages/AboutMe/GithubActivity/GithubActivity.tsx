@@ -54,11 +54,8 @@ const formatActivityItem = (
   const activityPush = activity.created_at;
   const commits = activity.payload.commits || [];
 
-  const getGithubContent = (
-    result: JSX.Element[],
-    commit: GithubCommitInfo
-  ) => {
-    result.push(
+  const getGithubContent = (commit: GithubCommitInfo) => {
+    return (
       <React.Fragment>
         <ListItem alignItems="flex-start" key={commit.sha}>
           <ListItemAvatar key={`avatar_${commit.sha}`}>
@@ -105,18 +102,15 @@ const formatActivityItem = (
         <Divider className={classes.divider} key={`divider_${commit.sha}`} />
       </React.Fragment>
     );
-
-    return result;
   };
 
-  return commits.reduce(getGithubContent, []);
+  return commits.map(getGithubContent);
 };
 
 const formatActivities = (activities: any[], classes: any) => {
-  return activities.reduce((result, activity) => {
-    result.push(...formatActivityItem(activity, classes));
-    return result;
-  }, []);
+  return activities.map((activity) => {
+    return formatActivityItem(activity, classes);
+  });
 };
 
 const GithubActivity: React.FunctionComponent = () => {
