@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 
-import { Link as LinkRouter, useLocation } from "react-router-dom";
+import { Link as LinkRouter, LinkProps, useLocation } from "react-router-dom";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
@@ -39,59 +39,85 @@ const mapIcons = new Map([
   ["projects", <AccountTreeOutlinedIcon />],
 ]);
 
-interface MyProps {
+type SidePanelProps = {
   sidepanelState: boolean;
   sidepanelFct: Function;
-}
+};
+type RouteConfig = {
+  key: string;
+  text: string;
+  path: string;
+  nested?: RouteConfig[];
+};
 
-const SidePanel: React.FunctionComponent<MyProps> = ({
+const CustomLink = (
+  path: string,
+  props: JSX.IntrinsicAttributes &
+    LinkProps &
+    React.RefAttributes<HTMLAnchorElement>
+) => {
+  return <LinkRouter {...props} to={path} />;
+};
+
+const toggleDrawer =
+  (open: boolean, sidepanelFct: Function) =>
+  (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (
+      event.type === "keydown" &&
+      ((event as React.KeyboardEvent).key === "Tab" ||
+        (event as React.KeyboardEvent).key === "Shift")
+    ) {
+      return;
+    }
+
+    sidepanelFct(open);
+  };
+
+const SidePanel: React.FunctionComponent<SidePanelProps> = ({
   sidepanelState,
   sidepanelFct,
 }) => {
   const classes = useStyles();
   const location = useLocation();
 
-  const toggleDrawer =
-    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-      if (
-        event.type === "keydown" &&
-        ((event as React.KeyboardEvent).key === "Tab" ||
-          (event as React.KeyboardEvent).key === "Shift")
-      ) {
-        return;
-      }
-
-      sidepanelFct(open);
-    };
-
-  const CustomLink = (path: string, props: any) => {
-    return <LinkRouter to={path} {...props} />;
-  };
-
-  const nestedList = (items: any[]) => {
-    const result: JSX.Element[] = [];
-    if (items.length > 0) {
-      items.forEach((nestedItem: any) => {
-        result.push(
-          <ListItem
-            button
-            key={nestedItem.key}
-            selected={nestedItem.path === location.pathname}
-            component={(props) => CustomLink(nestedItem.path, props)}
-          >
-            <ListItemIcon>{mapIcons.get(nestedItem.key)}</ListItemIcon>
-            <ListItemText primary={nestedItem.text} />
+  const getSidePanelContent = (result: JSX.Element[], route: RouteConfig) => {
+    if (route.path !== "#") {
+      result.push(
+        <ListItem
+          button
+          key={route.key}
+          selected={route.path === location.pathname}
+          component={(props) => CustomLink(route.path, props)}
+        >
+          <ListItemIcon>{mapIcons.get(route.key)}</ListItemIcon>
+          <ListItemText primary={route.text} />
+        </ListItem>
+      );
+    } else {
+      const isOpen = open.get(route.key);
+      result.push(
+        <React.Fragment>
+          <ListItem button onClick={(e) => handleClick(route.key, e)}>
+            <ListItemIcon>{mapIcons.get(route.key)}</ListItemIcon>
+            <ListItemText primary={route.text} />
+            {isOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
-        );
-      });
+          <Collapse in={isOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {(route.nested || []).reduce(getSidePanelContent, [])}
+            </List>
+          </Collapse>
+        </React.Fragment>
+      );
     }
+
     return result;
   };
 
   const [open, setOpen] = React.useState(new Map<string, boolean>());
   const [refreshMe, refreshSidepanel] = React.useState(false);
 
-  const handleClick = (item: string, e: any) => {
+  const handleClick = (item: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     open.set(item, !open.get(item));
@@ -101,46 +127,18 @@ const SidePanel: React.FunctionComponent<MyProps> = ({
 
   return (
     <div>
-      <Drawer anchor="left" open={sidepanelState} onClose={toggleDrawer(false)}>
+      <Drawer
+        anchor="left"
+        open={sidepanelState}
+        onClose={toggleDrawer(false, sidepanelFct)}
+      >
         <div
           className={clsx(classes.list)}
           role="presentation"
-          onClick={toggleDrawer(false)}
-          onKeyDown={toggleDrawer(false)}
+          onClick={toggleDrawer(false, sidepanelFct)}
+          onKeyDown={toggleDrawer(false, sidepanelFct)}
         >
-          <List>
-            {config.map((item) => {
-              if (item.path !== "#") {
-                return (
-                  <ListItem
-                    button
-                    key={item.key}
-                    selected={item.path === location.pathname}
-                    component={(props) => CustomLink(item.path, props)}
-                  >
-                    <ListItemIcon>{mapIcons.get(item.key)}</ListItemIcon>
-                    <ListItemText primary={item.text} />
-                  </ListItem>
-                );
-              } else {
-                const isOpen = open.get(item.key);
-                return (
-                  <React.Fragment>
-                    <ListItem button onClick={(e) => handleClick(item.key, e)}>
-                      <ListItemIcon>{mapIcons.get(item.key)}</ListItemIcon>
-                      <ListItemText primary={item.text} />
-                      {isOpen ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                      <List component="div" disablePadding>
-                        {nestedList(item.nested || [])}
-                      </List>
-                    </Collapse>
-                  </React.Fragment>
-                );
-              }
-            })}
-          </List>
+          <List>{config.reduce(getSidePanelContent, [])}</List>
           <Divider />
         </div>
       </Drawer>

@@ -26,14 +26,14 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type logbookDayContent = {
+type LogbookDayContent = {
   type: string;
   value: string;
 };
 
-type logbookDay = {
+type LogbookDay = {
   date: string;
-  contents: logbookDayContent[];
+  contents: LogbookDayContent[];
 };
 
 type LogbookProps = {
@@ -41,12 +41,12 @@ type LogbookProps = {
 };
 
 const generateLogbookContent = (
-  { date, contents }: logbookDay,
+  { date, contents }: LogbookDay,
   classes: ClassNameMap<"wrapText">
 ) => {
   const getContent = (
     result: JSX.Element[],
-    entry: logbookDayContent,
+    entry: LogbookDayContent,
     idx: Number
   ) => {
     switch (entry.type) {
@@ -106,7 +106,7 @@ export const Logbook: React.FunctionComponent<LogbookProps> = ({
   const classes = useStyles();
   const data = onlyLast ? [data2021[1]] : data2021;
 
-  const getLogbook = (result: JSX.Element[], logbookItem: logbookDay) => {
+  const getLogbook = (result: JSX.Element[], logbookItem: LogbookDay) => {
     if (logbookItem.date !== "0000-00-00") {
       result.push(
         <Divider
