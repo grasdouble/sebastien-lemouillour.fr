@@ -1,8 +1,14 @@
 # List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
 tasks:
+  - name: UseNode16
+    command: |
+      nvm i 16
+      nvm use 16
+      nvm alias default  16
+      echo "nvm use default &>/dev/null" >> ~/.bashrc.d/51-nvm-fix
   - init: yarn install # runs during prebuild
     command: yarn start
-  
+
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
 ports:
   - port: 3000
