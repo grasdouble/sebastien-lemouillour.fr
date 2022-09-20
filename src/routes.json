@@ -25,7 +25,7 @@
     "path": "#",
     "nested": [
       {
-        "key": "leetcode",
+        "key": "projects.leetcode",
         "text": "Leetcode",
         "component": "Projects",
         "path": "/projects/leetcode",
@@ -38,7 +38,7 @@
         }
       },
       {
-        "key": "grabot",
+        "key": "projects.grabot",
         "text": "Grabot",
         "component": "Projects",
         "path": "/projects/grabot",
@@ -59,7 +59,7 @@
     "path": "#",
     "nested": [
       {
-        "key": "dashboard",
+        "key": "projects-archived.dashboard",
         "text": "Dashboard",
         "component": "Projects",
         "path": "/projects-archived/dashboard",
@@ -72,7 +72,7 @@
         }
       },
       {
-        "key": "annuaire-musees-back",
+        "key": "projects-archived.annuaire-musees-back",
         "text": "AnnuaireMusees (Back)",
         "component": "Projects",
         "path": "/projects-archived/annuaire-musees-back",
@@ -85,7 +85,7 @@
         }
       },
       {
-        "key": "annuaire-musees-front",
+        "key": "projects-archived.annuaire-musees-front",
         "text": "AnnuaireMusees (Front)",
         "component": "Projects",
         "path": "/projects-archived/annuaire-musees-front",
@@ -98,7 +98,7 @@
         }
       },
       {
-        "key": "model-passportjs-init",
+        "key": "projects-archived.model-passportjs-init",
         "text": "Model_PassportJS-Init",
         "component": "Projects",
         "path": "/projects-archived/model-passportjs-init",

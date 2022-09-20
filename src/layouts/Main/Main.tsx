@@ -19,6 +19,8 @@ import { themeLight } from "utils/theme/themeLight";
 import { themeDark } from "utils/theme/themeDark";
 import { typoH4Props } from "utils/typoProps";
 
+import { useLocation } from "react-router-dom";
+
 import HeaderBar from "./HeaderBar";
 import SidePanel from "./SidePanel";
 
@@ -72,16 +74,20 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Main: React.FunctionComponent = (props) => {
   const classes = useStyles();
+  const location = useLocation();
+
+  const pathList = location.pathname.split('/');
 
   const isLight = false;
   const [open, setOpen] = React.useState(false);
+  const [collapsedMenu, setCollapsedMenu] = React.useState(new Map<string, boolean>([pathList.length > 1 ? [pathList[1], true] : ['',false]]));
 
   return (
     <MuiThemeProvider theme={isLight ? themeLight : themeDark}>
       <div className={classes.root}>
         <CssBaseline />
         <HeaderBar sidepanelFct={setOpen} />
-        <SidePanel sidepanelState={open} sidepanelFct={setOpen} />
+        <SidePanel sidepanelState={open} sidepanelFct={setOpen} collapsedMenuState={collapsedMenu} collapsedMenuFct={setCollapsedMenu} />
         <main className={classes.content}>
           <div className={classes.toolbar} />
           <Container maxWidth={false}>

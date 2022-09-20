@@ -56,6 +56,8 @@ const mapIcons = new Map([
 type SidePanelProps = {
   sidepanelState: boolean;
   sidepanelFct: Function;
+  collapsedMenuState: Map<string, boolean>;
+  collapsedMenuFct: Function;
 };
 
 const CustomLink = (
@@ -84,9 +86,12 @@ const toggleDrawer =
 const SidePanel: React.FunctionComponent<SidePanelProps> = ({
   sidepanelState,
   sidepanelFct,
+  collapsedMenuState,
+  collapsedMenuFct,
 }) => {
   const classes = useStyles();
   const location = useLocation();
+  const [refreshMe, refreshSidepanel] = React.useState(false);
 
   const getSidePanelContent = (route: RouteConfig) => {
     if (route.path !== "#") {
@@ -97,20 +102,26 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
           selected={route.path === location.pathname}
           component={(props) => CustomLink(route.path, props)}
         >
-          <ListItemIcon className={classes.icon}>{mapIcons.get(route.key)}</ListItemIcon>
+          <ListItemIcon className={classes.icon}>
+            {mapIcons.get(route.key)}
+          </ListItemIcon>
           <ListItemText primary={route.text} />
         </ListItem>
       );
     } else {
-      const isOpen = open.get(route.key);
+      const isOpen = collapsedMenuState.get(route.key);
       return (
         <React.Fragment key={`${route.key}_fragment`}>
           <ListItem
             button
-            onClick={(e) => handleClick(route.key, e)}
+            onClick={(e: React.MouseEvent<Element, MouseEvent>) =>
+              handleClick(route.key, e)
+            }
             key={route.key}
           >
-            <ListItemIcon className={classes.icon}>{mapIcons.get(route.key)}</ListItemIcon>
+            <ListItemIcon className={classes.icon}>
+              {mapIcons.get(route.key)}
+            </ListItemIcon>
             <ListItemText primary={route.text} />
             {isOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
@@ -129,14 +140,11 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
     }
   };
 
-  const [open, setOpen] = React.useState(new Map<string, boolean>());
-  const [refreshMe, refreshSidepanel] = React.useState(false);
-
   const handleClick = (item: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    open.set(item, !open.get(item));
-    setOpen(open);
+    collapsedMenuState.set(item, true);
+    collapsedMenuFct(collapsedMenuState);
     refreshSidepanel(!refreshMe);
   };
 
