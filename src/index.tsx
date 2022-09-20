@@ -1,21 +1,21 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-import "index.css";
-import App from "App";
-import reportWebVitals from "reportWebVitals";
+import 'index.css';
+import App from 'App';
+import reportWebVitals from 'reportWebVitals';
 
-import { BrowserRouter as Router } from "react-router-dom";
-import config from "config.json";
+import { BrowserRouter as Router } from 'react-router-dom';
+import config from 'config.json';
 
-import GA4React from "ga-4-react";
+import GA4React from 'ga-4-react';
 const ga4react = new GA4React(config.googleAnalytics);
 
-(async (_) => {
+(async _ => {
   try {
     await ga4react.initialize();
   } catch (e) {
-    console.error("Addblock is activated");
+    console.error('Addblock is activated');
   }
 
   ReactDOM.render(
@@ -24,7 +24,7 @@ const ga4react = new GA4React(config.googleAnalytics);
         <App />
       </Router>
     </React.StrictMode>,
-    document.getElementById("root")
+    document.getElementById('root'),
   );
 })();
 

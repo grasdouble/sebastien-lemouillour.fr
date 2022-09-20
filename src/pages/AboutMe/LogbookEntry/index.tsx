@@ -1,3 +1,3 @@
-import LogbookEntry from "./LogbookEntry";
+import LogbookEntry from './LogbookEntry';
 
 export default LogbookEntry;

@@ -1,3 +1,3 @@
-import { Logbook } from "./Logbook";
+import { Logbook } from './Logbook';
 
 export default Logbook;

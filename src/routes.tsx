@@ -1,12 +1,12 @@
-import React from "react";
+import React from 'react';
 
-import AboutMe from "pages/AboutMe";
-import Background from "pages/Background";
-import Logbook from "pages/Logbook";
-import Projects from "pages/Projects/Projects";
-import UnderConstruction from "components/UnderConstruction";
+import AboutMe from 'pages/AboutMe';
+import Background from 'pages/Background';
+import Logbook from 'pages/Logbook';
+import Projects from 'pages/Projects/Projects';
+import UnderConstruction from 'components/UnderConstruction';
 
-import routesConfig from "routes.json";
+import routesConfig from 'routes.json';
 
 export type ProjectInfo = {
   startDate: string;

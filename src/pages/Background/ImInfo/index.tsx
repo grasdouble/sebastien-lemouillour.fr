@@ -1,3 +1,3 @@
-import ImInfo from "./ImInfo";
+import ImInfo from './ImInfo';
 
 export default ImInfo;

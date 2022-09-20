@@ -1,3 +1,3 @@
-import Infotel from "./Infotel";
+import Infotel from './Infotel';
 
 export default Infotel;

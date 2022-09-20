@@ -1,3 +1,3 @@
-import Talend from "./Talend";
+import Talend from './Talend';
 
 export default Talend;

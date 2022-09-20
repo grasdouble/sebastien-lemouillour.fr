@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-    - develop
+      - develop
 
 jobs:
   build-deploy:
@@ -14,9 +14,9 @@ jobs:
       - name: Find and Replace
         uses: jacobtomlinson/gha-find-replace@master
         with:
-          find: "SECRET_GOOGLE_ANALYTICS"
+          find: 'SECRET_GOOGLE_ANALYTICS'
           replace: ${{ secrets.google_analytics }}
-          include: "config.json"
+          include: 'config.json'
       - uses: actions/setup-node@v2
         with:
           node-version: '16.8'

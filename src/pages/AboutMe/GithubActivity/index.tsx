@@ -1,3 +1,3 @@
-import GithubActivity from "./GithubActivity";
+import GithubActivity from './GithubActivity';
 
 export default GithubActivity;

@@ -1,3 +1,3 @@
-import Steria from "./Steria";
+import Steria from './Steria';
 
 export default Steria;
