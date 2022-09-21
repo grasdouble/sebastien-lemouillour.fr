@@ -3,33 +3,36 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=16.8.0" 
+    "node": ">=16.8.0"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
     "@fontsource/roboto": "^4.5.5",
-    "@material-ui/core": "^4.12.3",
-    "@material-ui/icons": "^4.11.2",
-    "@material-ui/styles": "^4.11.4",
-    "@material-ui/utils": "^4.11.2",
-    "@types/node": "^17.0.23",
-    "@types/react": "^17.0.43",
-    "@types/react-dom": "^17.0.14",
+    "@mui/icons-material": "^5.10.6",
+    "@mui/material": "^5.10.6",
+    "@mui/styles": "^5.10.6",
+    "@mui/utils": "^5.10.6",
+    "@types/node": "^18.7.18",
+    "@types/react": "^18.0.20",
+    "@types/react-dom": "^18.0.6",
     "ga-4-react": "^0.1.281",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-markdown": "^8.0.1",
     "react-router-dom": "^6.2.2",
     "typescript": "^4.6.3",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^3.0.2"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.3",
-    "@testing-library/react": "^12.1.4",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.4.1",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/jest": "^29.0.3",
     "@types/react-router-dom": "^5.3.3",
-    "prettier": "^2.6.1",
-    "react-scripts": "5.0.0"
+    "prettier": "^2.7.1",
+    "react-scripts": "5.0.1",
+    "yarn-deduplicate": "^6.0.0"
   },
   "scripts": {
     "start": "react-scripts start",

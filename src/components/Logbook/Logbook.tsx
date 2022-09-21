@@ -1,7 +1,10 @@
-import React from "react";
-import Divider from "@material-ui/core/Divider";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
+import React from 'react';
+import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
+import { Theme } from '@mui/material/styles';
+
+import makeStyles from '@mui/styles/makeStyles';
+import createStyles from '@mui/styles/createStyles';
 
 import {
   typoH2Props,
@@ -9,22 +12,22 @@ import {
   typoH4Props,
   typoCaptionProps,
   typoTextProps,
-} from "utils/typoProps";
+} from 'utils/typoProps';
 
-import data2021 from "datas/logbook/2021.json";
-import data2022 from "datas/logbook/2022.json";
-import { ClassNameMap } from "@material-ui/styles";
+import data2021 from 'datas/logbook/2021.json';
+import data2022 from 'datas/logbook/2022.json';
+import { ClassNameMap } from '@mui/styles';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     divider: {
-      marginBottom: "20px",
+      marginBottom: '20px',
     },
     wrapText: {
-      overflowWrap: "break-word",
-      hyphens: "auto",
+      overflowWrap: 'break-word',
+      hyphens: 'auto',
     },
-  })
+  }),
 );
 
 type LogbookDayContent = {
@@ -43,11 +46,11 @@ type LogbookProps = {
 
 const generateLogbookContent = (
   { date, contents }: LogbookDay,
-  classes: ClassNameMap<"wrapText">
+  classes: ClassNameMap<'wrapText'>,
 ) => {
   const getContent = (entry: LogbookDayContent, idx: Number) => {
     switch (entry.type) {
-      case "title":
+      case 'title':
         return (
           <Typography
             {...typoH3Props}
@@ -57,7 +60,7 @@ const generateLogbookContent = (
             {entry.value}
           </Typography>
         );
-      case "subtitle":
+      case 'subtitle':
         return (
           <Typography
             {...typoH4Props}
@@ -67,7 +70,7 @@ const generateLogbookContent = (
             {entry.value}
           </Typography>
         );
-      case "caption":
+      case 'caption':
         return (
           <Typography
             {...typoCaptionProps}
@@ -77,7 +80,7 @@ const generateLogbookContent = (
             {entry.value}
           </Typography>
         );
-      case "text":
+      case 'text':
       default:
         return (
           <Typography
@@ -97,11 +100,11 @@ export const Logbook: React.FunctionComponent<LogbookProps> = ({
   onlyLast,
 }) => {
   const classes = useStyles();
-  const data = onlyLast ? [data2022[1]] : [...data2022,...data2021];
+  const data = onlyLast ? [data2022[1]] : [...data2022, ...data2021];
 
   const getLogbook = (logbookItem: LogbookDay) => {
     return (
-      logbookItem.date !== "0000-00-00" && (
+      logbookItem.date !== '0000-00-00' && (
         <React.Fragment key={`logbook_item_fragment_${logbookItem.date}`}>
           <Divider
             className={classes.divider}

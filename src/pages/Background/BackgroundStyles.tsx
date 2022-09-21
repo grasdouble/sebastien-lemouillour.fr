@@ -1,17 +1,15 @@
-import clsx from "clsx";
-import {
-  makeStyles,
-  Theme,
-  createStyles,
-  withStyles,
-} from "@material-ui/core/styles";
-import StepConnector from "@material-ui/core/StepConnector";
-import { StepIconProps } from "@material-ui/core/StepIcon";
+import clsx from 'clsx';
+import { Theme } from '@mui/material/styles';
+import makeStyles from '@mui/styles/makeStyles';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
+import StepConnector from '@mui/material/StepConnector';
+import { StepIconProps } from '@mui/material/StepIcon';
 
-import LooksOne from "@material-ui/icons/LooksOne";
-import LooksTwo from "@material-ui/icons/LooksTwo";
-import Looks3 from "@material-ui/icons/Looks3";
-import Looks4 from "@material-ui/icons/Looks4";
+import LooksOne from '@mui/icons-material/LooksOne';
+import LooksTwo from '@mui/icons-material/LooksTwo';
+import Looks3 from '@mui/icons-material/Looks3';
+import Looks4 from '@mui/icons-material/Looks4';
 
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -26,7 +24,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1),
     },
-  })
+  }),
 );
 
 export const StyleConnector = withStyles({
@@ -36,27 +34,27 @@ export const StyleConnector = withStyles({
   line: {
     height: 3,
     border: 0,
-    backgroundColor: "#eaeaf0",
+    backgroundColor: '#eaeaf0',
     borderRadius: 1,
   },
 })(StepConnector);
 
 const useStyleColorStepIcon = makeStyles({
   root: {
-    backgroundColor: "#ccc",
+    backgroundColor: '#ccc',
     zIndex: 1,
-    color: "#fff",
+    color: '#fff',
     width: 50,
     height: 50,
-    display: "flex",
-    borderRadius: "50%",
-    justifyContent: "center",
-    alignItems: "center",
+    display: 'flex',
+    borderRadius: '50%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   active: {
     backgroundImage:
-      "linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)",
-    boxShadow: "0 4px 10px 0 rgba(0,0,0,.25)",
+      'linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)',
+    boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
   },
 });
 

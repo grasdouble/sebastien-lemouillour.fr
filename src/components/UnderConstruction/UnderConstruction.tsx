@@ -1,14 +1,14 @@
-import React from "react";
-import clsx from "clsx";
-import { makeStyles } from "@material-ui/core/styles";
+import React from 'react';
+import clsx from 'clsx';
+import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles({
   bg: {
     backgroundImage: 'url("/img/site_under_contruction_by_gudkiller01.jpg")',
-    height: "100vh",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "cover",
+    height: '100vh',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
   },
 });
 

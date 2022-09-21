@@ -1,10 +1,7 @@
-import React from "react";
-import Typography from "@material-ui/core/Typography";
+import React from 'react';
+import Typography from '@mui/material/Typography';
 
-import {
-  typoH1Props,
-  typoTextProps,
-} from "utils/typoProps";
+import { typoH1Props, typoTextProps } from 'utils/typoProps';
 
 const Steria: React.FunctionComponent = () => {
   return (

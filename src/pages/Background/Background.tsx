@@ -1,23 +1,23 @@
-import React from "react";
+import React from 'react';
 
-import Stepper from "@material-ui/core/Stepper";
-import Step from "@material-ui/core/Step";
-import StepLabel from "@material-ui/core/StepLabel";
-import StepButton from "@material-ui/core/StepButton";
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+import StepButton from '@mui/material/StepButton';
 
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
-import { StyleConnector, StyleStepIcon, useStyles } from "./BackgroundStyles";
-import ImInfo from "./ImInfo";
-import Steria from "./Steria";
-import Infotel from "./Infotel";
-import Talend from "./Talend";
+import { StyleConnector, StyleStepIcon, useStyles } from './BackgroundStyles';
+import ImInfo from './ImInfo';
+import Steria from './Steria';
+import Infotel from './Infotel';
+import Talend from './Talend';
 
-import Layout from "layouts";
+import Layout from 'layouts';
 
 const getSteps = () => {
-  return ["IM'Info", "Sopra/Steria", "Infotel", "Talend"];
+  return ["IM'Info", 'Sopra/Steria', 'Infotel', 'Talend'];
 };
 
 const getStepContent = (step: number) => {
@@ -31,7 +31,7 @@ const getStepContent = (step: number) => {
     case 3:
       return <Talend />;
     default:
-      return "Unknown step";
+      return 'Unknown step';
   }
 };
 
@@ -41,11 +41,11 @@ const Background: React.FunctionComponent = () => {
   const steps = getSteps();
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setActiveStep(prevActiveStep => prevActiveStep + 1);
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    setActiveStep(prevActiveStep => prevActiveStep - 1);
   };
 
   const handleStep = (step: number) => () => {

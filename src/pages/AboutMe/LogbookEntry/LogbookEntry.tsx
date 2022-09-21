@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
-import { Link } from "react-router-dom";
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import { Link } from 'react-router-dom';
 
-import { typoH1Props } from "utils/typoProps";
-import LogbookComponent from "components/Logbook";
+import { typoH1Props } from 'utils/typoProps';
+import LogbookComponent from 'components/Logbook';
 
 const LogbookEntry: React.FunctionComponent = () => {
   return (

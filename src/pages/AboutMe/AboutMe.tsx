@@ -1,23 +1,26 @@
-import React from "react";
-import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
+import React from 'react';
+import { Theme } from '@mui/material/styles';
 
-import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
-import Divider from "@material-ui/core/Divider";
+import makeStyles from '@mui/styles/makeStyles';
+import createStyles from '@mui/styles/createStyles';
 
-import Layout from "layouts";
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import Divider from '@mui/material/Divider';
 
-import GithubActivity from "./GithubActivity";
-import LogbookEntry from "./LogbookEntry";
+import Layout from 'layouts';
 
-import { typoH1Props, typoTextProps } from "utils/typoProps";
+import GithubActivity from './GithubActivity';
+import LogbookEntry from './LogbookEntry';
+
+import { typoH1Props, typoTextProps } from 'utils/typoProps';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     divider: {
-      marginBottom: "20px",
+      marginBottom: '20px',
     },
-  })
+  }),
 );
 
 const AboutMe: React.FunctionComponent = () => {

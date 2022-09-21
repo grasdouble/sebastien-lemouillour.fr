@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 
-import Typography from "@material-ui/core/Typography";
+import Typography from '@mui/material/Typography';
 
-import { typoH1Props, typoH6Props } from "utils/typoProps";
-import LogbookComponent from "components/Logbook";
+import { typoH1Props, typoH6Props } from 'utils/typoProps';
+import LogbookComponent from 'components/Logbook';
 
-import Layout from "layouts";
+import Layout from 'layouts';
 
 const Logbook: React.FunctionComponent = () => {
   return (

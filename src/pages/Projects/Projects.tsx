@@ -1,30 +1,33 @@
-import React, { useState, useEffect } from "react";
-import ReactMarkdown from "react-markdown";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { Theme } from '@mui/material/styles';
 
-import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
-import Divider from "@material-ui/core/Divider";
-import Link from "@material-ui/core/Link";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 
-import Layout from "layouts";
-import { ProjectInfo } from "routes";
-import { typoH1Props } from "utils/typoProps";
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import Divider from '@mui/material/Divider';
+import Link from '@mui/material/Link';
+
+import Layout from 'layouts';
+import { ProjectInfo } from 'routes';
+import { typoH1Props } from 'utils/typoProps';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     markdown: {
-      "& img": {
-        maxWidth: "80vw",
+      '& img': {
+        maxWidth: '80vw',
       },
     },
     divider: {
-      marginBottom: "20px",
+      marginBottom: '20px',
     },
     inline: {
-      textDecoration: "underline",
+      textDecoration: 'underline',
     },
-  })
+  }),
 );
 
 type ProjectProps = {
@@ -47,10 +50,10 @@ const Projects: React.FunctionComponent<ProjectProps> = ({ projectInfo }) => {
   useEffect(() => {
     const fetchData = async () => {
       setData({ isLoading: true, content: undefined });
-      let text = "";
+      let text = '';
       if (projectInfo) {
         const res = await fetch(
-          `https://raw.githubusercontent.com/${projectInfo.readmePath}`
+          `https://raw.githubusercontent.com/${projectInfo.readmePath}`,
         );
         text = await res.text();
       }
@@ -76,7 +79,7 @@ const Projects: React.FunctionComponent<ProjectProps> = ({ projectInfo }) => {
                 color="textPrimary"
               >
                 Start date:
-              </Typography>{" "}
+              </Typography>{' '}
               {projectInfo.startDate}
               <br />
               <Typography
@@ -86,9 +89,9 @@ const Projects: React.FunctionComponent<ProjectProps> = ({ projectInfo }) => {
                 color="textPrimary"
               >
                 Github:
-              </Typography>{" "}
+              </Typography>{' '}
               <Link href={projectInfo.githubUrl}>
-                {projectInfo.githubUrl.replace("https://github.com/", "")}
+                {projectInfo.githubUrl.replace('https://github.com/', '')}
               </Link>
               <br />
             </Grid>
@@ -96,7 +99,7 @@ const Projects: React.FunctionComponent<ProjectProps> = ({ projectInfo }) => {
               <Typography {...typoH1Props}>Readme.md</Typography>
               <Divider className={classes.divider} />
               <ReactMarkdown className={classes.markdown}>
-                {data.content || "Oops! There was a problem retrieving data"}
+                {data.content || 'Oops! There was a problem retrieving data'}
               </ReactMarkdown>
             </Grid>
           </Grid>
