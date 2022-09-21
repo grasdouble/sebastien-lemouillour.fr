@@ -26,9 +26,9 @@ const classes = {
   stepContent: `${PREFIX}-stepContent`,
 };
 
-const StyledLayout = styled(Layout)(({ theme: Theme }) => ({
+const StyledLayout = styled(Layout)(({ theme }) => ({
   [`& .${classes.button}`]: {
-    marginRight: Theme.spacing(1),
+    marginRight: theme.spacing(1),
   },
 
   [`& .${classes.stepRoot}`]: {
@@ -37,8 +37,8 @@ const StyledLayout = styled(Layout)(({ theme: Theme }) => ({
   },
 
   [`& .${classes.stepContent}`]: {
-    marginTop: Theme.spacing(1),
-    marginBottom: Theme.spacing(1),
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
 }));
 

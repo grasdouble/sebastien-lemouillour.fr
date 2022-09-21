@@ -18,7 +18,7 @@ const classes = {
   divider: `${PREFIX}-divider`,
 };
 
-const StyledLayout = styled(Layout)(({ theme: Theme }) => ({
+const StyledLayout = styled(Layout)(({ theme }) => ({
   [`& .${classes.divider}`]: {
     marginBottom: '20px',
   },

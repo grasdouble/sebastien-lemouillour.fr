@@ -23,9 +23,8 @@ function App() {
           ))}
         </Routes>
       );
-    } else {
-      return <UnderConstruction />;
     }
+    return <UnderConstruction />;
   };
 
   return (

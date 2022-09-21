@@ -20,7 +20,7 @@ const classes = {
   inline: `${PREFIX}-inline`,
 };
 
-const StyledBox = styled(Box)(({ theme: Theme }) => ({
+const StyledBox = styled(Box)(({ theme }) => ({
   [`& .${classes.divider}`]: {
     marginBottom: '20px',
   },
@@ -29,7 +29,7 @@ const StyledBox = styled(Box)(({ theme: Theme }) => ({
     width: '100%',
     overflow: 'auto',
     maxHeight: 300,
-    backgroundColor: Theme.palette.background.paper,
+    backgroundColor: theme.palette.background.paper,
   },
 
   [`& .${classes.inline}`]: {

@@ -22,7 +22,7 @@ const classes = {
 };
 
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
-const Root = styled('div')(({ theme: Theme }) => ({
+const Root = styled('div')(({ theme }) => ({
   [`& .${classes.divider}`]: {
     marginBottom: '20px',
   },

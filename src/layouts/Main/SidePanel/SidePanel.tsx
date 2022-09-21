@@ -37,7 +37,7 @@ const classes = {
   icon: `${PREFIX}-icon`,
 };
 
-const Root = styled('nav')(({ theme }) => ({
+const Nav = styled('nav')(({ theme }) => ({
   [`& .${classes.toolbar}`]: theme.mixins.toolbar,
 
   [`&.${classes.drawer}`]: {
@@ -163,7 +163,7 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
   };
 
   return (
-    <Root className={classes.drawer}>
+    <Nav className={classes.drawer}>
       <Hidden smUp implementation="css">
         <Drawer
           anchor="left"
@@ -193,7 +193,7 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
           <Divider />
         </Drawer>
       </Hidden>
-    </Root>
+    </Nav>
   );
 };
 

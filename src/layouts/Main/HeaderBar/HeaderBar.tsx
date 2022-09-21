@@ -15,18 +15,18 @@ const classes = {
   menuButton: `${PREFIX}-menuButton`,
 };
 
-const StyledAppBar = styled(AppBar)(({ theme: Theme }) => ({
-  [`& .${classes.toolbar}`]: Theme.mixins.toolbar,
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  [`& .${classes.toolbar}`]: theme.mixins.toolbar,
 
   [`&.${classes.appBar}`]: {
-    [Theme.breakpoints.up('sm')]: {
-      zIndex: Theme.zIndex.drawer + 1,
+    [theme.breakpoints.up('sm')]: {
+      zIndex: theme.zIndex.drawer + 1,
     },
   },
 
   [`& .${classes.menuButton}`]: {
-    marginRight: Theme.spacing(2),
-    [Theme.breakpoints.up('sm')]: {
+    marginRight: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
       display: 'none',
     },
   },
@@ -39,7 +39,7 @@ interface MyProps {
 
 const HeaderBar: React.FunctionComponent<MyProps> = ({ sidepanelFct }) => {
   return (
-    <StyledAppBar position="fixed" className={classes.appBar}>
+    <StyledAppBar position="fixed" className={classes.appBar} enableColorOnDark>
       <Toolbar variant="dense">
         <IconButton
           color="inherit"

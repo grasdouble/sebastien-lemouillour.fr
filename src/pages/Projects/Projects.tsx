@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import ReactMarkdown from 'react-markdown';
-import { Theme } from '@mui/material/styles';
 
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -20,7 +19,7 @@ const classes = {
   inline: `${PREFIX}-inline`,
 };
 
-const StyledLayout = styled(Layout)(({ theme: Theme }) => ({
+const StyledLayout = styled(Layout)(({ theme }) => ({
   [`& .${classes.markdown}`]: {
     '& img': {
       maxWidth: '80vw',
