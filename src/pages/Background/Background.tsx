@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { styled } from '@mui/material/styles';
+
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
@@ -8,13 +10,37 @@ import StepButton from '@mui/material/StepButton';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-import { StyleConnector, StyleStepIcon, useStyles } from './BackgroundStyles';
+import { StyleConnector, StyleStepIcon } from './BackgroundStyles';
 import ImInfo from './ImInfo';
 import Steria from './Steria';
 import Infotel from './Infotel';
 import Talend from './Talend';
 
 import Layout from 'layouts';
+
+const PREFIX = 'Background';
+
+const classes = {
+  button: `${PREFIX}-button`,
+  stepRoot: `${PREFIX}-stepRoot`,
+  stepContent: `${PREFIX}-stepContent`,
+};
+
+const StyledLayout = styled(Layout)(({ theme: Theme }) => ({
+  [`& .${classes.button}`]: {
+    marginRight: Theme.spacing(1),
+  },
+
+  [`& .${classes.stepRoot}`]: {
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
+
+  [`& .${classes.stepContent}`]: {
+    marginTop: Theme.spacing(1),
+    marginBottom: Theme.spacing(1),
+  },
+}));
 
 const getSteps = () => {
   return ["IM'Info", 'Sopra/Steria', 'Infotel', 'Talend'];
@@ -36,7 +62,6 @@ const getStepContent = (step: number) => {
 };
 
 const Background: React.FunctionComponent = () => {
-  const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const steps = getSteps();
 
@@ -53,7 +78,7 @@ const Background: React.FunctionComponent = () => {
   };
 
   return (
-    <Layout>
+    <StyledLayout>
       <Stepper
         alternativeLabel
         nonLinear
@@ -90,7 +115,7 @@ const Background: React.FunctionComponent = () => {
           Next
         </Button>
       </div>
-    </Layout>
+    </StyledLayout>
   );
 };
 

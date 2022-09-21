@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { styled } from '@mui/material/styles';
 import ReactMarkdown from 'react-markdown';
 import { Theme } from '@mui/material/styles';
-
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
 
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -14,21 +12,29 @@ import Layout from 'layouts';
 import { ProjectInfo } from 'routes';
 import { typoH1Props } from 'utils/typoProps';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    markdown: {
-      '& img': {
-        maxWidth: '80vw',
-      },
+const PREFIX = 'Projects';
+
+const classes = {
+  markdown: `${PREFIX}-markdown`,
+  divider: `${PREFIX}-divider`,
+  inline: `${PREFIX}-inline`,
+};
+
+const StyledLayout = styled(Layout)(({ theme: Theme }) => ({
+  [`& .${classes.markdown}`]: {
+    '& img': {
+      maxWidth: '80vw',
     },
-    divider: {
-      marginBottom: '20px',
-    },
-    inline: {
-      textDecoration: 'underline',
-    },
-  }),
-);
+  },
+
+  [`& .${classes.divider}`]: {
+    marginBottom: '20px',
+  },
+
+  [`& .${classes.inline}`]: {
+    textDecoration: 'underline',
+  },
+}));
 
 type ProjectProps = {
   projectInfo?: ProjectInfo;
@@ -40,8 +46,6 @@ type fetchState = {
 };
 
 const Projects: React.FunctionComponent<ProjectProps> = ({ projectInfo }) => {
-  const classes = useStyles();
-
   const [data, setData] = useState<fetchState>({
     isLoading: false,
     content: undefined,
@@ -63,7 +67,7 @@ const Projects: React.FunctionComponent<ProjectProps> = ({ projectInfo }) => {
   }, [setData, projectInfo]);
 
   return (
-    <Layout>
+    <StyledLayout>
       {data.isLoading ? (
         <div>Loading ...</div>
       ) : (
@@ -105,7 +109,7 @@ const Projects: React.FunctionComponent<ProjectProps> = ({ projectInfo }) => {
           </Grid>
         )
       )}
-    </Layout>
+    </StyledLayout>
   );
 };
 

@@ -1,7 +1,5 @@
 import React from 'react';
-import { Theme } from '@mui/material/styles';
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import { styled } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -9,22 +7,30 @@ import IconButton from '@mui/material/IconButton';
 
 import MenuIcon from '@mui/icons-material/Menu';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    toolbar: theme.mixins.toolbar,
-    appBar: {
-      [theme.breakpoints.up('sm')]: {
-        zIndex: theme.zIndex.drawer + 1,
-      },
+const PREFIX = 'HeaderBar';
+
+const classes = {
+  toolbar: `${PREFIX}-toolbar`,
+  appBar: `${PREFIX}-appBar`,
+  menuButton: `${PREFIX}-menuButton`,
+};
+
+const StyledAppBar = styled(AppBar)(({ theme: Theme }) => ({
+  [`& .${classes.toolbar}`]: Theme.mixins.toolbar,
+
+  [`&.${classes.appBar}`]: {
+    [Theme.breakpoints.up('sm')]: {
+      zIndex: Theme.zIndex.drawer + 1,
     },
-    menuButton: {
-      marginRight: theme.spacing(2),
-      [theme.breakpoints.up('sm')]: {
-        display: 'none',
-      },
+  },
+
+  [`& .${classes.menuButton}`]: {
+    marginRight: Theme.spacing(2),
+    [Theme.breakpoints.up('sm')]: {
+      display: 'none',
     },
-  }),
-);
+  },
+}));
 
 interface MyProps {
   children?: React.ReactNode;
@@ -32,10 +38,8 @@ interface MyProps {
 }
 
 const HeaderBar: React.FunctionComponent<MyProps> = ({ sidepanelFct }) => {
-  const classes = useStyles();
-
   return (
-    <AppBar position="fixed" className={classes.appBar}>
+    <StyledAppBar position="fixed" className={classes.appBar}>
       <Toolbar variant="dense">
         <IconButton
           color="inherit"
@@ -49,7 +53,7 @@ const HeaderBar: React.FunctionComponent<MyProps> = ({ sidepanelFct }) => {
         </IconButton>
         <Typography noWrap>Sebastien Le Mouillour</Typography>
       </Toolbar>
-    </AppBar>
+    </StyledAppBar>
   );
 };
 

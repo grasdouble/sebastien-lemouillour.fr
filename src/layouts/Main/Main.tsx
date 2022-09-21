@@ -1,8 +1,6 @@
 import React from 'react';
-import { Theme } from '@mui/material/styles';
-
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import { styled } from '@mui/material/styles';
+// import { Theme } from '@mui/material/styles';
 
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
@@ -27,61 +25,73 @@ import { useLocation } from 'react-router-dom';
 import HeaderBar from './HeaderBar';
 import SidePanel from './SidePanel';
 
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
+const PREFIX = 'Main';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
+const classes = {
+  root: `${PREFIX}-root`,
+  toolbar: `${PREFIX}-toolbar`,
+  content: `${PREFIX}-content`,
+  gridMain: `${PREFIX}-gridMain`,
+  links: `${PREFIX}-links`,
+  avatar: `${PREFIX}-avatar`,
+  divider: `${PREFIX}-divider`,
+};
+
+const StyledStyledEngineProvider = styled(StyledEngineProvider)(
+  ({ theme: Theme }) => ({
+    [`& .${classes.root}`]: {
       display: 'flex',
     },
-    toolbar: theme.mixins.toolbar,
-    content: {
+
+    [`& .${classes.toolbar}`]: Theme.mixins.toolbar,
+
+    [`& .${classes.content}`]: {
       flexGrow: 1,
       width: '100vw',
-      padding: theme.spacing(3),
-      marginLeft: theme.spacing(0),
-      marginRight: theme.spacing(0),
-      [theme.breakpoints.up('md')]: {
-        marginLeft: theme.spacing(9),
-        marginRight: theme.spacing(9),
+      padding: Theme.spacing(3),
+      marginLeft: Theme.spacing(0),
+      marginRight: Theme.spacing(0),
+      [Theme.breakpoints.up('md')]: {
+        marginLeft: Theme.spacing(9),
+        marginRight: Theme.spacing(9),
       },
     },
-    gridMain: {
+
+    [`& .${classes.gridMain}`]: {
       flexGrow: 1,
     },
-    links: {
-      [theme.breakpoints.down('lg')]: {
-        paddingLeft: theme.spacing(2),
+
+    [`& .${classes.links}`]: {
+      [Theme.breakpoints.down('lg')]: {
+        paddingLeft: Theme.spacing(2),
         marginTop: 'auto',
         marginBottom: 'auto',
       },
-      [theme.breakpoints.up('md')]: {
-        marginTop: theme.spacing(2),
+      [Theme.breakpoints.up('md')]: {
+        marginTop: Theme.spacing(2),
       },
     },
-    avatar: {
+
+    [`& .${classes.avatar}`]: {
       border: '5px solid',
-      [theme.breakpoints.down('lg')]: {
-        margin: theme.spacing(1),
-        width: theme.spacing(15),
-        height: theme.spacing(15),
+      [Theme.breakpoints.down('lg')]: {
+        margin: Theme.spacing(1),
+        width: Theme.spacing(15),
+        height: Theme.spacing(15),
       },
-      [theme.breakpoints.up('md')]: {
-        width: theme.spacing(20),
-        height: theme.spacing(20),
+      [Theme.breakpoints.up('md')]: {
+        width: Theme.spacing(20),
+        height: Theme.spacing(20),
       },
     },
-    divider: {
+
+    [`& .${classes.divider}`]: {
       marginBottom: '20px',
     },
   }),
 );
 
 const Main: React.FunctionComponent<{ children: React.ReactNode }> = props => {
-  const classes = useStyles();
   const location = useLocation();
 
   const pathList = location.pathname.split('/');
@@ -95,7 +105,7 @@ const Main: React.FunctionComponent<{ children: React.ReactNode }> = props => {
   );
 
   return (
-    <StyledEngineProvider injectFirst>
+    <StyledStyledEngineProvider injectFirst>
       <ThemeProvider theme={isLight ? themeLight : themeDark}>
         <div className={classes.root}>
           <CssBaseline />
@@ -182,7 +192,7 @@ const Main: React.FunctionComponent<{ children: React.ReactNode }> = props => {
           </main>
         </div>
       </ThemeProvider>
-    </StyledEngineProvider>
+    </StyledStyledEngineProvider>
   );
 };
 

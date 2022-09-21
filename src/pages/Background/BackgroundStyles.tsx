@@ -1,8 +1,5 @@
 import clsx from 'clsx';
-import { Theme } from '@mui/material/styles';
-import makeStyles from '@mui/styles/makeStyles';
-import createStyles from '@mui/styles/createStyles';
-import withStyles from '@mui/styles/withStyles';
+import { styled } from '@mui/material/styles';
 import StepConnector from '@mui/material/StepConnector';
 import { StepIconProps } from '@mui/material/StepIcon';
 
@@ -11,36 +8,17 @@ import LooksTwo from '@mui/icons-material/LooksTwo';
 import Looks3 from '@mui/icons-material/Looks3';
 import Looks4 from '@mui/icons-material/Looks4';
 
-export const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    button: {
-      marginRight: theme.spacing(1),
-    },
-    stepRoot: {
-      paddingLeft: 0,
-      paddingRight: 0,
-    },
-    stepContent: {
-      marginTop: theme.spacing(1),
-      marginBottom: theme.spacing(1),
-    },
-  }),
-);
+const PREFIX = 'StyleConnector';
 
-export const StyleConnector = withStyles({
-  alternativeLabel: {
-    top: 22,
-  },
-  line: {
-    height: 3,
-    border: 0,
-    backgroundColor: '#eaeaf0',
-    borderRadius: 1,
-  },
-})(StepConnector);
+const classes = {
+  alternativeLabel: `${PREFIX}-alternativeLabel`,
+  line: `${PREFIX}-line`,
+  root: `${PREFIX}-root`,
+  active: `${PREFIX}-active`,
+};
 
-const useStyleColorStepIcon = makeStyles({
-  root: {
+const Root = styled('div')({
+  [`&.${classes.root}`]: {
     backgroundColor: '#ccc',
     zIndex: 1,
     color: '#fff',
@@ -51,15 +29,16 @@ const useStyleColorStepIcon = makeStyles({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  active: {
+  [`&.${classes.active}`]: {
     backgroundImage:
       'linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)',
     boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
   },
 });
 
+export const StyleConnector = StepConnector;
+
 export const StyleStepIcon = (props: StepIconProps) => {
-  const classes = useStyleColorStepIcon();
   const { active } = props;
 
   const icons: { [index: string]: React.ReactElement } = {
@@ -70,12 +49,12 @@ export const StyleStepIcon = (props: StepIconProps) => {
   };
 
   return (
-    <div
+    <Root
       className={clsx(classes.root, {
         [classes.active]: active,
       })}
     >
       {icons[String(props.icon)]}
-    </div>
+    </Root>
   );
 };

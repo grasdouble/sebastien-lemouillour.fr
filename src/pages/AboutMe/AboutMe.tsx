@@ -1,8 +1,5 @@
 import React from 'react';
-import { Theme } from '@mui/material/styles';
-
-import makeStyles from '@mui/styles/makeStyles';
-import createStyles from '@mui/styles/createStyles';
+import { styled } from '@mui/material/styles';
 
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -15,21 +12,23 @@ import LogbookEntry from './LogbookEntry';
 
 import { typoH1Props, typoTextProps } from 'utils/typoProps';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    divider: {
-      marginBottom: '20px',
-    },
-  }),
-);
+const PREFIX = 'AboutMe';
+
+const classes = {
+  divider: `${PREFIX}-divider`,
+};
+
+const StyledLayout = styled(Layout)(({ theme: Theme }) => ({
+  [`& .${classes.divider}`]: {
+    marginBottom: '20px',
+  },
+}));
 
 const AboutMe: React.FunctionComponent = () => {
-  const classes = useStyles();
-
   const nbXp = new Date().getFullYear() - 2007;
 
   return (
-    <Layout>
+    <StyledLayout>
       <Grid container spacing={6}>
         <Grid key="description" item xs={12}>
           <Typography {...typoH1Props}>About Me</Typography>
@@ -58,7 +57,7 @@ const AboutMe: React.FunctionComponent = () => {
           <GithubActivity />
         </Grid>
       </Grid>
-    </Layout>
+    </StyledLayout>
   );
 };
 

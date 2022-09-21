@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Theme } from '@mui/material/styles';
-
-import makeStyles from '@mui/styles/makeStyles';
-import createStyles from '@mui/styles/createStyles';
+import { styled } from '@mui/material/styles';
 
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -15,22 +12,30 @@ import Avatar from '@mui/material/Avatar';
 
 import { typoH1Props } from 'utils/typoProps';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    divider: {
-      marginBottom: '20px',
-    },
-    root: {
-      width: '100%',
-      overflow: 'auto',
-      maxHeight: 300,
-      backgroundColor: theme.palette.background.paper,
-    },
-    inline: {
-      display: 'inline',
-    },
-  }),
-);
+const PREFIX = 'GithubActivity';
+
+const classes = {
+  divider: `${PREFIX}-divider`,
+  root: `${PREFIX}-root`,
+  inline: `${PREFIX}-inline`,
+};
+
+const StyledBox = styled(Box)(({ theme: Theme }) => ({
+  [`& .${classes.divider}`]: {
+    marginBottom: '20px',
+  },
+
+  [`& .${classes.root}`]: {
+    width: '100%',
+    overflow: 'auto',
+    maxHeight: 300,
+    backgroundColor: Theme.palette.background.paper,
+  },
+
+  [`& .${classes.inline}`]: {
+    display: 'inline',
+  },
+}));
 
 type GithubActivityItem = {
   actor: { display_login: string; avatar_url: string };
@@ -110,15 +115,13 @@ const formatActivityItem = (
   return commits.map(getGithubContent);
 };
 
-const formatActivities = (activities: any[], classes: any) => {
+const formatActivities = (activities: any[]) => {
   return activities.map(activity => {
     return formatActivityItem(activity, classes);
   });
 };
 
 const GithubActivity: React.FunctionComponent = () => {
-  const classes = useStyles();
-
   const [data, setData] = useState<fetchState>({
     isLoading: false,
     content: [],
@@ -135,17 +138,15 @@ const GithubActivity: React.FunctionComponent = () => {
   }, [setData]);
 
   return (
-    <Box>
+    <StyledBox>
       <Typography {...typoH1Props}>Github Activity</Typography>
       <Divider className={classes.divider} />
       {data.isLoading ? (
         <div>Loading ...</div>
       ) : (
-        <List className={classes.root}>
-          {formatActivities(data.content, classes)}
-        </List>
+        <List className={classes.root}>{formatActivities(data.content)}</List>
       )}
-    </Box>
+    </StyledBox>
   );
 };
 

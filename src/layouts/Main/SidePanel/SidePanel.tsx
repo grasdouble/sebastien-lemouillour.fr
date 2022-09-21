@@ -1,8 +1,9 @@
 import React from 'react';
 
+import { styled } from '@mui/material/styles';
+
 import { Link as LinkRouter, LinkProps, useLocation } from 'react-router-dom';
 
-import makeStyles from '@mui/styles/makeStyles';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
@@ -27,18 +28,30 @@ import { drawerWidth } from 'layouts/Main/constants';
 import config from 'routes.json';
 import { RouteConfig } from 'routes';
 
-const useStyles = makeStyles(theme => ({
-  toolbar: theme.mixins.toolbar,
-  drawer: {
+const PREFIX = 'SidePanel';
+
+const classes = {
+  toolbar: `${PREFIX}-toolbar`,
+  drawer: `${PREFIX}-drawer`,
+  drawerPaper: `${PREFIX}-drawerPaper`,
+  icon: `${PREFIX}-icon`,
+};
+
+const Root = styled('nav')(({ theme }) => ({
+  [`& .${classes.toolbar}`]: theme.mixins.toolbar,
+
+  [`&.${classes.drawer}`]: {
     [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
       flexShrink: 0,
     },
   },
-  drawerPaper: {
+
+  [`& .${classes.drawerPaper}`]: {
     width: drawerWidth,
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     minWidth: '40px',
   },
 }));
@@ -89,7 +102,6 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
   collapsedMenuState,
   collapsedMenuFct,
 }) => {
-  const classes = useStyles();
   const location = useLocation();
   const [refreshMe, refreshSidepanel] = React.useState(false);
 
@@ -151,7 +163,7 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
   };
 
   return (
-    <nav className={classes.drawer}>
+    <Root className={classes.drawer}>
       <Hidden smUp implementation="css">
         <Drawer
           anchor="left"
@@ -181,7 +193,7 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
           <Divider />
         </Drawer>
       </Hidden>
-    </nav>
+    </Root>
   );
 };
 

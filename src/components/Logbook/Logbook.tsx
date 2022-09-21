@@ -1,10 +1,7 @@
 import React from 'react';
+import { styled } from '@mui/material/styles';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
-import { Theme } from '@mui/material/styles';
-
-import makeStyles from '@mui/styles/makeStyles';
-import createStyles from '@mui/styles/createStyles';
 
 import {
   typoH2Props,
@@ -16,19 +13,25 @@ import {
 
 import data2021 from 'datas/logbook/2021.json';
 import data2022 from 'datas/logbook/2022.json';
-import { ClassNameMap } from '@mui/styles';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    divider: {
-      marginBottom: '20px',
-    },
-    wrapText: {
-      overflowWrap: 'break-word',
-      hyphens: 'auto',
-    },
-  }),
-);
+const PREFIX = 'Logbook';
+
+const classes = {
+  divider: `${PREFIX}-divider`,
+  wrapText: `${PREFIX}-wrapText`,
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')(({ theme: Theme }) => ({
+  [`& .${classes.divider}`]: {
+    marginBottom: '20px',
+  },
+
+  [`& .${classes.wrapText}`]: {
+    overflowWrap: 'break-word',
+    hyphens: 'auto',
+  },
+}));
 
 type LogbookDayContent = {
   type: string;
@@ -44,52 +47,53 @@ type LogbookProps = {
   onlyLast?: boolean;
 };
 
-const generateLogbookContent = (
-  { date, contents }: LogbookDay,
-  classes: ClassNameMap<'wrapText'>,
-) => {
+const generateLogbookContent = ({ date, contents }: LogbookDay) => {
   const getContent = (entry: LogbookDayContent, idx: Number) => {
     switch (entry.type) {
       case 'title':
         return (
-          <Typography
-            {...typoH3Props}
-            className={classes.wrapText}
-            key={`logbook_item_${date}_${idx}`}
-          >
-            {entry.value}
-          </Typography>
+          <Root>
+            <Typography {...typoH3Props} key={`logbook_item_${date}_${idx}`}>
+              {entry.value}
+            </Typography>
+          </Root>
         );
       case 'subtitle':
         return (
-          <Typography
-            {...typoH4Props}
-            className={classes.wrapText}
-            key={`logbook_item_${date}_${idx}`}
-          >
-            {entry.value}
-          </Typography>
+          <Root>
+            <Typography
+              {...typoH4Props}
+              className={classes.wrapText}
+              key={`logbook_item_${date}_${idx}`}
+            >
+              {entry.value}
+            </Typography>
+          </Root>
         );
       case 'caption':
         return (
-          <Typography
-            {...typoCaptionProps}
-            className={classes.wrapText}
-            key={`logbook_item_${date}_${idx}`}
-          >
-            {entry.value}
-          </Typography>
+          <Root>
+            <Typography
+              {...typoCaptionProps}
+              className={classes.wrapText}
+              key={`logbook_item_${date}_${idx}`}
+            >
+              {entry.value}
+            </Typography>
+          </Root>
         );
       case 'text':
       default:
         return (
-          <Typography
-            {...typoTextProps}
-            className={classes.wrapText}
-            key={`logbook_item_${date}_${idx}`}
-          >
-            {entry.value}
-          </Typography>
+          <Root>
+            <Typography
+              {...typoTextProps}
+              className={classes.wrapText}
+              key={`logbook_item_${date}_${idx}`}
+            >
+              {entry.value}
+            </Typography>
+          </Root>
         );
     }
   };
@@ -99,13 +103,12 @@ const generateLogbookContent = (
 export const Logbook: React.FunctionComponent<LogbookProps> = ({
   onlyLast,
 }) => {
-  const classes = useStyles();
   const data = onlyLast ? [data2022[1]] : [...data2022, ...data2021];
 
   const getLogbook = (logbookItem: LogbookDay) => {
     return (
       logbookItem.date !== '0000-00-00' && (
-        <React.Fragment key={`logbook_item_fragment_${logbookItem.date}`}>
+        <Root key={`logbook_item_fragment_${logbookItem.date}`}>
           <Divider
             className={classes.divider}
             key={`logbook_item_divider_${logbookItem.date}`}
@@ -116,8 +119,8 @@ export const Logbook: React.FunctionComponent<LogbookProps> = ({
           >
             {logbookItem.date}
           </Typography>
-          {generateLogbookContent(logbookItem, classes)}
-        </React.Fragment>
+          {generateLogbookContent(logbookItem)}
+        </Root>
       )
     );
   };
