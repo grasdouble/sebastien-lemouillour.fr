@@ -1,8 +1,4 @@
-import {
-  createTheme,
-  responsiveFontSizes,
-  adaptV4Theme,
-} from '@mui/material/styles';
+import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 // @ts-ignore
 import { deepmerge } from '@mui/utils';
 import { themeCommonOptions } from './themeCommonOptions';
@@ -35,7 +31,7 @@ const themeDarkOption = deepmerge(themeCommonOptions, {
     },
   },
 });
-let themeDark = createTheme(adaptV4Theme(themeDarkOption));
+let themeDark = createTheme(themeDarkOption);
 themeDark = responsiveFontSizes(themeDark);
 
 export { themeDark };

@@ -19,7 +19,7 @@ const classes = {
   inline: `${PREFIX}-inline`,
 };
 
-const StyledLayout = styled(Layout)(({ theme }) => ({
+const ProjectsStyled = styled('div')(({ theme }) => ({
   [`& .${classes.markdown}`]: {
     '& img': {
       maxWidth: '80vw',
@@ -66,49 +66,51 @@ const Projects: React.FunctionComponent<ProjectProps> = ({ projectInfo }) => {
   }, [setData, projectInfo]);
 
   return (
-    <StyledLayout>
-      {data.isLoading ? (
-        <div>Loading ...</div>
-      ) : (
-        projectInfo && (
-          <Grid container spacing={5}>
-            <Grid key="info" item sm={12} md={4} lg={4}>
-              <Typography {...typoH1Props}>Info</Typography>
-              <Divider className={classes.divider} />
-              <Typography
-                component="span"
-                variant="body2"
-                className={classes.inline}
-                color="textPrimary"
-              >
-                Start date:
-              </Typography>{' '}
-              {projectInfo.startDate}
-              <br />
-              <Typography
-                component="span"
-                variant="body2"
-                className={classes.inline}
-                color="textPrimary"
-              >
-                Github:
-              </Typography>{' '}
-              <Link href={projectInfo.githubUrl}>
-                {projectInfo.githubUrl.replace('https://github.com/', '')}
-              </Link>
-              <br />
+    <Layout>
+      <ProjectsStyled>
+        {data.isLoading ? (
+          <div>Loading ...</div>
+        ) : (
+          projectInfo && (
+            <Grid container spacing={5}>
+              <Grid key="info" item sm={12} md={4} lg={4}>
+                <Typography {...typoH1Props}>Info</Typography>
+                <Divider className={classes.divider} />
+                <Typography
+                  component="span"
+                  variant="body2"
+                  className={classes.inline}
+                  color="textPrimary"
+                >
+                  Start date:
+                </Typography>{' '}
+                {projectInfo.startDate}
+                <br />
+                <Typography
+                  component="span"
+                  variant="body2"
+                  className={classes.inline}
+                  color="textPrimary"
+                >
+                  Github:
+                </Typography>{' '}
+                <Link href={projectInfo.githubUrl}>
+                  {projectInfo.githubUrl.replace('https://github.com/', '')}
+                </Link>
+                <br />
+              </Grid>
+              <Grid key="readme" item sm={12} md={8} lg={8}>
+                <Typography {...typoH1Props}>Readme.md</Typography>
+                <Divider className={classes.divider} />
+                <ReactMarkdown className={classes.markdown}>
+                  {data.content || 'Oops! There was a problem retrieving data'}
+                </ReactMarkdown>
+              </Grid>
             </Grid>
-            <Grid key="readme" item sm={12} md={8} lg={8}>
-              <Typography {...typoH1Props}>Readme.md</Typography>
-              <Divider className={classes.divider} />
-              <ReactMarkdown className={classes.markdown}>
-                {data.content || 'Oops! There was a problem retrieving data'}
-              </ReactMarkdown>
-            </Grid>
-          </Grid>
-        )
-      )}
-    </StyledLayout>
+          )
+        )}
+      </ProjectsStyled>
+    </Layout>
   );
 };
 

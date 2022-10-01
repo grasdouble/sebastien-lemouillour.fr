@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 import MenuIcon from '@mui/icons-material/Menu';
+import { responsiveLimit } from '../constants';
 
 const PREFIX = 'HeaderBar';
 
@@ -19,14 +20,14 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   [`& .${classes.toolbar}`]: theme.mixins.toolbar,
 
   [`&.${classes.appBar}`]: {
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up(responsiveLimit)]: {
       zIndex: theme.zIndex.drawer + 1,
     },
   },
 
   [`& .${classes.menuButton}`]: {
     marginRight: theme.spacing(2),
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up(responsiveLimit)]: {
       display: 'none',
     },
   },

@@ -26,7 +26,7 @@ const classes = {
   stepContent: `${PREFIX}-stepContent`,
 };
 
-const StyledLayout = styled(Layout)(({ theme }) => ({
+const BackgroundStyled = styled('div')(({ theme }) => ({
   [`& .${classes.button}`]: {
     marginRight: theme.spacing(1),
   },
@@ -78,44 +78,46 @@ const Background: React.FunctionComponent = () => {
   };
 
   return (
-    <StyledLayout>
-      <Stepper
-        alternativeLabel
-        nonLinear
-        activeStep={activeStep}
-        connector={<StyleConnector />}
-        className={classes.stepRoot}
-      >
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepButton onClick={handleStep(index)}>
-              <StepLabel StepIconComponent={StyleStepIcon}>{label}</StepLabel>
-            </StepButton>
-          </Step>
-        ))}
-      </Stepper>
-      <Typography className={classes.stepContent}>
-        {getStepContent(activeStep)}
-      </Typography>
-      <div>
-        <Button
-          disabled={activeStep === 0}
-          onClick={handleBack}
-          className={classes.button}
+    <Layout>
+      <BackgroundStyled>
+        <Stepper
+          alternativeLabel
+          nonLinear
+          activeStep={activeStep}
+          connector={<StyleConnector />}
+          className={classes.stepRoot}
         >
-          Back
-        </Button>
-        <Button
-          disabled={activeStep === steps.length - 1}
-          variant="contained"
-          color="primary"
-          onClick={handleNext}
-          className={classes.button}
-        >
-          Next
-        </Button>
-      </div>
-    </StyledLayout>
+          {steps.map((label, index) => (
+            <Step key={label}>
+              <StepButton onClick={handleStep(index)}>
+                <StepLabel StepIconComponent={StyleStepIcon}>{label}</StepLabel>
+              </StepButton>
+            </Step>
+          ))}
+        </Stepper>
+        <Typography className={classes.stepContent}>
+          {getStepContent(activeStep)}
+        </Typography>
+        <div>
+          <Button
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            className={classes.button}
+          >
+            Back
+          </Button>
+          <Button
+            disabled={activeStep === steps.length - 1}
+            variant="contained"
+            color="primary"
+            onClick={handleNext}
+            className={classes.button}
+          >
+            Next
+          </Button>
+        </div>
+      </BackgroundStyled>
+    </Layout>
   );
 };
 

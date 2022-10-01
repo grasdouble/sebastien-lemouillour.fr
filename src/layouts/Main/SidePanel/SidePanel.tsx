@@ -24,7 +24,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 
-import { drawerWidth } from 'layouts/Main/constants';
+import { drawerWidth, responsiveLimit } from 'layouts/Main/constants';
 import config from 'routes.json';
 import { RouteConfig } from 'routes';
 
@@ -41,7 +41,7 @@ const Nav = styled('nav')(({ theme }) => ({
   [`& .${classes.toolbar}`]: theme.mixins.toolbar,
 
   [`&.${classes.drawer}`]: {
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.up(responsiveLimit)]: {
       width: drawerWidth,
       flexShrink: 0,
     },
