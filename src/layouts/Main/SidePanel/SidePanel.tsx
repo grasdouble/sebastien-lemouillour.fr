@@ -157,7 +157,7 @@ const SidePanel: React.FunctionComponent<SidePanelProps> = ({
   const handleClick = (item: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    collapsedMenuState.set(item, true);
+    collapsedMenuState.set(item, !collapsedMenuState.get(item));
     collapsedMenuFct(collapsedMenuState);
     refreshSidepanel(!refreshMe);
   };
