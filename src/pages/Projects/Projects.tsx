@@ -8,6 +8,7 @@ import Divider from '@mui/material/Divider';
 import Link from '@mui/material/Link';
 
 import Layout from 'layouts';
+import { linkStyle } from 'layouts/Main/constants';
 import { ProjectInfo } from 'routes';
 import { typoH1Props } from 'utils/typoProps';
 
@@ -24,6 +25,7 @@ const ProjectsStyled = styled('div')(({ theme }) => ({
     '& img': {
       maxWidth: '80vw',
     },
+    a: linkStyle,
   },
 
   [`& .${classes.divider}`]: {

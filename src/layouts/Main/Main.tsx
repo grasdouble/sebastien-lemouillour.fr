@@ -34,6 +34,7 @@ const classes = {
   links: `${PREFIX}-links`,
   avatar: `${PREFIX}-avatar`,
   divider: `${PREFIX}-divider`,
+  leftPanel: `${PREFIX}-leftPanel`,
 };
 
 const Root = styled('div')(({ theme }) => ({
@@ -52,6 +53,11 @@ const Root = styled('div')(({ theme }) => ({
 
   [`& .${classes.gridMain}`]: {
     flexGrow: 1,
+  },
+
+  [`& .${classes.leftPanel}`]: {
+    display: 'flex',
+    'justify-content': 'center',
   },
 
   [`& .${classes.links}`]: {
@@ -126,20 +132,21 @@ const Main: React.FunctionComponent<{ children: React.ReactNode }> = props => {
               >
                 <Grid key="leftPane" item xs={12} md={3} lg={2}>
                   <Grid container spacing={2} justifyContent="center">
-                    <Grid key="avatar" item xs={12}>
+                    <Grid
+                      key="avatar"
+                      item
+                      xs={12}
+                      className={classes.leftPanel}
+                    >
                       <Avatar
                         alt="Sebastien Le Mouillour"
                         className={classes.avatar}
                         src="/img/avatar.jfif"
-                      >
-                        Sébastien
-                        <br />
-                        LE MOUILLOUR
-                      </Avatar>
+                      />
                     </Grid>
                     <Grid key="links" className={classes.links} item xs={12}>
                       <Box textAlign="center">
-                        <Box textAlign="left">
+                        <Box>
                           <Button
                             variant="contained"
                             color="primary"
@@ -150,7 +157,7 @@ const Main: React.FunctionComponent<{ children: React.ReactNode }> = props => {
                             LinkedIn
                           </Button>
                         </Box>
-                        <Box textAlign="left" mt={1}>
+                        <Box mt={1}>
                           <Button
                             variant="contained"
                             color="primary"
@@ -161,7 +168,7 @@ const Main: React.FunctionComponent<{ children: React.ReactNode }> = props => {
                             LeetCode
                           </Button>
                         </Box>
-                        <Box textAlign="left" mt={1}>
+                        <Box mt={1}>
                           <Button
                             variant="contained"
                             color="secondary"
