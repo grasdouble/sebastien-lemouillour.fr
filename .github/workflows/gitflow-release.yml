@@ -25,13 +25,13 @@ on:
         required: true
         options:
           - nothing
-          - prerelease
           - major
           - premajor
           - minor
           - preminor
           - patch
           - prepatch
+          - prerelease
 
 jobs:
   ci-gitflow-display-inputs:
