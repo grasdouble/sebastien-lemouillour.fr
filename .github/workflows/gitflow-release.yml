@@ -25,9 +25,13 @@ on:
         required: true
         options:
           - nothing
+          - prerelease
           - major
+          - premajor
           - minor
+          - preminor
           - patch
+          - prepatch
 
 jobs:
   ci-gitflow-display-inputs:
@@ -77,7 +81,7 @@ jobs:
         id: release
         run: |
           echo "Create release from ${{ github.event.ref }} to a new release branch and create tag"
-          npm version ${{ github.event.inputs.scope }} > release.version
+          npm version ${{ github.event.inputs.scope }} -m "Release v%s"> release.version
           echo "::set-output name=releaseVersion::$(cat release.version)"
           echo "::set-output name=releasebranch::release_$(cat release.version)"
           git branch release_$(cat release.version)
