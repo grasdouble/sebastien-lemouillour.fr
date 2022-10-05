@@ -81,11 +81,13 @@ jobs:
         id: release
         run: |
           echo "Create release from ${{ github.event.ref }} to a new release branch and create tag"
-          npm version ${{ github.event.inputs.scope }} -m "Release v%s"> release.version
+          npm version ${{ github.event.inputs.scope }} --no-git-tag-version > release.version
           echo "::set-output name=releaseVersion::$(cat release.version)"
           echo "::set-output name=releasebranch::release_$(cat release.version)"
           git branch release_$(cat release.version)
           git checkout release_$(cat release.version)
+          git add package.json
+          git commit -m "Release $(cat release.version)"
           git push origin release_$(cat release.version)
           git tag -a $(cat release.version) -m "Release $(cat release.version)"
           git push origin --tags
