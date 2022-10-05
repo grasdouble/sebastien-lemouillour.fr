@@ -69,7 +69,6 @@ jobs:
           # fetch-depth: to be able to detect diff between release branch and main branch
           fetch-depth: 0
           ref: ${{ github.event.ref }}
-          #token: ${{secrets.GIT_TOKEN}}
 
       - name: setup git config
         run: |
@@ -98,8 +97,6 @@ jobs:
         uses: Roang-zero1/github-create-release-action@master
         with:
           created_tag: ${{ steps.release.outputs.releaseVersion }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
 
   ci-gitflow-merge-main:
     environment: Need Review
@@ -112,7 +109,6 @@ jobs:
           # fetch-depth: to be able to detect diff between release branch and main branch
           fetch-depth: 0
           ref: main
-          token: ${{secrets.GIT_TOKEN}}
       - name: setup git config
         run: |
           git config user.name $GITHUB_ACTOR
@@ -135,7 +131,6 @@ jobs:
           # fetch-depth: to be able to detect diff between release branch and main branch
           fetch-depth: 0
           ref: develop
-          token: ${{secrets.GIT_TOKEN}}
       - name: setup git config
         run: |
           git config user.name $GITHUB_ACTOR
