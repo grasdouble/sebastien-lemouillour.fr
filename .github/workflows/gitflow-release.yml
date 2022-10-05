@@ -94,7 +94,7 @@ jobs:
           echo "Release tag $(cat release.version) created"
       - name: Generate release tag
         if: steps.release.outputs.releaseVersion
-        uses: Roang-zero1/github-create-release-action@2.3.2
+        uses: Roang-zero1/github-create-release-action@v2.3.2
         with:
           created_tag: ${{ steps.release.outputs.releaseVersion }}
           version_regex: ^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+
