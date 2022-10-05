@@ -98,7 +98,7 @@ jobs:
         with:
           created_tag: ${{ steps.release.outputs.releaseVersion }}
           version_regex: ^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+
-          prerelease_regex: ^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+-[[:digit:]]
+          prerelease_regex: "^v[[:digit:]]+\\.[[:digit:]]+\\.[[:digit:]]+-[[:digit:]]"
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
 
