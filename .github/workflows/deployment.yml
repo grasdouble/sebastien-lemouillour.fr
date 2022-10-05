@@ -9,6 +9,7 @@ jobs:
     name: Build and deploy sebastien-lemouillour.fr website
     runs-on: ubuntu-latest
     environment: PROD
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -38,6 +39,7 @@ jobs:
     name: Build and deploy dev.sebastien-lemouillour.fr website
     runs-on: ubuntu-latest
     environment: DEV
+    if: github.ref != 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
