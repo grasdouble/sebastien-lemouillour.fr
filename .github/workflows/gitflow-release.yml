@@ -2,22 +2,11 @@
 # - creation of a release branch
 # - merge of the release branch in develop and main, only develop or only main
 
-name: Gitflow - Release
+name: Gitflow - Create Release
 
 on:
   workflow_dispatch:
     inputs:
-      action:
-        description: 'Gitflow process to trigger'
-        type: choice
-        default: nothing
-        required: true
-        options:
-          - nothing
-          - create release
-          - merge release on main
-          - merge release on develop
-          - merge release on main and develop
       scope:
         description: 'Release scope'
         type: choice
@@ -40,22 +29,11 @@ jobs:
       - name: Display inputs
         run: |
           echo "Github event ref branch  : ${{ github.event.ref }}"
+          echo "Github actor             : ${{ GITHUB_ACTOR }}"
           echo "Github branch            : ${GITHUB_REF#refs/heads/}"
-          echo "Action                   : ${{ github.event.inputs.action }}"
           echo "Release scope            : ${{ github.event.inputs.scope }}"
-  ci-gitflow-nothing:
-    environment: Need Review
-    if: github.event.inputs.action == 'nothing'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Do Nothing
-        run: |
-          echo "Do nothing"
-          exit 1
   ci-gitflow-create:
     environment: Need Review
-    if: |
-      github.event.inputs.action == 'create release'
     runs-on: ubuntu-latest
     steps:
       - name: Error - Missing scope
@@ -63,6 +41,7 @@ jobs:
         run: |
           echo "Release scope not defined"
           exit 1
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
@@ -76,6 +55,7 @@ jobs:
           # git config user.email "<>"
           git config user.name $GITHUB_ACTOR
           git config user.email gh-actions-${GITHUB_ACTOR}@github.com
+
       - name: Create release branch and tag
         id: release
         run: |
@@ -92,6 +72,7 @@ jobs:
           git push origin --tags
           echo "Release from ${{ github.event.ref }} to ${{ github.event.inputs.release_branch }} created"
           echo "Release tag $(cat release.version) created"
+
       - name: Generate release tag
         if: steps.release.outputs.releaseVersion
         uses: Roang-zero1/github-create-release-action@master
@@ -102,47 +83,48 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  ci-gitflow-merge-main:
-    environment: Need Review
-    if: (github.event.inputs.action == 'merge release on main' || github.event.inputs.action == 'merge release on main and develop') && startsWith(github.event.ref, 'refs/heads/release')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Create pull request to main
+        if: steps.release.outputs.releaseVersion
+        uses: devops-infra/action-pull-request@v0.4.2
         with:
-          # fetch-depth: to be able to detect diff between release branch and main branch
-          fetch-depth: 0
-          ref: main
-      - name: setup git config
-        run: |
-          git config user.name $GITHUB_ACTOR
-          git config user.email gh-actions-${GITHUB_ACTOR}@github.com
-      - name: Merge release branch into main
-        id: merge-main
-        run: |
-          echo "Merge ${GITHUB_REF#refs/heads/} to main"
-          git checkout main
-          git merge --ff origin/${GITHUB_REF#refs/heads/}
-          git push origin
-  ci-gitflow-merge-develop:
-    environment: Need Review
-    if: (github.event.inputs.action == 'merge release on develop' || github.event.inputs.action == 'merge release on main and develop') && startsWith(github.event.ref, 'refs/heads/release')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+          github_token: ${{ secrets.GIT_TOKEN }}
+          source_branch: ${{ steps.release.outputs.releasebranch }}
+          target_branch: main
+          title: Release ${{ steps.release.outputs.releaseVersion }}
+          body: |
+            ## Release ${{ steps.release.outputs.releaseVersion }}
+            **Automated pull request**
+            ## Summary
+            <!-- Diff summary - START -->
+            <!-- Diff summary - END -->
+            ## Commits
+            <!-- Diff commits - START -->
+            <!-- Diff commits - END -->
+            ## Modified files
+            <!-- Diff files - START -->
+            <!-- Diff files - END -->
+          draft: false
+          get_diff: true
+
+      - name: Create pull request to develop
+        if: steps.release.outputs.releaseVersion
+        uses: devops-infra/action-pull-request@v0.4.2
         with:
-          # fetch-depth: to be able to detect diff between release branch and main branch
-          fetch-depth: 0
-          ref: develop
-      - name: setup git config
-        run: |
-          git config user.name $GITHUB_ACTOR
-          git config user.email gh-actions-${GITHUB_ACTOR}@github.com
-      - name: Merge release branch into develop
-        id: merge-develop
-        run: |
-          echo "Merge ${GITHUB_REF#refs/heads/} to develop"
-          git checkout develop
-          git merge --ff origin/${GITHUB_REF#refs/heads/}
-          git push origin
+          github_token: ${{ secrets.GIT_TOKEN }}
+          source_branch: ${{ steps.release.outputs.releasebranch }}
+          target_branch: develop
+          title: Release ${{ steps.release.outputs.releaseVersion }}
+          body: |
+            ## Release ${{ steps.release.outputs.releaseVersion }}
+            **Automated pull request**
+            ## Summary
+            <!-- Diff summary - START -->
+            <!-- Diff summary - END -->
+            ## Commits
+            <!-- Diff commits - START -->
+            <!-- Diff commits - END -->
+            ## Modified files
+            <!-- Diff files - START -->
+            <!-- Diff files - END -->
+          draft: false
+          get_diff: true
