@@ -97,6 +97,8 @@ jobs:
         uses: Roang-zero1/github-create-release-action@master
         with:
           created_tag: ${{ steps.release.outputs.releaseVersion }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
 
   ci-gitflow-merge-main:
     environment: Need Review
