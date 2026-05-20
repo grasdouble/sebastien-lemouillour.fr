@@ -24,13 +24,13 @@ This microfrontend serves as the landing/home page of the Lufa application. It s
 
 ```bash
 # Start standalone dev server
-pnpm --filter @grasdouble/lufa_microfrontend_home dev
+pnpm --filter @grasdouble/slm_parcel_landing-page dev
 
 # Or start with main container
 pnpm app:mf:dev
 
 # Build
-pnpm --filter @grasdouble/lufa_microfrontend_home build
+pnpm --filter @grasdouble/slm_parcel_landing-page build
 ```
 
 ## Integration
