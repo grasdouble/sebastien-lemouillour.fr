@@ -1,0 +1,57 @@
+name: Global:Tools:Lint
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: none
+  checks: none
+  deployments: none
+  issues: none
+  packages: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+jobs:
+  Check-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v6
+
+      - name: 📦 Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+        with:
+          node-version-file: '.tool-versions'
+          github-token: ${{ secrets.LUFA_CI_SECRET_READ }}
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Step 5: Build packages (needed for type checking)
+      - name: 🏗️ Build packages
+        run: pnpm all:build
+
+      # Step 6: Run lint
+      - name: 🧹 Run lint
+        if: always()
+        run: pnpm all:lint
+
+      # Step 7: Run type checking
+      - name: 🔍 Run type checking
+        if: always()
+        run: pnpm all:typecheck
+
+      # Step 8: Check formatting
+      - name: 🎨 Check formatting
+        if: always()
+        id: prettier
+        run: |
+          echo "::group::Prettier Format Check"
+          pnpm all:prettier:check
+          echo "::endgroup::"
+        continue-on-error: true

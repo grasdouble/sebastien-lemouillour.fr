@@ -1,0 +1,68 @@
+{
+  "name": "@grasdouble/sebastien-lemouillour.fr",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grasdouble/sebastien-lemouillour.fr.git"
+  },
+  "scripts": {
+    "all:---------------------------------------------": "",
+    "all:build": "pnpm --filter @grasdouble/* run build",
+    "all:lint": "pnpm --filter @grasdouble/* run lint",
+    "all:prettier:check": "pnpm --filter @grasdouble/* run prettier:check",
+    "all:prettier:write": "pnpm --filter @grasdouble/* run prettier:write",
+    "all:test": "pnpm --filter @grasdouble/* run test",
+    "all:typecheck": "pnpm --filter @grasdouble/* run typecheck",
+    "clean:-------------------------------------------": "",
+    "clean": "pnpm clean:node_module && pnpm clean:lib && pnpm clean:cache",
+    "clean:cache": "pnpm store prune",
+    "clean:cache:ts": "pnpm -r exec npx rimraf node_modules/.cache",
+    "clean:lib": "pnpm -r exec npx rimraf dist",
+    "clean:node_module": "pnpm -r exec npx rimraf node_modules && npx rimraf node_modules",
+    "deps:--------------------------------------------": "",
+    "deps:audit": "pnpm -r audit --fix",
+    "deps:outdated": "pnpm outdated -r",
+    "deps:upgrade": "pnpm update -r && pnpm dedupe",
+    "lint-staged": "lint-staged",
+    "plugin:vite:-------------------------------------": "",
+    "plugin:vite:lint": "pnpm --filter @grasdouble/slm_lufa_plugin_vite_* run lint",
+    "plugin:vite:prettier:check": "pnpm --filter @grasdouble/slm_lufa_plugin_vite_* run prettier:check",
+    "plugin:vite:prettier:write": "pnpm --filter @grasdouble/slm_lufa_plugin_vite_* run prettier:write",
+    "prepare": "husky",
+    "slm:---------------------------------------------": "",
+    "slm:build": "pnpm --filter @grasdouble/slm-container run build && pnpm --filter @grasdouble/slm_parcel_landing-page run build",
+    "slm:dev": "concurrently \"pnpm --filter @grasdouble/slm-container run dev\" \"pnpm --filter @grasdouble/slm_parcel_landing-page run dev\"",
+    "slm:preview": "pnpm --filter @grasdouble/slm-container run preview & pnpm --filter @grasdouble/slm_parcel_landing-page run preview",
+    "slm:sync:importmaps": "pnpm --filter @grasdouble/slm-container run sync:importmaps",
+    "tools:generate-outdated-report": "node .github/actions/dependency-update/generateOutdatedReport.js",
+    "tools---------------------------------------------": ""
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{ts,tsx}": [
+      "bash -c 'pnpm all:typecheck'"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ],
+    "*.{json,md,yml,yaml,css,html}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "@grasdouble/lufa_config_eslint": "^0.1.7",
+    "@grasdouble/lufa_config_prettier": "^0.1.4",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "concurrently": "^9.2.1",
+    "eslint": "^10.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.4",
+    "prettier": "^3.8.3",
+    "sort-package-json": "^3.6.1"
+  },
+  "packageManager": "pnpm@11.1.2"
+}

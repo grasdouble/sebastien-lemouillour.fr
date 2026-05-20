@@ -1,0 +1,65 @@
+name: Global:Release:Changesets
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  Changesets-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      issues: read
+      checks: read
+      statuses: read
+    steps:
+      # Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.LUFA_CI_SECRET_READ }}
+          persist-credentials: false
+
+      # Setup using composite action (partial - manual install due to npmrc config)
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .tool-versions
+          cache: 'pnpm'
+
+      # Configure npm for GitHub Registry
+      - name: Configure npm for GitHub Registry
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.LUFA_CI_SECRET_WRITE }}" > ~/.npmrc
+          echo "@grasdouble:registry=https://npm.pkg.github.com" >> ~/.npmrc
+
+      # Install dependencies
+      - name: Install updated dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Build all packages
+      - name: Build All packages
+        run: pnpm all:build
+
+      # Publish the release or pre-release
+      - name: Run Changesets Action
+        uses: changesets/action@v1
+        with:
+          publish: 'pnpm changeset publish' # The command to run to publish the packages
+          title: 'Release: New Version Updates' # The title for the changeset commit
+          commit: 'Release new versions' # The commit message for the changeset commit
+          setupGitUser: true # Set this to true if you want to set up the git user for the action
+          version: pnpm changeset version # The command to run to bump the version
+          createGithubReleases: true # Set this to true if you want to create a GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.LUFA_CI_SECRET_WRITE }}
+          NPM_TOKEN: ${{ secrets.LUFA_CI_SECRET_WRITE }}
