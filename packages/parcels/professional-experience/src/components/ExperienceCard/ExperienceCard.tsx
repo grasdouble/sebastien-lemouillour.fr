@@ -10,18 +10,18 @@ type ExperienceCardProps = {
   experience: Experience;
 };
 
-function formatDate(dateStr: string): string {
+function formatDate(dateStr: string, lang: string): string {
   const [year, month] = dateStr.split('-');
   const date = new Date(Number(year), Number(month) - 1);
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+  return date.toLocaleDateString(lang, { year: 'numeric', month: 'short' });
 }
 
 export function ExperienceCard({ experience }: ExperienceCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { company, roleKey, startDate, endDate, location, descriptionKey, skills } = experience;
 
-  const start = formatDate(startDate);
-  const end = endDate ? formatDate(endDate) : t('present');
+  const start = formatDate(startDate, i18n.language);
+  const end = endDate ? formatDate(endDate, i18n.language) : t('present');
 
   return (
     <Card>

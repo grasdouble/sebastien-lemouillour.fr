@@ -33,7 +33,7 @@ const loaderPreview = {
     if (!el) return Promise.resolve();
     el.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;height:calc(100vh - 60px);">
-        <div id="lufa-loader-dots" class="visible">
+        <div class="lufa-loader-dots visible">
           <span></span><span></span><span></span>
         </div>
       </div>`;
