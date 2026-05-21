@@ -6,7 +6,6 @@ import { Box, DotNav, useScrollSpy } from '@grasdouble/lufa_design-system';
 import './i18n';
 
 import styles from './App.module.css';
-import { LangSwitcher, ThemeSelector } from './components';
 import {
   ContactSection,
   FooterSection,
@@ -36,8 +35,6 @@ function App() {
         }}
         position="right"
       />
-      <LangSwitcher />
-      <ThemeSelector />
 
       <main>
         <HeroSection />

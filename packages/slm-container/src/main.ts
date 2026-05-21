@@ -14,16 +14,38 @@ import '@grasdouble/lufa_design-system-themes/coffee.css';
 import '@grasdouble/lufa_design-system-themes/volt.css';
 import '@grasdouble/lufa_design-system-themes/steampunk.css';
 
+import { hideLoader, loaderPreview, showLoader } from './loader';
+
+window.addEventListener('single-spa:before-app-change', showLoader);
+window.addEventListener('single-spa:app-change', hideLoader);
+
 const loadApp =
   (url: string): (() => Promise<LifeCycles>) =>
   () =>
     import(/* @vite-ignore */ url);
 
-// PARCELS
+registerApplication({
+  name: '@grasdouble/slm_loader-preview',
+  app: () => Promise.resolve(loaderPreview),
+  activeWhen: (location: Location) => location.pathname === '/loader',
+});
+
+registerApplication({
+  name: '@grasdouble/slm_parcel_header-bar',
+  app: loadApp('@grasdouble/slm_parcel_header-bar'),
+  activeWhen: () => true,
+});
+
 registerApplication({
   name: '@grasdouble/slm_parcel_landing-page',
   app: loadApp('@grasdouble/slm_parcel_landing-page'),
   activeWhen: (location: Location) => location.pathname === '/',
+});
+
+registerApplication({
+  name: '@grasdouble/slm_parcel_professional-experience',
+  app: loadApp('@grasdouble/slm_parcel_professional-experience'),
+  activeWhen: (location: Location) => location.pathname === '/experience',
 });
 
 start();

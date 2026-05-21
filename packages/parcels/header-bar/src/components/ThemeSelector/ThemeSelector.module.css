@@ -1,0 +1,26 @@
+/* Inline dans le header — pas de position fixed */
+
+.theme-selector {
+  position: relative;
+}
+
+.trigger-row {
+  display: flex;
+  gap: var(--lufa-semantic-ui-spacing-compact);
+}
+
+.theme-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: var(--lufa-semantic-ui-background-page);
+  border: var(--lufa-semantic-ui-border-width-thin) solid var(--lufa-semantic-ui-border-default);
+  border-radius: var(--lufa-semantic-ui-border-radius-small);
+  box-shadow: var(--lufa-semantic-ui-shadow-medium);
+  white-space: nowrap;
+  z-index: 200;
+}

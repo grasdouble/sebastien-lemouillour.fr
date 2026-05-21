@@ -1,0 +1,6 @@
+/* Inline dans le header — pas de position fixed */
+
+.lang-switcher {
+  display: flex;
+  gap: var(--lufa-semantic-ui-spacing-compact);
+}

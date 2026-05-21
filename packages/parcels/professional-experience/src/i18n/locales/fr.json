@@ -1,0 +1,40 @@
+{
+  "page": {
+    "title": "Expérience professionnelle"
+  },
+  "present": "Présent",
+  "experience": {
+    "qlik-principal": {
+      "role": "Principal Software Engineer",
+      "description": "Suite au rachat de Talend par Qlik, poursuite de l'activité en tant que Principal Software Engineer au sein de la même organisation, désormais intégrée à l'écosystème Qlik de solutions analytiques cloud."
+    },
+    "talend-principal": {
+      "role": "Principal Software Engineer",
+      "description": "Évolution vers le rôle de Principal Software Engineer chez Talend. Prise en charge de sujets d'architecture frontend, accompagnement de l'équipe, et contribution à la qualité et la stabilité du produit TMC."
+    },
+    "talend-senior": {
+      "role": "Développeur Frontend Senior",
+      "description": "Entrée chez Talend en tant que Développeur Frontend, éditeur de solutions mondiales de gestion de données cloud. Progression rapide vers le rôle de Senior Frontend Developer. Cette expérience a été l'occasion de mettre en pratique tout ce qui avait été appris précédemment au sein du projet TMC : pilotage de fonctionnalités complexes, réduction des risques en production et amélioration du travail en équipe."
+    },
+    "infotel": {
+      "role": "Développeur Fullstack",
+      "description": "Intégré chez Infotel, société de services IT, en tant que développeur Fullstack. Travail exclusivement pour le client Bureau Veritas sur plusieurs projets. Cette expérience a marqué un tournant vers le frontend, avec des missions sur des applications Angular et Ionic."
+    },
+    "steria-tamaris": {
+      "role": "Référent technique — ERDF TAMARIS",
+      "description": "Référent technique sur le projet TAMARIS pour ERDF — application de planification des interventions terrain (client Flex + client PDA). Coordination de la migration Paris → Nantes, évolution du rôle de Team Leader à Chef de Projet MCO, puis retour au rôle de référent technique pour se recentrer sur le développement."
+    },
+    "steria-pole-emploi": {
+      "role": "Ingénieur développement — Pôle Emploi",
+      "description": "Mission courte au sein du projet GUPPI pour Pôle Emploi — application de gestion du référentiel d'offres d'emploi développée avec un framework MDA propriétaire. Formation des nouveaux collaborateurs et participation à la refonte du module de consultation."
+    },
+    "steria-ministere": {
+      "role": "Ingénieur développement — Ministère de l'intérieur",
+      "description": "TMA pour le Ministère de l'intérieur sur 4 applications (ACTES, ELOI, FNAEG, AGRIPPA). Démarrage en tant que développeur MCO, puis évolution vers responsable d'application et responsable de l'équipe nantaise (6 personnes)."
+    },
+    "iminfo": {
+      "role": "Analyste programmeur",
+      "description": "Développeur et formateur au sein d'une PME de 5 personnes spécialisée Java. Réalisation de formations (Java, jQuery), rédaction de supports pédagogiques, et participation à un projet pour Faiveley Transport (lecture et analyse de boîtes noires de trains)."
+    }
+  }
+}

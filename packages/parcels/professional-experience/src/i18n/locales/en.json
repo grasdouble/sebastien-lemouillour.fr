@@ -1,0 +1,40 @@
+{
+  "page": {
+    "title": "Professional Experience"
+  },
+  "present": "Present",
+  "experience": {
+    "qlik-principal": {
+      "role": "Principal Software Engineer",
+      "description": "Following Qlik's acquisition of Talend, continued as Principal Software Engineer within the same organisation, now integrated into Qlik's broader ecosystem of cloud analytics solutions."
+    },
+    "talend-principal": {
+      "role": "Principal Software Engineer",
+      "description": "Evolved into the Principal Software Engineer role at Talend. Took ownership of frontend architecture topics, mentored the team, and contributed to the quality and stability of the TMC product."
+    },
+    "talend-senior": {
+      "role": "Senior Frontend Developer",
+      "description": "Joined Talend — a worldwide provider of cloud data management solutions — as a Frontend Developer, quickly progressing to Senior Frontend Developer. This experience was the opportunity to put into practice everything learned before, within the TMC project: driving large features, reducing production risks, and improving team collaboration."
+    },
+    "infotel": {
+      "role": "Fullstack Developer",
+      "description": "Joined Infotel, an IT services company, as a Fullstack Developer. Worked exclusively for one client — Bureau Veritas — across multiple projects. This experience marked a turning point towards frontend development, with projects built using Angular and Ionic."
+    },
+    "steria-tamaris": {
+      "role": "Technical Lead — ERDF TAMARIS",
+      "description": "Technical lead on the TAMARIS project for ERDF — a field activity planning application (Flex rich client + PDA client). Coordinated the Paris → Nantes team migration and evolved from Team Leader to Deputy Project Manager and MCO Project Manager, before stepping back to a technical lead role to focus on development."
+    },
+    "steria-pole-emploi": {
+      "role": "Software Engineer — Pôle Emploi",
+      "description": "Short mission on the GUPPI application for Pôle Emploi — a job offer repository management system built with a proprietary MDA framework. Onboarded new team members and contributed to a consultation module rewrite."
+    },
+    "steria-ministere": {
+      "role": "Software Engineer — Ministry of the Interior",
+      "description": "Application maintenance and support (TMA) for the French Ministry of the Interior across 4 applications (ACTES, ELOI, FNAEG, AGRIPPA). Started as a developer, then grew into application owner and Nantes team lead (6 people)."
+    },
+    "iminfo": {
+      "role": "Programmer Analyst",
+      "description": "Developer and trainer at a 5-person Java software company. Delivered training sessions (Java, jQuery), wrote educational materials, and contributed to a Faiveley Transport project for reading and analysing train black boxes."
+    }
+  }
+}
