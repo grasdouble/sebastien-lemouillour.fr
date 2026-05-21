@@ -17,10 +17,11 @@
   "projects": {
     "title": "Projets",
     "archived": "Archivé",
+    "sebastien-lemouillour-fr": "Le code source de ce site personnel — construit avec React et le Lufa Design System.",
     "lufa-design-system": "Un design system React avec tokens sémantiques, compatible dark/light mode. Inclut une documentation Storybook interactive.",
     "lufa-lab": "Terrain d'expérimentation pour les nouvelles idées du workspace Lufa.",
     "bmad-manager": "Gestionnaire d'agents BMad pour automatiser les workflows de développement.",
-    "lufa": "Le monorepo open-source qui héberge le workspace Lufa : microfrontends, plugins Vite et configs partagées.",
+    "lufa-core": "L'infrastructure partagée de l'écosystème Lufa : configurations ESLint/Prettier/TypeScript, CDN autobuild et expérimentations POC.",
     "dotfiles": "Configuration personnelle : terminal, aliases et environnement de développement.",
     "leetcode": "Mes solutions aux exercices LeetCode — pratique algorithmique en JavaScript.",
     "github-package-visualizer": "Visualisateur de dépendances entre packages GitHub.",

@@ -19,6 +19,19 @@ export type Project = {
 export const PROJECTS: readonly Project[] = [
   // ── Active — most recent first ──
   {
+    title: 'sebastien-lemouillour.fr',
+    key: 'sebastien-lemouillour-fr',
+    links: [
+      {
+        href: 'https://github.com/grasdouble/sebastien-lemouillour.fr',
+        label: 'GitHub',
+        type: 'outline',
+        variant: 'neutral',
+      },
+    ],
+    archived: false,
+  },
+  {
     title: 'Lufa Design System',
     key: 'lufa-design-system',
     links: [
@@ -58,9 +71,9 @@ export const PROJECTS: readonly Project[] = [
     archived: false,
   },
   {
-    title: 'Lufa',
-    key: 'lufa',
-    links: [{ href: 'https://github.com/grasdouble/Lufa', label: 'GitHub', type: 'outline', variant: 'neutral' }],
+    title: 'Lufa-Core',
+    key: 'lufa-core',
+    links: [{ href: 'https://github.com/grasdouble/Lufa-Core', label: 'GitHub', type: 'outline', variant: 'neutral' }],
     archived: false,
   },
   {

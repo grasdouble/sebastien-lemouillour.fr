@@ -15,7 +15,7 @@ description: Regenerate the PROJECTS TypeScript constant in the Lufa home landin
 
    The script fetches public repos from `grasdouble` org + `noofreuuuh` account via `gh` CLI, filters excluded repos, sorts by creation date (newest first, active then archived), fetches `archivedAt` year via GraphQL for archived repos, and outputs a `PROJECTS` TypeScript const.
 
-2. Replace the existing `export const PROJECTS` block in `packages/apps/microfrontend/home/src/data/projects.ts` with the script output.
+2. Replace the existing `export const PROJECTS` block in `packages/parcels/landing-page/src/data/projects.ts` with the script output.
 
 3. Run `pnpm all:typecheck && pnpm all:lint` to verify.
 
