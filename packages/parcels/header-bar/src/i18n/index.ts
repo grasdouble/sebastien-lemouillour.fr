@@ -27,9 +27,4 @@ void i18n
 
 i18n.on('languageChanged', syncDocumentLang);
 
-window.addEventListener('lufa:lang-change', (e) => {
-  const { lang } = (e as CustomEvent<{ lang: string }>).detail;
-  void i18n.changeLanguage(lang);
-});
-
 export default i18n;

@@ -1,0 +1,7 @@
+/* Lufa Microfrontend Professional Experience — root wrapper */
+
+.lufa-professional-experience {
+  min-height: 100vh;
+  background-color: var(--lufa-semantic-ui-background-page);
+  color: var(--lufa-semantic-ui-text-primary);
+}

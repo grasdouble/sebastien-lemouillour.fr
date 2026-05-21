@@ -8,4 +8,6 @@ html,
 body {
   margin: 0;
   padding: 0;
+  background-color: var(--lufa-semantic-ui-background-page);
+  color: var(--lufa-semantic-ui-text-primary);
 }
