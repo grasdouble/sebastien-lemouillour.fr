@@ -44,6 +44,13 @@ The `tsconfig` files in this repo have `declaration: true` and `sourceMap: true`
 
 If stray generated files appear in `src/` (`.js`, `.js.map`, `.d.ts`, `.d.ts.map`), delete them immediately.
 
+## Git — No commits
+
+Never create git commits. Stage changes and present them for the user to review and commit manually.
+
+- ✅ `git add <files>`
+- ❌ `git commit` — never, even when asked to "save" or "apply" changes
+
 ## Changesets — Naming convention
 
 When creating a changeset file manually in `.changeset/`, always use a **descriptive kebab-case name** that summarises the change — never a random hex ID.
