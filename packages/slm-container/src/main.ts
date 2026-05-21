@@ -33,8 +33,10 @@ const loaderPreview = {
     if (!el) return Promise.resolve();
     el.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;height:calc(100vh - 60px);">
-        <div class="lufa-loader-dots visible">
-          <span></span><span></span><span></span>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <span style="display:block;width:10px;height:10px;border-radius:50%;background-color:var(--lufa-core-color-brand-primary-default);animation:lufa-pulse 1.2s ease-in-out infinite;"></span>
+          <span style="display:block;width:10px;height:10px;border-radius:50%;background-color:var(--lufa-core-color-brand-primary-default);animation:lufa-pulse 1.2s ease-in-out 0.2s infinite;"></span>
+          <span style="display:block;width:10px;height:10px;border-radius:50%;background-color:var(--lufa-core-color-brand-primary-default);animation:lufa-pulse 1.2s ease-in-out 0.4s infinite;"></span>
         </div>
       </div>`;
     return Promise.resolve();
