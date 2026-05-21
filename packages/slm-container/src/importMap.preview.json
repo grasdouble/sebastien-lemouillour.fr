@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "@grasdouble/slm_parcel_landing-page": "http://localhost:4101/home.mjs"
-  }
-}
