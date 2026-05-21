@@ -20,7 +20,7 @@ export const EXPERIENCES: readonly Experience[] = [
       'TypeScript',
       'React',
       'JavaScript',
-      'Github Actions',
+      'GitHub Actions',
       'Architecture Frontend',
       'Pnpm',
       'Vite',

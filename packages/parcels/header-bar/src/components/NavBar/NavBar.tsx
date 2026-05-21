@@ -36,6 +36,7 @@ export function NavBar() {
   }, []);
 
   const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     window.history.pushState(null, '', href);
     window.dispatchEvent(new PopStateEvent('popstate'));

@@ -14,9 +14,7 @@ import '@grasdouble/lufa_design-system-themes/coffee.css';
 import '@grasdouble/lufa_design-system-themes/volt.css';
 import '@grasdouble/lufa_design-system-themes/steampunk.css';
 
-const loader = document.getElementById('lufa-loader');
-const showLoader = () => loader?.classList.add('visible');
-const hideLoader = () => loader?.classList.remove('visible');
+import { hideLoader, loaderPreview, showLoader } from './loader';
 
 window.addEventListener('single-spa:before-app-change', showLoader);
 window.addEventListener('single-spa:app-change', hideLoader);
@@ -25,26 +23,6 @@ const loadApp =
   (url: string): (() => Promise<LifeCycles>) =>
   () =>
     import(/* @vite-ignore */ url);
-
-const loaderPreview = {
-  bootstrap: () => Promise.resolve(),
-  mount: () => {
-    const el = document.getElementById('lufa-container');
-    if (!el) return Promise.resolve();
-    el.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:center;height:calc(100vh - 60px);">
-        <div id="lufa-loader-dots" class="visible">
-          <span></span><span></span><span></span>
-        </div>
-      </div>`;
-    return Promise.resolve();
-  },
-  unmount: () => {
-    const el = document.getElementById('lufa-container');
-    if (el) el.innerHTML = '';
-    return Promise.resolve();
-  },
-};
 
 registerApplication({
   name: '@grasdouble/slm_loader-preview',

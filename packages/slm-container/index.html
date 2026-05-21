@@ -14,61 +14,13 @@
     <import-map-overrides-full show-when-local-storage="devtools"></import-map-overrides-full>
     <div id="lufa-header"></div>
     <div id="lufa-loader" aria-hidden="true">
-      <div id="lufa-loader-dots">
+      <div class="lufa-loader-dots">
         <span></span>
         <span></span>
         <span></span>
       </div>
     </div>
     <div id="lufa-container"></div>
-    <style>
-      #lufa-loader {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: fixed;
-        inset: 0;
-        top: 60px;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        pointer-events: none;
-      }
-      #lufa-loader.visible {
-        opacity: 1;
-        pointer-events: auto;
-      }
-      #lufa-loader-dots {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-      #lufa-loader-dots span {
-        display: block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background-color: var(--lufa-core-color-brand-primary-default);
-        animation: lufa-pulse 1.2s ease-in-out infinite;
-      }
-      #lufa-loader-dots span:nth-child(2) {
-        animation-delay: 0.2s;
-      }
-      #lufa-loader-dots span:nth-child(3) {
-        animation-delay: 0.4s;
-      }
-      @keyframes lufa-pulse {
-        0%,
-        80%,
-        100% {
-          transform: scale(0.5);
-          opacity: 0.3;
-        }
-        40% {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
-    </style>
     <script type="module">
       const isLocalMapMode = import.meta.env.DEV || import.meta.env.MODE === 'preview';
 
