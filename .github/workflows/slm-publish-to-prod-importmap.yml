@@ -1,0 +1,56 @@
+name: SLM:Publish-to-Prod:Importmap
+description: |
+  This workflow publishes SLM Importmap to production via FTP.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    environment: 'MF_Importmap'
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v6
+
+      - name: 📦 Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+        with:
+          node-version-file: '.tool-versions'
+          github-token: ${{ secrets.LUFA_CI_SECRET_READ }}
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔄 Sync importmap versions
+        shell: bash
+        run: |
+          pnpm slm:sync:importmaps
+
+      - name: 📋 Prepare importmap for deployment
+        shell: bash
+        run: |
+          mkdir -p /tmp/importmap-deploy
+          cp packages/slm-container/src/importMap.json /tmp/importmap-deploy/
+
+      - name: 📂 Deploy to FTP
+        uses: ./.github/actions/ftp-deploy
+        with:
+          server: ${{ secrets.CDN_FTP_URL }}
+          port: ${{ secrets.CDN_FTP_PORT }}
+          protocol: ${{ secrets.CDN_FTP_PROTOCOL }}
+          username: ${{ secrets.CDN_FTP_LOGIN }}
+          password: ${{ secrets.CDN_FTP_PWD }}
+          local-dir: '/tmp/importmap-deploy/'
+          exclude: |
+            .well-known/**
+            cgi-bin/**
+            .ftpquota
+            .htaccess
+            index.html
