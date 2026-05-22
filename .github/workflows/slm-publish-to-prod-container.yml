@@ -1,0 +1,49 @@
+name: SLM:Publish-to-Prod:Container
+description: |
+  This workflow publishes SLM Container to production via FTP.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    environment: 'MF_Container'
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v6
+
+      - name: 📦 Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+        with:
+          node-version-file: '.tool-versions'
+          github-token: ${{ secrets.LUFA_CI_SECRET_READ }}
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build SLM container
+        shell: bash
+        run: |
+          pnpm all:build
+
+      - name: 📂 Deploy to FTP
+        uses: ./.github/actions/ftp-deploy
+        with:
+          server: ${{ secrets.MF_FTP_URL }}
+          port: ${{ secrets.MF_FTP_PORT }}
+          protocol: ${{ secrets.MF_FTP_PROTOCOL }}
+          username: ${{ secrets.MF_FTP_LOGIN }}
+          password: ${{ secrets.MF_FTP_PWD }}
+          local-dir: './packages/slm-container/dist/'
+          exclude: |
+            .well-known/**
+            cgi-bin/**
+            .ftpquota
+            .htaccess
