@@ -1,3 +1,22 @@
+# ⚠️ Agent — Read this entire file before acting
+
+These rules apply to every session, including after a compact or checkpoint. Before making any change, verify you have internalized all sections below. Never add a rule without first checking it doesn't already exist.
+
+---
+
+## Critical thinking — Always challenge requests
+
+Before implementing anything, evaluate the request critically:
+
+- If the approach has flaws, better alternatives, or architectural concerns, **say so first** before executing
+- Don't just implement what is asked — ask yourself if it's the right solution
+- If you disagree, explain why clearly and propose an alternative
+- Only proceed once the approach is validated (either confirmed by the user or after proposing a better option)
+
+This applies to: architecture decisions, API design, naming, technology choices, and any non-trivial implementation.
+
+---
+
 # RTK — Token-Optimized CLI
 
 **rtk** is a CLI proxy that filters and compresses command outputs, saving 60-90% tokens.
@@ -35,11 +54,12 @@ Only write custom CSS for things the DS genuinely cannot do:
 - Element-level styles (e.g. `img` sizing)
 - Design token values not exposed via component props (e.g. `border-top` with a token)
 
-## TypeScript — Do not emit files
+## TypeScript — Never call `tsc` directly
 
-The `tsconfig` files in this repo have `declaration: true` and `sourceMap: true`. Never run `tsc` without `--noEmit` in source folders.
+The `tsconfig` files in this repo have `declaration: true` and `sourceMap: true`. Always use the `typecheck` script — never call `tsc` directly.
 
-- ✅ `pnpm typecheck` (already uses `--noEmit`)
+- ✅ `pnpm all:typecheck` from the root (runs all packages)
+- ✅ `pnpm typecheck` from a specific package folder (e.g. `packages/parcels/landing-page`)
 - ❌ `tsc` or `tsc -p tsconfig.json` alone → emits `.js`, `.d.ts`, `.map` files into `src/`
 
 If stray generated files appear in `src/` (`.js`, `.js.map`, `.d.ts`, `.d.ts.map`), delete them immediately.

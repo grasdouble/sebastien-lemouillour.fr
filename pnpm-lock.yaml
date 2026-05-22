@@ -45,8 +45,8 @@ importers:
   packages/parcels/header-bar:
     dependencies:
       '@grasdouble/lufa_design-system':
-        specifier: ^3.0.1
-        version: 3.0.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^3.1.0
+        version: 3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       i18next:
         specifier: ^26.2.0
         version: 26.2.0(typescript@6.0.3)
@@ -121,8 +121,8 @@ importers:
   packages/parcels/landing-page:
     dependencies:
       '@grasdouble/lufa_design-system':
-        specifier: ^3.0.1
-        version: 3.0.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^3.1.0
+        version: 3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -203,8 +203,8 @@ importers:
   packages/parcels/professional-experience:
     dependencies:
       '@grasdouble/lufa_design-system':
-        specifier: ^3.0.1
-        version: 3.0.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^3.1.0
+        version: 3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -347,8 +347,8 @@ importers:
   packages/slm-container:
     dependencies:
       '@grasdouble/lufa_design-system':
-        specifier: ^3.0.1
-        version: 3.0.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^3.1.0
+        version: 3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/lufa_design-system-themes':
         specifier: ^1.1.5
         version: 1.1.5
@@ -642,8 +642,8 @@ packages:
   '@grasdouble/lufa_design-system-tokens@1.2.5':
     resolution: {integrity: sha512-RYGYLfgF/9wJi5pchQ+vQGnFRRlFLtArE3M5c9+RzBiSXntq2mWBWVi7EaAGf8hSe1MaGh/Sv6HyXAN2pAcKAA==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_design-system-tokens/1.2.5/d55aa2df228a7c29765bdcc10586362c29b916bc}
 
-  '@grasdouble/lufa_design-system@3.0.1':
-    resolution: {integrity: sha512-knQSOSYhkQjK9B9jI5gBenETJoMPH48Mmzi0/fmzTqvT6ndP5R973PrD1vsvrHwiG6Z0J0yqlFxX9B/yotHeLw==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_design-system/3.0.1/9c58e4bad0d30bdaa9b092143e83781cf20d9322}
+  '@grasdouble/lufa_design-system@3.1.0':
+    resolution: {integrity: sha512-0yKugl+yK6c1BypVqob5EpY0Crp90u32HjgsjnlMepCajRaV1n3vpu+evnirvLJqvKTxO9ARvR2o1siN2t5rXA==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_design-system/3.1.0/58d29c3c316ad4f8550312b412aa08bd92e8eed5}
     peerDependencies:
       react: ^19.1.0
       react-dom: ^19.1.0
@@ -877,14 +877,14 @@ packages:
   '@swc/helpers@0.5.21':
     resolution: {integrity: sha512-jI/VAmtdjB/RnI8GTnokyX7Ug8c+g+ffD6QRLa6XQewtnGyukKkKSk3wLTM3b5cjt1jNh9x0jfVlagdN2gDKQg==}
 
-  '@tanstack/react-virtual@3.13.24':
-    resolution: {integrity: sha512-aIJvz5OSkhNIhZIpYivrxrPTKYsjW9Uzy+sP/mx0S3sev2HyvPb7xmjbYvokzEpfgYHy/HjzJ2zFAETuUfgCpg==}
+  '@tanstack/react-virtual@3.13.25':
+    resolution: {integrity: sha512-bmNoqMu6gcAW9JGrKVB0Q1tN1i5RONZF8r1fW0bbE4Oyf3DwEGnzzQJ2OW+Ozg1P4s8PyugkHg2ULZoFQN+cqw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/virtual-core@3.14.0':
-    resolution: {integrity: sha512-JLANqGy/D6k4Ujmh8Tr25lGimuOXNiaVyXaCAZS0W+1390sADdGnyUdSWNIfd49gebtIxGMij4IktRVzrdr12Q==}
+  '@tanstack/virtual-core@3.15.0':
+    resolution: {integrity: sha512-0AwPGx0I8QxPYjAxShT/+z+ZOe9u8mW5rsXvivCTjRfRmz9a43+3mRyi4wwlyoUqOC56q/jatKa0Bh9M99BEHQ==}
 
   '@tybys/wasm-util@0.10.2':
     resolution: {integrity: sha512-RoBvJ2X0wuKlWFIjrwffGw1IqZHKQqzIchKaadZZfnNpsAYp2mM0h36JtPCjNDAHGgYez/15uMBpfGwchhiMgg==}
@@ -2861,7 +2861,7 @@ snapshots:
 
   '@grasdouble/lufa_design-system-tokens@1.2.5': {}
 
-  '@grasdouble/lufa_design-system@3.0.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@grasdouble/lufa_design-system@3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@grasdouble/lufa_design-system-tokens': 1.2.5
       '@headlessui/react': 2.2.10(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -2876,7 +2876,7 @@ snapshots:
       '@floating-ui/react': 0.26.28(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@react-aria/focus': 3.22.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@react-aria/interactions': 3.28.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      '@tanstack/react-virtual': 3.13.24(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@tanstack/react-virtual': 3.13.25(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
       use-sync-external-store: 1.6.0(react@19.2.6)
@@ -3059,13 +3059,13 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@tanstack/react-virtual@3.13.24(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@tanstack/react-virtual@3.13.25(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
-      '@tanstack/virtual-core': 3.14.0
+      '@tanstack/virtual-core': 3.15.0
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
 
-  '@tanstack/virtual-core@3.14.0': {}
+  '@tanstack/virtual-core@3.15.0': {}
 
   '@tybys/wasm-util@0.10.2':
     dependencies:
