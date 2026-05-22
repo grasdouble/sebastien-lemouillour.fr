@@ -14,6 +14,9 @@ export const mount = () => {
   return new Promise((resolve, reject) => {
     const container = document.getElementById('lufa-header');
     if (container) {
+      container.style.position = 'sticky';
+      container.style.top = '0';
+      container.style.zIndex = '100';
       root ??= createRoot(container);
       root.render(<App />);
       resolve(void 0);
@@ -25,6 +28,12 @@ export const mount = () => {
 
 export const unmount = () => {
   return new Promise((resolve) => {
+    const container = document.getElementById('lufa-header');
+    if (container) {
+      container.style.position = '';
+      container.style.top = '';
+      container.style.zIndex = '';
+    }
     if (root) {
       root.unmount();
       root = null;
