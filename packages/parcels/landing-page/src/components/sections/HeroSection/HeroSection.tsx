@@ -8,7 +8,7 @@ import sectionStyles from '../section.module.css';
 import styles from './HeroSection.module.css';
 
 export function HeroSection() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('landing-page');
 
   return (
     <Box id="hero" as="section" className={styles['section-hero']}>

@@ -2,6 +2,7 @@ import type { LifeCycles } from 'single-spa';
 import { registerApplication, start } from 'single-spa';
 
 import 'import-map-overrides';
+import './i18n';
 import './reset.css';
 import '@grasdouble/lufa_design-system-themes/ocean.css';
 import '@grasdouble/lufa_design-system-themes/forest.css';

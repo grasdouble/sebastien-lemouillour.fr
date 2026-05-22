@@ -18,7 +18,7 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export function NavBar() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('header-bar');
   const [activePath, setActivePath] = useState(window.location.pathname);
   const [menuOpen, setMenuOpen] = useState(false);
 

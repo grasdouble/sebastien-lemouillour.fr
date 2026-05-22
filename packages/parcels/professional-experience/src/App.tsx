@@ -10,7 +10,7 @@ import { ExperienceCard } from './components';
 import { EXPERIENCES } from './data/experiences';
 
 function App() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('professional-experience');
 
   return (
     <Box id="lufa-professional-experience" className={styles['lufa-professional-experience']}>

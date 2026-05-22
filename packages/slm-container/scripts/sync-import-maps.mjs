@@ -20,7 +20,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const PKG_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const WORKSPACE_ROOT = resolve(PKG_ROOT, '../../../..');
+const WORKSPACE_ROOT = resolve(PKG_ROOT, '../..');
 const WRITE = process.argv.includes('--write');
 
 // --- Version resolution ---
@@ -39,6 +39,41 @@ const NODE_MODULES_ROOTS = [
 
 const versionCache = new Map();
 
+/**
+ * Builds a map of { packageName → version } for all workspace packages by
+ * scanning package.json files under WORKSPACE_ROOT/packages (depth ≤ 3).
+ * This covers workspace-only packages that are not installed in node_modules
+ * (e.g. parcels loaded dynamically via import map at runtime).
+ */
+const buildWorkspaceVersionMap = () => {
+  const map = new Map();
+
+  const scanDir = (dir, depth = 0) => {
+    if (depth > 3) return;
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+      try {
+        const pkg = JSON.parse(readFileSync(resolve(dir, entry.name, 'package.json'), 'utf8'));
+        if (pkg.name && pkg.version) map.set(pkg.name, pkg.version);
+      } catch {
+        // no package.json — continue
+      }
+      scanDir(resolve(dir, entry.name), depth + 1);
+    }
+  };
+
+  scanDir(resolve(WORKSPACE_ROOT, 'packages'));
+  return map;
+};
+
+const workspaceVersionMap = buildWorkspaceVersionMap();
+
 const resolveInstalledVersion = (pkgName) => {
   if (versionCache.has(pkgName)) return versionCache.get(pkgName);
 
@@ -52,7 +87,14 @@ const resolveInstalledVersion = (pkgName) => {
     }
   }
 
-  return null; // package not installed locally (e.g. external CDN-only dep)
+  // Fallback: workspace packages not installed in node_modules (e.g. parcels)
+  const workspaceVersion = workspaceVersionMap.get(pkgName);
+  if (workspaceVersion) {
+    versionCache.set(pkgName, workspaceVersion);
+    return workspaceVersion;
+  }
+
+  return null; // package not found locally (e.g. external CDN-only dep)
 };
 
 // --- URL parsing ---

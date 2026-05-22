@@ -17,7 +17,7 @@ function formatDate(dateStr: string, lang: string): string {
 }
 
 export function ExperienceCard({ experience }: ExperienceCardProps) {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation('professional-experience');
   const { company, roleKey, startDate, endDate, location, descriptionKey, skills } = experience;
 
   const start = formatDate(startDate, i18n.language);

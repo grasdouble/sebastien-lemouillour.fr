@@ -7,7 +7,7 @@ import { SKILLS } from '../../../data/skills';
 import sectionStyles from '../section.module.css';
 
 export function SkillsSection() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('landing-page');
 
   return (
     <Container id="skills" as="section" size="lg" paddingBlock="spacious">

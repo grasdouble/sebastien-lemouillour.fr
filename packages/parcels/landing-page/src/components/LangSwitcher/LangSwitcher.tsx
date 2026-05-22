@@ -6,7 +6,7 @@ import { Box, Button } from '@grasdouble/lufa_design-system';
 import styles from './LangSwitcher.module.css';
 
 export function LangSwitcher() {
-  const { i18n } = useTranslation();
+  const { i18n } = useTranslation('landing-page');
   const currentLang = i18n.language.startsWith('fr') ? 'fr' : 'en';
 
   return (
