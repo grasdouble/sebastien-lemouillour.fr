@@ -22,19 +22,11 @@ function App() {
   const sectionIds = [...SECTIONS];
   const navSections = SECTIONS.map((id) => ({ id, label: t(SECTION_LABEL_KEY[id]) }));
 
-  const { activeId } = useScrollSpy({ ids: sectionIds });
+  const { activeId, scrollTo } = useScrollSpy({ ids: sectionIds });
 
   return (
     <Box id="lufa-home" className={styles['lufa-home']}>
-      <DotNav
-        sections={navSections}
-        activeId={activeId}
-        onSelect={(id: string) => {
-          const el = document.getElementById(id);
-          el?.scrollIntoView({ behavior: 'smooth' });
-        }}
-        position="right"
-      />
+      <DotNav sections={navSections} activeId={activeId} onSelect={scrollTo} position="right" />
 
       <main>
         <HeroSection />
