@@ -6,7 +6,7 @@ import { Box, Button, Container, Stack, Text } from '@grasdouble/lufa_design-sys
 import sectionStyles from '../section.module.css';
 
 export function ContactSection() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('landing-page');
 
   return (
     <Container id="contact" as="section" size="lg" paddingBlock="spacious">

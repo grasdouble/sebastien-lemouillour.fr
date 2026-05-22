@@ -6,7 +6,7 @@ import { Box, Stack, Text } from '@grasdouble/lufa_design-system';
 import styles from './FooterSection.module.css';
 
 export function FooterSection() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('landing-page');
 
   return (
     <Box as="footer" className={styles.footer}>

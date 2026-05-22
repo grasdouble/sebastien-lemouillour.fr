@@ -8,7 +8,7 @@ import sectionStyles from '../section.module.css';
 import styles from './ProjectsSection.module.css';
 
 export function ProjectsSection() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('landing-page');
 
   return (
     <Container id="projects" as="section" size="lg" paddingBlock="spacious">

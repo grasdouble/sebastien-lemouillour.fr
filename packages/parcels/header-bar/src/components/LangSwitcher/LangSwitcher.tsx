@@ -8,7 +8,7 @@ import styles from './LangSwitcher.module.css';
 export const LANG_CHANGE_EVENT = 'lufa:lang-change';
 
 export function LangSwitcher() {
-  const { i18n } = useTranslation();
+  const { i18n } = useTranslation('header-bar');
   const currentLang = i18n.language.startsWith('fr') ? 'fr' : 'en';
 
   const changeLang = (lang: string) => {

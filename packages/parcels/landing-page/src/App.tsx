@@ -17,7 +17,7 @@ import {
 import { SECTION_LABEL_KEY, SECTIONS } from './constants';
 
 function App() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('landing-page');
 
   const sectionIds = [...SECTIONS];
   const navSections = SECTIONS.map((id) => ({ id, label: t(SECTION_LABEL_KEY[id]) }));
