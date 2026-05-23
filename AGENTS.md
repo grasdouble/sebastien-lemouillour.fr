@@ -71,6 +71,26 @@ Never create git commits. Stage changes and present them for the user to review 
 - ✅ `git add <files>`
 - ❌ `git commit` — never, even when asked to "save" or "apply" changes
 
+## Accessibility — Non-negotiable
+
+Every UI change must consider accessibility. This is not optional and must never be skipped during review or implementation.
+
+Checklist to apply systematically:
+
+- **Decorative elements** (canvas, svg, images without meaning) → `aria-hidden="true"`
+- **Interactive elements** → keyboard accessible, `role` and `aria-*` attributes correct
+- **Images** → `alt` attribute always present (empty string `""` if decorative)
+- **Form fields** → associated `<label>` or `aria-label`
+- **Color** → never the only means of conveying information
+- **Focus** → visible focus indicator, logical tab order
+- **Animations** → always respect `prefers-reduced-motion: reduce` — pause or skip any motion when active
+- **Contrast** → WCAG AA minimum: 4.5:1 for text, 3:1 for large text and UI components
+- **Semantic HTML** → use the right element first (`<button>`, `<nav>`, `<main>`…) before reaching for ARIA roles
+- **Heading hierarchy** → logical `h1 → h2 → h3` structure, never skip levels
+- **Live regions** → use `aria-live` for content that updates dynamically without a page reload
+
+When writing or reviewing code, if an accessibility issue is found, fix it in the same PR — never defer it.
+
 ## Changesets — Naming convention
 
 When creating a changeset file manually in `.changeset/`, always use a **descriptive kebab-case name** that summarises the change — never a random hex ID.
