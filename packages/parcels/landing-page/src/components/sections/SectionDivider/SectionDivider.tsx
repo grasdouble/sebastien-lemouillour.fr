@@ -89,9 +89,17 @@ export function SectionDivider() {
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
 
+    const themeObserver = new MutationObserver(() => {
+      if (canvas) {
+        waveColor = getComputedStyle(canvas).getPropertyValue('--wave-line-color').trim();
+      }
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-mode'] });
+
     return () => {
       cancelAnimationFrame(animationId);
       resizeObserver.disconnect();
+      themeObserver.disconnect();
     };
   }, []);
 
