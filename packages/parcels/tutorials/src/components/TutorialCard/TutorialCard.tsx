@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Badge, Card, Cluster, Stack, Text } from '@grasdouble/lufa_design-system';
+import { Badge, Card, Cluster, Text } from '@grasdouble/lufa_design-system';
 
 import type { Difficulty, Tutorial } from '../../data/tutorials';
 import styles from './TutorialCard.module.css';
@@ -45,8 +45,8 @@ export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
       aria-label={`Ouvrir le tutoriel : ${title}`}
     >
       <Card>
-        <Stack direction="vertical" spacing="default">
-          <Stack direction="vertical" spacing="tight">
+        <div className={styles['tutorial-card-body']}>
+          <div className={styles['tutorial-card-main']}>
             <div className={styles['tutorial-card-header']}>
               <Text as="h3" variant="h4" weight="semibold" color="primary">
                 {title}
@@ -58,7 +58,7 @@ export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
             <Text as="p" variant="body" color="secondary">
               {description}
             </Text>
-          </Stack>
+          </div>
 
           {tags.length > 0 && (
             <Cluster spacing="compact">
@@ -69,7 +69,7 @@ export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
               ))}
             </Cluster>
           )}
-        </Stack>
+        </div>
       </Card>
     </div>
   );

@@ -1,9 +1,15 @@
 .tutorial-card {
   cursor: pointer;
+  height: 100%;
   border-radius: 8px;
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease;
+}
+
+/* Make the Card DS component fill full height */
+.tutorial-card > * {
+  height: 100%;
 }
 
 .tutorial-card:hover {
@@ -14,6 +20,20 @@
 .tutorial-card:focus-visible {
   outline: 2px solid var(--lufa-semantic-ui-border-focus, currentColor);
   outline-offset: 2px;
+}
+
+.tutorial-card-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 16px;
+}
+
+.tutorial-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
 }
 
 .tutorial-card-header {
