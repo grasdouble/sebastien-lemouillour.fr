@@ -1,5 +1,11 @@
 # @grasdouble/slm_parcel_landing-page
 
+## 1.1.0
+
+### Minor Changes
+
+- dbd1631: HeroSection: add animated canvas background (floating tokens, matrix rain, particle network) and refactor i18n `p3` with `<Trans>`.
+
 ## 1.0.5
 
 ### Patch Changes
