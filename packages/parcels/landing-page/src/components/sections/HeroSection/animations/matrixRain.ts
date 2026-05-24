@@ -1,4 +1,4 @@
-import { debounce, getThemeColor } from './utils';
+import { debounce, getOpacityScale, getThemeColor } from './utils';
 
 const CHARS = '<>/{}[]()=;:.#!|&*%$0123456789abcdefghijklmnopqrstuvwxyz';
 

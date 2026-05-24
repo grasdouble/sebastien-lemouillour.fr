@@ -1,4 +1,4 @@
-import { debounce, getThemeColor } from './utils';
+import { debounce, getOpacityScale, getThemeColor } from './utils';
 
 const TOKENS = [
   // HTML / JSX tags

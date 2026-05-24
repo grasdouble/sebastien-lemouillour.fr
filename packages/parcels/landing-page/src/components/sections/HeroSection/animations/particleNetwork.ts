@@ -1,4 +1,4 @@
-import { debounce, getThemeColor } from './utils';
+import { debounce, getOpacityScale, getThemeColor } from './utils';
 
 const CONNECTION_THRESHOLD = 130;
 const CONNECTION_THRESHOLD_SQ = CONNECTION_THRESHOLD * CONNECTION_THRESHOLD;
