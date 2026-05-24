@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { Box, Container, Stack, Text } from '@grasdouble/lufa_design-system';
 
@@ -36,29 +36,33 @@ export function HeroSection() {
               {t('about.p2')}
             </Text>
             <Text as="p" variant="body-large" align="center" color="secondary">
-              {t('about.p3_prefix')}{' '}
-              <strong>
-                <a
-                  href="https://github.com/noofreuuuh"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles['hero-link']}
-                >
-                  noofreuuuh
-                </a>
-              </strong>{' '}
-              {t('about.p3_middle')}{' '}
-              <strong>
-                <a
-                  href="https://github.com/smouillour"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles['hero-link']}
-                >
-                  smouillour
-                </a>
-              </strong>{' '}
-              {t('about.p3_suffix')} <strong>Qlik</strong>.
+              <Trans
+                i18nKey="about.p3"
+                t={t}
+                components={{
+                  github1: (
+                    <strong>
+                      <a
+                        href="https://github.com/noofreuuuh"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles['hero-link']}
+                      />
+                    </strong>
+                  ),
+                  github2: (
+                    <strong>
+                      <a
+                        href="https://github.com/smouillour"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles['hero-link']}
+                      />
+                    </strong>
+                  ),
+                  strong: <strong />,
+                }}
+              />
             </Text>
           </Stack>
         </Container>

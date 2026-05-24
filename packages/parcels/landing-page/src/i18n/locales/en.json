@@ -7,9 +7,7 @@
     "title": "About",
     "p1": "Passionate frontend developer with a strong focus on JavaScript, TypeScript and React. I care about building clean, efficient, well-tested software that delivers real value.",
     "p2": "Outside of code, I enjoy spending quality time with my family, swimming, playing squash, reading manga and diving into video games.",
-    "p3_prefix": "My work is split between two GitHub accounts:",
-    "p3_middle": "for my personal projects and",
-    "p3_suffix": "for my professional contributions at"
+    "p3": "My work is split between two GitHub accounts: <github1>noofreuuuh</github1> for my personal projects and <github2>smouillour</github2> for my professional contributions at <strong>Qlik</strong>."
   },
   "skills": {
     "title": "Skills"

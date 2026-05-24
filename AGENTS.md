@@ -108,6 +108,20 @@ Checklist to apply systematically:
 
 When writing or reviewing code, if an accessibility issue is found, fix it in the same PR — never defer it.
 
+## i18n — Trans component and namespace
+
+When a translation string contains inline JSX (links, `<strong>`, etc.), always use `<Trans>` instead of splitting into multiple keys.
+
+- ✅ One key with `<Trans t={t} i18nKey="..." components={{...}} />` — translators see the full sentence
+- ❌ `p3_prefix` / `p3_middle` / `p3_suffix` — fragments that break translation context
+
+Always pass `t={t}` (from `useTranslation`) to `<Trans>` so it inherits the namespace automatically — **never hardcode `ns="..."`** on `<Trans>`.
+
+- ✅ `<Trans i18nKey="about.p3" t={t} components={{...}} />`
+- ❌ `<Trans i18nKey="about.p3" ns="landing-page" components={{...}} />`
+
+> Rationale: in production, i18next is a shared singleton initialized by the container. Setting `defaultNS` in the parcel's local config has no effect in production. Passing `t` is the only reliable way to propagate the namespace.
+
 ## Changesets — Naming convention
 
 When creating a changeset file manually in `.changeset/`, always use a **descriptive kebab-case name** that summarises the change — never a random hex ID.
