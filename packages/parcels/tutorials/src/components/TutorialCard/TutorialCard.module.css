@@ -40,7 +40,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--lufa-spacing-compact, 8px);
+  gap: var(--lufa-semantic-ui-spacing-compact);
 }
 
 .tutorial-card-header h3 {
