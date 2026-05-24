@@ -40,14 +40,16 @@ export function HeroCanvas() {
   }, []);
 
   useEffect(() => {
+    if (!hasMounted) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const io = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), { threshold: 0 });
     io.observe(canvas);
     return () => io.disconnect();
-  }, []);
+  }, [hasMounted]);
 
   useEffect(() => {
+    if (!hasMounted) return;
     if (reducedMotion || !isVisible) return;
 
     const canvas = canvasRef.current;
@@ -60,7 +62,7 @@ export function HeroCanvas() {
     if (!config) return;
 
     return config.setup(canvas, ctx);
-  }, [active, reducedMotion, isVisible]);
+  }, [active, reducedMotion, isVisible, hasMounted]);
 
   if (!hasMounted || reducedMotion) return null;
 
