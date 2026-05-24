@@ -58,7 +58,7 @@ export function HeroSection() {
                   smouillour
                 </a>
               </strong>{' '}
-              {t('about.p3_suffix')} <strong>Talend</strong>.
+              {t('about.p3_suffix')} <strong>Qlik</strong>.
             </Text>
           </Stack>
         </Container>

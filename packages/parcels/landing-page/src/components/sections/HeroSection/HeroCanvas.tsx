@@ -25,9 +25,7 @@ const ANIMATIONS: AnimationConfig[] = [
 export function HeroCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState<AnimationType>('tokens');
-  const [reducedMotion, setReducedMotion] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -73,6 +71,7 @@ export function HeroCanvas() {
               className={`${styles.switcherBtn}${active === id ? ` ${styles.switcherBtnActive}` : ''}`}
               onClick={() => setActive(id)}
               aria-pressed={active === id}
+              aria-label={title}
               title={title}
             >
               {label}
