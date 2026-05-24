@@ -17,8 +17,8 @@
 }
 
 .hero-logo {
-  width: 10rem;
-  height: 10rem;
+  width: 16rem;
+  height: 16rem;
 }
 
 .hero-link {
@@ -42,8 +42,8 @@
   }
 
   .hero-logo {
-    width: 7rem;
-    height: 7rem;
+    width: 12rem;
+    height: 12rem;
   }
 }
 
@@ -55,7 +55,7 @@
   }
 
   .hero-logo {
-    width: 6rem;
-    height: 6rem;
+    width: 10rem;
+    height: 10rem;
   }
 }

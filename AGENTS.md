@@ -13,6 +13,25 @@ When the user points out a mistake or a recurring problem, **always update this 
 
 This applies to any type of mistake: tooling, workflow, code quality, file management, etc.
 
+**✅ Update AGENTS.md when:**
+
+- The user explicitly asks to add or change a rule
+- A recurring mistake is identified (same error happened twice or more)
+- A new validated pattern emerges that applies to any future session in this repo
+
+**❌ Do NOT update AGENTS.md when:**
+
+- The instruction is session-specific ("for this task, skip lint")
+- The user qualified it with "for now", "just this time", "temporarily"
+- The fact is already captured by a stored memory
+- The rule would duplicate or contradict an existing section
+
+**Agent memories vs AGENTS.md:**
+
+- Use your agent's memory system (if available) for facts that could apply across multiple repos (user preferences, general conventions)
+- Use AGENTS.md for rules that are **specific to this repo** (tooling, architecture, workflow)
+- When in doubt: if it references a specific file, command, or package in this repo → AGENTS.md
+
 ---
 
 ## Critical thinking — Always challenge requests
@@ -24,46 +43,27 @@ Before implementing anything, evaluate the request critically:
 - If you disagree, explain why clearly and propose an alternative
 - Only proceed once the approach is validated (either confirmed by the user or after proposing a better option)
 
-This applies to: architecture decisions, API design, naming, technology choices, and any non-trivial implementation.
+**Non-trivial = anything involving:** architecture decisions, API design, technology or library choices, naming that will be hard to change, security-sensitive code, or changes that affect more than one package.
+
+- ✅ "You asked to add Redux here, but the app already uses Zustand — should I use Zustand instead for consistency?"
+- ✅ "Splitting this into two components makes sense, but it will require changing the parent interface — is that acceptable?"
+- ❌ Silently implementing a pattern that conflicts with the existing codebase
+- ❌ Asking for validation on every trivial decision (adding a CSS class, fixing a typo)
 
 ---
 
-# RTK — Token-Optimized CLI
+## Git — No commits, no destructive operations
 
-**rtk** is a CLI proxy that filters and compresses command outputs, saving 60-90% tokens.
+Never create git commits. Stage changes and present them for the user to review and commit manually.
 
-## Rule
+- ✅ `git add <files>`, `git diff`, `git status`, `git log`, `git stash`
+- ❌ `git commit` — never, even when asked to "save" or "apply" changes
+- ❌ `git rebase` — rewrites history
+- ❌ `git reset --hard` — destroys uncommitted work
+- ❌ `git push --force` / `git push --force-with-lease` — overwrites remote
+- ❌ `git clean -fd` — permanently deletes untracked files
 
-Always prefix shell commands with `rtk`:
-
-```bash
-# Instead of:              Use:
-git status                 rtk git status
-git log -10                rtk git log -10
-cargo test                 rtk cargo test
-docker ps                  rtk docker ps
-kubectl get pods           rtk kubectl pods
-```
-
-## Meta commands (use directly)
-
-```bash
-rtk gain              # Token savings dashboard
-rtk gain --history    # Per-command savings history
-rtk discover          # Find missed rtk opportunities
-rtk proxy <cmd>       # Run raw (no filtering) but track usage
-```
-
-## Design System — Prefer components over custom CSS
-
-Always use Lufa Design System components before writing custom CSS. Use the `lufa-design-system` skill to discover the current list of available components and their props.
-
-Only write custom CSS for things the DS genuinely cannot do:
-
-- `min-height`, `aspect-ratio`, or other structural constraints
-- Responsive `auto-fit` / `auto-fill` grid layouts
-- Element-level styles (e.g. `img` sizing)
-- Design token values not exposed via component props (e.g. `border-top` with a token)
+---
 
 ## TypeScript — Never call `tsc` directly
 
@@ -78,15 +78,84 @@ The `tsconfig` files in this repo have `declaration: true` and `sourceMap: true`
 ### Forbidden — always
 
 - ❌ `tsc` — direct binary call
-- ❌ `pnpm tsc` — still calls the binary directly, bypass the script
+- ❌ `pnpm tsc` — still calls the binary directly, bypasses the script
 - ❌ `tsc -p tsconfig.json` with any flags, including `--noEmit` or `--listEmittedFiles`
 
-## Git — No commits
+---
 
-Never create git commits. Stage changes and present them for the user to review and commit manually.
+## Package Manager — Always use pnpm
 
-- ✅ `git add <files>`
-- ❌ `git commit` — never, even when asked to "save" or "apply" changes
+This repo uses **pnpm** exclusively. Never use `npm` or `yarn`.
+
+- ✅ `pnpm install`, `pnpm add <pkg>`, `pnpm run <script>`
+- ❌ `npm install`, `yarn add`
+
+---
+
+## RTK — Token-Optimized CLI
+
+**rtk** is a CLI proxy that filters and compresses command outputs, saving 60-90% tokens.
+
+### Rule
+
+Always prefix **bash/shell** commands with `rtk` (not tool calls like `ide-get_diagnostics`):
+
+```bash
+# Instead of:              Use:
+git status                 rtk git status
+git log -10                rtk git log -10
+pnpm lint                  rtk pnpm lint
+pnpm build                 rtk pnpm build
+```
+
+### Native rtk commands (run as-is, no prefix needed)
+
+```bash
+rtk gain              # Token savings dashboard
+rtk gain --history    # Per-command savings history
+rtk discover          # Find missed rtk opportunities
+rtk proxy <cmd>       # Run raw (no filtering) but track usage
+```
+
+---
+
+## Build & Validation
+
+Run these commands to validate your changes before presenting them to the user:
+
+| Scope                      | Command              | From           |
+| -------------------------- | -------------------- | -------------- |
+| All packages — lint        | `pnpm all:lint`      | root           |
+| All packages — build       | `pnpm all:build`     | root           |
+| All packages — typecheck   | `pnpm all:typecheck` | root           |
+| Single package — lint      | `pnpm lint`          | package folder |
+| Single package — build     | `pnpm build`         | package folder |
+| Single package — typecheck | `pnpm typecheck`     | package folder |
+
+**Which scope to use:**
+
+- Changed only one package → run package-level commands first (faster)
+- Changed shared code (DS tokens, container, config) → run root-level commands
+- Unsure → run root-level to be safe
+
+**On failure:** Stop. Fix the error. Re-run the failing command. Do not present changes to the user until the relevant commands pass. Never edit generated files (`dist/`, `node_modules/`, `.pnpm-store/`, `*.map`, `*.d.ts` in build output) to work around a failure.
+
+> The repo is a monorepo. Explore `packages/` to discover available packages — never assume their paths.
+
+---
+
+## Design System — Prefer components over custom CSS
+
+Always use Lufa Design System components before writing custom CSS. Use the `lufa-design-system` skill to discover the current list of available components and their props.
+
+Only write custom CSS for things the DS genuinely cannot do:
+
+- `min-height`, `aspect-ratio`, or other structural constraints
+- Responsive `auto-fit` / `auto-fill` grid layouts
+- Element-level styles (e.g. `img` sizing)
+- Design token values not exposed via component props (e.g. `border-top` with a token)
+
+---
 
 ## Accessibility — Non-negotiable
 
@@ -106,21 +175,25 @@ Checklist to apply systematically:
 - **Heading hierarchy** → logical `h1 → h2 → h3` structure, never skip levels
 - **Live regions** → use `aria-live` for content that updates dynamically without a page reload
 
-When writing or reviewing code, if an accessibility issue is found, fix it in the same PR — never defer it.
+When writing or reviewing code, if an accessibility issue is found, fix it in the same task — never defer it.
+
+---
 
 ## i18n — Trans component and namespace
 
 When a translation string contains inline JSX (links, `<strong>`, etc.), always use `<Trans>` instead of splitting into multiple keys.
 
 - ✅ One key with `<Trans t={t} i18nKey="..." components={{...}} />` — translators see the full sentence
-- ❌ `p3_prefix` / `p3_middle` / `p3_suffix` — fragments that break translation context
+- ❌ `key_prefix` / `key_middle` / `key_suffix` — fragments that break translation context
 
 Always pass `t={t}` (from `useTranslation`) to `<Trans>` so it inherits the namespace automatically — **never hardcode `ns="..."`** on `<Trans>`.
 
-- ✅ `<Trans i18nKey="about.p3" t={t} components={{...}} />`
-- ❌ `<Trans i18nKey="about.p3" ns="landing-page" components={{...}} />`
+- ✅ `<Trans i18nKey="section.myKey" t={t} components={{...}} />`
+- ❌ `<Trans i18nKey="section.myKey" ns="landing-page" components={{...}} />`
 
 > Rationale: in production, i18next is a shared singleton initialized by the container. Setting `defaultNS` in the parcel's local config has no effect in production. Passing `t` is the only reliable way to propagate the namespace.
+
+---
 
 ## Changesets — Naming and content
 
@@ -132,16 +205,48 @@ When creating a changeset file manually in `.changeset/`, always use a **descrip
 
 **Content rules:**
 
-- Always check `git diff main --name-only` first to identify **all** changed packages before writing the changeset
-- Include **every changed package** as a separate entry (one line per package with its bump type)
-- The description must cover **all changes** in the branch — be synthetic, one short sentence per distinct change if needed
+- Always check `git diff main --name-only` first to identify **all** changed packages before writing changesets
 - Use `patch` for fixes/refactors, `minor` for new user-visible features, `major` for breaking changes
+- **Always prefix the description** with a conventional commit type: `feat:`, `fix:`, `chore:`, `refactor:`, `perf:`, `docs:`, `style:`, `test:`
+- **Always verify** the changeset after creation: `rtk pnpm changeset status`
+
+**One changeset per package** — never bundle unrelated packages in a single changeset:
+
+- ✅ One file per package when changes are independent
+- ✅ One shared file when a **single atomic change** touches multiple packages together (e.g. shared API or token consumed immediately by a consumer)
+- ❌ One file listing several packages with unrelated changes
+- ❌ One file for a refactor that touches N packages independently — create N files instead
 
 ```md
----
-'@grasdouble/pkg-a': minor
-'@grasdouble/pkg-b': patch
+# .changeset/add-hero-image.md ← only touches landing-page
+
 ---
 
-Short synthetic description covering all changes in the branch.
+## '@grasdouble/slm_parcel_landing-page': minor
+
+feat: replace hero logo with diorama image.
 ```
+
+```md
+# .changeset/update-shared-component.md ← atomic change spanning two parcels
+
+---
+
+'@grasdouble/slm_parcel_header-bar': minor
+'@grasdouble/slm_parcel_landing-page': patch
+
+---
+
+feat: add new shared component and consume it in landing-page.
+```
+
+Prefix guide:
+
+- `feat:` — new user-visible feature
+- `fix:` — bug fix
+- `chore:` — maintenance, config, tooling, dependency update
+- `refactor:` — code restructuring without behavior change
+- `perf:` — performance improvement
+- `docs:` — documentation only
+- `style:` — visual/CSS change with no logic change
+- `test:` — test additions or changes
