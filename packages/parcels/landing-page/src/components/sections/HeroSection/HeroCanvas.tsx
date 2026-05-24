@@ -26,12 +26,14 @@ export function HeroCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState<AnimationType>('tokens');
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time initial sync, empty deps, no cascade risk
     setReducedMotion(mq.matches);
+    setHasMounted(true);
     const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
@@ -60,7 +62,7 @@ export function HeroCanvas() {
     return config.setup(canvas, ctx);
   }, [active, reducedMotion, isVisible]);
 
-  if (reducedMotion) return null;
+  if (!hasMounted || reducedMotion) return null;
 
   return (
     <>
