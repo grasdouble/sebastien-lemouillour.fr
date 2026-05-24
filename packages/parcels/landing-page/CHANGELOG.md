@@ -1,5 +1,13 @@
 # @grasdouble/slm_parcel_landing-page
 
+## 1.2.1
+
+### Patch Changes
+
+- 7aa6db9: fix: restore HeroCanvas animation on initial page load.
+
+  `hasMounted` was missing from both `useEffect` dependency arrays. The animation effect ran before the canvas existed (returning early on null ref), and never re-ran once the canvas appeared because its deps were unchanged. Adding `hasMounted` to both the IntersectionObserver and animation effects ensures they fire once the canvas is in the DOM.
+
 ## 1.2.0
 
 ### Minor Changes
