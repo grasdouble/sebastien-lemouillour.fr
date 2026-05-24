@@ -1,4 +1,4 @@
-import { getOpacityScale, getThemeColor } from './utils';
+import { debounce, getThemeColor } from './utils';
 
 const TOKENS = [
   // HTML / JSX tags
@@ -332,7 +332,7 @@ export function setupFloatingTokens(canvas: HTMLCanvasElement, ctx: CanvasRender
   init();
   draw();
 
-  const ro = new ResizeObserver(resize);
+  const ro = new ResizeObserver(debounce(resize, 50));
   ro.observe(canvas);
 
   return () => {

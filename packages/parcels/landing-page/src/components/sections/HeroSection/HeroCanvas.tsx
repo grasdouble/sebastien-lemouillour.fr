@@ -28,6 +28,7 @@ export function HeroCanvas() {
   const [reducedMotion, setReducedMotion] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   );
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -37,7 +38,15 @@ export function HeroCanvas() {
   }, []);
 
   useEffect(() => {
-    if (reducedMotion) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const io = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), { threshold: 0 });
+    io.observe(canvas);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion || !isVisible) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -49,7 +58,7 @@ export function HeroCanvas() {
     if (!config) return;
 
     return config.setup(canvas, ctx);
-  }, [active, reducedMotion]);
+  }, [active, reducedMotion, isVisible]);
 
   if (reducedMotion) return null;
 

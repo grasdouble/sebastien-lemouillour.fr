@@ -1,4 +1,4 @@
-import { getOpacityScale, getThemeColor } from './utils';
+import { debounce, getThemeColor } from './utils';
 
 const CHARS = '<>/{}[]()=;:.#!|&*%$0123456789abcdefghijklmnopqrstuvwxyz';
 
@@ -90,7 +90,7 @@ export function setupMatrixRain(canvas: HTMLCanvasElement, ctx: CanvasRenderingC
   resize();
   draw();
 
-  const ro = new ResizeObserver(resize);
+  const ro = new ResizeObserver(debounce(resize, 50));
   ro.observe(canvas);
 
   return () => {
