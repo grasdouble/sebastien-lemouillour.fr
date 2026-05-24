@@ -1,5 +1,11 @@
 # @grasdouble/slm_parcel_landing-page
 
+## 1.2.0
+
+### Minor Changes
+
+- 8d43c2d: feat: replace hero logo with diorama image and increase its display size.
+
 ## 1.1.0
 
 ### Minor Changes
