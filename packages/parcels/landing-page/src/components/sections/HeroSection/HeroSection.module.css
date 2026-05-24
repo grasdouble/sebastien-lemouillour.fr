@@ -1,6 +1,7 @@
 /* Hero section — full-screen with gradient background */
 .section-hero {
   position: relative;
+  isolation: isolate;
   min-height: 90vh;
   display: flex;
   flex-direction: column;
