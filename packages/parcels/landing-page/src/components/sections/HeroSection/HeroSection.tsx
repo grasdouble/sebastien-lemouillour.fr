@@ -5,6 +5,7 @@ import { Box, Container, Stack, Text } from '@grasdouble/lufa_design-system';
 
 import { getImageUrl } from '../../../getImageUrl';
 import sectionStyles from '../section.module.css';
+import { HeroCanvas } from './HeroCanvas';
 import styles from './HeroSection.module.css';
 
 export function HeroSection() {
@@ -12,6 +13,7 @@ export function HeroSection() {
 
   return (
     <Box id="hero" as="section" className={styles['section-hero']}>
+      <HeroCanvas />
       <Stack direction="vertical" spacing="spacious" align="center">
         <Stack direction="vertical" spacing="default" align="center">
           <img src={getImageUrl('Lufa_Logo_no_background')} alt="Lufa logo" className={styles['hero-logo']} />

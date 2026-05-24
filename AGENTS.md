@@ -2,6 +2,17 @@
 
 These rules apply to every session, including after a compact or checkpoint. Before making any change, verify you have internalized all sections below. Never add a rule without first checking it doesn't already exist.
 
+## Self-improvement — Update this file when a mistake is identified
+
+When the user points out a mistake or a recurring problem, **always update this file** to prevent it from happening again — in the same response, before moving on.
+
+- Identify the root cause, not just the symptom
+- Write a rule specific enough to prevent the exact mistake
+- Do not add vague rules ("be careful with X") — write actionable rules with ✅/❌ examples
+- Check that a similar rule doesn't already exist before adding
+
+This applies to any type of mistake: tooling, workflow, code quality, file management, etc.
+
 ---
 
 ## Critical thinking — Always challenge requests
@@ -56,13 +67,19 @@ Only write custom CSS for things the DS genuinely cannot do:
 
 ## TypeScript — Never call `tsc` directly
 
-The `tsconfig` files in this repo have `declaration: true` and `sourceMap: true`. Always use the `typecheck` script — never call `tsc` directly.
+The `tsconfig` files in this repo have `declaration: true` and `sourceMap: true`. **Any direct invocation of the `tsc` binary can emit `.js`, `.d.ts`, and `.map` files into `src/`, even with `--noEmit`.**
 
-- ✅ `pnpm all:typecheck` from the root (runs all packages)
+### Allowed — type checking
+
+- ✅ `ide-get_diagnostics` tool — preferred, zero risk of file emission
 - ✅ `pnpm typecheck` from a specific package folder (e.g. `packages/parcels/landing-page`)
-- ❌ `tsc` or `tsc -p tsconfig.json` alone → emits `.js`, `.d.ts`, `.map` files into `src/`
+- ✅ `pnpm all:typecheck` from the root (runs all packages)
 
-If stray generated files appear in `src/` (`.js`, `.js.map`, `.d.ts`, `.d.ts.map`), delete them immediately.
+### Forbidden — always
+
+- ❌ `tsc` — direct binary call
+- ❌ `pnpm tsc` — still calls the binary directly, bypass the script
+- ❌ `tsc -p tsconfig.json` with any flags, including `--noEmit` or `--listEmittedFiles`
 
 ## Git — No commits
 
