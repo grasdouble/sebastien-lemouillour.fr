@@ -16,7 +16,7 @@ export function HeroSection() {
       <HeroCanvas />
       <Stack direction="vertical" spacing="spacious" align="center">
         <Stack direction="vertical" spacing="default" align="center">
-          <img src={getImageUrl('Lufa_Logo_no_background')} alt="Lufa logo" className={styles['hero-logo']} />
+          <img src={getImageUrl('diorama')} alt="Diorama" className={styles['hero-logo']} />
           <Stack direction="vertical" spacing="none" align="center">
             <Text as="h1" variant="h1" weight="bold" align="center" color="primary">
               Sébastien LE MOUILLOUR
