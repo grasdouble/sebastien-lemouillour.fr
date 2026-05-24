@@ -1,0 +1,24 @@
+{
+  "page": {
+    "title": "Tutoriels & Cours",
+    "subtitle": "Explorez des tutoriels sur l'IA, le tooling et le développement"
+  },
+  "filter": {
+    "searchPlaceholder": "Rechercher par titre…",
+    "searchLabel": "Rechercher un tutoriel",
+    "tagsLabel": "Filtrer par tags",
+    "clearFilters": "Effacer les filtres",
+    "noResults": "Aucun tutoriel ne correspond à vos filtres.",
+    "results": "{{count}} tutoriel",
+    "results_plural": "{{count}} tutoriels"
+  },
+  "detail": {
+    "close": "Fermer",
+    "backToList": "Retour à la liste"
+  },
+  "difficulty": {
+    "beginner": "Débutant",
+    "intermediate": "Intermédiaire",
+    "advanced": "Avancé"
+  }
+}

@@ -1,0 +1,39 @@
+.tutorial-card {
+  cursor: pointer;
+  border-radius: 8px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.tutorial-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.tutorial-card:focus-visible {
+  outline: 2px solid var(--lufa-semantic-ui-border-focus, currentColor);
+  outline-offset: 2px;
+}
+
+.tutorial-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--lufa-spacing-compact, 8px);
+}
+
+.tutorial-card-header h3 {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-card {
+    transition: none;
+  }
+
+  .tutorial-card:hover {
+    transform: none;
+  }
+}

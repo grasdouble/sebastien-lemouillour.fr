@@ -1,0 +1,113 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--lufa-spacing-default);
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  background: var(--lufa-semantic-ui-background-surface);
+  border: 1px solid var(--lufa-semantic-ui-border-default);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--lufa-spacing-default);
+  padding: var(--lufa-spacing-comfortable);
+  border-bottom: 1px solid var(--lufa-semantic-ui-border-default);
+  flex-shrink: 0;
+}
+
+.modal-tags {
+  padding: var(--lufa-spacing-compact) var(--lufa-spacing-comfortable);
+  border-bottom: 1px solid var(--lufa-semantic-ui-border-default);
+  flex-shrink: 0;
+}
+
+.modal-content {
+  overflow-y: auto;
+  padding: var(--lufa-spacing-comfortable);
+  flex: 1;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--lufa-semantic-ui-text-secondary);
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.close-btn:hover {
+  background: var(--lufa-semantic-ui-background-hover);
+  color: var(--lufa-semantic-ui-text-primary);
+}
+
+.close-btn:focus-visible {
+  outline: 2px solid var(--lufa-semantic-ui-border-focus, currentColor);
+  outline-offset: 2px;
+}
+
+.code-block {
+  background: var(--lufa-semantic-ui-background-page);
+  border: 1px solid var(--lufa-semantic-ui-border-default);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.code-lang {
+  background: var(--lufa-semantic-ui-background-surface);
+  border-bottom: 1px solid var(--lufa-semantic-ui-border-default);
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  color: var(--lufa-semantic-ui-text-tertiary);
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.code-pre {
+  margin: 0;
+  padding: var(--lufa-spacing-default);
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--lufa-semantic-ui-text-primary);
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+}
+
+.content-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lufa-spacing-tight);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    backdrop-filter: none;
+  }
+}

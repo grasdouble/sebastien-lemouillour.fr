@@ -1,0 +1,24 @@
+{
+  "page": {
+    "title": "Tutorials & Courses",
+    "subtitle": "Explore tutorials on AI, tooling, and development"
+  },
+  "filter": {
+    "searchPlaceholder": "Search by title…",
+    "searchLabel": "Search tutorials",
+    "tagsLabel": "Filter by tags",
+    "clearFilters": "Clear filters",
+    "noResults": "No tutorials match your filters.",
+    "results": "{{count}} tutorial",
+    "results_plural": "{{count}} tutorials"
+  },
+  "detail": {
+    "close": "Close",
+    "backToList": "Back to list"
+  },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  }
+}

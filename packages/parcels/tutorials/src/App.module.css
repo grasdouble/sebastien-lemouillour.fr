@@ -1,0 +1,22 @@
+.lufa-tutorials {
+  min-height: 100vh;
+  background: var(--lufa-semantic-ui-background-page);
+}
+
+.tutorials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.category-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 8px;
+}
+
+.category-title {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--lufa-semantic-ui-border-default, rgba(127, 127, 127, 0.2));
+}

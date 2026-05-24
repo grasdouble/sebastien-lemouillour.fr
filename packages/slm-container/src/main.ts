@@ -49,4 +49,10 @@ registerApplication({
   activeWhen: (location: Location) => location.pathname === '/experience',
 });
 
+registerApplication({
+  name: '@grasdouble/slm_parcel_tutorials',
+  app: loadApp('@grasdouble/slm_parcel_tutorials'),
+  activeWhen: (location: Location) => location.pathname === '/tutorials',
+});
+
 start();
