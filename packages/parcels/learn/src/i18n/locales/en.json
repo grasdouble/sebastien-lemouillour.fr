@@ -7,6 +7,7 @@
     "searchPlaceholder": "Search by title…",
     "searchLabel": "Search guides",
     "tagsLabel": "Filter by tags",
+    "difficultyLabel": "Filter by difficulty",
     "clearFilters": "Clear filters",
     "noResults": "No guides match your filters.",
     "results": "{{count}} guide",

@@ -1,0 +1,43 @@
+.filters-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lufa-semantic-ui-spacing-default);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lufa-semantic-ui-spacing-tight);
+}
+
+.clear-btn {
+  align-self: flex-end;
+}
+
+@media (min-width: 640px) {
+  .filters-row {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+
+  .filter-group {
+    padding-inline: var(--lufa-semantic-ui-spacing-comfortable);
+  }
+
+  .filter-group:first-child {
+    padding-left: 0;
+    border-right: var(--lufa-semantic-ui-border-width-thin) solid var(--lufa-semantic-ui-border-default);
+  }
+
+  .filter-group:last-of-type {
+    flex: 1;
+  }
+
+  .clear-btn {
+    margin-left: auto;
+    align-self: center;
+    flex-shrink: 0;
+  }
+}

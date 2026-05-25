@@ -7,7 +7,7 @@ import './i18n';
 
 import { usePageSeo } from '@grasdouble/slm_shared';
 
-import type { Tutorial } from './data/learn';
+import type { Difficulty, Tutorial } from './data/learn';
 import styles from './App.module.css';
 import { FilterBar, LearnCard, LearnDetail } from './components';
 import { useLearn } from './hooks/useLearn';
@@ -23,10 +23,11 @@ function getGuideIdFromUrl(): string | null {
 
 function App() {
   const { t } = useTranslation('learn');
-  const { tutorials, allTags, categoryOrder } = useLearn();
+  const { tutorials, allTags, allDifficulties, categoryOrder } = useLearn();
 
   const [searchValue, setSearchValue] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedDifficulties, setSelectedDifficulties] = useState<Difficulty[]>([]);
   const [activeGuideId, setActiveGuideId] = useState<string | null>(getGuideIdFromUrl);
 
   const activeGuide = useMemo(
@@ -74,21 +75,29 @@ function App() {
     setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
   };
 
+  const handleDifficultyToggle = (difficulty: Difficulty) => {
+    setSelectedDifficulties((prev) =>
+      prev.includes(difficulty) ? prev.filter((d) => d !== difficulty) : [...prev, difficulty]
+    );
+  };
+
   const handleClear = () => {
     setSearchValue('');
     setSelectedTags([]);
+    setSelectedDifficulties([]);
   };
 
-  const hasActiveFilters = searchValue.trim().length > 0 || selectedTags.length > 0;
+  const hasActiveFilters = searchValue.trim().length > 0 || selectedTags.length > 0 || selectedDifficulties.length > 0;
 
   const filteredGuides = useMemo(() => {
     const query = searchValue.trim().toLowerCase();
     return tutorials.filter((tutorial) => {
       const matchesTitle = query === '' || tutorial.title.toLowerCase().includes(query);
       const matchesTags = selectedTags.length === 0 || selectedTags.every((tag) => tutorial.tags.includes(tag));
-      return matchesTitle && matchesTags;
+      const matchesDifficulty = selectedDifficulties.length === 0 || selectedDifficulties.includes(tutorial.difficulty);
+      return matchesTitle && matchesTags && matchesDifficulty;
     });
-  }, [tutorials, searchValue, selectedTags]);
+  }, [tutorials, searchValue, selectedTags, selectedDifficulties]);
 
   const groupedGuides = useMemo(() => {
     const groups: Record<string, Tutorial[]> = {};
@@ -118,6 +127,9 @@ function App() {
             allTags={allTags}
             selectedTags={selectedTags}
             onTagToggle={handleTagToggle}
+            allDifficulties={allDifficulties}
+            selectedDifficulties={selectedDifficulties}
+            onDifficultyToggle={handleDifficultyToggle}
             onClear={handleClear}
             hasActiveFilters={hasActiveFilters}
           />

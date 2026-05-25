@@ -70,3 +70,17 @@ export const RAW_LEARN_ITEMS: readonly RawLearnItem[] = [
 ];
 
 export const ALL_TAGS: readonly string[] = [...new Set(RAW_LEARN_ITEMS.flatMap((t) => t.tags))].sort();
+
+export const DIFFICULTIES: readonly Difficulty[] = ['beginner', 'intermediate', 'advanced'];
+
+export const DIFFICULTY_VARIANT: Record<Difficulty, 'success' | 'warning' | 'danger'> = {
+  beginner: 'success',
+  intermediate: 'warning',
+  advanced: 'danger',
+};
+
+export const DIFFICULTY_I18N_KEY: Record<Difficulty, string> = {
+  beginner: 'difficulty.beginner',
+  intermediate: 'difficulty.intermediate',
+  advanced: 'difficulty.advanced',
+};

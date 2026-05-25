@@ -3,24 +3,13 @@ import { useTranslation } from 'react-i18next';
 
 import { Badge, Card, Cluster, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
 
-import type { Difficulty, Tutorial } from '../../data/learn';
+import type { Tutorial } from '../../data/learn';
+import { DIFFICULTY_I18N_KEY, DIFFICULTY_VARIANT } from '../../data/learn';
 import styles from './LearnCard.module.css';
 
 type LearnCardProps = {
   tutorial: Tutorial;
   onClick: (tutorial: Tutorial) => void;
-};
-
-const DIFFICULTY_VARIANT: Record<Difficulty, 'success' | 'warning' | 'danger'> = {
-  beginner: 'success',
-  intermediate: 'warning',
-  advanced: 'danger',
-};
-
-const DIFFICULTY_I18N_KEY: Record<Difficulty, string> = {
-  beginner: 'difficulty.beginner',
-  intermediate: 'difficulty.intermediate',
-  advanced: 'difficulty.advanced',
 };
 
 export function LearnCard({ tutorial, onClick }: LearnCardProps) {

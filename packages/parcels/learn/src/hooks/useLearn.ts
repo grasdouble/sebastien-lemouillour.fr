@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { Tutorial } from '../data/learn';
-import { ALL_TAGS, CATEGORY_KEYS, RAW_LEARN_ITEMS } from '../data/learn';
+import type { Difficulty, Tutorial } from '../data/learn';
+import { ALL_TAGS, CATEGORY_KEYS, DIFFICULTIES, RAW_LEARN_ITEMS } from '../data/learn';
 
 type UseLearnResult = {
   tutorials: Tutorial[];
   allTags: readonly string[];
+  allDifficulties: readonly Difficulty[];
   categoryOrder: string[];
 };
 
@@ -30,5 +31,5 @@ export function useLearn(): UseLearnResult {
 
   const categoryOrder = useMemo<string[]>(() => CATEGORY_KEYS.map((key) => t(`categories.${key}`)), [t]);
 
-  return { tutorials, allTags: ALL_TAGS, categoryOrder };
+  return { tutorials, allTags: ALL_TAGS, allDifficulties: DIFFICULTIES, categoryOrder };
 }
