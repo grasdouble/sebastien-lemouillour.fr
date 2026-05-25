@@ -1,13 +1,13 @@
-import reactMicroFrontendsEn from './content/architecture/react-micro-frontends.en.md?raw';
-import reactMicroFrontendsFr from './content/architecture/react-micro-frontends.fr.md?raw';
-import introIaGenerativeEn from './content/ia-llm/intro-ia-generative.en.md?raw';
-import introIaGenerativeFr from './content/ia-llm/intro-ia-generative.fr.md?raw';
-import promptEngineeringEn from './content/ia-llm/prompt-engineering.en.md?raw';
-import promptEngineeringFr from './content/ia-llm/prompt-engineering.fr.md?raw';
-import pnpmWorkspacesEn from './content/tooling/pnpm-workspaces.en.md?raw';
-import pnpmWorkspacesFr from './content/tooling/pnpm-workspaces.fr.md?raw';
-import viteToolingEn from './content/tooling/vite-tooling.en.md?raw';
-import viteToolingFr from './content/tooling/vite-tooling.fr.md?raw';
+import reactMicroFrontendsEn from './content/architecture/frontend-architecture/react-micro-frontends.en.md?raw';
+import reactMicroFrontendsFr from './content/architecture/frontend-architecture/react-micro-frontends.fr.md?raw';
+import introIaGenerativeEn from './content/ia-llm/ia-llm-fundamentals/intro-ia-generative.en.md?raw';
+import introIaGenerativeFr from './content/ia-llm/ia-llm-fundamentals/intro-ia-generative.fr.md?raw';
+import promptEngineeringEn from './content/ia-llm/ia-llm-fundamentals/prompt-engineering.en.md?raw';
+import promptEngineeringFr from './content/ia-llm/ia-llm-fundamentals/prompt-engineering.fr.md?raw';
+import pnpmWorkspacesEn from './content/tooling/tooling-essentials/pnpm-workspaces.en.md?raw';
+import pnpmWorkspacesFr from './content/tooling/tooling-essentials/pnpm-workspaces.fr.md?raw';
+import viteToolingEn from './content/tooling/tooling-essentials/vite-tooling.en.md?raw';
+import viteToolingFr from './content/tooling/tooling-essentials/vite-tooling.fr.md?raw';
 
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 
