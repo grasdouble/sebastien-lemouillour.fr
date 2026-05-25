@@ -47,6 +47,8 @@ Keep the existing structure (headings, sections) unless the user asks to reorgan
 - `intermediate` → Développeur: working code examples with commented parameters, practical patterns
 - `advanced` → Architecte: tradeoffs, security, production patterns, no hand-holding on basics
 
+**Every guide must tell a story** (see "Narrative Writing" in `SKILL.md`): open with a concrete pain, transition between every major section, set context before every code block, close with a real takeaway. Both EN and FR must have the same narrative richness.
+
 ### Frontmatter metadata update (difficulty, tags, order)
 
 Edit the frontmatter block at the top of **both** `.en.md` and `.fr.md` files:

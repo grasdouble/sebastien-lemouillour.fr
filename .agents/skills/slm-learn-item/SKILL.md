@@ -35,6 +35,37 @@ A precise technical writer who knows the learn parcel inside out: file paths, na
 - **A guide's catalog is determined by its folder** — `content/{categoryKey}/{catalogId}/{id}.{lang}.md`. Place the file in the right folder; it is automatically registered in the catalog.
 - **`categoryKey` must always be in `CATEGORY_KEYS`** — a guide in an unknown category folder triggers a dev warning and is invisible in the Guides view.
 
+## Narrative Writing — Non-Negotiable
+
+Every guide must tell a story, not dump information. Apply these rules to every section of every guide:
+
+### Structure narrative arc
+
+Each guide must follow this arc:
+
+1. **Open with the pain** — a concrete situation the reader has lived: a slow build, a broken production deploy, results that feel random. Name the frustration before naming the solution.
+2. **Introduce the solution as the answer to that pain** — not "X is a tool that does Y" but "X answers that exact problem by…"
+3. **Guide the reader through concepts in causal order** — each concept must feel like the natural consequence of the previous one. Never list concepts alphabetically or by category.
+4. **Introduce code with a "why"** — before every code block, write one sentence that explains what problem this code solves or what decision it illustrates.
+5. **Close with a real takeaway** — not a summary of what was said, but a sentence the reader can carry out of the guide: a caveat, a threshold, a decision rule.
+
+### Transitions are mandatory
+
+- Between every major section: one sentence that connects the previous point to the next ("Now that X is solved, the next problem is Y.")
+- Before every code block: one sentence that sets the reader's expectation ("The example below shows… / That is why…")
+- After a code block that introduces a tradeoff or limitation: one sentence that draws the lesson
+
+### What to avoid
+
+- ❌ Starting a section with a definition ("X is a concept that…")
+- ❌ Listing features without explaining why they matter
+- ❌ Code blocks dropped without context
+- ❌ Conclusions that just restate what was covered ("In this guide, we saw…")
+
+### EN and FR must match in narrative quality
+
+Both language versions must have the same narrative richness: same opening scenario, same transitions, same concluding takeaway. The FR is not a reduced version of the EN — it is a full translation of the narrative.
+
 ## Codebase Conventions
 
 ### File layout

@@ -30,6 +30,8 @@ Gather these before writing anything. If the user has already provided some, ski
 
 If drafting content, write substantive markdown — introduction, key concepts, practical examples, code blocks where relevant. Aim for ~400–800 words per language. Mirror structure between EN and FR — same sections, same examples, translated.
 
+**Every guide must tell a story** (see "Narrative Writing" in `SKILL.md`): open with a concrete pain the reader recognizes, introduce each concept as the answer to the previous problem, add a transition sentence before every code block, and close with a real takeaway — not a summary. Both EN and FR must have the same narrative richness.
+
 **Always write for the target persona** (see "Difficulty guidance — Personas" in `SKILL.md`):
 
 - `beginner` → Découvreur: analogies, plain language, explicit limitations, path to next guides
