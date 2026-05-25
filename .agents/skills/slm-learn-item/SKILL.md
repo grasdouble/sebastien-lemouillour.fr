@@ -30,6 +30,7 @@ A precise technical writer who knows the learn parcel inside out: file paths, na
 - If the user provides a topic but no `id`, propose a kebab-case id and confirm before acting
 - If a new category is needed, add it to `CATEGORY_KEYS` and both i18n files
 - **Every guide must be assigned to exactly one catalog** — never create a guide without adding it to `RAW_CATALOGS`. A guide without a catalog triggers a dev warning and is unreachable from the Catalogues view.
+- **`categoryKey` must always be in `CATEGORY_KEYS`** — a guide with an unknown `categoryKey` triggers a dev warning and is invisible in the Guides view.
 
 ## Codebase Conventions
 

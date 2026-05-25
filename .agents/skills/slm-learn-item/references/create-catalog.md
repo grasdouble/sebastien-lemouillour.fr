@@ -31,6 +31,7 @@ Gather these before writing anything. If the user has already provided some, ski
    ```
 
 2. **Add i18n keys** to `packages/parcels/learn/src/i18n/locales/en.json`:
+
    ```json
    "catalogs": {
      "items": {
@@ -41,7 +42,29 @@ Gather these before writing anything. If the user has already provided some, ski
      }
    }
    ```
+
    Mirror the same structure in `fr.json` with French translations.
+
+3. **Create changeset**
+
+   File: `.changeset/add-learn-catalog-{id}.md`
+
+   ```md
+   ---
+   '@grasdouble/slm_parcel_learn': minor
+   ---
+
+   feat: add "{title_en}" catalog to the learn parcel.
+   ```
+
+4. **Confirm**
+
+   Summarize what was created:
+   - Entry added to `RAW_CATALOGS` with guides: `{guideIds}`
+   - i18n keys added to both `en.json` and `fr.json`
+   - Changeset created
+
+   Remind the user to run `pnpm build` from the `learn` package to validate.
 
 ## Constraints
 
@@ -49,3 +72,10 @@ Gather these before writing anything. If the user has already provided some, ski
 - A guide can only belong to one catalog
 - The order of `guideIds` defines the display order in the catalog detail page
 - Catalog `id` must be unique and kebab-case
+
+## Dev-time integrity checks
+
+`learn.ts` runs these checks in `import.meta.env.DEV` and logs warnings to the console:
+
+- **Dangling catalog refs** — if a catalog's `guideIds` contains an ID absent from `RAW_LEARN_ITEMS`, a `console.warn` is emitted. Always verify all IDs exist before saving.
+- **Orphan guides** — if a guide has no catalog, a `console.warn` is emitted. Every guide must belong to exactly one catalog.

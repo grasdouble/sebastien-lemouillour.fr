@@ -79,3 +79,11 @@ Use `minor` instead of `patch` if new content sections are added.
 ### Confirm
 
 Summarize what changed (files edited, fields updated). Remind the user to run `pnpm build` from the `learn` package.
+
+> **Dev-time integrity guardrails** — `learn.ts` has `console.warn` checks that fire in development:
+>
+> - Guide not assigned to any catalog → "not attached to any catalog"
+> - Guide's `categoryKey` not in `CATEGORY_KEYS` → "unknown categoryKey"
+> - Catalog referencing a non-existent guide ID → "unknown guide ids"
+>
+> If any warning appears after the update, fix the offending entry before shipping.

@@ -151,3 +151,11 @@ Summarize what was created:
 - Changeset created
 
 Remind the user to run `pnpm build` from the `learn` package to validate.
+
+> **Dev-time integrity guardrails** — `learn.ts` has `console.warn` checks that fire in development:
+>
+> - Guide not assigned to any catalog → "not attached to any catalog"
+> - Guide's `categoryKey` not in `CATEGORY_KEYS` → "unknown categoryKey"
+> - Catalog referencing a non-existent guide ID → "unknown guide ids"
+>
+> If any warning appears after adding the guide, fix the offending entry before shipping.
