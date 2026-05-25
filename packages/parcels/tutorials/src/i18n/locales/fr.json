@@ -20,5 +20,38 @@
     "beginner": "Débutant",
     "intermediate": "Intermédiaire",
     "advanced": "Avancé"
+  },
+  "tutorials": {
+    "intro-ia-generative": {
+      "title": "Introduction à l'IA générative",
+      "description": "Comprendre les bases de l'IA générative, les LLMs et comment les utiliser dans vos projets."
+    },
+    "vite-tooling": {
+      "title": "Vite : le build tool moderne",
+      "description": "Découvrez Vite, ses avantages par rapport à Webpack et comment configurer un projet React/TypeScript."
+    },
+    "pnpm-workspaces": {
+      "title": "Monorepo avec pnpm workspaces",
+      "description": "Structurer et gérer un monorepo JavaScript/TypeScript avec pnpm workspaces, changesets et scripts partagés."
+    },
+    "react-micro-frontends": {
+      "title": "Micro-frontends avec React et single-spa",
+      "description": "Architecturer une application en micro-frontends indépendants avec single-spa, des import maps et des parcels React."
+    },
+    "prompt-engineering": {
+      "title": "Prompt Engineering : techniques avancées",
+      "description": "Maîtriser le prompt engineering avec des techniques comme le few-shot, chain-of-thought et le role prompting."
+    }
+  },
+  "categories": {
+    "ia-llm": "IA & LLM",
+    "tooling": "Tooling",
+    "architecture": "Architecture"
+  },
+  "aria": {
+    "openTutorial": "Ouvrir le tutoriel : {{title}}"
+  },
+  "seo": {
+    "description": "Tutoriels techniques sur l'IA, le tooling et l'architecture front-end."
   }
 }

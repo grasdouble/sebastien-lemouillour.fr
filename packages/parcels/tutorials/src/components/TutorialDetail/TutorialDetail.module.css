@@ -43,6 +43,13 @@
   overflow-y: auto;
   padding: var(--lufa-semantic-ui-spacing-comfortable) var(--lufa-semantic-ui-spacing-spacious);
   flex: 1;
+  min-height: 0;
+}
+
+.markdown-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lufa-semantic-ui-spacing-default);
 }
 
 .close-btn {
@@ -106,8 +113,58 @@
   gap: var(--lufa-semantic-ui-spacing-tight);
 }
 
+.content-list-ordered {
+  margin: 0;
+  padding-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lufa-semantic-ui-spacing-tight);
+}
+
+.inline-code {
+  background: var(--lufa-semantic-ui-background-page);
+  border: 1px solid var(--lufa-semantic-ui-border-default);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.875em;
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  color: var(--lufa-semantic-ui-text-primary);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .overlay {
     backdrop-filter: none;
+  }
+}
+
+/* Mobile : plein écran, pas d'overlay, ressemble à une page native */
+@media (max-width: 767px) {
+  .overlay {
+    padding: 0;
+    background: none;
+    backdrop-filter: none;
+    align-items: flex-start;
+  }
+
+  .modal {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    max-width: 100%;
+    max-height: 100dvh;
+    height: 100dvh;
+    background: var(--lufa-semantic-ui-background-page);
+  }
+
+  .modal-header {
+    padding: var(--lufa-semantic-ui-spacing-default);
+  }
+
+  .modal-tags {
+    padding: var(--lufa-semantic-ui-spacing-compact) var(--lufa-semantic-ui-spacing-default);
+  }
+
+  .modal-content {
+    padding: var(--lufa-semantic-ui-spacing-default);
   }
 }

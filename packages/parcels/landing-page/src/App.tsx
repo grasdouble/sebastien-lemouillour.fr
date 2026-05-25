@@ -5,6 +5,8 @@ import { Box, DotNav, useScrollSpy } from '@grasdouble/lufa_design-system';
 
 import './i18n';
 
+import { usePageSeo } from '@grasdouble/slm_shared';
+
 import styles from './App.module.css';
 import {
   ContactSection,
@@ -18,6 +20,12 @@ import { SECTION_LABEL_KEY, SECTIONS } from './constants';
 
 function App() {
   const { t } = useTranslation('landing-page');
+
+  usePageSeo({
+    title: 'sebastien-lemouillour.fr',
+    description: t('seo.description'),
+    url: 'https://sebastien-lemouillour.fr',
+  });
 
   const sectionIds = [...SECTIONS];
   const navSections = SECTIONS.map((id) => ({ id, label: t(SECTION_LABEL_KEY[id]) }));

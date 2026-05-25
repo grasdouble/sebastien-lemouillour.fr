@@ -1,53 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
-import { Badge, Button, Cluster, Portal, Stack, Text } from '@grasdouble/lufa_design-system';
+import { Badge, Cluster, Portal, Text } from '@grasdouble/lufa_design-system';
 
-import type { ContentBlock, Tutorial } from '../../data/tutorials';
+import type { Tutorial } from '../../data/tutorials';
 import styles from './TutorialDetail.module.css';
 
 type TutorialDetailProps = {
   tutorial: Tutorial;
   onClose: () => void;
 };
-
-function renderBlock(block: ContentBlock, index: number) {
-  switch (block.type) {
-    case 'heading':
-      return (
-        <Text key={index} as={`h${block.level}`} variant={`h${block.level}`} weight="semibold" color="primary">
-          {block.text}
-        </Text>
-      );
-    case 'paragraph':
-      return (
-        <Text key={index} as="p" variant="body" color="secondary">
-          {block.text}
-        </Text>
-      );
-    case 'code':
-      return (
-        <div key={index} className={styles['code-block']} aria-label={`Code ${block.language}`}>
-          <div className={styles['code-lang']}>{block.language}</div>
-          <pre className={styles['code-pre']}>
-            <code>{block.text}</code>
-          </pre>
-        </div>
-      );
-    case 'list':
-      return (
-        <ul key={index} className={styles['content-list']}>
-          {block.items.map((item, i) => (
-            <li key={i}>
-              <Text as="span" variant="body" color="secondary">
-                {item}
-              </Text>
-            </li>
-          ))}
-        </ul>
-      );
-  }
-}
 
 export function TutorialDetail({ tutorial, onClose }: TutorialDetailProps) {
   const { t } = useTranslation('tutorials');
@@ -109,9 +73,60 @@ export function TutorialDetail({ tutorial, onClose }: TutorialDetailProps) {
           )}
 
           <div className={styles['modal-content']}>
-            <Stack direction="vertical" spacing="comfortable">
-              {tutorial.content.map((block, i) => renderBlock(block, i))}
-            </Stack>
+            <div className={styles['markdown-body']}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h1: ({ children }) => (
+                    <Text as="h1" variant="h1" weight="semibold" color="primary">
+                      {children}
+                    </Text>
+                  ),
+                  h2: ({ children }) => (
+                    <Text as="h2" variant="h2" weight="semibold" color="primary">
+                      {children}
+                    </Text>
+                  ),
+                  h3: ({ children }) => (
+                    <Text as="h3" variant="h3" weight="semibold" color="primary">
+                      {children}
+                    </Text>
+                  ),
+                  p: ({ children }) => (
+                    <Text as="p" variant="body" color="secondary">
+                      {children}
+                    </Text>
+                  ),
+                  ul: ({ children }) => <ul className={styles['content-list']}>{children}</ul>,
+                  ol: ({ children }) => <ol className={styles['content-list-ordered']}>{children}</ol>,
+                  li: ({ children }) => (
+                    <li>
+                      <Text as="span" variant="body" color="secondary">
+                        {children}
+                      </Text>
+                    </li>
+                  ),
+                  code: ({ children, className }) => {
+                    const isBlock = className?.startsWith('language-');
+                    if (isBlock) {
+                      const language = className?.replace('language-', '') ?? '';
+                      return (
+                        <div className={styles['code-block']} aria-label={`Code ${language}`}>
+                          {language && <div className={styles['code-lang']}>{language}</div>}
+                          <pre className={styles['code-pre']}>
+                            <code>{children}</code>
+                          </pre>
+                        </div>
+                      );
+                    }
+                    return <code className={styles['inline-code']}>{children}</code>;
+                  },
+                  pre: ({ children }) => <>{children}</>,
+                }}
+              >
+                {tutorial.content}
+              </ReactMarkdown>
+            </div>
           </div>
         </div>
       </div>

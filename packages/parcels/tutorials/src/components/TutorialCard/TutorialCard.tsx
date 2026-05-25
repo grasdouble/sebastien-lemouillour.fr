@@ -42,7 +42,7 @@ export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={styles['tutorial-card']}
-      aria-label={`Ouvrir le tutoriel : ${title}`}
+      aria-label={t('aria.openTutorial', { title })}
     >
       <Card>
         <div className={styles['tutorial-card-body']}>

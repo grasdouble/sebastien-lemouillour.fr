@@ -12,7 +12,7 @@ export default defineConfig({
       devDeps: false,
       optionalDeps: false,
       peerDeps: false,
-      except: [],
+      except: ['react-markdown', 'remark-gfm', '@grasdouble/slm_shared'],
       nodeBuiltins: true,
     }),
   ],
