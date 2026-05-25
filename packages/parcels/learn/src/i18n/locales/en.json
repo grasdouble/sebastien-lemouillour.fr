@@ -24,23 +24,23 @@
   "items": {
     "intro-ia-generative": {
       "title": "Introduction to Generative AI",
-      "description": "Understand the basics of generative AI, LLMs and how to use them in your projects."
+      "description": "Understand generative AI and LLMs: key concepts (tokens, context window, temperature), how transformers work, and an introduction to embeddings and RAG."
     },
     "vite-tooling": {
       "title": "Vite: the modern build tool",
-      "description": "Discover Vite, its advantages over Webpack and how to configure a React/TypeScript project."
+      "description": "Discover Vite, its advantages over Webpack, and how to configure a React/TypeScript project with env variables and path aliases."
     },
     "pnpm-workspaces": {
       "title": "Monorepo with pnpm workspaces",
-      "description": "Structure and manage a JavaScript/TypeScript monorepo with pnpm workspaces, changesets and shared scripts."
+      "description": "Structure and manage a JavaScript/TypeScript monorepo with pnpm workspaces, workspace protocol, changesets and shared scripts."
     },
     "react-micro-frontends": {
       "title": "Micro-frontends with React and single-spa",
-      "description": "Architect an application into independent micro-frontends with single-spa, import maps and React parcels."
+      "description": "Architect an application into independent micro-frontends with single-spa, import maps, React parcels and shared dependencies."
     },
     "prompt-engineering": {
       "title": "Prompt Engineering: advanced techniques",
-      "description": "Master prompt engineering with techniques like few-shot, chain-of-thought and role prompting."
+      "description": "Master prompt engineering with zero-shot, few-shot, chain-of-thought, role prompting, system prompts and structured output."
     }
   },
   "categories": {
