@@ -2,6 +2,8 @@ declare const styles: {
   readonly 'nav-bar': string;
   readonly separator: string;
   readonly nav: string;
+  readonly 'nav-left': string;
+  readonly 'nav-right': string;
   readonly hamburger: string;
   readonly 'hamburger-bar': string;
   readonly 'bar-top-open': string;

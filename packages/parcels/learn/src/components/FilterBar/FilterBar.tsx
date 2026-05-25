@@ -120,7 +120,7 @@ export function FilterBar({
           <div className={styles['clear-btn']} aria-hidden={!hasActiveFilters}>
             <Button
               type="ghost"
-              variant="neutral"
+              variant="danger"
               size="sm"
               onClick={onClear}
               tabIndex={hasActiveFilters ? 0 : -1}

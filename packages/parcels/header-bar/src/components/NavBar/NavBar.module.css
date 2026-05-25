@@ -5,6 +5,16 @@
   gap: var(--lufa-semantic-ui-spacing-comfortable);
 }
 
+.nav-left,
+.nav-right {
+  flex: 1;
+}
+
+.nav-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .hamburger {
   display: none;
 }

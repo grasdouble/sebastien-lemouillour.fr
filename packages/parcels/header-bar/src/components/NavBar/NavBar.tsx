@@ -60,15 +60,15 @@ export function NavBar() {
     <div>
       <Container paddingBlock="compact">
         <Flex justify="between" align="center" gap="default">
-          <Cluster spacing="comfortable" align="center">
+          <div className={styles['nav-left']}>
             <Text as="span" variant="body" weight="bold" color="primary">
               SL
             </Text>
+          </div>
 
-            <nav className={styles.nav}>{navLinks}</nav>
-          </Cluster>
+          <nav className={styles.nav}>{navLinks}</nav>
 
-          <Cluster spacing="compact" align="center">
+          <Cluster spacing="compact" align="center" className={styles['nav-right']}>
             <ThemeSelector />
             <Divider orientation="vertical" emphasis="subtle" spacing="compact" />
             <LangSwitcher />
