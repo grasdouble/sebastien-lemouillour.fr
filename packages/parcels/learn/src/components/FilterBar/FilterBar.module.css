@@ -1,3 +1,22 @@
+.search-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--lufa-semantic-ui-spacing-snug);
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  padding-left: calc(var(--lufa-semantic-ui-spacing-snug) * 2 + 1rem) !important;
+}
+
 .filters-row {
   display: flex;
   flex-direction: column;

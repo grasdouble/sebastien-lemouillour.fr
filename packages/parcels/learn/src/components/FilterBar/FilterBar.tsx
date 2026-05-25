@@ -38,16 +38,21 @@ export function FilterBar({
     <Box padding="comfortable">
       <Stack direction="vertical" spacing="default">
         <Flex align="center" gap="compact">
-          <Icon name="search" size="sm" color="muted" />
-          <Input
-            id="tutorial-search"
-            type="search"
-            value={searchValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
-            placeholder={t('filter.searchPlaceholder')}
-            aria-label={t('filter.searchLabel')}
-            fullWidth
-          />
+          <div className={styles['search-wrapper']}>
+            <span className={styles['search-icon']} aria-hidden="true">
+              <Icon name="search" size="sm" color="muted" />
+            </span>
+            <Input
+              id="tutorial-search"
+              type="search"
+              value={searchValue}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
+              placeholder={t('filter.searchPlaceholder')}
+              aria-label={t('filter.searchLabel')}
+              className={styles['search-input']}
+              fullWidth
+            />
+          </div>
           {searchValue && (
             <Button
               type="ghost"
