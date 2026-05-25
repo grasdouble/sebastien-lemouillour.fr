@@ -1,5 +1,6 @@
 ---
 id: react-micro-frontends
+order: 1
 difficulty: advanced
 tags: [React, architecture, micro-frontend]
 ---

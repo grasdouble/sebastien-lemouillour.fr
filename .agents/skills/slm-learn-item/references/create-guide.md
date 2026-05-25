@@ -19,15 +19,22 @@ Gather these before writing anything. If the user has already provided some, ski
 2. **`id`** — propose a kebab-case id from the topic (e.g. `react-query-basics`). Confirm with user.
 3. **`categoryKey`** — one of `ia-llm`, `tooling`, `architecture`. If none fits, propose a new one (kebab-case) and confirm.
 4. **`catalogId`** — which existing catalog should this guide belong to? List the existing catalogs. If none fits, propose creating a new one (load `./references/create-catalog.md` first).
-5. **`difficulty`** — `beginner`, `intermediate`, or `advanced`. Infer from topic if obvious, confirm.
-6. **`tags`** — 2–5 tags. PascalCase for proper nouns/tools (`React`, `Vite`, `TypeScript`), lowercase for concepts (`monorepo`, `performance`).
-7. **Title** — EN and FR versions (short, descriptive).
-8. **Description** — EN and FR (1–2 sentences, no trailing period).
-9. **Content** — ask if the user wants to:
-   a. Provide their own content (paste or describe)
-   b. Have the agent draft it based on the topic and difficulty
+5. **`difficulty`** — `beginner`, `intermediate`, or `advanced`. Infer from topic if obvious, confirm. Use the persona definitions in `SKILL.md` (section "Difficulty guidance — Personas") to choose the right level and write content for the correct audience.
+6. **`order`** — integer position within the catalog (e.g. `1`, `2`, `3`…). Check existing guides in the catalog to determine the right position. Guides are displayed in ascending order within a catalog. **Always set this** — guides without `order` fall to the end.
+7. **`tags`** — 2–5 tags. PascalCase for proper nouns/tools (`React`, `Vite`, `TypeScript`), lowercase for concepts (`monorepo`, `performance`).
+8. **Title** — EN and FR versions (short, descriptive).
+9. **Description** — EN and FR (1–2 sentences, no trailing period).
+10. **Content** — ask if the user wants to:
+    a. Provide their own content (paste or describe)
+    b. Have the agent draft it based on the topic and difficulty
 
 If drafting content, write substantive markdown — introduction, key concepts, practical examples, code blocks where relevant. Aim for ~400–800 words per language. Mirror structure between EN and FR — same sections, same examples, translated.
+
+**Always write for the target persona** (see "Difficulty guidance — Personas" in `SKILL.md`):
+
+- `beginner` → Découvreur: analogies, plain language, explicit limitations, path to next guides
+- `intermediate` → Développeur: working code examples with commented parameters, practical patterns
+- `advanced` → Architecte: tradeoffs, security, production patterns, no hand-holding on basics
 
 ## Steps
 
@@ -42,6 +49,7 @@ Start with the frontmatter block, then the guide content:
 ```md
 ---
 id: { id }
+order: { order }
 difficulty: { difficulty }
 tags: [{ tags }]
 ---

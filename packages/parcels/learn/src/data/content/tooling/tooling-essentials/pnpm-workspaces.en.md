@@ -1,5 +1,6 @@
 ---
 id: pnpm-workspaces
+order: 2
 difficulty: intermediate
 tags: [tooling, monorepo, pnpm]
 ---

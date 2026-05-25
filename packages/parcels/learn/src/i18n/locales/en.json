@@ -42,6 +42,22 @@
     "prompt-engineering": {
       "title": "Prompt Engineering: advanced techniques",
       "description": "Master prompt engineering with zero-shot, few-shot, chain-of-thought, role prompting, system prompts and structured output."
+    },
+    "llm-api-patterns": {
+      "title": "LLM API Patterns",
+      "description": "Build robust LLM integrations: streaming responses, error handling, rate limiting, cost management and parallel requests."
+    },
+    "rag-fundamentals": {
+      "title": "RAG Fundamentals",
+      "description": "Connect LLMs to your own data with Retrieval-Augmented Generation: embeddings, vector databases, chunking strategies and a full TypeScript pipeline."
+    },
+    "llm-agents": {
+      "title": "LLM Agents",
+      "description": "Design autonomous LLM systems: function calling, the ReAct pattern, agent loops in TypeScript, and production failure modes."
+    },
+    "llm-production": {
+      "title": "LLMs in Production",
+      "description": "Make LLM integrations production-ready: observability, prompt injection defence, cost optimisation, resilience patterns and model selection."
     }
   },
   "view": {
@@ -70,7 +86,7 @@
     "items": {
       "ia-llm-fundamentals": {
         "title": "AI & LLM Fundamentals",
-        "description": "From zero to prompt mastery: understand how generative AI works then learn to craft effective prompts"
+        "description": "A progressive learning path from generative AI basics to production-grade LLM systems — covering prompts, RAG, agents and observability"
       },
       "tooling-essentials": {
         "title": "Modern Tooling",

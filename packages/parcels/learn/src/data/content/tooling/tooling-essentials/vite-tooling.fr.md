@@ -1,5 +1,6 @@
 ---
 id: vite-tooling
+order: 1
 difficulty: beginner
 tags: [tooling, Vite, build]
 ---

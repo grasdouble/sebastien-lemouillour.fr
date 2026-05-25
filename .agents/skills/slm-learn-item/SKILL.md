@@ -67,6 +67,8 @@ Every `.en.md` and `.fr.md` guide file must start with a YAML frontmatter block:
 
 ```md
 ---
+id: my-guide-id
+order: 1
 difficulty: beginner
 tags: [IA, LLM]
 ---
@@ -75,11 +77,14 @@ tags: [IA, LLM]
 ```
 
 - `id`: stable identifier for this guide (kebab-case, unique across all guides — used as URL param and i18n key)
+- `order`: integer that controls the display order of this guide within its catalog. Lower numbers appear first. **Required** — guides without `order` fall to the end in undefined order.
 - `difficulty`: `beginner` | `intermediate` | `advanced`
 - `tags`: inline YAML array — PascalCase for tools/frameworks (`React`, `Vite`), lowercase for concepts (`monorepo`, `performance`)
 - The `categoryKey` is derived from the first path segment under `content/`
 - The `catalogId` is derived from the second path segment under `content/`
 - The filename should match the `id` by convention, but the `id` in frontmatter is the authoritative identifier
+
+> Both `.en.md` and `.fr.md` must have identical frontmatter (same `id`, `order`, `difficulty`, `tags`).
 
 ### i18n key shape for guides (en.json / fr.json)
 
@@ -125,13 +130,47 @@ tags: [IA, LLM]
 | `tooling-essentials`    | `tooling`      |
 | `frontend-architecture` | `architecture` |
 
-### Difficulty guidance
+### Difficulty guidance — Personas
 
-| Value          | Meaning                                 |
-| -------------- | --------------------------------------- |
-| `beginner`     | No prerequisites, intro-level           |
-| `intermediate` | Requires working knowledge of the topic |
-| `advanced`     | Deep-dive, assumes prior experience     |
+Each difficulty level maps to a reader persona. Always write content with the specific persona in mind.
+
+#### 🟢 Découvreur — `beginner`
+
+- **Profil** : professionnel non-technique (product manager, designer, consultant, responsable). A peut-être utilisé ChatGPT mais n'a pas de background technique.
+- **Prérequis** : aucun. Familiarité avec un navigateur web et les concepts de base de l'informatique.
+- **Ce qu'il cherche** : comprendre ce que fait la technologie, ce qu'elle ne fait pas, et pourquoi c'est important. Pas de maths ni de jargon obscur.
+- **Comment écrire** :
+  - ✅ Analogies du quotidien (musicien, traduction, bibliothèque…)
+  - ✅ Définir chaque terme technique à sa première apparition
+  - ✅ Expliciter les limites et les pièges (hallucinations, mémoire, données gelées…)
+  - ✅ Terminer par un chemin vers la suite ("Et ensuite ?")
+  - ❌ Blocs de code complexes sans explication ligne par ligne
+  - ❌ Concepts empilés sans lien narratif
+
+#### 🟡 Développeur — `intermediate`
+
+- **Profil** : développeur avec 1–3 ans d'expérience. Maîtrise les APIs REST, TypeScript ou Python.
+- **Prérequis** : sait lire et écrire du code. Comprend HTTP, JSON, variables d'environnement, async/await.
+- **Ce qu'il cherche** : intégrer des LLMs dans ses projets. Comprendre les paramètres API, les patterns courants et les coûts.
+- **Comment écrire** :
+  - ✅ Code examples fonctionnels (TypeScript de préférence) avec explication des paramètres clés
+  - ✅ Patterns concrets : prompt engineering, RAG, structured output, streaming
+  - ✅ Mentionner les coûts, les limites de rate et les bonnes pratiques de sécurité
+  - ❌ Concepts purement théoriques sans exemple applicable
+  - ❌ Supposer une connaissance des mathématiques ou de l'architecture ML
+
+#### 🔴 Architecte — `advanced`
+
+- **Profil** : développeur senior, tech lead ou architecte système. Conçoit des systèmes en production à grande échelle.
+- **Prérequis** : expérience en systèmes distribués, observabilité, CI/CD, performance et scalabilité.
+- **Ce qu'il cherche** : prendre des décisions d'architecture éclairées. Comprendre les tradeoffs, les risques de sécurité, la performance à l'échelle et les coûts.
+- **Comment écrire** :
+  - ✅ Tradeoffs explicites (fine-tuning vs RAG, batch vs streaming, latence vs coût…)
+  - ✅ Considérations de sécurité (prompt injection, data leakage, PII…)
+  - ✅ Observabilité, métriques et debugging en production
+  - ✅ Comparaisons de fournisseurs, benchmarks, SLAs
+  - ❌ Expliquer les concepts de base (tokens, temperature) — les supposer acquis
+  - ❌ Code examples trop simples — préférer des patterns production-ready
 
 ## On Activation
 

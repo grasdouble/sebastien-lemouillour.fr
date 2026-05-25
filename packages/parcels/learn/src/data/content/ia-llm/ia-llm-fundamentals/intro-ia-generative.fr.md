@@ -1,31 +1,30 @@
 ---
 id: intro-ia-generative
+order: 1
 difficulty: beginner
 tags: [IA, LLM]
 ---
 
 ## Qu'est-ce que l'IA générative ?
 
-L'IA générative désigne des modèles capables de produire du contenu original (texte, images, code, audio) à partir d'une invite (prompt). Ces modèles sont entraînés sur de grandes quantités de données et apprennent à modéliser la distribution statistique de ces données. Contrairement aux systèmes basés sur des règles, ils n'exécutent pas d'instructions explicites — ils inférent des patterns à partir d'exemples.
+L'IA générative désigne des systèmes capables de créer du contenu original : texte, image, code, audio. Ce qui les distingue des programmes classiques, c'est qu'ils n'exécutent pas de règles définies à l'avance — ils ont _appris_ à partir de milliards d'exemples.
 
-## Les grands modèles de langage (LLMs)
+Imaginez un musicien qui a écouté des milliers de morceaux : il n'improvise pas au hasard, mais s'appuie sur tout ce qu'il a intégré. Les modèles génératifs fonctionnent sur le même principe, avec du texte plutôt que des notes.
 
-Un LLM (Large Language Model) est un réseau de neurones transformer entraîné sur des milliards de tokens. GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro ou Llama 3 en sont des exemples. Ils peuvent raisonner, résumer, traduire et générer du code.
+## Les modèles de langage (LLMs)
 
-### Concepts clés
+Un **LLM** (Large Language Model) est le type de modèle derrière ChatGPT, Claude ou Gemini. Entraîné sur des milliards de textes (livres, articles, code source), il a appris à prédire et générer du langage de façon cohérente.
 
-- **Token** : unité de base du traitement du texte (environ 4 caractères ou ¾ d'un mot)
-- **Contexte (context window)** : nombre maximum de tokens que le modèle peut traiter en une seule fois (ex. 128 k tokens pour GPT-4o)
-- **Temperature** : paramètre qui contrôle la créativité du modèle (0 = déterministe, 1 = créatif)
-- **Top-p / Top-k** : stratégies d'échantillonnage qui contraignent l'ensemble des tokens candidats à chaque étape
-- **Prompt engineering** : art de formuler des instructions efficaces pour guider le modèle
-- **Inférence** : processus d'exécution d'un modèle entraîné pour générer un résultat
+### Quatre concepts à retenir
 
-## Comment fonctionne un transformer ?
+- **Token** — le texte est découpé en petits morceaux appelés tokens (environ un mot ou une syllabe). C'est l'unité de traitement du modèle.
+- **Fenêtre de contexte** — la quantité de texte que le modèle peut « voir » en même temps. Au-delà, il oublie. GPT-4o peut traiter l'équivalent d'environ 300 pages en une seule requête.
+- **Temperature** — un curseur entre précision et créativité. À 0, le modèle est très prévisible ; à 1, il est plus inventif mais moins fiable.
+- **Prompt** — le message que vous envoyez pour donner une tâche au modèle. La façon dont vous le formulez a un impact direct sur la qualité de la réponse.
 
-Un transformer repose sur un mécanisme d'auto-attention : chaque token de l'entrée peut « s'attendre » à tous les autres tokens, permettant au modèle de capturer des dépendances à longue portée. Le modèle traite tous les tokens en parallèle (contrairement aux RNNs qui les traitent séquentiellement), ce qui explique à la fois sa rapidité et sa capacité à gérer de longs contextes.
+## Comment interagir avec un LLM ?
 
-## Exemple : appeler un LLM via API
+La façon la plus directe est d'appeler l'API d'un fournisseur (OpenAI, Anthropic, Google…). Vous envoyez un message structuré, vous recevez une réponse texte.
 
 ```typescript
 const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -47,15 +46,24 @@ const data = await response.json();
 console.log(data.choices[0].message.content);
 ```
 
-## Embeddings et RAG
+Trois paramètres clés à comprendre :
 
-Les LLMs sont sans état — ils ne retiennent pas d'informations entre les appels. Pour leur donner accès à vos propres données, deux patterns courants existent :
+- **`model`** — le modèle à utiliser (chaque modèle a ses propres capacités et coûts)
+- **`messages`** — la conversation : `system` définit le comportement du modèle, `user` contient votre demande
+- **`temperature`** — ici à 0.3 pour des réponses cohérentes et factuelles
 
-- **Fine-tuning** : ré-entraîner le modèle sur votre jeu de données (coûteux, rarement nécessaire)
-- **RAG (Retrieval-Augmented Generation)** : au moment de la requête, récupérer les documents pertinents d'une base de données vectorielle et les injecter dans le contexte
+## Les limites à connaître
 
-```text
-Requête → Embedder la requête → Chercher dans la DB vectorielle → Injecter les K meilleurs chunks → LLM → Réponse
-```
+Les LLMs sont puissants, mais ils ont des contraintes importantes à anticiper :
 
-Bases de données vectorielles populaires : Pinecone, Weaviate, pgvector (extension PostgreSQL).
+- **Pas de mémoire persistante** — chaque appel repart de zéro. Le modèle ne se souvient pas de vos échanges précédents sauf si vous lui retransmettez le contexte.
+- **Données gelées** — le modèle ne connaît que ce qui existait lors de son entraînement. Il n'a pas accès à Internet en temps réel (sauf si un outil lui est fourni).
+- **Hallucinations** — le modèle peut générer des informations plausibles mais fausses. Toujours vérifier les informations critiques avant de les utiliser.
+
+## Et ensuite ?
+
+Les guides suivants de ce catalogue approfondissent ces sujets :
+
+- **Prompt engineering** — comment formuler des instructions efficaces pour obtenir de meilleurs résultats
+- **RAG** — comment connecter un LLM à vos propres données pour dépasser la limite des données gelées
+- **Agents** — comment donner des outils et de l'autonomie à un LLM pour qu'il agisse dans le monde réel

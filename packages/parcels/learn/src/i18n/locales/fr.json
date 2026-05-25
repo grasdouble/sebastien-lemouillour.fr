@@ -42,6 +42,22 @@
     "prompt-engineering": {
       "title": "Prompt Engineering : techniques avancées",
       "description": "Maîtriser le prompt engineering avec le zero-shot, few-shot, chain-of-thought, role prompting, les system prompts et le structured output."
+    },
+    "llm-api-patterns": {
+      "title": "Patterns d'API LLM",
+      "description": "Construire des intégrations LLM robustes : streaming, gestion des erreurs, rate limiting, maîtrise des coûts et requêtes parallèles."
+    },
+    "rag-fundamentals": {
+      "title": "Fondamentaux du RAG",
+      "description": "Connecter un LLM à vos données avec le Retrieval-Augmented Generation : embeddings, bases vectorielles, stratégies de chunking et pipeline TypeScript complet."
+    },
+    "llm-agents": {
+      "title": "Agents LLM",
+      "description": "Concevoir des systèmes LLM autonomes : function calling, pattern ReAct, boucle d'agent en TypeScript et modes d'échec en production."
+    },
+    "llm-production": {
+      "title": "LLMs en production",
+      "description": "Rendre les intégrations LLM production-ready : observabilité, défense contre le prompt injection, optimisation des coûts, résilience et sélection de modèle."
     }
   },
   "view": {
@@ -70,7 +86,7 @@
     "items": {
       "ia-llm-fundamentals": {
         "title": "Fondamentaux IA & LLM",
-        "description": "De zéro à la maîtrise du prompt : comprendre le fonctionnement de l'IA générative puis apprendre à rédiger des prompts efficaces"
+        "description": "Un parcours progressif des bases de l'IA générative aux systèmes LLM production-ready — prompts, RAG, agents et observabilité"
       },
       "tooling-essentials": {
         "title": "Tooling moderne",

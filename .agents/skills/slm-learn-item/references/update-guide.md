@@ -41,18 +41,26 @@ If the user asks for a content update but only provides one language, offer to t
 
 Keep the existing structure (headings, sections) unless the user asks to reorganize.
 
-### Frontmatter metadata update (difficulty, tags)
+**Write for the target persona** (see "Difficulty guidance — Personas" in `SKILL.md`):
+
+- `beginner` → Découvreur: analogies, plain language, explicit limitations, path to next guides
+- `intermediate` → Développeur: working code examples with commented parameters, practical patterns
+- `advanced` → Architecte: tradeoffs, security, production patterns, no hand-holding on basics
+
+### Frontmatter metadata update (difficulty, tags, order)
 
 Edit the frontmatter block at the top of **both** `.en.md` and `.fr.md` files:
 
 ```md
 ---
+id: { id }
+order: { new_order }
 difficulty: { new_difficulty }
 tags: [{ new_tags }]
 ---
 ```
 
-Both language files must always have identical frontmatter.
+Both language files must always have identical frontmatter. When changing `order`, verify that other guides in the same catalog don't have conflicting order values.
 
 ### Move to a different catalog or category
 
