@@ -169,6 +169,12 @@ function App() {
       if (!groups[guide.category]) groups[guide.category] = [];
       groups[guide.category].push(guide);
     }
+    for (const guides of Object.values(groups)) {
+      guides.sort((a, b) => {
+        if (a.catalogId !== b.catalogId) return a.catalogId.localeCompare(b.catalogId);
+        return (a.order ?? Infinity) - (b.order ?? Infinity);
+      });
+    }
     return groups;
   }, [filteredGuides]);
 

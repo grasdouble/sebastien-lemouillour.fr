@@ -86,7 +86,7 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
               )}
 
               <Box grow className={styles['modal-content']} padding="comfortable">
-                <Stack direction="vertical" spacing="default">
+                <div className={styles['markdown-body']}>
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
@@ -148,7 +148,7 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
                   >
                     {tutorial.content}
                   </ReactMarkdown>
-                </Stack>
+                </div>
               </Box>
             </Stack>
           </Card>

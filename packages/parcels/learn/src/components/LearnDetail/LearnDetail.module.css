@@ -65,6 +65,27 @@
   color: var(--lufa-semantic-ui-text-primary);
 }
 
+.markdown-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lufa-semantic-ui-spacing-default);
+}
+
+.markdown-body p,
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  margin-top: var(--lufa-semantic-ui-spacing-compact);
+  margin-bottom: var(--lufa-semantic-ui-spacing-tight);
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  margin-top: var(--lufa-semantic-ui-spacing-compact);
+  margin-bottom: var(--lufa-semantic-ui-spacing-tight);
+}
+
 @media (max-width: 767px) {
   .overlay {
     padding: 0;

@@ -22,8 +22,10 @@ export function useLearn(): UseLearnResult {
         return {
           id: raw.id,
           categoryKey: raw.categoryKey,
+          catalogId: raw.catalogId,
           difficulty: raw.difficulty,
           tags: raw.tags,
+          order: raw.order,
           title: t(`items.${raw.id}.title`),
           description: t(`items.${raw.id}.description`),
           category: t(`categories.${raw.categoryKey}`),

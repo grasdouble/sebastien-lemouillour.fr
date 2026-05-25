@@ -20,16 +20,21 @@ export type Tutorial = {
   title: string;
   description: string;
   category: string;
+  categoryKey: string;
+  catalogId: string;
   difficulty: Difficulty;
   tags: string[];
+  order?: number;
   content: string;
 };
 
 export type RawLearnItem = {
   id: string;
   categoryKey: string;
+  catalogId: string;
   difficulty: Difficulty;
   tags: string[];
+  order?: number;
   content: { fr: string; en: string };
 };
 
@@ -126,6 +131,7 @@ function parsePath(path: string): {
 
 type GuideAccumulator = {
   categoryKey: string;
+  catalogId: string;
   difficulty: Difficulty;
   tags: string[];
   order?: number;
@@ -152,7 +158,14 @@ for (const [path, raw] of Object.entries(_rawModules)) {
   const { id } = meta;
 
   if (!_guideMap.has(id)) {
-    _guideMap.set(id, { categoryKey, difficulty: meta.difficulty, tags: meta.tags, order: meta.order, content: {} });
+    _guideMap.set(id, {
+      categoryKey,
+      catalogId,
+      difficulty: meta.difficulty,
+      tags: meta.tags,
+      order: meta.order,
+      content: {},
+    });
   }
   _guideMap.get(id)!.content[lang] = body;
 
@@ -168,8 +181,10 @@ for (const [path, raw] of Object.entries(_rawModules)) {
 export const RAW_LEARN_ITEMS: readonly RawLearnItem[] = [..._guideMap.entries()].map(([id, acc]) => ({
   id,
   categoryKey: acc.categoryKey,
+  catalogId: acc.catalogId,
   difficulty: acc.difficulty,
   tags: acc.tags,
+  order: acc.order,
   content: acc.content as { fr: string; en: string },
 }));
 
