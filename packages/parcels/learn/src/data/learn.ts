@@ -1,14 +1,3 @@
-import reactMicroFrontendsEn from './content/architecture/frontend-architecture/react-micro-frontends.en.md?raw';
-import reactMicroFrontendsFr from './content/architecture/frontend-architecture/react-micro-frontends.fr.md?raw';
-import introIaGenerativeEn from './content/ia-llm/ia-llm-fundamentals/intro-ia-generative.en.md?raw';
-import introIaGenerativeFr from './content/ia-llm/ia-llm-fundamentals/intro-ia-generative.fr.md?raw';
-import promptEngineeringEn from './content/ia-llm/ia-llm-fundamentals/prompt-engineering.en.md?raw';
-import promptEngineeringFr from './content/ia-llm/ia-llm-fundamentals/prompt-engineering.fr.md?raw';
-import pnpmWorkspacesEn from './content/tooling/tooling-essentials/pnpm-workspaces.en.md?raw';
-import pnpmWorkspacesFr from './content/tooling/tooling-essentials/pnpm-workspaces.fr.md?raw';
-import viteToolingEn from './content/tooling/tooling-essentials/vite-tooling.en.md?raw';
-import viteToolingFr from './content/tooling/tooling-essentials/vite-tooling.fr.md?raw';
-
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 
 export type RawCatalog = {
@@ -41,62 +30,8 @@ export type RawLearnItem = {
   content: { fr: string; en: string };
 };
 
+// CATEGORY_KEYS controls category display order.
 export const CATEGORY_KEYS: readonly string[] = ['ia-llm', 'tooling', 'architecture'];
-
-export const RAW_CATALOGS: readonly RawCatalog[] = [
-  {
-    id: 'ia-llm-fundamentals',
-    guideIds: ['intro-ia-generative', 'prompt-engineering'],
-  },
-  {
-    id: 'tooling-essentials',
-    guideIds: ['vite-tooling', 'pnpm-workspaces'],
-  },
-  {
-    id: 'frontend-architecture',
-    guideIds: ['react-micro-frontends'],
-  },
-];
-
-export const RAW_LEARN_ITEMS: readonly RawLearnItem[] = [
-  {
-    id: 'intro-ia-generative',
-    categoryKey: 'ia-llm',
-    difficulty: 'beginner',
-    tags: ['IA', 'LLM'],
-    content: { fr: introIaGenerativeFr, en: introIaGenerativeEn },
-  },
-  {
-    id: 'vite-tooling',
-    categoryKey: 'tooling',
-    difficulty: 'beginner',
-    tags: ['tooling', 'Vite', 'build'],
-    content: { fr: viteToolingFr, en: viteToolingEn },
-  },
-  {
-    id: 'pnpm-workspaces',
-    categoryKey: 'tooling',
-    difficulty: 'intermediate',
-    tags: ['tooling', 'monorepo', 'pnpm'],
-    content: { fr: pnpmWorkspacesFr, en: pnpmWorkspacesEn },
-  },
-  {
-    id: 'react-micro-frontends',
-    categoryKey: 'architecture',
-    difficulty: 'advanced',
-    tags: ['React', 'architecture', 'micro-frontend'],
-    content: { fr: reactMicroFrontendsFr, en: reactMicroFrontendsEn },
-  },
-  {
-    id: 'prompt-engineering',
-    categoryKey: 'ia-llm',
-    difficulty: 'intermediate',
-    tags: ['IA', 'LLM', 'prompt'],
-    content: { fr: promptEngineeringFr, en: promptEngineeringEn },
-  },
-];
-
-export const ALL_TAGS: readonly string[] = [...new Set(RAW_LEARN_ITEMS.flatMap((t) => t.tags))].sort();
 
 export const DIFFICULTIES: readonly Difficulty[] = ['beginner', 'intermediate', 'advanced'];
 
@@ -112,28 +47,145 @@ export const DIFFICULTY_I18N_KEY: Record<Difficulty, string> = {
   advanced: 'difficulty.advanced',
 };
 
+// ---------------------------------------------------------------------------
+// Auto-discovery — Vite glob import
+// File path convention: ./content/<categoryKey>/<catalogId>/<guideId>.<lang>.md
+// The guide id is declared in frontmatter and is independent of the filename.
+// ---------------------------------------------------------------------------
+
+type GuideFrontmatter = {
+  id: string;
+  difficulty: Difficulty;
+  tags: string[];
+};
+
+/**
+ * Parses YAML frontmatter delimited by `---` at the top of a markdown file.
+ * Extracts `id` (string), `difficulty` (string) and `tags` (inline array).
+ */
+function parseFrontmatter(raw: string, path: string): { meta: GuideFrontmatter; body: string } {
+  const parts = raw.split(/^---$/m);
+  if (parts.length < 3) {
+    throw new Error(`[learn] Missing frontmatter in ${path}`);
+  }
+
+  const meta: Partial<GuideFrontmatter> = {};
+
+  for (const line of parts[1].split('\n')) {
+    const colonIdx = line.indexOf(':');
+    if (colonIdx === -1) continue;
+    const key = line.slice(0, colonIdx).trim();
+    const value = line.slice(colonIdx + 1).trim();
+
+    if (key === 'id') {
+      meta.id = value;
+    } else if (key === 'difficulty') {
+      meta.difficulty = value as Difficulty;
+    } else if (key === 'tags') {
+      meta.tags = value
+        .replace(/^\[|\]$/g, '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+  }
+
+  if (!meta.id || !meta.difficulty || !meta.tags) {
+    throw new Error(`[learn] Incomplete frontmatter in ${path}: missing "id", "difficulty" or "tags"`);
+  }
+
+  return { meta: meta as GuideFrontmatter, body: parts.slice(2).join('---').trimStart() };
+}
+
+/**
+ * Extracts categoryKey, catalogId and lang from a glob path.
+ * The guide id comes from frontmatter, not the filename.
+ * Expected format: ./content/<categoryKey>/<catalogId>/<anything>.<lang>.md
+ */
+function parsePath(path: string): {
+  categoryKey: string;
+  catalogId: string;
+  lang: 'fr' | 'en';
+} {
+  const segments = path.replace('./content/', '').split('/');
+  const [categoryKey, catalogId, filename] = segments;
+  const dotParts = filename.replace(/\.md$/, '').split('.');
+  const lang = dotParts.pop() as 'fr' | 'en';
+  return { categoryKey, catalogId, lang };
+}
+
+type GuideAccumulator = {
+  categoryKey: string;
+  difficulty: Difficulty;
+  tags: string[];
+  content: Partial<Record<'fr' | 'en', string>>;
+};
+
+const _rawModules: Record<string, string> = import.meta.glob('./content/**/*.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+const _guideMap = new Map<string, GuideAccumulator>();
+const _catalogMap = new Map<string, string[]>();
+
+for (const [path, raw] of Object.entries(_rawModules)) {
+  const { categoryKey, catalogId, lang } = parsePath(path);
+  const { meta, body } = parseFrontmatter(raw, path);
+  const { id } = meta;
+
+  if (!_guideMap.has(id)) {
+    _guideMap.set(id, { categoryKey, difficulty: meta.difficulty, tags: meta.tags, content: {} });
+  }
+  _guideMap.get(id)!.content[lang] = body;
+
+  if (!_catalogMap.has(catalogId)) {
+    _catalogMap.set(catalogId, []);
+  }
+  const guideList = _catalogMap.get(catalogId)!;
+  if (!guideList.includes(id)) {
+    guideList.push(id);
+  }
+}
+
+export const RAW_LEARN_ITEMS: readonly RawLearnItem[] = [..._guideMap.entries()].map(([id, acc]) => ({
+  id,
+  categoryKey: acc.categoryKey,
+  difficulty: acc.difficulty,
+  tags: acc.tags,
+  content: acc.content as { fr: string; en: string },
+}));
+
+export const RAW_CATALOGS: readonly RawCatalog[] = [..._catalogMap.entries()].map(([id, guideIds]) => ({
+  id,
+  guideIds,
+}));
+
+export const ALL_TAGS: readonly string[] = [...new Set(RAW_LEARN_ITEMS.flatMap((t) => t.tags))].sort();
+
 if (import.meta.env.DEV) {
-  const cataloggedIds = new Set(RAW_CATALOGS.flatMap((c) => [...c.guideIds]));
-  const orphans = RAW_LEARN_ITEMS.filter((g) => !cataloggedIds.has(g.id));
-  if (orphans.length > 0) {
-    console.warn(
-      '[learn] The following guides are not attached to any catalog:',
-      orphans.map((g) => g.id)
-    );
-  }
-
-  const knownIds = new Set(RAW_LEARN_ITEMS.map((g) => g.id));
-  const dangling = RAW_CATALOGS.flatMap((c) => c.guideIds.filter((id) => !knownIds.has(id)));
-  if (dangling.length > 0) {
-    console.warn('[learn] Catalog references unknown guide ids:', dangling);
-  }
-
   const validCategoryKeys = new Set(CATEGORY_KEYS);
   const unknownCategory = RAW_LEARN_ITEMS.filter((g) => !validCategoryKeys.has(g.categoryKey));
   if (unknownCategory.length > 0) {
     console.warn(
-      '[learn] Guides with unknown categoryKey (not in CATEGORY_KEYS):',
+      '[learn] Guides found in unknown category folders (not listed in CATEGORY_KEYS):',
       unknownCategory.map((g) => g.id)
+    );
+  }
+
+  // Detect duplicate ids declared in frontmatter across different files
+  const idCounts = new Map<string, number>();
+  const idPattern = /^id:\s*(\S+)/m;
+  for (const raw of Object.values(_rawModules)) {
+    const match = idPattern.exec(raw);
+    if (match) idCounts.set(match[1], (idCounts.get(match[1]) ?? 0) + 1);
+  }
+  const duplicates = [...idCounts.entries()].filter(([, count]) => count > 2).map(([id]) => id);
+  if (duplicates.length > 0) {
+    console.warn(
+      '[learn] Duplicate guide ids in frontmatter (each id must appear in exactly one EN+FR pair):',
+      duplicates
     );
   }
 }

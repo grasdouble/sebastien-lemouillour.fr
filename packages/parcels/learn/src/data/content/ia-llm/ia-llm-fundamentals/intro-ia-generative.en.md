@@ -1,3 +1,9 @@
+---
+id: intro-ia-generative
+difficulty: beginner
+tags: [IA, LLM]
+---
+
 ## What is Generative AI?
 
 Generative AI refers to models capable of producing original content (text, images, code, audio) from a prompt. These models are trained on large quantities of data and learn to model the statistical distribution of that data. Unlike rule-based systems, they do not follow explicit instructions — they infer patterns from examples.

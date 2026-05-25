@@ -1,3 +1,9 @@
+---
+id: prompt-engineering
+difficulty: intermediate
+tags: [IA, LLM, prompt]
+---
+
 ## Zero-shot prompting
 
 Le zero-shot prompting est la forme la plus simple : demander au modèle d'effectuer une tâche sans fournir d'exemples. Le modèle s'appuie entièrement sur ses connaissances pré-entraînées.

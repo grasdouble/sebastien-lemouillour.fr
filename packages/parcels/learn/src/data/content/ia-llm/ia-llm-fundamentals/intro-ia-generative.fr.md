@@ -1,3 +1,9 @@
+---
+id: intro-ia-generative
+difficulty: beginner
+tags: [IA, LLM]
+---
+
 ## Qu'est-ce que l'IA générative ?
 
 L'IA générative désigne des modèles capables de produire du contenu original (texte, images, code, audio) à partir d'une invite (prompt). Ces modèles sont entraînés sur de grandes quantités de données et apprennent à modéliser la distribution statistique de ces données. Contrairement aux systèmes basés sur des règles, ils n'exécutent pas d'instructions explicites — ils inférent des patterns à partir d'exemples.

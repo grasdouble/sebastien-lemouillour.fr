@@ -1,50 +1,63 @@
 ---
 name: update-catalog
-description: Capability for updating an existing catalog — modify guideIds order, add/remove guides, or update i18n title/description.
+description: Capability for updating an existing catalog — move guides in/out, reorder, or update i18n title/description.
 ---
 
 # Update Catalog
 
 ## Outcome
 
-The specified catalog is updated in `RAW_CATALOGS` and/or its i18n keys in `en.json` and `fr.json`.
+The specified catalog is updated — guides moved in or out of the catalog folder, and/or i18n keys updated in `en.json` and `fr.json`.
+
+> ⚠️ **Do not edit `learn.ts`** — catalog membership is determined by the file system. Moving guide files is the only way to add/remove guides from a catalog.
 
 ## Discovery
 
 Gather these before writing anything:
 
-1. **Catalog id** — which catalog to update? List existing catalogs from `RAW_CATALOGS` if unclear.
+1. **Catalog id** — which catalog to update? List existing catalogs from `content/` folders if unclear.
 2. **What to change** — one or more of:
-   - Add guide(s) to `guideIds`
-   - Remove guide(s) from `guideIds`
-   - Reorder `guideIds`
+   - Add guide(s) to the catalog (move their files into the catalog folder)
+   - Remove guide(s) from the catalog (move their files to another catalog folder)
    - Update title (EN and/or FR)
    - Update description (EN and/or FR)
 
 ## Steps
 
-1. **Update `RAW_CATALOGS`** in `packages/parcels/learn/src/data/learn.ts` — modify `guideIds` as needed.
-2. **Update i18n keys** in `en.json` and/or `fr.json` if title or description changed.
-3. **Create changeset**
+### Guide membership changes
 
-   File: `.changeset/update-learn-catalog-{id}.md` (if a file with that name already exists, append a short suffix like `-guides` or `-i18n`)
+Use `git mv` to move guide files between catalog folders.
 
-   ```md
-   ---
-   '@grasdouble/slm_parcel_learn': patch
-   ---
+- **Add a guide** to this catalog: `git mv content/{srcCategory}/{srcCatalog}/{id}.{lang}.md content/{categoryKey}/{catalogId}/{id}.{lang}.md`
+- **Remove a guide** from this catalog: move it to another catalog folder (a guide must always belong to exactly one catalog)
 
-   fix: update "{title}" catalog — {brief description of change}.
-   ```
+Both `.en.md` and `.fr.md` files must be moved together.
+
+### i18n title or description update
+
+- EN: edit under `"catalogs"."items"."{catalogId}"` in `packages/parcels/learn/src/i18n/locales/en.json`
+- FR: edit under `"catalogs"."items"."{catalogId}"` in `packages/parcels/learn/src/i18n/locales/fr.json`
+
+Always update both files if any i18n field changes.
+
+### Changeset
+
+File: `.changeset/update-learn-catalog-{id}.md` (if a file with that name already exists, append a short suffix like `-guides` or `-i18n`)
+
+```md
+---
+'@grasdouble/slm_parcel_learn': patch
+---
+
+fix: update "{title}" catalog — {brief description of change}.
+```
+
+### Confirm
+
+Summarize what changed (files moved, i18n fields updated). Remind the user to run `pnpm build` from the `learn` package.
 
 ## Constraints
 
-- Only use guide IDs that already exist in `RAW_LEARN_ITEMS`
-- Always update both `en.json` and `fr.json` if any i18n field changes
-
-## Dev-time integrity checks
-
-`learn.ts` runs these checks in `import.meta.env.DEV` and logs warnings to the console:
-
-- **Dangling catalog refs** — if a catalog's `guideIds` contains an ID absent from `RAW_LEARN_ITEMS`, a `console.warn` is emitted.
-- **Orphan guides** — if a guide belongs to no catalog after the update, a `console.warn` is emitted.
+- A guide must always belong to exactly one catalog — never leave guide files in a folder that no longer has i18n keys, and never remove a guide without re-assigning it
+- Always move both `.en.md` and `.fr.md` together
+- Catalog `id` derives from the folder name — renaming a catalog means renaming the folder (`git mv`) and updating its i18n key

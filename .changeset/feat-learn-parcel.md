@@ -12,3 +12,5 @@ feat: add learn parcel with filterable guides, catalogs, bilingual content (EN/F
 - FilterBar with search, tag multi-select, and difficulty multi-select
 - Detail modal with keyboard navigation (Escape to close) and focus management
 - Dev-time integrity checks (orphan guides, dangling catalog refs, unknown categoryKey)
+- Reorganize content files as `<category>/<catalog>/<guide>.<lang>.md`
+- Auto-discover guides via `import.meta.glob`; metadata (difficulty, tags) declared in markdown frontmatter — adding a guide now only requires creating a file at the right path

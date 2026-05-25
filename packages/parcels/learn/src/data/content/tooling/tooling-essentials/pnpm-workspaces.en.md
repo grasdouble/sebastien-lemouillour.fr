@@ -1,3 +1,9 @@
+---
+id: pnpm-workspaces
+difficulty: intermediate
+tags: [tooling, monorepo, pnpm]
+---
+
 ## What is a monorepo?
 
 A monorepo is a single git repository that contains multiple packages or applications. It facilitates code sharing, version consistency and unified CI/CD workflows. With pnpm workspaces, each package keeps its own `package.json` and can declare dependencies on other workspace packages.

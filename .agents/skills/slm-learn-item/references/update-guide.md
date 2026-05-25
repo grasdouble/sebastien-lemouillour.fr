@@ -1,31 +1,32 @@
 ---
 name: update-guide
-description: Capability for updating an existing learn guide — content, metadata, or translations.
+description: Capability for updating an existing learn guide — content, frontmatter metadata, or translations.
 ---
 
 # Update Guide
 
 ## Outcome
 
-The targeted guide is updated consistently across all files it touches. No dangling references, no stale translations.
+The targeted guide is updated consistently across all files it touches. No stale translations or mismatched frontmatter.
 
 ## Discovery
 
-1. **Which guide?** — ask for the guide `id` or title. If unclear, offer to list existing guides.
+1. **Which guide?** — ask for the guide `id` or title. If unclear, offer to list existing guides by scanning `content/` folders.
 2. **What changes?** — ask what the user wants to update:
    - Markdown content (EN, FR, or both)
-   - Metadata (`difficulty`, `tags`, `categoryKey`)
+   - Frontmatter metadata (`difficulty`, `tags`)
    - i18n title or description (EN, FR, or both)
+   - Move to a different catalog or category
 
 Read the current state of affected files before proposing changes.
 
 ### Listing existing guides
 
-If needed, read `packages/parcels/learn/src/data/learn.ts` and display a table:
+If needed, list the files under `packages/parcels/learn/src/data/content/` and display a table:
 
-| id  | categoryKey | difficulty | tags |
-| --- | ----------- | ---------- | ---- |
-| …   | …           | …          | …    |
+| id  | categoryKey | catalogId | difficulty | tags |
+| --- | ----------- | --------- | ---------- | ---- |
+| …   | …           | …         | …          | …    |
 
 ## Steps
 
@@ -33,27 +34,31 @@ Execute only the steps relevant to the requested changes.
 
 ### Content update (markdown)
 
-- For EN: edit `packages/parcels/learn/src/data/content/{categoryKey}/{id}.en.md`
-- For FR: edit `packages/parcels/learn/src/data/content/{categoryKey}/{id}.fr.md`
+- For EN: edit `packages/parcels/learn/src/data/content/{categoryKey}/{catalogId}/{id}.en.md` (body only, below the `---` frontmatter block)
+- For FR: edit `packages/parcels/learn/src/data/content/{categoryKey}/{catalogId}/{id}.fr.md`
 
 If the user asks for a content update but only provides one language, offer to translate/adapt the other.
 
 Keep the existing structure (headings, sections) unless the user asks to reorganize.
 
-### Metadata update (difficulty, tags, categoryKey)
+### Frontmatter metadata update (difficulty, tags)
 
-Edit the matching entry in `packages/parcels/learn/src/data/learn.ts`.
+Edit the frontmatter block at the top of **both** `.en.md` and `.fr.md` files:
 
-If `categoryKey` changes:
+```md
+---
+difficulty: { new_difficulty }
+tags: [{ new_tags }]
+---
+```
 
-- Move markdown files to the new category folder (`git mv`)
-- Update the import paths in `learn.ts`
-- If the old category becomes empty, remove it from `CATEGORY_KEYS` and both i18n files
+Both language files must always have identical frontmatter.
 
-If a new `categoryKey` is introduced:
+### Move to a different catalog or category
 
-- Add to `CATEGORY_KEYS`
-- Add label to `en.json` and `fr.json` under `"categories"`
+- Use `git mv` to move both markdown files to the new path: `content/{new_categoryKey}/{new_catalogId}/{id}.{lang}.md`
+- If `categoryKey` changed and the new one is not yet in `CATEGORY_KEYS`, add it to `learn.ts` and both i18n files
+- If the old category folder is now empty, remove it from `CATEGORY_KEYS` and both i18n files
 
 ### i18n update (title or description)
 
@@ -80,10 +85,4 @@ Use `minor` instead of `patch` if new content sections are added.
 
 Summarize what changed (files edited, fields updated). Remind the user to run `pnpm build` from the `learn` package.
 
-> **Dev-time integrity guardrails** — `learn.ts` has `console.warn` checks that fire in development:
->
-> - Guide not assigned to any catalog → "not attached to any catalog"
-> - Guide's `categoryKey` not in `CATEGORY_KEYS` → "unknown categoryKey"
-> - Catalog referencing a non-existent guide ID → "unknown guide ids"
->
-> If any warning appears after the update, fix the offending entry before shipping.
+> **Dev-time integrity** — in development, `learn.ts` logs a warning if a guide's `categoryKey` (derived from its folder) is not listed in `CATEGORY_KEYS`. If that warning appears after a move, add the new category to `CATEGORY_KEYS` and both i18n files.

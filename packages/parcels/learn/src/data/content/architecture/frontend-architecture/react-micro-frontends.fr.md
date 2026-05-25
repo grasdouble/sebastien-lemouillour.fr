@@ -1,3 +1,9 @@
+---
+id: react-micro-frontends
+difficulty: advanced
+tags: [React, architecture, micro-frontend]
+---
+
 ## Qu'est-ce qu'un micro-frontend ?
 
 Un micro-frontend est une approche architecturale qui décompose une application web en plusieurs parties indépendantes, chacune développée, déployée et maintenue séparément. Chaque équipe peut choisir sa stack, son cycle de release et son périmètre fonctionnel. Le container (ou shell) est responsable d'orchestrer les parties ensemble.

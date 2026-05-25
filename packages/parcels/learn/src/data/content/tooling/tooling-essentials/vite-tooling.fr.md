@@ -1,3 +1,9 @@
+---
+id: vite-tooling
+difficulty: beginner
+tags: [tooling, Vite, build]
+---
+
 ## Pourquoi Vite ?
 
 Vite est un build tool nouvelle génération qui exploite les ES Modules natifs du navigateur en mode développement. Contrairement à Webpack qui bundle tout au démarrage, Vite sert les fichiers à la demande — ce qui donne des démarrages quasi-instantanés et un HMR ultra-rapide.
