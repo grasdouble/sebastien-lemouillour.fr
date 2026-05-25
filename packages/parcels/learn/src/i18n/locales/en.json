@@ -44,11 +44,6 @@
       "description": "Master prompt engineering with zero-shot, few-shot, chain-of-thought, role prompting, system prompts and structured output."
     }
   },
-  "categories": {
-    "ia-llm": "AI & LLM",
-    "tooling": "Tooling",
-    "architecture": "Architecture"
-  },
   "view": {
     "label": "Switch view",
     "catalogs": "Catalogues",
@@ -60,6 +55,11 @@
   },
   "seo": {
     "description": "Technical guides on AI, tooling and front-end architecture."
+  },
+  "categories": {
+    "ia-llm": "AI & LLM",
+    "tooling": "Tooling",
+    "architecture": "Architecture"
   },
   "catalogs": {
     "sectionTitle": "Catalogues",

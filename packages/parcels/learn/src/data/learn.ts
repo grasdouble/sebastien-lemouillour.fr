@@ -2,11 +2,14 @@ export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 
 export type RawCatalog = {
   id: string;
+  categoryKey: string;
   guideIds: readonly string[];
 };
 
 export type Catalog = {
   id: string;
+  categoryKey: string;
+  category: string;
   title: string;
   description: string;
   guideIds: readonly string[];
@@ -128,7 +131,12 @@ const _rawModules: Record<string, string> = import.meta.glob('./content/**/*.md'
 });
 
 const _guideMap = new Map<string, GuideAccumulator>();
-const _catalogMap = new Map<string, string[]>();
+type CatalogAccumulator = {
+  categoryKey: string;
+  guideIds: string[];
+};
+
+const _catalogMap = new Map<string, CatalogAccumulator>();
 
 for (const [path, raw] of Object.entries(_rawModules)) {
   const { categoryKey, catalogId, lang } = parsePath(path);
@@ -141,11 +149,11 @@ for (const [path, raw] of Object.entries(_rawModules)) {
   _guideMap.get(id)!.content[lang] = body;
 
   if (!_catalogMap.has(catalogId)) {
-    _catalogMap.set(catalogId, []);
+    _catalogMap.set(catalogId, { categoryKey, guideIds: [] });
   }
-  const guideList = _catalogMap.get(catalogId)!;
-  if (!guideList.includes(id)) {
-    guideList.push(id);
+  const catalogAcc = _catalogMap.get(catalogId)!;
+  if (!catalogAcc.guideIds.includes(id)) {
+    catalogAcc.guideIds.push(id);
   }
 }
 
@@ -157,9 +165,10 @@ export const RAW_LEARN_ITEMS: readonly RawLearnItem[] = [..._guideMap.entries()]
   content: acc.content as { fr: string; en: string },
 }));
 
-export const RAW_CATALOGS: readonly RawCatalog[] = [..._catalogMap.entries()].map(([id, guideIds]) => ({
+export const RAW_CATALOGS: readonly RawCatalog[] = [..._catalogMap.entries()].map(([id, acc]) => ({
   id,
-  guideIds,
+  categoryKey: acc.categoryKey,
+  guideIds: acc.guideIds,
 }));
 
 export const ALL_TAGS: readonly string[] = [...new Set(RAW_LEARN_ITEMS.flatMap((t) => t.tags))].sort();

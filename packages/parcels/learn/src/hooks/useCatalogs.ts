@@ -6,6 +6,7 @@ import { RAW_CATALOGS } from '../data/learn';
 
 type UseCatalogsResult = {
   catalogs: Catalog[];
+  groupedCatalogs: Record<string, Catalog[]>;
 };
 
 export function useCatalogs(): UseCatalogsResult {
@@ -15,6 +16,8 @@ export function useCatalogs(): UseCatalogsResult {
     () =>
       RAW_CATALOGS.map((raw) => ({
         id: raw.id,
+        categoryKey: raw.categoryKey,
+        category: t(`categories.${raw.categoryKey}`),
         title: t(`catalogs.items.${raw.id}.title`),
         description: t(`catalogs.items.${raw.id}.description`),
         guideIds: raw.guideIds,
@@ -22,5 +25,14 @@ export function useCatalogs(): UseCatalogsResult {
     [t]
   );
 
-  return { catalogs };
+  const groupedCatalogs = useMemo<Record<string, Catalog[]>>(() => {
+    const groups: Record<string, Catalog[]> = {};
+    for (const catalog of catalogs) {
+      if (!groups[catalog.category]) groups[catalog.category] = [];
+      groups[catalog.category].push(catalog);
+    }
+    return groups;
+  }, [catalogs]);
+
+  return { catalogs, groupedCatalogs };
 }

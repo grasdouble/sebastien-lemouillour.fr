@@ -31,7 +31,7 @@ function getCatalogIdFromUrl(): string | null {
 function App() {
   const { t } = useTranslation('learn');
   const { tutorials, allTags, allDifficulties, categoryOrder } = useLearn();
-  const { catalogs } = useCatalogs();
+  const { catalogs, groupedCatalogs } = useCatalogs();
 
   const [activeView, setActiveView] = useState<'catalogs' | 'guides'>(RAW_CATALOGS.length > 0 ? 'catalogs' : 'guides');
   const [searchValue, setSearchValue] = useState('');
@@ -198,11 +198,27 @@ function App() {
 
             <div role="tabpanel">
               {activeView === 'catalogs' ? (
-                <div className={styles['learn-grid']}>
-                  {catalogs.map((catalog) => (
-                    <CatalogCard key={catalog.id} catalog={catalog} onClick={openCatalog} />
-                  ))}
-                </div>
+                <Stack direction="vertical" spacing="spacious">
+                  {categoryOrder
+                    .filter((cat) => groupedCatalogs[cat]?.length > 0)
+                    .map((category) => (
+                      <Stack key={category} direction="vertical" spacing="default">
+                        <Stack direction="vertical" spacing="none">
+                          <Box paddingBottom="compact">
+                            <Text as="h2" variant="h3" weight="semibold" color="primary">
+                              {category}
+                            </Text>
+                          </Box>
+                          <Divider emphasis="subtle" spacing="compact" />
+                        </Stack>
+                        <div className={styles['learn-grid']}>
+                          {groupedCatalogs[category].map((catalog) => (
+                            <CatalogCard key={catalog.id} catalog={catalog} onClick={openCatalog} />
+                          ))}
+                        </div>
+                      </Stack>
+                    ))}
+                </Stack>
               ) : (
                 <Stack direction="vertical" spacing="comfortable">
                   <FilterBar
