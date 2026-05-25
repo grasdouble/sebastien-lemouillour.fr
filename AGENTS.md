@@ -11,6 +11,17 @@ When the user points out a mistake or a recurring problem, **always update this 
 - Do not add vague rules ("be careful with X") — write actionable rules with ✅/❌ examples
 - Check that a similar rule doesn't already exist before adding
 
+**Rule template:**
+
+```markdown
+## Rule title — short imperative
+
+One sentence explaining why this matters.
+
+- ✅ Correct example
+- ❌ Wrong example (with consequence if useful)
+```
+
 This applies to any type of mistake: tooling, workflow, code quality, file management, etc.
 
 **✅ Update AGENTS.md when:**
@@ -68,7 +79,7 @@ Never create git commits. Stage changes and present them for the user to review 
 
 ## TypeScript — Never call `tsc` directly
 
-The `tsconfig` files in this repo have `declaration: true` and `sourceMap: true`. **Any direct invocation of the `tsc` binary can emit `.js`, `.d.ts`, and `.map` files into `src/`, even with `--noEmit`.**
+The `tsconfig` files in this repo have `declaration: true` and `sourceMap: true`. **Running `tsc` without `--noEmit` emits `.js`, `.d.ts`, and `.map` files into `src/`. Always use the project scripts which set the correct flags.**
 
 ### Allowed — type checking
 
@@ -90,6 +101,7 @@ This repo uses **pnpm** exclusively. Never use `npm` or `yarn`.
 
 - ✅ `pnpm install`, `pnpm add <pkg>`, `pnpm run <script>`
 - ❌ `npm install`, `yarn add`
+- ❌ `npx <cmd>` — bypasses pnpm, can silently pull packages from the npm registry; use `pnpm dlx` instead
 
 ---
 
@@ -122,7 +134,7 @@ rtk proxy <cmd>       # Run raw (no filtering) but track usage
 
 ## Build & Validation
 
-Run these commands to validate your changes before presenting them to the user:
+Run these commands to validate your changes before presenting them to the user. **Always prefix commands with `rtk`** (e.g. `rtk pnpm all:lint`).
 
 | Scope                      | Command              | From           |
 | -------------------------- | -------------------- | -------------- |
@@ -139,7 +151,7 @@ Run these commands to validate your changes before presenting them to the user:
 - Changed shared code (DS tokens, container, config) → run root-level commands
 - Unsure → run root-level to be safe
 
-**On failure:** Stop. Fix the error. Re-run the failing command. Do not present changes to the user until the relevant commands pass. Never edit generated files (`dist/`, `node_modules/`, `.pnpm-store/`, `*.map`, `*.d.ts` in build output) to work around a failure.
+**On failure:** Stop. Fix the error. Re-run the failing command. Do not stage with `git add` or report to the user until the relevant commands pass. Never edit generated files (`dist/`, `node_modules/`, `.pnpm-store/`, `*.map`, `*.d.ts` in build output) to work around a failure.
 
 > The repo is a monorepo. Explore `packages/` to discover available packages — never assume their paths.
 
@@ -196,6 +208,18 @@ Always pass `t={t}` (from `useTranslation`) to `<Trans>` so it inherits the name
 
 ---
 
+## Workflow — No planning files in the repository
+
+Never create markdown files in the repository for planning, notes, or tracking.
+
+- ✅ Use in-memory notes, session workspace files (e.g. `~/.copilot/session-state/*/plan.md`)
+- ❌ `PLAN.md`, `TODO.md`, `NOTES.md`, or any tracking file committed to the repo
+- ❌ Creating a markdown file "temporarily" — even temporary files pollute git history
+
+This applies to sub-agents you launch: always instruct them not to create planning files in the repo.
+
+---
+
 ## Changesets — Naming and content
 
 When creating a changeset file manually in `.changeset/`, always use a **descriptive kebab-case name** — never a random hex ID.
@@ -206,7 +230,7 @@ When creating a changeset file manually in `.changeset/`, always use a **descrip
 
 **Content rules:**
 
-- Always check `git diff main --name-only` first to identify **all** changed packages before writing changesets
+- Always check `rtk git diff main --name-only` first to identify **all** changed packages before writing changesets (assumes `main` is the default branch — adjust if different)
 - Use `patch` for fixes/refactors, `minor` for new user-visible features, `major` for breaking changes
 - **Always prefix the description** with a conventional commit type: `feat:`, `fix:`, `chore:`, `refactor:`, `perf:`, `docs:`, `style:`, `test:`
 - **Always verify** the changeset after creation: `rtk pnpm changeset status`
