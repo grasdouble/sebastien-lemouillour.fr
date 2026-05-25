@@ -9,7 +9,7 @@ Vous collez un message client agacé dans ChatGPT et en cinq secondes vous avez 
 
 C'est ça, l'IA générative. Et si vous développez, ça vaut la peine de comprendre ce qui se passe vraiment avant de commencer à construire dessus.
 
-## Pas des règles : des patterns appris
+## Un programme qui apprend
 
 Un programme classique fait exactement ce qu'on lui dit de faire. Une fonction qui valide un email ne « comprend » pas les emails : elle fait correspondre une regex. L'IA générative fonctionne différemment : au lieu d'encoder des règles, on entraîne un modèle sur des quantités massives d'exemples jusqu'à ce qu'il apprenne des patterns suffisamment bien pour en produire de nouveaux.
 

@@ -58,7 +58,7 @@ Raisonnement :
 
 ## Role prompting : le contexte façonne la sortie plus qu'on ne le pense
 
-Dire au modèle qu'il est un auditeur en cybersécurité plutôt qu'un chef de produit change non seulement le vocabulaire, mais le niveau de détail, ce qu'il choisit de mettre en avant et ce qu'il omet. Ce n'est pas décoratif : j'ai vu la même question produire des sorties différentes et genuinement utiles selon le rôle.
+Dire au modèle qu'il est un auditeur en cybersécurité plutôt qu'un chef de produit change non seulement le vocabulaire, mais le niveau de détail, ce qu'il choisit de mettre en avant et ce qu'il omet. Ce n'est pas décoratif : j'ai vu la même question produire des sorties différentes et vraiment utiles selon le rôle.
 
 - « You are a cybersecurity expert with 20 years of experience... »
 - « You are a mathematics teacher explaining to high school students... »

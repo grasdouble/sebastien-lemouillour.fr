@@ -11,7 +11,7 @@ Vous avez construit un workflow support. Il commence par un message utilisateur,
 
 Un agent est la réponse à ce type de croissance combinatoire, mais pas de la façon dont ça se vend habituellement. La valeur n'est pas dans l'autonomie. Elle est dans la boucle de contrôle : observer l'état courant, choisir une action, l'exécuter, voir ce que ça donne, puis décider si c'est terminé ou si une étape supplémentaire est nécessaire. C'est cette boucle qui permet au système de s'adapter à ce qu'il découvre, plutôt que d'exiger qu'on code à l'avance chaque chemin possible.
 
-Le tradeoff est réel, cependant. Un agent est plus difficile à tester, plus coûteux à faire tourner, et nettement plus difficile à déboguer qu'une fonction déterministe. Si votre workflow a une forme prévisible (même complexe), du code explicite est généralement la bonne réponse. Je choisis un agent quand l'environnement est genuinement inconnu à l'exécution, et que l'action suivante dépend de ce que la précédente a retourné.
+Le tradeoff est réel, cependant. Un agent est plus difficile à tester, plus coûteux à faire tourner, et nettement plus difficile à déboguer qu'une fonction déterministe. Si votre workflow a une forme prévisible (même complexe), du code explicite est généralement la bonne réponse. Je choisis un agent quand l'environnement est réellement inconnu à l'exécution, et que l'action suivante dépend de ce que la précédente a retourné.
 
 ## Appels de fonctions / utilisation d'outils
 
@@ -111,7 +111,7 @@ Un appel de fonction unique est déjà utile en soi : récupération structurée
 
 Un appel de fonction donne au modèle une action. ReAct (Reason + Act) lui donne une boucle de raisonnement : le modèle décompose la tâche en une suite d'étapes pensée → action → observation, ajustant son plan en fonction de ce que chaque étape retourne.
 
-La valeur n'est pas dans « une IA plus intelligente » : c'est dans l'explicitation. On peut regarder la trace et voir pourquoi l'agent a vérifié les déploiements avant les métriques, quelle observation a modifié le plan, et à quel endroit il s'est bloqué. C'est genuinement utile pour le débogage, et pour construire la confiance que le système fait bien ce qu'on pense qu'il fait.
+La valeur n'est pas dans « une IA plus intelligente » : c'est dans l'explicitation. On peut regarder la trace et voir pourquoi l'agent a vérifié les déploiements avant les métriques, quelle observation a modifié le plan, et à quel endroit il s'est bloqué. C'est vraiment utile pour le débogage, et pour construire la confiance que le système fait bien ce qu'on pense qu'il fait.
 
 ```text
 User: Find why checkout latency increased after the last deployment.
@@ -275,4 +275,4 @@ L'hallucination d'arguments d'outils est l'autre mode d'échec dont personne ne 
 
 Le coût dans les agents multi-tours s'accumule vite. Chaque itération rejoue l'historique complet des messages (raisonnements précédents, appels d'outils, observations), donc la facture croît avec la profondeur, pas seulement avec le nombre d'appels. Budgétisez en conséquence, et loggez suffisamment pour expliquer pourquoi un agent a tourné douze itérations plutôt que trois quand ça arrive inévitablement.
 
-Ma recommandation honnête : si le workflow peut s'exprimer en code déterministe, exprimez-le en code déterministe. Les agents sont genuinement puissants pour des tâches ouvertes, qui demandent des branchements conditionnels sur des données temps réel, et où on ne peut pas énumérer les branches à l'avance. Pour tout le reste, l'overhead opérationnel n'en vaut pas la peine.
+Ma recommandation honnête : si le workflow peut s'exprimer en code déterministe, exprimez-le en code déterministe. Les agents sont vraiment puissants pour des tâches ouvertes, qui demandent des branchements conditionnels sur des données temps réel, et où on ne peut pas énumérer les branches à l'avance. Pour tout le reste, l'overhead opérationnel n'en vaut pas la peine.

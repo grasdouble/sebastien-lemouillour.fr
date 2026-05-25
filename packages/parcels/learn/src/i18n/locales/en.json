@@ -40,7 +40,7 @@
       "description": "Architect an application into independent micro-frontends with single-spa, import maps, React parcels and shared dependencies."
     },
     "prompt-engineering": {
-      "title": "Prompt Engineering: advanced techniques",
+      "title": "Prompt Engineering",
       "description": "Master prompt engineering with zero-shot, few-shot, chain-of-thought, role prompting, system prompts and structured output."
     },
     "llm-api-patterns": {
