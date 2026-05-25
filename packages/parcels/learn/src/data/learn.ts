@@ -11,6 +11,18 @@ import viteToolingFr from './content/tooling/vite-tooling.fr.md?raw';
 
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 
+export type RawCatalog = {
+  id: string;
+  guideIds: readonly string[];
+};
+
+export type Catalog = {
+  id: string;
+  title: string;
+  description: string;
+  guideIds: readonly string[];
+};
+
 export type Tutorial = {
   id: string;
   title: string;
@@ -30,6 +42,21 @@ export type RawLearnItem = {
 };
 
 export const CATEGORY_KEYS: readonly string[] = ['ia-llm', 'tooling', 'architecture'];
+
+export const RAW_CATALOGS: readonly RawCatalog[] = [
+  {
+    id: 'ia-llm-fundamentals',
+    guideIds: ['intro-ia-generative', 'prompt-engineering'],
+  },
+  {
+    id: 'tooling-essentials',
+    guideIds: ['vite-tooling', 'pnpm-workspaces'],
+  },
+  {
+    id: 'frontend-architecture',
+    guideIds: ['react-micro-frontends'],
+  },
+];
 
 export const RAW_LEARN_ITEMS: readonly RawLearnItem[] = [
   {
@@ -84,3 +111,14 @@ export const DIFFICULTY_I18N_KEY: Record<Difficulty, string> = {
   intermediate: 'difficulty.intermediate',
   advanced: 'difficulty.advanced',
 };
+
+if (import.meta.env.DEV) {
+  const cataloggedIds = new Set(RAW_CATALOGS.flatMap((c) => [...c.guideIds]));
+  const orphans = RAW_LEARN_ITEMS.filter((g) => !cataloggedIds.has(g.id));
+  if (orphans.length > 0) {
+    console.warn(
+      '[learn] The following guides are not attached to any catalog:',
+      orphans.map((g) => g.id)
+    );
+  }
+}

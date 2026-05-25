@@ -1,0 +1,28 @@
+.catalog-card {
+  cursor: pointer;
+  height: 100%;
+  transition: transform 0.15s ease;
+}
+
+.catalog-card > * {
+  height: 100%;
+}
+
+.catalog-card:hover {
+  transform: translateY(-2px);
+}
+
+.catalog-card:focus-visible {
+  outline: 2px solid var(--lufa-semantic-ui-border-default);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-card {
+    transition: none;
+  }
+
+  .catalog-card:hover {
+    transform: none;
+  }
+}

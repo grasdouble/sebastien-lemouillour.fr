@@ -8,3 +8,8 @@
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: var(--lufa-semantic-ui-spacing-comfortable);
 }
+
+.view-tabs {
+  display: flex;
+  gap: var(--lufa-semantic-ui-spacing-tight);
+}

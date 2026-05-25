@@ -49,10 +49,37 @@
     "tooling": "Tooling",
     "architecture": "Architecture"
   },
+  "view": {
+    "label": "Switch view",
+    "catalogs": "Catalogues",
+    "guides": "Guides"
+  },
   "aria": {
-    "openItem": "Open guide: {{title}}"
+    "openItem": "Open guide: {{title}}",
+    "openCatalog": "Open catalog: {{title}}"
   },
   "seo": {
     "description": "Technical guides on AI, tooling and front-end architecture."
+  },
+  "catalogs": {
+    "sectionTitle": "Catalogues",
+    "sectionSubtitle": "Collections of guides around a common theme",
+    "guideCount": "{{count}} guide",
+    "guideCount_plural": "{{count}} guides",
+    "back": "Back to list",
+    "items": {
+      "ia-llm-fundamentals": {
+        "title": "AI & LLM Fundamentals",
+        "description": "From zero to prompt mastery: understand how generative AI works then learn to craft effective prompts"
+      },
+      "tooling-essentials": {
+        "title": "Modern Tooling",
+        "description": "Master the essential tools of a modern JavaScript project: fast builds with Vite and monorepo management with pnpm workspaces"
+      },
+      "frontend-architecture": {
+        "title": "Front-end Architecture",
+        "description": "Design scalable front-end systems using micro-frontend patterns with React and single-spa"
+      }
+    }
   }
 }

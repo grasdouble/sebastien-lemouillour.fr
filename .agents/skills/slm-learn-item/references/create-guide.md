@@ -7,7 +7,9 @@ description: Capability for creating a new learn guide — all files, i18n and d
 
 ## Outcome
 
-All files for a new guide exist and are wired up: two markdown files, one data entry in `learn.ts`, and i18n keys in both locale files. The user can run the build and the guide appears in the app.
+All files for a new guide exist and are wired up: two markdown files, one data entry in `learn.ts`, i18n keys in both locale files, **and the guide is assigned to a catalog**. The user can run the build and the guide appears in the app.
+
+> ⚠️ **Rule: every guide must belong to a catalog.** A guide without a catalog will trigger a console warning in dev and won't be reachable from the main Catalogues view. Always complete step 6 (catalog assignment) before finishing.
 
 ## Discovery
 
@@ -20,7 +22,8 @@ Gather these before writing anything. If the user has already provided some, ski
 5. **`tags`** — 2–5 tags. PascalCase for proper nouns/tools (React, Vite, TypeScript), lowercase for concepts (monorepo, performance).
 6. **Title** — EN and FR versions (short, descriptive).
 7. **Description** — EN and FR (1–2 sentences, no trailing period).
-8. **Content** — ask if the user wants to:
+8. **Catalog** — which existing catalog should this guide be added to? List the existing catalogs from `RAW_CATALOGS`. If none fits, propose creating a new one (load `./references/create-catalog.md` after this guide is created).
+9. **Content** — ask if the user wants to:
    a. Provide their own content (paste or describe)
    b. Have the agent draft it based on the topic and difficulty
 
@@ -111,7 +114,21 @@ If new category: add under `"categories"`:
 "{categoryKey}": "{category_label_fr}"
 ```
 
-### 6. Create changeset
+### 6. Assign guide to a catalog
+
+File: `packages/parcels/learn/src/data/learn.ts`
+
+Add the new guide `id` to the `guideIds` array of the target catalog in `RAW_CATALOGS`. If creating a new catalog, follow `./references/create-catalog.md` for the full steps (data entry + i18n).
+
+```ts
+// Example: adding to an existing catalog
+{
+  id: 'target-catalog-id',
+  guideIds: [...existingIds, '{id}'],
+},
+```
+
+### 7. Create changeset
 
 File: `.changeset/add-learn-{id}.md`
 
@@ -123,12 +140,13 @@ File: `.changeset/add-learn-{id}.md`
 feat: add "{title_en}" guide to the learn parcel.
 ```
 
-### 7. Confirm
+### 8. Confirm
 
 Summarize what was created:
 
 - Files created (list paths)
 - Entry added to `RAW_LEARN_ITEMS`
+- Guide added to catalog `{catalog-id}` in `RAW_CATALOGS`
 - i18n keys added (both locales)
 - Changeset created
 

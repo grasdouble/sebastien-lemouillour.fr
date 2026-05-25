@@ -49,10 +49,37 @@
     "tooling": "Tooling",
     "architecture": "Architecture"
   },
+  "view": {
+    "label": "Changer de vue",
+    "catalogs": "Catalogues",
+    "guides": "Guides"
+  },
   "aria": {
-    "openItem": "Ouvrir le guide : {{title}}"
+    "openItem": "Ouvrir le guide : {{title}}",
+    "openCatalog": "Ouvrir le catalogue : {{title}}"
   },
   "seo": {
     "description": "Guides techniques sur l'IA, le tooling et l'architecture front-end."
+  },
+  "catalogs": {
+    "sectionTitle": "Catalogues",
+    "sectionSubtitle": "Collections de guides autour d'un thème commun",
+    "guideCount": "{{count}} guide",
+    "guideCount_plural": "{{count}} guides",
+    "back": "Retour à la liste",
+    "items": {
+      "ia-llm-fundamentals": {
+        "title": "Fondamentaux IA & LLM",
+        "description": "De zéro à la maîtrise du prompt : comprendre le fonctionnement de l'IA générative puis apprendre à rédiger des prompts efficaces"
+      },
+      "tooling-essentials": {
+        "title": "Tooling moderne",
+        "description": "Maîtriser les outils essentiels d'un projet JavaScript moderne : builds rapides avec Vite et gestion de monorepo avec pnpm workspaces"
+      },
+      "frontend-architecture": {
+        "title": "Architecture front-end",
+        "description": "Concevoir des systèmes front-end scalables grâce aux patterns micro-frontend avec React et single-spa"
+      }
+    }
   }
 }
