@@ -5,17 +5,19 @@ difficulty: advanced
 tags: [React, architecture, micro-frontend]
 ---
 
-Une application React qui grandit finit toujours par rencontrer le même problème organisationnel : plusieurs équipes travaillent dans la même codebase, les déploiements restent couplés, et un bug dans Checkout peut bloquer une release de la partie Compte. La réponse classique consiste à découper les équipes. Mais si le code reste monolithique, l'essentiel de la douleur de coordination reste exactement au même endroit.
+Tu es dans une réunion où trois équipes débattent pour savoir si le déploiement est safe. Chacune a touché une section différente de l'appli. L'une d'elles a trouvé un bug au dernier moment dans son bout. Personne ne veut bloquer tout le monde, mais personne ne veut non plus livrer quelque chose de cassé. Alors tout le monde attend. Encore.
 
-Les micro-frontends traitent le problème au niveau architectural. Chaque équipe possède son morceau d'interface de bout en bout, du code à la production, et peut déployer sans attendre les autres. Le compromis est clair : moins de couplage dans la codebase, plus de complexité aux frontières.
+C'est le mode d'échec concret que les micro-frontends sont conçus pour prévenir — pas comme une abstraction, mais comme une vraie frontière de déploiement.
 
-## Qu'est-ce qu'un micro-frontend ?
+## Le vrai pari
 
-Un micro-frontend est une approche architecturale qui décompose une application web en plusieurs parties indépendantes, chacune développée, déployée et maintenue séparément. Chaque équipe peut choisir sa stack, son cycle de release et son périmètre fonctionnel. Le container, parfois appelé shell, est chargé de rassembler ces parties en un produit cohérent.
+Le pari des micro-frontends, c'est que le déploiement indépendant vaut plus qu'une codebase unifiée. Chaque équipe possède son bout d'interface du premier commit à la production. Elle déploie quand elle est prête. Un bug dans Checkout ne bloque pas Account. Le prix à payer est réel : un problème de dépendances partagées à résoudre explicitement, une nouvelle surface de coordination aux frontières, et une expérience de débogage objectivement plus complexe que dans un monolithe.
+
+Je ne recommanderais pas ça à une seule équipe. Pour plusieurs équipes autonomes qui déploient sur la même interface, c'est souvent la seule structure qui passe vraiment à l'échelle.
 
 ## single-spa : l'orchestrateur
 
-Une fois l'interface découpée en applications indépendantes, le container a besoin d'un moyen de charger et de décharger les morceaux d'UI en fonction de l'URL active. single-spa est le framework qui joue ce rôle : il gère le cycle de vie de chaque application et sépare les enjeux de routage de ceux du rendu.
+Le container — parfois appelé shell — doit savoir quelle portion d'UI charger en fonction de l'URL courante, et comment échanger les morceaux sans rechargement de page. single-spa s'occupe exactement de ça. On enregistre chaque micro-frontend avec un nom et une règle d'activation ; single-spa appelle mount et unmount au bon moment.
 
 ```typescript
 import { registerApplication, start } from 'single-spa';
@@ -35,11 +37,11 @@ registerApplication({
 start();
 ```
 
-Du point de vue du container, chaque micro-frontend n'est qu'une application nommée avec une règle d'activation.
+Du point de vue du container, chaque micro-frontend n'est qu'une application nommée avec une règle d'activation. Il ne se préoccupe pas de ce qu'il y a dedans.
 
 ## Import maps : résolution des modules
 
-single-spa charge les applications à la demande — mais comment sait-il où les trouver ? C'est là qu'interviennent les import maps : elles permettent au navigateur de résoudre des spécificateurs de modules nus (ex. `@my/parcel-home`) vers une URL concrète. En développement, elles pointent vers localhost ; en production, vers un CDN.
+Les imports dynamiques dans le container (`import('@my/parcel-home')`) sont des spécificateurs de modules nus — pas de chemin, pas d'URL. Le navigateur a besoin d'un moyen de les résoudre. Les import maps règlent ça :
 
 ```json
 {
@@ -50,11 +52,11 @@ single-spa charge les applications à la demande — mais comment sait-il où le
 }
 ```
 
-Cela rend les déploiements indépendants : mettre à jour un micro-frontend nécessite uniquement de changer son URL dans l'import map — pas de rebuild du container.
+C'est là que le déploiement indépendant devient concret. L'équipe Home livre une nouvelle version, met à jour l'URL dans l'import map, c'est terminé. Pas de rebuild du container, pas de coordination avec l'équipe About. L'import map est l'artefact de déploiement de chaque micro-frontend, et je trouve ça franchement élégant une fois qu'on s'y est habitué.
 
 ## Cycle de vie d'un parcel
 
-Chaque micro-frontend doit exposer trois fonctions que single-spa appellera au bon moment : `bootstrap` pour l'initialisation unique, `mount` pour afficher l'UI, et `unmount` pour nettoyer quand l'utilisateur navigue ailleurs. Avec React 18, cela revient généralement à conserver une référence `createRoot` entre les appels du cycle de vie.
+Chaque micro-frontend doit exporter trois fonctions que single-spa appelle au bon moment. Bien faire ça avec React 18, c'est la partie qui m'a piégé la première fois : il faut garder la référence `createRoot` vivante entre les cycles mount/unmount, sinon React lance des avertissements sur la création d'une racine sur un container qui en a déjà une.
 
 ```typescript
 import { createRoot } from 'react-dom/client';
@@ -81,7 +83,7 @@ export const unmount = () => new Promise((resolve) => {
 
 ## Dépendances partagées
 
-Si chaque micro-frontend bundle sa propre copie de React, le navigateur télécharge React autant de fois qu'il y a de parcels. Sur un produit avec dix équipes, c'est plusieurs centaines de kilooctets dupliqués. La solution : déclarer React comme externe dans chaque parcel et le charger une seule fois via l'import map :
+Si chaque micro-frontend bundle sa propre copie de React, les utilisateurs téléchargent React plusieurs fois. Sur un produit avec dix équipes, c'est facilement un mégaoctet de code de bibliothèque dupliqué. La solution : charger React une seule fois via l'import map et le marquer comme externe dans la config de build de chaque parcel :
 
 ```json
 {
@@ -91,8 +93,6 @@ Si chaque micro-frontend bundle sa propre copie de React, le navigateur téléch
   }
 }
 ```
-
-Le `vite.config.ts` de chaque parcel doit les marquer comme externes pour ne pas les bundler :
 
 ```typescript
 export default defineConfig({
@@ -104,4 +104,4 @@ export default defineConfig({
 });
 ```
 
-L'architecture micro-frontend n'est pas une solution universelle. Elle échange la complexité du couplage de code contre celle de l'orchestration. Elle devient pertinente quand plusieurs équipes autonomes doivent déployer indépendamment sur la même interface. Pour une seule équipe, un monorepo bien structuré avec du lazy loading suffit souvent.
+Le piège : tous les parcels doivent utiliser la même version de React. Si une équipe passe à React 19 avant les autres, c'est un problème — React ne peut pas coexister en deux versions sur la même page sans que les hooks ne lâchent. Les dépendances partagées nécessitent une coordination inter-équipes, ce qui est exactement ce que les micro-frontends étaient censés réduire. Prévois ça explicitement avant de t'engager dans cette architecture.

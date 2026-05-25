@@ -5,13 +5,13 @@ difficulty: intermediate
 tags: [IA, LLM, prompt]
 ---
 
-You tried an LLM and the results are disappointing. The model answers off-topic, too vaguely, or in the wrong format. The instinct is to blame the model — but most of the time, the problem is how you talk to it.
+You've tried the model. The results are bad. Not broken-bad — just vague, off-topic, weirdly formatted, or confidently wrong about something obvious. Your first instinct is to blame the model. I had that instinct too. Usually, the model is fine — the instruction is the problem.
 
-Prompt engineering is the art of formulating instructions so the model produces something useful. It is not magic. It is a skill you build progressively, from the simplest prompt to more structured techniques.
+Prompt engineering is just the discipline of writing better instructions. No magic. No jailbreaks. Just patterns that reliably move output from "almost useful" to "actually useful" — and a few traps to avoid along the way.
 
-## Zero-shot: start simple
+## Zero-shot: the default that works less often than you'd think
 
-The most direct approach is to ask for the task without giving any examples. The model has to infer what you want from the instruction alone.
+The simplest approach: describe the task and ask for the output, no examples. The model is supposed to infer what "good" looks like from the instruction alone.
 
 ```text
 Classify the sentiment of this review as Positive, Neutral, or Negative:
@@ -19,11 +19,11 @@ Classify the sentiment of this review as Positive, Neutral, or Negative:
 "The battery life is disappointing, but the screen quality is excellent."
 ```
 
-For a common, well-defined task, this is often enough. Where it breaks down is with specialized or ambiguous requests: the model does not have enough context to guess your standards. That is where examples become useful.
+This works well for common tasks the model has seen a thousand times. For anything specialized, ambiguous, or where your definition of "correct" differs from the training data's average — it breaks down fast. Zero-shot is where I start, not where I stay.
 
-## Few-shot: guide by example
+## Few-shot: stop explaining, start showing
 
-Rather than explaining at length what you expect, show it. Two or three representative examples usually calibrate the model better than a long abstract instruction.
+Instead of writing a longer description of what you want, show examples of input and expected output. Two or three examples beat a paragraph of explanation almost every time.
 
 ```text
 Translate from English to French:
@@ -38,11 +38,11 @@ English: "I would like to book a table for two."
 French:
 ```
 
-Practical rule: if you can show what “good” looks like through two or three cases, show it rather than write it.
+The examples do two things: they show the format you expect, and they calibrate the model's judgment about what "good" means for your specific use case. If you can demonstrate the desired output in two or three cases rather than describe it in prose, you should almost always choose demonstration.
 
-## Chain-of-thought: force the reasoning
+## Chain-of-thought: don't let the model skip steps
 
-Some tasks require multiple reasoning steps. If you ask for the final answer directly, the model can skip steps and get it wrong. Asking it to reason step by step often improves the result dramatically.
+For anything involving multi-step reasoning — math, logic, complex classification — asking for the final answer directly is a mistake. The model can generate a plausible-sounding answer by pattern-matching, without actually working through the problem. Adding a simple instruction to show its reasoning changes everything.
 
 ```text
 Solve this problem step by step:
@@ -54,19 +54,21 @@ will the second train catch the first?
 Reasoning:
 ```
 
-In practice, adding a phrase like “Think step by step” is often enough to improve math, logic, or other multi-stage tasks.
+"Think step by step" is the four-word version that works in most situations. It sounds almost too simple, but the accuracy improvement on multi-step problems is real and measurable. The reason it works is because generating the steps forces the model to build intermediate results it then actually uses — rather than guessing the answer directly.
 
-## Role prompting: provide an expertise context
+## Role prompting: context shapes output more than you expect
 
-A model does not answer the same way when you frame it as a teacher, an auditor, or an engineer. Giving it an explicit role helps anchor the answer in a domain. This is not just cosmetic — the model adjusts its level of detail, vocabulary, and structure based on the role.
+Telling the model it's a cybersecurity auditor versus a product manager changes not just the vocabulary, but the level of detail, what it decides to emphasize, and what it omits. This isn't decorative — I've seen the same question produce genuinely different useful outputs depending on the role.
 
 - "You are a cybersecurity expert with 20 years of experience..."
 - "You are a mathematics teacher explaining to high school students..."
 - "You are a senior code reviewer looking for critical bugs..."
 
-## System prompts: set the rules once and for all
+Pick the role that matches the kind of judgment you actually need. If you want code review feedback that would catch real security issues, "experienced engineer" will do more for you than a generic prompt.
 
-In an application, you do not want to repeat the same constraints in every user message. The `system` prompt solves that by establishing the model's persona, limits, and expected output format for the whole conversation. In production, a good system prompt is your first line of defense: it reduces output variance, makes parsing easier, and makes undesired behaviors harder to trigger.
+## System prompts: set the rules once, don't repeat yourself
+
+In a real application, repeating your constraints in every user message is a maintenance nightmare and inflates token usage. The `system` prompt exists to define the model's persona, constraints, and output format for the entire session. In production, I treat it as the contract between my application and the model — it defines what the model is allowed to do, what format it must respond in, and what it should refuse.
 
 ```typescript
 const messages = [
@@ -80,9 +82,11 @@ Schema: { "answer": string, "confidence": number }`,
 ];
 ```
 
-## Structured output
+A good system prompt significantly reduces output variance — which matters a lot more in production than it does when you're experimenting.
 
-Asking for JSON in the system prompt helps, but it is not guaranteed — the model can still add text before or after the object. Modern APIs increasingly offer a structured output mode that enforces the format directly, which is much safer when another system needs to parse the response.
+## Structured output: enforce what you can't rely on
+
+Asking for JSON in the prompt is a reasonable first step, but the model can still decide to add a little explanation before the object or after it, which breaks your parser. Modern APIs offer a structured output mode that enforces the format at the API level, not just through instruction. Use it whenever another system needs to parse the response — it's one fewer failure mode to debug at 2am.
 
 ```typescript
 const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -103,4 +107,4 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
 });
 ```
 
-These techniques are not mutually exclusive. A strong production prompt often combines a clear role, a few few-shot examples, a reasoning instruction, and a structured output format. The rule is simple: start simple, measure the results, and add complexity only when it genuinely improves the output.
+These techniques stack. A production prompt that works reliably usually combines a clear role, two or three examples, a step-by-step instruction for complex tasks, and a structured output constraint. But here's the actual rule: start with zero-shot, measure where it fails, and add the next layer only when the previous one isn't enough. Complexity you add without a specific reason to add it is just noise.

@@ -5,13 +5,13 @@ difficulty: intermediate
 tags: [IA, LLM, prompt]
 ---
 
-Vous avez essayé un LLM pour la première fois, et les résultats sont tièdes. Le modèle répond à côté, trop vaguement, dans le mauvais format. Le réflexe naturel est de blâmer le modèle — mais la plupart du temps, le problème vient de la façon dont vous lui parlez.
+Vous avez essayé le modèle. Les résultats sont décevants. Pas cassés — juste vagues, hors sujet, mal formatés, ou d'une confiance absurde face à quelque chose d'évident. Le réflexe, c'est de blâmer le modèle. Je l'ai eu aussi. En général, le modèle va bien — c'est l'instruction qui pose problème.
 
-Le prompt engineering, c'est l'art de formuler vos instructions pour obtenir des réponses utiles. Ce n'est pas de la magie : c'est une compétence qui se construit progressivement, du cas le plus simple au plus sophistiqué.
+Le prompt engineering, c'est simplement la discipline d'écrire de meilleures instructions. Pas de magie. Juste des patterns qui font passer la sortie de « presque utile » à « vraiment utile » — et quelques pièges à éviter en chemin.
 
-## Zero-shot : commencer simple
+## Zero-shot : le défaut qui fonctionne moins souvent qu'on le croit
 
-La forme la plus directe consiste à demander sans exemples. Le modèle s'appuie sur tout ce qu'il a appris pendant l'entraînement pour inférer ce que vous attendez.
+L'approche la plus simple : décrire la tâche et demander le résultat, sans exemples. Le modèle est censé déduire à quoi ressemble un « bon » résultat à partir de l'instruction seule.
 
 ```text
 Classe le sentiment de cette critique comme Positif, Neutre ou Négatif :
@@ -19,11 +19,11 @@ Classe le sentiment de cette critique comme Positif, Neutre ou Négatif :
 "L'autonomie de la batterie est décevante, mais la qualité de l'écran est excellente."
 ```
 
-Pour une tâche courante et bien définie, c'est souvent suffisant. Là où ça devient fragile, c'est face à des tâches spécialisées ou ambiguës — le modèle n'a pas assez de contexte pour deviner ce que vous voulez vraiment. C'est là qu'entrent les exemples.
+Ça fonctionne bien pour les tâches courantes que le modèle a vues des milliers de fois. Pour tout ce qui est spécialisé, ambigu, ou là où votre définition de « correct » diffère de la moyenne des données d'entraînement — ça se dégrade vite. Le zero-shot, c'est là où je commence, pas là où je reste.
 
-## Few-shot : guider par l'exemple
+## Few-shot : arrêtez d'expliquer, montrez
 
-Plutôt que d'expliquer longuement ce que vous attendez, montrez-le. Deux ou trois exemples représentatifs calibrent le modèle bien mieux qu'une longue instruction abstraite.
+Plutôt que d'écrire une description plus longue de ce que vous voulez, montrez des exemples d'entrée et de sortie attendue. Deux ou trois exemples battent un paragraphe d'explication presque à chaque fois.
 
 ```text
 Traduis du français vers l'anglais :
@@ -38,11 +38,11 @@ Français: "Je voudrais réserver une table pour deux personnes."
 Anglais:
 ```
 
-La règle pratique : si vous pouvez montrer ce que « bon » ressemble à travers deux ou trois cas, montrez-le plutôt que de l'écrire.
+Les exemples font deux choses : ils montrent le format attendu, et ils calibrent le jugement du modèle sur ce que « bon » signifie pour votre cas d'usage spécifique. Si vous pouvez démontrer le résultat souhaité en deux ou trois cas plutôt que le décrire en prose, choisissez presque toujours la démonstration.
 
-## Chain-of-thought : forcer le raisonnement
+## Chain-of-thought : ne laissez pas le modèle sauter des étapes
 
-Certaines tâches exigent plusieurs étapes de réflexion. Si vous demandez directement la réponse finale, le modèle peut sauter des étapes et se tromper. Lui demander de raisonner étape par étape améliore souvent le résultat de façon spectaculaire.
+Pour tout ce qui implique un raisonnement en plusieurs étapes — maths, logique, classification complexe — demander directement la réponse finale est une erreur. Le modèle peut générer une réponse qui sonne plausible par reconnaissance de patterns, sans réellement travailler le problème. Ajouter une instruction simple pour montrer son raisonnement change tout.
 
 ```text
 Résous ce problème étape par étape :
@@ -54,19 +54,21 @@ le second train rattrapera-t-il le premier ?
 Raisonnement :
 ```
 
-En pratique, ajouter « Raisonne étape par étape » ou « Think step by step » à un prompt suffit souvent à améliorer les tâches mathématiques, logiques ou plus généralement multi-étapes.
+« Think step by step » est la version en quatre mots qui fonctionne dans la plupart des situations. Ça semble presque trop simple, mais l'amélioration de précision sur les problèmes en plusieurs étapes est réelle et mesurable. La raison pour laquelle ça fonctionne : générer les étapes force le modèle à construire des résultats intermédiaires qu'il utilise ensuite réellement — plutôt que de deviner directement la réponse.
 
-## Role prompting : donner un contexte d'expertise
+## Role prompting : le contexte façonne la sortie plus qu'on ne le pense
 
-Le contexte professionnel change le registre, la profondeur et la précision des réponses. Assigner un rôle explicite aide le modèle à ancrer ses réponses dans un domaine. Ce n'est pas juste cosmétique — le modèle ajuste son niveau de détail, son vocabulaire et la structure de ses réponses en fonction du rôle :
+Dire au modèle qu'il est un auditeur en cybersécurité plutôt qu'un chef de produit change non seulement le vocabulaire, mais le niveau de détail, ce qu'il choisit de mettre en avant et ce qu'il omet. Ce n'est pas décoratif — j'ai vu la même question produire des sorties différentes et genuinement utiles selon le rôle.
 
-- "Tu es un expert en cybersécurité avec 20 ans d'expérience..."
-- "Tu es un professeur de mathématiques qui explique à des lycéens..."
-- "Tu es un code reviewer senior qui cherche des bugs critiques..."
+- « You are a cybersecurity expert with 20 years of experience... »
+- « You are a mathematics teacher explaining to high school students... »
+- « You are a senior code reviewer looking for critical bugs... »
 
-## System prompts : fixer les règles une fois pour toutes
+Choisissez le rôle qui correspond au type de jugement dont vous avez réellement besoin. Si vous voulez un retour de code review qui détecterait de vraies failles de sécurité, « experienced engineer » vous apportera bien plus qu'un prompt générique.
 
-Dans une application, vous ne voulez pas répéter les mêmes contraintes à chaque message utilisateur. Le message `system` résout cela en définissant pour toute la conversation la persona du modèle, ses limites et le format de sortie attendu. En production, un bon system prompt est votre première ligne de défense : il réduit la variance des réponses, facilite le parsing et rend les comportements indésirables plus difficiles à déclencher.
+## Prompts système : posez les règles une fois, ne vous répétez pas
+
+Dans une vraie application, répéter vos contraintes dans chaque message utilisateur est un cauchemar de maintenance et gonfle l'utilisation des tokens. Le prompt `system` existe pour définir la persona du modèle, ses contraintes et son format de sortie pour toute la session. En production, je le traite comme le contrat entre mon application et le modèle — il définit ce que le modèle est autorisé à faire, dans quel format il doit répondre, et ce qu'il doit refuser.
 
 ```typescript
 const messages = [
@@ -80,9 +82,11 @@ Schéma : { "réponse": string, "confiance": number }`,
 ];
 ```
 
-## Structured output : rendre le parsing fiable
+Un bon prompt système réduit significativement la variance des sorties — ce qui compte bien plus en production que lors des expérimentations.
 
-Demander du JSON dans le system prompt aide, mais ce n'est pas garanti — le modèle peut encore ajouter du texte avant ou après. Les APIs modernes proposent de plus en plus un mode de sortie structurée qui impose directement le format, ce qui est bien plus sûr quand un autre système doit parser la réponse.
+## Sortie structurée : imposez ce sur quoi vous ne pouvez pas compter
+
+Demander du JSON dans le prompt est une première étape raisonnable, mais le modèle peut quand même décider d'ajouter une petite explication avant l'objet ou après, ce qui casse votre parser. Les APIs modernes offrent un mode de sortie structurée qui impose le format au niveau de l'API, pas seulement via instruction. Utilisez-le chaque fois qu'un autre système doit parser la réponse — c'est un mode de défaillance de moins à déboguer à 2h du matin.
 
 ```typescript
 const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -103,4 +107,4 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
 });
 ```
 
-Ces techniques ne sont pas mutuellement exclusives — un bon prompt de production combine souvent un rôle clair, des exemples few-shot, une instruction de raisonnement et un format de sortie structuré. La règle est de commencer simple, mesurer les résultats, et ajouter de la complexité seulement là où ça améliore vraiment les sorties.
+Ces techniques s'accumulent. Un prompt de production qui fonctionne de manière fiable combine généralement un rôle clair, deux ou trois exemples, une instruction étape par étape pour les tâches complexes, et une contrainte de sortie structurée. Mais voici la vraie règle : commencez par le zero-shot, mesurez où ça échoue, et ajoutez la couche suivante seulement quand la précédente ne suffit pas. La complexité ajoutée sans raison spécifique n'est que du bruit.

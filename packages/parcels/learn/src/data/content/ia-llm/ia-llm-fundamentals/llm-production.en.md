@@ -5,13 +5,15 @@ difficulty: advanced
 tags: [IA, LLM, production, security, observability]
 ---
 
-Your MVP works. You're going to production. And there you discover that an LLM call is not just a function call — it's a surface for latency, cost, security attacks, and outages. The same code that worked fine on your laptop requires a completely different level of care in a real system.
+Your MVP works. Beautifully, in fact — you've shown it to the team, they're impressed, and now it needs to go to production. That's when you discover that an LLM call isn't just a function call. It's a concentrated point of latency spikes, unpredictable costs, security attack surface, and quiet failures that don't throw exceptions. The code that ran fine on your laptop now needs a completely different level of care.
 
 ## Observability
 
-The first thing you need in production is visibility. An LLM call concentrates latency, cost, and reliability risk in a single point. Without structured logging, you can't debug a timeout, explain a cost spike, or detect a prompt injection in progress.
+The first production incident with an LLM tends to follow a pattern: something is wrong, you don't know if it's the model, the prompt, the infrastructure, or your code, and you have no logs that would tell you which one. That's when you realize you've been running blind.
 
-The middleware below represents the minimum viable: a structured event on success, another on failure, both correlated with application traces.
+You need to log the full execution envelope, not just "the response." What actually helps during an incident: which prompt was sent, to which provider, with which model, how many tokens went in and came out, how long the call took, how much it cost, how it terminated (`finish_reason`), whether there were retries, what request ID came back, and whether tools or retrieval were involved. For sensitive payloads, keep the raw prompt in restricted storage and send only a redacted preview plus a stable hash to general logs.
+
+The middleware below is the minimum viable starting point: one structured event on success, one on failure, both correlated with application traces.
 
 ```typescript
 import { createHash } from 'node:crypto';
@@ -101,19 +103,21 @@ export const withObservability = (
 };
 ```
 
-From there, you can add LLM-native inspection with tools like LangSmith or Helicone, or keep the whole trace inside your existing OpenTelemetry pipeline. The important part is not the brand of tooling — it is having enough evidence to explain behavior after the fact.
+From there, LangSmith and Helicone give you more LLM-native inspection. OpenTelemetry keeps everything in your existing pipeline. The brand of tooling matters less than having enough evidence to explain what happened — after the fact, without having to reproduce it.
 
 ## Security: prompt injection
 
-The second risk you discover is prompt injection. It's an attack on the instruction layer: a user input, or data retrieved by the model, attempts to change the expected behavior. Direct injection is explicit. Indirect injection is more insidious — it arrives via a web page, PDF, or RAG chunk.
+Prompt injection is the attack vector that trips up nearly every team the first time. It's not a buffer overflow or an auth bypass — it's a manipulation of the instruction layer. A user pastes crafted text, a partner PDF contains a hidden instruction, a RAG chunk pulled from a web page tells the model to ignore the system policy and exfiltrate data. The model, having no way to distinguish "instructions from the developer" from "instructions embedded in retrieved content," may comply.
 
-The main defense is separation. Treat retrieved content as untrusted data, never as execution policy. Keep system and developer instructions distinct from user content, validate inputs before they reach tools, and sandbox agent tools with allowlists, short-lived credentials, and restricted network access. Assume some injections will land, and design for a small blast radius when they do.
+Direct injection is obvious once you know to look for it. Indirect injection — arriving through external data your system fetches and injects into the prompt — is nastier. The main defense is separation: treat retrieved content as untrusted data, never as execution policy. Keep system instructions structurally distinct from user content. Validate inputs before they reach tools. Sandbox agent tools with allowlists, short-lived credentials, and restricted network access. And assume some injections will land. Design for a small blast radius when they do, not for perfect prevention.
 
 ## Cost optimization
 
-At scale, cost almost never decreases just by trimming a single prompt. Start with caching — semantic caching reuses responses for equivalent questions, though many teams start with exact-match cache or a normalized prompt before adding embeddings.
+The bill looks fine during development. Then traffic grows, and something that seemed cheap at prototype scale compounds into a real expense. The issue is rarely a single bloated prompt — it's usually an accumulation: conversation histories that grow without bounds, retrieval that returns more than needed, wrong model for the task, no caching.
 
-Then move to the bigger levers: remove duplicated instructions, summarize history, route lightweight work to small models, batch offline tasks, and cap `max_tokens` so verbosity does not quietly dominate the bill. The example below is deliberately simple, but it shows the first production-safe step.
+Start with caching. Exact-match cache on normalized prompts is cheap to implement and eliminates redundant calls on frequently asked questions. Semantic caching reuses responses for equivalent questions even when phrased differently, but needs embeddings — it's a second step, not the first.
+
+Then tackle the structural levers: remove duplicated instructions, summarize history instead of appending it forever, route classification and extraction to small models and reserve the expensive ones for synthesis or hard reasoning, batch offline work where latency permits, and cap `max_tokens` so the model doesn't quietly pad every response.
 
 ```typescript
 import { createHash } from 'node:crypto';
@@ -160,9 +164,11 @@ export async function cachedCompletion(
 
 ## Resilience and multi-provider
 
-A single-provider architecture introduces a hidden single point of failure: outage, saturated quota, regional degradation, or policy change can take down your product. The solution is to separate a provider-agnostic interface from its specific adapters, then define your fallback policy explicitly: aggressive timeout, one retry on transient error, then switch from OpenAI to Anthropic.
+Single-provider architectures have a hidden property: they're fine until the day they're not. An outage, a quota limit, a regional degradation, a policy change — any of these can take down an LLM-dependent feature with no warning. The solution is to build a provider-agnostic interface over your actual adapters, then define your fallback policy explicitly rather than discovering it during an incident.
 
-That fallback is not free. Providers differ on JSON mode, tool calling, context limits, and safety filters, so normalize only the capabilities you truly need. Keep prompts portable, maintain golden test cases across providers, and measure quality drift during failover instead of assuming parity.
+My preferred policy: aggressive timeout (2–3 seconds), one retry on transient errors, then switch to a secondary provider. Circuit breakers prevent retry storms from turning one provider's problem into your SLO's problem.
+
+The fallback is not free. Providers differ on JSON mode, tool calling, context window limits, and safety filters. Don't normalize everything — only normalize the capabilities you actually need. Keep prompts portable across providers, maintain golden test cases that run on both, and measure quality drift during failover rather than assuming the outputs will be equivalent.
 
 ```typescript
 type ProviderResult = {
@@ -212,9 +218,7 @@ export async function generateWithFallback(
 
 ## Model selection framework
 
-Choose models with an explicit decision matrix, not brand loyalty. For a journey under 500ms, favor fast classes like Claude Haiku or GPT-4o mini. For customer-visible synthesis or high-stakes analysis, pay for GPT-4o or Claude Sonnet and compensate latency with caching and async UX.
-
-If you also need hard cost caps or stronger data control, extend that matrix with budget thresholds and hosting constraints instead of making one provider your default forever.
+Model selection is an engineering decision, not a brand preference. The right model for a task is the one that meets your constraint budget — latency, quality, cost, data residency — not the most impressive one in a benchmark. I'd pick the cheapest model that can reliably do the job, and upgrade only when I have evidence that quality is the bottleneck.
 
 | Constraint           | Recommended default      | Why                                                      | Main tradeoff                        |
 | -------------------- | ------------------------ | -------------------------------------------------------- | ------------------------------------ |
@@ -223,4 +227,4 @@ If you also need hard cost caps or stronger data control, extend that matrix wit
 | Cost < $0.01/request | Small models             | Scales better under heavy traffic                        | More routing and QA work             |
 | Sensitive data       | Ollama / vLLM on-premise | Stronger data control and residency guarantees           | You own uptime, GPU cost, and tuning |
 
-Provider choice should also include SLAs, regional availability, quota behavior, eval results on your domain, and contract terms around retention and training. In production, the best model is the one that meets your error budget, privacy boundary, and unit economics simultaneously.
+Beyond the matrix: factor in SLAs, regional availability, quota behavior, eval results on your actual domain, and contract terms around data retention and training. The "best" model in production is the one that satisfies your error budget, your privacy boundary, and your unit economics — simultaneously, not in isolation.

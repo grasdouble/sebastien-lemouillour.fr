@@ -5,17 +5,19 @@ difficulty: advanced
 tags: [IA, LLM, agents, function-calling]
 ---
 
-## What is an agent?
+## When a single API call stops being enough
 
-Imagine a support workflow that starts with a simple user complaint but quickly turns into a multi-step investigation. You need to check the user's account, query a payments API, cross-reference with an incident log, then formulate a response. A single API call cannot do that reliably: it performs one input → output transformation. An agent adds a control loop: observe current state, choose an action, execute it, observe the result, then decide whether another step is needed.
+You've built a support workflow. It starts with a user complaint, and for a while, one LLM call does the job: read the message, generate a response. Then a request comes in that needs account data. Fine, you add a lookup. Then another that requires checking payment history. Then cross-referencing an incident log. Suddenly you're writing branching code to handle every combination, and the workflow is longer than it is smart.
 
-That distinction matters architecturally. A simple API call is easier to bound, test, and cost-model. An agent becomes useful when the environment is partially unknown at runtime and the next step depends on what you discover along the way. You pay for that flexibility in tokens, orchestration code, observability complexity, and debugging effort. If the workflow is already expressible as explicit code, deterministic, and latency-sensitive, an agent is usually the wrong abstraction.
+An agent is the answer to this kind of combinatorial growth — but not in the way it's usually sold. The magic isn't autonomy. The value is a control loop: observe the current state, choose an action, execute it, see what you get, then decide whether you're done or need another step. That loop is what lets the system adapt to what it discovers, instead of requiring you to code every possible path in advance.
+
+The tradeoff is real, though. An agent is harder to test, more expensive to run, and significantly harder to debug than a deterministic function. If your workflow has a predictable shape — even a complex one — explicit code is usually the right answer. I reach for agents when the environment is genuinely unknown at runtime, and the next action depends on what the previous one returned.
 
 ## Function calling / Tool use
 
-The first brick of an agent is the ability to call external tools. Rather than hardcoding logic, you describe available tools as JSON schemas. The model doesn't execute code itself — it returns a tool name and arguments, your application validates and runs the call, then reinjects the result into the conversation.
+The first thing that makes an agent possible is giving the model a way to act on the world. Not by executing code itself — the model returns a structured decision (a tool name and arguments), and your application validates and runs the actual call. The result gets injected back into the conversation, and the model keeps going.
 
-The schema matters more than most teams expect. `properties` define the callable surface, `required` removes ambiguity, `enum` prevents drift on bounded values, and descriptions act as routing hints. A good schema reduces the action space before the model ever takes a step.
+The tool schema is where most teams underinvest. It's not boilerplate — it's a contract. `properties` defines what the model can request. `required` removes ambiguity. `enum` prevents it from inventing values. Descriptions act as routing hints. A tight schema dramatically narrows the space of things the model can do wrong before it even takes a step.
 
 ```typescript
 import OpenAI from 'openai';
@@ -103,11 +105,13 @@ async function main() {
 main().catch(console.error);
 ```
 
-Once tools exist, the next problem is coordination. The model now has ways to act on the world, but it still needs a pattern for deciding when to call which tool and how to use the result.
+A single tool call is already useful on its own — structured retrieval, deterministic dispatch, typed results. The loop comes next.
 
 ## The ReAct pattern
 
-Once tools exist, you need a way to chain them intelligently. ReAct (Reason + Act) is the pattern: the model decomposes the task into a sequence of reasoning steps, tool calls, and observations. In practice, the interest isn't “magical” autonomy, but explicit intermediate state — you can inspect why the agent queried system A before system B, what observation changed the plan, and where it got stuck.
+A tool call gives the model one action. ReAct (Reason + Act) gives it a reasoning loop: the model breaks the task into a sequence of thought → action → observation steps, adjusting its plan based on what each step returns.
+
+The value isn't "smarter AI" — it's explicitness. You can look at the trace and see why the agent checked deployments before metrics, what observation changed the plan, and where it got stuck. That's genuinely useful for debugging, and for building trust that the system is doing what you think it's doing.
 
 ```text
 User: Find why checkout latency increased after the last deployment.
@@ -125,11 +129,13 @@ Action: summarize_findings()
 Observation: likely regression introduced by v2025.09.14; rollback or profile DB calls.
 ```
 
-In architecture, ReAct is useful because it improves auditability and debugging. Its cost is extra tokens and the risk of delegating too much reasoning to a loop when a fixed plan would have been cheaper and safer.
+The cost is real: more tokens per request, and the risk of the loop spending cycles reasoning instead of converging. A fixed plan — where you know the steps in advance — is almost always cheaper and safer. ReAct earns its place when the plan itself can't be written ahead of time.
 
 ## Building a minimal agent loop
 
-A minimal agent loop is just a bounded state machine. What really matters in production: an explicit iteration limit, strict tool dispatch, structured error propagation, and logs at every step. For brevity, the example parses tool arguments as JSON directly; in production, validate them against the same runtime schema before dispatch.
+The loop is just a bounded state machine. What matters in production isn't elegance — it's the guardrails: an explicit iteration cap, strict tool dispatch, structured error propagation, and a log at every step. Without those, debugging an agent failure becomes guesswork.
+
+The example below parses tool arguments directly from JSON. In production, validate them against your schema before dispatch — the model will eventually send arguments that fail your business rules, and you want to surface that as a tool error, not a silent bug.
 
 ```typescript
 import OpenAI from 'openai';
@@ -263,10 +269,10 @@ runAgent('Investigate whether checkout is degraded and explain why.')
 
 ## Tradeoffs and failure modes
 
-The first failure mode is infinite or low-value loops. `max_iterations` is mandatory, but not sufficient. Once you deploy a real agent, you discover that it can keep calling the same tool with slightly different wording and produce no new information. That is why loop-level telemetry, duplicate-action detection, and escalating stop rules matter.
+`max_iterations` is the first guardrail everyone adds and the first one everyone underestimates. An agent can stay within its cap while still producing zero useful information — calling the same tool with slightly rephrased arguments, getting the same result, and continuing anyway. Loop-level telemetry, duplicate-action detection, and escalating stop conditions all matter as much as the cap itself.
 
-Then you hit the second problem: tool arguments hallucinate. The model invents unsupported enum values, omits required fields, or sends semantically invalid requests. If you validate before execution and return machine-readable tool errors, the loop can often recover instead of failing silently.
+Tool argument hallucination is the other failure mode nobody warns you about until they hit it. The model invents unsupported enum values, omits required fields, or sends semantically invalid combinations. The fix isn't prompt engineering — it's validation at the tool boundary. Validate before execution, return a structured error the model can read, and the loop often recovers on its own.
 
-Next comes cost. Multi-turn agents replay prior messages and tool results on every iteration, so the bill is not only model spend but also latency, queue pressure, and more opportunities for partial failure. Finally, debugging becomes its own system requirement: prompt version, tool schema version, requested arguments, execution result, duration, retries, and final answer all need to be logged if you want postmortems to be based on evidence instead of guesswork.
+Cost in multi-turn agents compounds fast. Every iteration replays the full message history — prior reasoning, tool calls, observations — so the bill scales with depth, not just count. Budget accordingly, and log enough to explain why an agent ran twelve iterations instead of three when it inevitably does.
 
-The final trade-off is autonomy vs control. If the task can be encoded as a deterministic state machine, a workflow engine, or a document retrieval pipeline, prefer that. Agents excel at local decision-making under uncertainty — not at replacing clear business logic.
+My honest recommendation: if the workflow can be expressed as deterministic code, express it as deterministic code. Agents are genuinely powerful for tasks that are open-ended, require conditional branching based on real-time data, and where you can't enumerate the branches in advance. For anything else, the operational overhead isn't worth it.

@@ -5,17 +5,17 @@ difficulty: intermediate
 tags: [tooling, monorepo, pnpm]
 ---
 
-Imaginez une équipe qui grandit. Au début, il n'y a qu'une seule application React, une seule codebase, un seul repo, et tout le monde travaille au même endroit. C'est simple. Puis les frictions apparaissent : un utilitaire de validation partagé est copié dans deux projets, les versions de TypeScript commencent à diverger, et un bug corrigé dans un repo survit discrètement dans l'autre.
+Tu copies un utilitaire de validation du projet A vers le projet B parce que c'est plus rapide que de configurer un package partagé. Six mois plus tard, il y a un bug dans le validateur. Tu le corriges dans A. Tu ne le corriges pas dans B parce que tu as oublié qu'il y est. Un utilisateur de B trouve le bug trois semaines plus tard.
 
-C'est à ce moment-là que le monorepo cesse de sembler théorique pour devenir la réponse la plus pragmatique. Au lieu d'éparpiller des packages liés dans plusieurs dépôts, on les réunit au même endroit et on laisse l'outillage gérer les frontières.
+Je l'ai vécu deux fois. La deuxième fois, c'était suffisamment embarrassant pour que je prenne enfin le temps de mettre en place un monorepo correctement.
 
-## Qu'est-ce qu'un monorepo ?
+## Le monorepo, c'est pas une mode
 
-Un monorepo est un dépôt git unique qui contient plusieurs packages ou applications. Avec pnpm workspaces, chaque package garde son propre `package.json` et peut quand même dépendre d'autres packages du même dépôt. Vous gagnez le partage de code, la cohérence des versions et un point d'entrée unique pour vos workflows, sans perdre la responsabilité au niveau package.
+Un seul dépôt git, plusieurs packages, des outils partagés. Avec pnpm workspaces, chaque package garde son propre `package.json` et déclare ses propres dépendances. Ils peuvent se référencer mutuellement sans passer par npm. Les versions de TypeScript restent alignées. On lance lint et les tests depuis un seul endroit. Ça ne paraît pas révolutionnaire jusqu'à ce qu'on se souvienne comment c'était avant.
 
 ## Configuration pnpm-workspace.yaml
 
-Tout commence par un seul fichier à la racine du repo. Il indique à pnpm quels dossiers contiennent des packages :
+Un seul fichier à la racine indique à pnpm quels répertoires contiennent des packages :
 
 ```yaml
 packages:
@@ -23,9 +23,11 @@ packages:
   - '!packages/**/node_modules/**'
 ```
 
+Le pattern d'exclusion est facile à oublier et il est important — sans lui, pnpm pourrait essayer de traiter les répertoires `node_modules` comme des packages, avec des résultats prévisiblement mauvais.
+
 ## Commandes essentielles
 
-Une fois le workspace configuré, pnpm expose des commandes qui opèrent sur tout le monorepo — ou sur un package précis. C'est là que le workflow change radicalement par rapport à plusieurs dépôts séparés :
+Le changement de workflow est réel. Au lieu de faire des `cd` entre les repos et de réinstaller des dépendances partout, tu pilotes tout depuis une seule racine :
 
 ```bash
 # Installer toutes les dépendances du workspace
@@ -47,11 +49,11 @@ pnpm add @my/shared --filter @my/app --workspace
 pnpm -r --parallel run lint
 ```
 
-Au lieu de sauter d'un repo à l'autre, de réinstaller les dépendances partout et de coordonner les changements manuellement, vous travaillez depuis une seule racine tout en ciblant exactement le package dont vous avez besoin.
+J'utilise `--filter` en permanence. C'est ce qui permet de rester dans le monorepo sans perdre de vue le package sur lequel on travaille vraiment.
 
 ## Packages internes (protocole workspace)
 
-La vraie force du monorepo apparaît quand un package consomme un autre package du même repo. Avec pnpm, cela se fait avec le protocole `workspace:*` : pnpm résout la dépendance localement en développement, et remplace automatiquement par la vraie version publiée au moment de la publication. Plus besoin de `npm link` ou de chemins relatifs fragiles :
+C'est la fonctionnalité qui rend le partage de code vraiment opérationnel. Quand le package A dépend du package B dans le même monorepo, on le déclare comme ça :
 
 ```json
 {
@@ -62,9 +64,11 @@ La vraie force du monorepo apparaît quand un package consomme un autre package 
 }
 ```
 
+En développement, pnpm crée un lien direct de B dans le `node_modules` de A — toute modification dans B est immédiatement visible dans A, sans étape de build. Au moment de publier, pnpm substitue automatiquement le vrai numéro de version. Pas de `npm link`, pas de symlinks manuels, pas de "attends, c'est quelle version là ?"
+
 ## Changesets pour la gestion des versions
 
-Dans un monorepo avec plusieurs packages publiés, la gestion des versions devient vite un problème. Qui a changé quoi ? Quel package mérite un patch, et lequel a besoin d'une release mineure ? Changesets répond à ça en attachant une petite note de version à chaque PR, puis en agrégeant ces notes au moment de publier.
+Dès qu'on a plusieurs packages publiés, "bumper la version" cesse d'être une simple commande. Quel package a changé ? De combien ? Changesets règle ça en demandant d'attacher une petite déclaration à chaque changement significatif, puis en agrégeant ces déclarations au moment de la release.
 
 ```bash
 # Ajouter un changeset (interactif)
@@ -88,4 +92,6 @@ Un fichier changeset ressemble à ceci :
 feat: ajout du variant "ghost" sur le Button
 ```
 
-Un monorepo ne résout pas tout. Les dépendances circulaires, les builds incrémentaux et les déploiements partiels peuvent encore devenir complexes à mesure que le système grandit. Mais comme point de départ, pnpm workspaces enlève déjà l'essentiel des frictions quotidiennes du multi-repo.
+Le fichier vit dans le repo, il est reviewé dans la PR, mergé avec la feature. Au moment de lancer `changeset version`, tu as déjà un historique clair de ce qui a changé et pourquoi.
+
+Un avertissement honnête : les dépendances circulaires, les builds incrémentaux qui fonctionnent vraiment, et les déploiements coordonnés deviennent tous plus difficiles à mesure que le monorepo grossit. pnpm workspaces couvrent l'essentiel, mais ce n'est pas une réponse complète à tous les problèmes de passage à l'échelle d'un monorepo. Sache dans quoi tu t'embarques avant de migrer six repos.

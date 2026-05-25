@@ -5,17 +5,17 @@ difficulty: intermediate
 tags: [tooling, monorepo, pnpm]
 ---
 
-Imagine a team that is growing. At first there is only one React app, one codebase, one repo, and everyone works in the same place. It feels simple. Then the friction appears: a shared validation utility gets copied into two projects, TypeScript versions start diverging, and a bug fixed in one repo quietly survives in the other.
+You copy a validation utility from project A to project B because it's faster than setting up a shared package. Six months later, there's a bug in the validator. You fix it in A. You forget to fix it in B because you've forgotten it's there. A user in B finds the bug three weeks later.
 
-That is the moment when the monorepo stops sounding theoretical and starts looking like the practical answer. Instead of scattering related packages across many repositories, you bring them together in one place and let the tooling manage the boundaries.
+I've lived this twice. The second time was embarrassing enough that I went and set up a monorepo properly.
 
-## What is a monorepo?
+## The monorepo isn't a trend
 
-A monorepo is a single git repository that contains multiple packages or applications. With pnpm workspaces, each package keeps its own `package.json` and can still depend on other packages in the same repository. You get code sharing, version consistency, and a single place to run your workflows without giving up package-level ownership.
+One git repository, multiple packages, shared tooling. With pnpm workspaces, each package keeps its own `package.json` and declares its own dependencies. They can reference each other without publishing to npm. TypeScript versions stay aligned. You run lint and tests from one place. It doesn't feel revolutionary until you remember what life was like before.
 
 ## pnpm-workspace.yaml configuration
 
-Everything starts with one file at the root. It tells pnpm which folders should be treated as workspace packages:
+One file at the root tells pnpm which directories contain workspace packages:
 
 ```yaml
 packages:
@@ -23,9 +23,11 @@ packages:
   - '!packages/**/node_modules/**'
 ```
 
+That exclusion pattern is easy to forget and it matters — without it, pnpm might try to process `node_modules` directories as packages, with predictably bad results.
+
 ## Essential commands
 
-Once the workspace is configured, pnpm exposes commands that operate on the whole monorepo — or on one specific package. This is where the workflow changes radically compared to several separate repositories:
+The workflow shift is real. Instead of `cd`-ing between repos and running installs everywhere, you drive everything from one root:
 
 ```bash
 # Install all workspace dependencies
@@ -47,11 +49,11 @@ pnpm add @my/shared --filter @my/app --workspace
 pnpm -r --parallel run lint
 ```
 
-Instead of jumping between repos, reinstalling dependencies everywhere, and coordinating changes manually, you can operate from one root while still targeting the exact package you need.
+I use `--filter` constantly. It's how you stay in the monorepo without losing focus on the package you're actually working on.
 
 ## Internal packages (workspace protocol)
 
-The real power of the monorepo appears when one package consumes another package from the same repo. With the `workspace:*` protocol, pnpm links the dependency locally during development and replaces it with the real published version during release. No `npm link`, no brittle relative paths, no duplicated packages pretending to be shared:
+This is the feature that makes shared code actually work. When package A depends on package B inside the same monorepo, you declare it like this:
 
 ```json
 {
@@ -62,9 +64,11 @@ The real power of the monorepo appears when one package consumes another package
 }
 ```
 
+During development, pnpm links B directly into A's `node_modules` — any change in B is immediately visible in A, no build step needed. When you publish, pnpm substitutes the real version number automatically. No `npm link`, no manual symlinks, no "wait, which version is this?" confusion.
+
 ## Changesets for version management
 
-In a monorepo with multiple published packages, versioning quickly becomes a problem. Who changed what? Which package deserves a patch, and which one needs a minor release? Changesets answers that by attaching a small version note to each PR, then aggregating those notes when it is time to release.
+Once you have multiple published packages, "bump the version" stops being a one-liner. Which package changed? By how much? Changesets solves this by asking you to attach a small declaration to each significant change, then aggregating those declarations at release time.
 
 ```bash
 # Add a changeset (interactive)
@@ -88,4 +92,6 @@ A changeset file looks like this:
 feat: add Button variant "ghost"
 ```
 
-A monorepo does not solve everything. Circular dependencies, incremental builds, and partial deployments can still become complex as the system grows. But as a starting point, pnpm workspaces remove most of the day-to-day friction that comes with splitting related work across multiple repositories.
+The file lives in the repo, gets reviewed in the PR, and merges with the feature. By the time you run `changeset version`, you already have a clear record of what changed and why.
+
+One honest warning: circular dependencies, incremental builds that actually work, and coordinated deployments all get harder as the monorepo grows. pnpm workspaces get you most of the way there, but they're not a full answer to every monorepo scaling problem. Know what you're signing up for before you migrate six repos.

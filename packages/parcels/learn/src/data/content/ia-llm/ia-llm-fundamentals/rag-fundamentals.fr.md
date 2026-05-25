@@ -5,27 +5,23 @@ difficulty: intermediate
 tags: [IA, LLM, RAG, embeddings]
 ---
 
-## Pourquoi les LLMs ont besoin de vos données
+## Le modèle qui ne connaît pas vos propres données
 
-Un LLM est puissant, mais il a un angle mort : ses connaissances sont figées au moment de l'entraînement. Il ne connaît pas votre catalogue produit, votre wiki interne, vos procédures support ou le PDF ajouté hier par votre équipe. Si vous lui demandez « quelle est notre politique de remboursement pour les clients enterprise ? », le modèle ne peut que deviner tant que vous ne lui fournissez pas l'information.
+Vous avez branché un LLM sur votre produit. Bluffant en démo. Puis quelqu'un demande « quelle est notre politique de remboursement pour les comptes enterprise ? » et le modèle répond avec aplomb — et complètement à côté. Pas parce que le modèle est mauvais. Parce qu'il n'a littéralement aucune idée. Ses connaissances se sont arrêtées au moment de l'entraînement. Votre politique de remboursement, votre wiki interne, le PDF uploadé hier par votre équipe — rien de tout ça n'existe pour lui.
 
-C'est exactement l'idée du **Retrieval-Augmented Generation (RAG)** : avant de demander au modèle de répondre, on récupère d'abord les informations pertinentes dans vos propres données, puis on injecte ces informations dans le prompt. Autrement dit, on ne rend pas le modèle plus intelligent ; on lui évite surtout de répondre dans le vide.
+C'est exactement le vide que comble le **Retrieval-Augmented Generation (RAG)**. Avant que le modèle réponde, on va chercher les passages pertinents dans vos propres données et on les injecte dans le prompt. Le modèle n'est pas plus intelligent — il lit enfin les bons documents.
 
-Une bonne analogie est celle d'un consultant expert. Le consultant est intelligent et sait bien formuler ses réponses, mais il a quand même besoin d'accéder à votre documentation pour répondre à des questions propres à votre entreprise. Le RAG donne cette documentation au modèle au bon moment.
+Je choisirais le RAG plutôt que le fine-tuning pour tout ce qui change. Le fine-tuning inscrit le comportement dans les poids, ce qui impose un réentraînement à chaque évolution de la documentation. Le RAG, c'est une requête au moment de l'exécution. Si vos données évoluent chaque semaine, ça tranche le débat.
 
-C'est souvent plus adapté qu'un fine-tuning pour des connaissances qui changent souvent. Le fine-tuning modifie le comportement du modèle ; le RAG modifie le contexte qu'il reçoit. Si votre documentation évolue chaque semaine, la récupération de contexte est souvent l'option la plus simple et la plus sûre.
+## Les embeddings : comparer le sens sans les mots-clés
 
-## Que sont les embeddings ?
+Le problème avec la récupération, c'est que les gens ne cherchent pas comme les documents sont rédigés. Un utilisateur demande « politique de congés » ; le handbook dit « règles de vacances payées ». La recherche par mots-clés exacts échoue ici.
 
-Pour que ce mécanisme fonctionne, il faut maintenant résoudre un problème très concret : comment retrouver les bons passages sans compter uniquement sur des mots-clés exacts ? C'est le rôle des **embeddings**. Un embedding est une liste de nombres qui représente le sens d'un texte.
+Les embeddings règlent ça. Un embedding est un vecteur — une liste de nombres — qui encode le sens d'un texte plutôt que ses mots littéraux. Le modèle mental que j'utilise : des coordonnées GPS pour la sémantique. Deux textes qui veulent dire des choses proches finissent proches dans l'espace vectoriel, exactement comme deux adresses dans le même quartier sont proches sur une carte.
 
-Imaginez des coordonnées GPS, mais pour le sens au lieu de la géographie. Deux adresses proches sur une carte sont probablement dans le même quartier. Deux embeddings proches dans l'espace vectoriel parlent probablement du même sujet. Cette analogie est utile, parce qu'elle rappelle qu'on ne cherche pas une égalité parfaite, mais une proximité.
+La **similarité cosinus** mesure cette proximité — si deux vecteurs pointent dans la même direction sémantique. Inutile d'assimiler les maths. Ce qui compte : un score élevé signifie « ces textes parlent probablement du même sujet », même quand ils ne partagent aucun mot.
 
-C'est pour cela qu'une recherche sur « politique de congés » peut retrouver un chunk qui contient « règles de vacances payées », même si les mots exacts ne correspondent pas. Une fois ce modèle mental acquis, l'étape suivante devient naturelle : il faut maintenant mesurer à quel point deux coordonnées de sens sont proches.
-
-La **similarité cosinus** est la mesure la plus courante pour évaluer cette proximité. Pas besoin de retenir la formule : elle indique si deux vecteurs pointent dans une direction sémantique similaire. Une similarité cosinus élevée signifie en pratique « ces textes veulent probablement dire des choses proches ».
-
-Voici à quoi ressemble un appel à l'API OpenAI pour générer un embedding :
+Voici à quoi ressemble un appel d'embedding :
 
 ```typescript
 const response = await fetch('https://api.openai.com/v1/embeddings', {
@@ -45,39 +41,30 @@ const vector = data.data[0].embedding;
 console.log(vector.length);
 ```
 
-En pratique, on stocke ce vecteur à côté du chunk de texte original pour pouvoir le rechercher plus tard. C'est ce pont entre texte et espace vectoriel qui rend la récupération sémantique possible.
+On stocke ce vecteur à côté du texte original. C'est le pont entre vos documents et la recherche sémantique.
 
 ## Le pipeline RAG
 
-Une fois cette brique comprise, le reste du pipeline devient beaucoup plus lisible. Un flux RAG minimal ressemble à ceci :
+Un flux RAG minimal ressemble à ceci :
 
 ```text
 Document -> Chunk -> Embed -> Store
 Query -> Embed -> Search -> Top-K -> LLM -> Answer
 ```
 
-Chaque étape a un rôle précis :
+Deux rythmes bien distincts derrière ce schéma. L'indexation est un travail offline, en amont : on découpe les documents, on embede chaque fragment, on stocke les résultats avant que quelqu'un pose une question. C'est la partie coûteuse — et on ne la fait qu'une fois par mise à jour.
 
-- **Document** — vos sources : Markdown, PDF, pages Notion, tickets, documentation produit.
-- **Chunk** — découper les gros documents en passages plus petits pour garder une recherche précise et rester dans la fenêtre de contexte.
-- **Embed** — convertir chaque chunk en vecteur.
-- **Store** — sauvegarder le texte et son vecteur en mémoire, en base ou dans un vector store.
-- **Query** — la question de l'utilisateur.
-- **Embed** — convertir aussi cette question en vecteur.
-- **Search** — comparer le vecteur de la question avec les vecteurs stockés.
-- **Top-K** — garder les meilleures correspondances, souvent 3 à 5 chunks.
-- **LLM** — construire un prompt avec la question et le contexte récupéré.
-- **Answer** — générer une réponse fondée sur ce contexte.
+Au moment de la requête, la récupération et la génération prennent le relais. La question de l'utilisateur est embeddée avec le même modèle, comparée à tout ce qu'on a indexé, et les correspondances les plus proches sont envoyées au LLM. Le modèle ne voit pas toute la base de connaissance — seulement les trois ou cinq passages les plus susceptibles de contenir la réponse.
 
-On peut résumer ce pipeline en trois phases distinctes. D'abord, **l'indexation** prépare la base de connaissance : on découpe les documents, on calcule leurs embeddings et on les stocke. Ensuite, **la récupération** prend une nouvelle question, la projette dans le même espace vectoriel et retrouve les chunks les plus proches. Enfin, **la génération** transforme ces faits récupérés en une réponse utile.
-
-Cette séparation est importante, parce que chaque phase a un rythme et un coût différents. L'indexation coûte cher mais se fait en amont. La récupération doit être rapide au moment de la question. La génération, elle, dépend de la qualité du contexte envoyé. Si vous mélangez tout, vous rendez le système plus difficile à optimiser, à tester et à faire évoluer.
+- **Document / Chunk / Embed / Store** — construire la base de connaissance une fois, en amont.
+- **Query / Embed / Search / Top-K** — la réduire à ce qui est pertinent pour cette question précise.
+- **LLM / Answer** — transformer les preuves récupérées en réponse utilisable.
 
 ## Stratégies de chunking
 
-Pourquoi ne pas embedder chaque document en entier, une seule fois, et s'arrêter là ? Parce qu'un document complet dilue le sens, dépasse plus facilement les limites de contexte et rend la récupération moins précise. Le chunking crée des unités plus petites, donc plus faciles à faire correspondre à une vraie question utilisateur.
+Pourquoi ne pas embedder des documents entiers et en rester là ? Deux raisons. D'abord, un document long dilue l'embedding — il représente tout en même temps, ce qui le rend plus difficile à faire correspondre à une question précise. Ensuite, les fenêtres de contexte ont des limites, et injecter un document entier dans le prompt est inutilement coûteux quand un seul paragraphe répond réellement à la question.
 
-L'overlap compte aussi. Si une idée traverse la frontière entre deux chunks, un léger chevauchement permet de conserver la continuité.
+Le chunking crée des unités plus petites, plus focalisées. L'overlap compte : si une idée traverse la frontière entre deux chunks, un léger chevauchement préserve la continuité.
 
 | Stratégie             | Fonctionnement                                              | Forces                     | Faiblesses                             | Bon choix par défaut pour                 |
 | --------------------- | ----------------------------------------------------------- | -------------------------- | -------------------------------------- | ----------------------------------------- |
@@ -85,11 +72,11 @@ L'overlap compte aussi. Si une idée traverse la frontière entre deux chunks, u
 | Basée sur les phrases | Regroupe des phrases complètes jusqu'à une limite de taille | Chunks plus lisibles       | La longueur des phrases varie beaucoup | FAQ, articles, guides                     |
 | Sémantique            | Coupe sur les changements de sujet ou les titres            | Meilleure cohérence        | Plus difficile à implémenter           | Grosses bases de connaissance structurées |
 
-Un bon point de départ consiste à utiliser un découpage à taille fixe ou basé sur les phrases, avec 10 à 20 % d'overlap. Ensuite, on évalue avec de vraies questions utilisateur.
+Mon point de départ : découpage par phrases avec 15 % d'overlap. La taille fixe fonctionne pour prototyper mais a le mauvais réflexe de couper les phrases en plein milieu, ce qui nuit à la fois à la lisibilité et à la récupération. Le chunking sémantique donne les meilleurs résultats mais demande plus d'effort — je l'ajoute une fois que le système fonctionne, pas comme point de départ.
 
 ## Implémenter un RAG en TypeScript
 
-Maintenant que le pipeline est clair, le code ci-dessous montre comment ces trois phases s'enchaînent concrètement : indexer des documents en mémoire, récupérer les chunks les plus proches, puis les envoyer à un LLM. Pour apprendre, un tableau en mémoire suffit. En production, vous remplacerez cela par un stockage persistant.
+L'exemple ci-dessous tourne entièrement en mémoire — pas de base vectorielle nécessaire. C'est intentionnel. Comprendre les trois phases dans un environnement auto-suffisant vaut plus que d'ajouter de l'infrastructure avant de maîtriser les fondamentaux.
 
 ```typescript
 type IndexedChunk = {
@@ -245,17 +232,17 @@ async function main(): Promise<void> {
 main().catch(console.error);
 ```
 
-Remarquez les trois phases distinctes :
+Les trois phases sont intentionnellement séparées, et cette séparation compte plus qu'il n'y paraît :
 
-1. **Indexation** — préparer la base de connaissance une fois.
-2. **Récupération** — trouver les chunks les plus pertinents pour une nouvelle question.
-3. **Génération** — demander au LLM de répondre uniquement à partir de ces chunks.
+1. **Indexation** — le travail coûteux fait une fois par mise à jour de document.
+2. **Récupération** — rapide, au moment de la requête. La qualité de cette étape détermine tout ce qui suit.
+3. **Génération** — le modèle répond sur preuves, pas de mémoire. C'est ce qui prévient les hallucinations confiantes.
 
-Cette séparation est importante : l'indexation coûte cher et se fait en amont, tandis que la récupération et la génération se produisent au moment de la requête. En pratique, c'est aussi ce qui permet d'optimiser, de tester et de faire évoluer chaque phase sans rendre l'ensemble du système opaque.
+Si la récupération ramène les mauvais chunks, la génération restera confiante et restera fausse. Le maillon faible est presque toujours le chunking et la récupération, pas le modèle.
 
 ## Choisir une base vectorielle
 
-Tant que vous apprenez, un tableau en mémoire fait très bien l'affaire. Mais dès que vos données ne tiennent plus confortablement en mémoire — ou que vous avez besoin de persistance entre deux redémarrages — cette approche atteint ses limites. À ce stade, il faut utiliser une base vectorielle ou une base relationnelle avec support vectoriel.
+Un tableau en mémoire suffit pour comprendre les fondamentaux et prototyper sur de vraies données. Dès que vous avez besoin de persistance, ou que votre index dépasse ce qui tient confortablement en mémoire de processus, il faut autre chose.
 
 | Option   | Idéal pour                                                              | Hébergement                    | Profil de coût  |
 | -------- | ----------------------------------------------------------------------- | ------------------------------ | --------------- |
@@ -264,12 +251,6 @@ Tant que vous apprenez, un tableau en mémoire fait très bien l'affaire. Mais d
 | Weaviate | La recherche hybride et des fonctionnalités de connaissance plus riches | Self-hosted ou cloud managé    | Modéré          |
 | Chroma   | Le développement local et les prototypes légers                         | Local ou self-hosted           | Faible          |
 
-Règle pratique :
+Mon chemin de décision honnête : si vous êtes déjà sur Postgres, commencez par pgvector — c'est une extension, pas de nouvelle infra. Si l'overhead opérationnel est une vraie contrainte et que le budget le permet, Pinecone est genuinement peu contraignant. Je n'ajouterais Weaviate que si vous avez besoin de recherche hybride ou de fonctionnalités de graphe de connaissance plus avancées. Chroma est mon outil de prédilection pour les expériences locales.
 
-- Commencez par **un tableau en mémoire** pour apprendre.
-- Passez à **pgvector** si votre stack utilise déjà Postgres.
-- Choisissez **Pinecone** si vous voulez le moins d'overhead opérationnel.
-- Regardez **Weaviate** pour des fonctions de retrieval plus avancées.
-- Utilisez **Chroma** pour expérimenter et faire des démos locales.
-
-Le RAG n'est pas magique, mais il devient fiable quand les fondations sont solides : de bons chunks, un bon retrieval et un modèle obligé de répondre à partir de ces preuves. Ces trois briques sont ce qui permet de construire la confiance entre vos données et le modèle.
+Une dernière chose qu'il faut dire franchement : la qualité de la récupération se dégrade progressivement, mais elle se dégrade. Des chunks trop grands, trop petits ou mal chevauchés donnent au modèle un contexte médiocre et produisent des réponses médiocres. Passez du vrai temps à évaluer la récupération sur des questions utilisateur réelles avant de supposer que le problème vient du modèle.

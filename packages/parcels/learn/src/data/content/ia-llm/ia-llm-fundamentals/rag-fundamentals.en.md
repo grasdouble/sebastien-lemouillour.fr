@@ -5,27 +5,23 @@ difficulty: intermediate
 tags: [IA, LLM, RAG, embeddings]
 ---
 
-## Why LLMs need your data
+## The model that can't answer your own questions
 
-An LLM can sound incredibly confident, but it still has a blind spot: its knowledge is frozen at training time. It does not know your product catalog, your internal wiki, your support procedures, or the PDF your team uploaded yesterday. If you ask, "What is our refund policy for enterprise customers?", the model can only guess unless you provide the answer in the request.
+You've connected an LLM to your product. Impressive in demos. Then someone asks "What's our refund policy for enterprise accounts?" and the model answers confidently — and completely wrong. Not because the model is bad. Because it genuinely has no idea. Its knowledge stopped at training time. Your refund policy, your internal wiki, the PDF your team uploaded yesterday — none of that exists for it.
 
-That is the core idea behind **Retrieval-Augmented Generation (RAG)**: before asking the model to answer, you first retrieve relevant information from your own data, then inject that information into the prompt.
+That's the gap **Retrieval-Augmented Generation (RAG)** fills. Before the model answers, you fetch the relevant passages from your own data and inject them into the prompt. The model isn't smarter — it's just finally reading the right document.
 
-A useful analogy is an expert consultant. The consultant is smart and articulate, but they still need access to your documentation to answer company-specific questions. RAG gives the model that documentation at the right moment.
+I'd reach for RAG over fine-tuning whenever the knowledge changes. Fine-tuning bakes behavior into the weights, which means re-training every time your documentation evolves. RAG is just a query at runtime. If your data updates weekly, that alone should settle the debate.
 
-This is usually better than fine-tuning for frequently changing knowledge. Fine-tuning changes the model's behavior; RAG changes the context it receives. If your documentation updates every week, retrieval is often the simpler and safer option.
+## Embeddings: comparing meaning without keywords
 
-## What are embeddings?
+The problem with retrieval is that people don't search the way documents are written. A user asks "holiday policy"; your handbook says "paid vacation rules." Exact keyword search fails here.
 
-To retrieve relevant content, you need a way to compare meaning, not just keywords. That is what **embeddings** do. An embedding is a list of numbers representing the meaning of a piece of text.
+Embeddings solve this. An embedding is a vector — a list of numbers — that encodes the meaning of a piece of text rather than its literal words. Think of GPS coordinates for semantics: two pieces of text that mean similar things end up close in vector space, the same way two buildings in the same neighborhood are close on a map.
 
-Think of it like GPS coordinates, but for meaning instead of geography. Two addresses close on a map are probably in the same neighborhood. Two embeddings close in vector space are probably about the same topic.
+**Cosine similarity** measures that closeness — whether two vectors point in the same semantic direction. You don't need the math. What matters is that a high score means "these texts probably talk about the same thing," even when they share no words.
 
-That is why a search for "holiday policy" can still find a chunk containing "paid vacation rules" even if the exact words do not match. Once you have that mental model, the next step is straightforward: you need a way to measure how close two meaning-coordinates are.
-
-**Cosine similarity** is the common way to measure that closeness. You do not need the full math intuition: it tells you whether two vectors point in a similar semantic direction. High cosine similarity means "these texts probably mean related things."
-
-Here is what an embedding request looks like with the OpenAI API:
+Here's what an embedding call looks like:
 
 ```typescript
 const response = await fetch('https://api.openai.com/v1/embeddings', {
@@ -45,7 +41,7 @@ const vector = data.data[0].embedding;
 console.log(vector.length);
 ```
 
-You usually store that vector next to the original text chunk so you can search it later.
+You store that vector next to the original text chunk. That's the bridge between your documents and semantic search.
 
 ## The RAG pipeline
 
@@ -56,21 +52,19 @@ Document -> Chunk -> Embed -> Store
 Query -> Embed -> Search -> Top-K -> LLM -> Answer
 ```
 
-The diagram looks simple, but it really describes two different tempos. Indexing happens ahead of time: you prepare documents, split them, embed them, and store the results before any user asks a question. That part is the expensive setup work.
+Two different tempos hiding behind that diagram. Indexing is offline, upstream work: you chunk your documents, embed each piece, and store the results before anyone asks a question. This is the expensive part — and you only do it once per document update.
 
-Later, at request time, retrieval and generation take over. A user question is embedded, compared against what you indexed earlier, and only the best matching chunks are sent to the LLM. Retrieval narrows the search space; generation turns the retrieved facts into a useful answer.
+At request time, retrieval and generation take over. The user's question gets embedded using the same model, compared against everything you indexed, and the closest matches get forwarded to the LLM. The model doesn't see your entire knowledge base — just the three or five passages most likely to contain the answer.
 
-If you break it down, each phase has a specific role:
-
-- **Document / Chunk / Embed / Store** — build the searchable knowledge base once, upstream.
-- **Query / Embed / Search / Top-K** — find the few passages that matter for this specific question.
-- **LLM / Answer** — turn those passages into a grounded response.
+- **Document / Chunk / Embed / Store** — build the knowledge base once, ahead of time.
+- **Query / Embed / Search / Top-K** — narrow it down to what's relevant for this specific question.
+- **LLM / Answer** — turn retrieved evidence into a usable response.
 
 ## Chunking strategies
 
-Why not just embed the whole document once and be done with it? Because full documents dilute meaning, exceed context limits, and make retrieval less precise. Chunking creates smaller units that are easier to match to a real question.
+Why not embed whole documents and be done with it? Two reasons. First, a long document dilutes the embedding — it's representing everything at once, which makes it harder to match against a specific question. Second, context windows have limits, and dumping a whole document into the prompt is wasteful when only one paragraph actually answers the question.
 
-Overlap matters too. If one idea spans the boundary between two chunks, a small overlap preserves continuity.
+Chunking creates smaller, more focused units. Overlap matters here: if one idea spans the boundary between two chunks, a small overlap preserves that continuity.
 
 | Strategy       | How it works                                | Strengths               | Weaknesses                       | Good default for                  |
 | -------------- | ------------------------------------------- | ----------------------- | -------------------------------- | --------------------------------- |
@@ -78,11 +72,11 @@ Overlap matters too. If one idea spans the boundary between two chunks, a small 
 | Sentence-based | Group complete sentences until a size limit | More readable chunks    | Sentence lengths vary a lot      | FAQs, articles, guides            |
 | Semantic       | Split on topic changes or headings          | Best coherence          | Harder to implement              | Large, structured knowledge bases |
 
-A practical starting point is fixed-size or sentence-based chunking with 10–20% overlap. Then evaluate with real user questions.
+My default: sentence-based chunking with 15% overlap. Fixed-size is fine for prototyping but has a bad habit of slicing sentences mid-thought, which hurts both readability and retrieval. Semantic chunking gives the best results but takes more effort — I'd add it once the system is working, not as a starting point.
 
 ## Implementing RAG in TypeScript
 
-The example below shows the full flow in a self-contained way: index documents in memory, retrieve the closest chunks, then send them to an LLM. For learning, an in-memory array is enough. In production, you'll replace this with persistent storage.
+The example below runs entirely in memory — no vector database needed. That's intentional. Getting the three phases right in a self-contained environment is more valuable than adding infrastructure complexity before you understand the fundamentals.
 
 ```typescript
 type IndexedChunk = {
@@ -238,17 +232,17 @@ async function main(): Promise<void> {
 main().catch(console.error);
 ```
 
-Notice the three distinct phases:
+The three phases are intentionally separate, and that separation matters more than it looks:
 
-1. **Indexing** — prepare your knowledge base once.
-2. **Retrieval** — find the most relevant chunks for a new question.
-3. **Generation** — ask the LLM to answer using only those chunks.
+1. **Indexing** — the expensive upfront work. Do it once per document update.
+2. **Retrieval** — fast, happens at request time. The quality of this step determines everything downstream.
+3. **Generation** — the model answers from evidence, not from memory. That's what prevents confident hallucinations.
 
-This separation is important: indexing is expensive and done upfront, while retrieval and generation happen at request time.
+If retrieval brings back the wrong chunks, generation will still sound confident and still be wrong. The weak link is almost always chunking and retrieval, not the model.
 
 ## Choosing a vector database
 
-When your data no longer fits in memory — or when you need persistence across restarts — you need a vector database or a relational database with vector support.
+An in-memory array is good enough to understand the fundamentals and prototype on real data. Once you need persistence, or your index grows beyond what comfortably lives in process memory, you need something that persists between restarts.
 
 | Option   | Best for                                     | Hosting                         | Cost profile     |
 | -------- | -------------------------------------------- | ------------------------------- | ---------------- |
@@ -257,12 +251,6 @@ When your data no longer fits in memory — or when you need persistence across 
 | Weaviate | Hybrid search and richer knowledge features  | Self-hosted or managed cloud    | Moderate         |
 | Chroma   | Local development and lightweight prototypes | Local or self-hosted            | Low              |
 
-A good rule of thumb:
+My honest decision path: if you're already on Postgres, start with pgvector — it's one extension, no new infra. If operational overhead is a real concern and budget allows, Pinecone is genuinely low-friction. I'd only add Weaviate if you need hybrid search or more advanced knowledge graph features. Chroma is my go-to for local experiments.
 
-- Start with **an in-memory array** for learning.
-- Move to **pgvector** if your stack already uses Postgres.
-- Choose **Pinecone** if you want the least operational overhead.
-- Look at **Weaviate** for more advanced retrieval features.
-- Use **Chroma** for experimentation and local demos.
-
-RAG is not magic, but it is dependable when the foundations are solid: good chunks, good retrieval, and a model forced to answer from that evidence. Those three bricks are how you build trust between your data and the model.
+One last thing worth saying plainly: retrieval quality degrades gracefully, but it degrades. If your chunks are too large, too small, or poorly overlapped, the model will receive mediocre context and return mediocre answers. Spend real time evaluating retrieval with actual user questions before assuming the problem is the model.
