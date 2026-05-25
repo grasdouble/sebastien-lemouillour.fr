@@ -5,7 +5,7 @@ difficulty: intermediate
 tags: [IA, LLM, API]
 ---
 
-Your first OpenAI API call worked on the first try. You pasted the key into the code, sent a message, got a response — five minutes. On your laptop, everything works.
+Your first OpenAI API call worked on the first try. You pasted the key into the code, sent a message, got a response (five minutes). On your laptop, everything works.
 
 In production, reality is different: networks are unreliable, rate limits exist, prompts sometimes exceed the context window, and bills can explode if nobody watches. This guide walks through the patterns that make an LLM integration robust, not just functional.
 
@@ -13,7 +13,7 @@ In production, reality is different: networks are unreliable, rate limits exist,
 
 The first problem you hit as soon as a UX is involved: the wait. With a standard call, the user stares at a spinner for 5–15 seconds before seeing the response all at once. Streaming fixes this by displaying tokens as they are generated, exactly what ChatGPT does.
 
-To make that work, you send `stream: true` and read Server-Sent Events from the `ReadableStream` returned by `fetch`. Keep the API key server-side — the browser calls your backend, which calls the provider. This protects secrets and centralizes logging and quotas.
+To make that work, you send `stream: true` and read Server-Sent Events from the `ReadableStream` returned by `fetch`. Keep the API key server-side: the browser calls your backend, which calls the provider. This protects secrets and centralizes logging and quotas.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -237,7 +237,7 @@ In real systems, store per-feature budgets, track usage by user or workspace, an
 
 ## Parallel requests
 
-Some tasks don't need to wait: classifying a batch of tickets, enriching a product list, extracting entities from multiple documents. Sending these calls in parallel reduces total latency — but uncontrolled fan-out quickly hits rate limits. A fixed-concurrency queue is the right trade-off: you keep several calls in-flight simultaneously without overwhelming the provider.
+Some tasks don't need to wait: classifying a batch of tickets, enriching a product list, extracting entities from multiple documents. Sending these calls in parallel reduces total latency, but uncontrolled fan-out quickly hits rate limits. A fixed-concurrency queue is the right trade-off: you keep several calls in-flight simultaneously without overwhelming the provider.
 
 That is why the example starts with direct parallelism, then adds a queue once control matters more than raw speed.
 
@@ -315,7 +315,7 @@ This pattern is simple, predictable, and provider-agnostic. Start with low concu
 
 ## Choosing the right model
 
-Model choice is an engineering trade-off, not a brand decision. You make it based on three variables: latency target, quality requirement, and budget. Small models (GPT-4o mini, Claude Haiku) work great for high-volume helpers — classification, rewriting, extraction. Larger models are better for multi-step reasoning, ambiguous instructions, or outputs where the cost of failure is high.
+Model choice is an engineering trade-off, not a brand decision. You make it based on three variables: latency target, quality requirement, and budget. Small models (GPT-4o mini, Claude Haiku) work great for high-volume helpers: classification, rewriting, extraction. Larger models are better for multi-step reasoning, ambiguous instructions, or outputs where the cost of failure is high.
 
 Benchmark with your own prompts, because the “best” model depends on the route you are optimizing, not on a leaderboard headline.
 

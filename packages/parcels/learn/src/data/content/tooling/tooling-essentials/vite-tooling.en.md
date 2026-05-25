@@ -5,13 +5,13 @@ difficulty: beginner
 tags: [tooling, Vite, build]
 ---
 
-You're mid-sprint. You open your terminal, run `npm start`, and then you wait. You go refill your coffee. Forty seconds later, Webpack has finished analyzing the dependency graph and you can finally see the app. You change one component, hit save, and wait again — five seconds this time, which sounds fine until you do it a hundred times a day.
+You're mid-sprint. You open your terminal, run `npm start`, and then you wait. You go refill your coffee. Forty seconds later, Webpack has finished analyzing the dependency graph and you can finally see the app. You change one component, hit save, and wait again (five seconds this time, which sounds fine until you do it a hundred times a day).
 
 That pain is what made me permanently switch to Vite.
 
 ## Why Vite works the way it does
 
-The reason Webpack is slow is structural: it bundles everything upfront, before serving a single file. Vite takes the opposite approach. It relies on native ES Modules, which every modern browser can load directly. In dev mode, Vite doesn't bundle anything — it serves files one at a time, on demand, exactly when the browser requests them. That's why the dev server starts in under a second regardless of project size, and why HMR only swaps the exact module that changed instead of triggering a full rebuild.
+The reason Webpack is slow is structural: it bundles everything upfront, before serving a single file. Vite takes the opposite approach. It relies on native ES Modules, which every modern browser can load directly. In dev mode, Vite doesn't bundle anything: it serves files one at a time, on demand, exactly when the browser requests them. That's why the dev server starts in under a second regardless of project size, and why HMR only swaps the exact module that changed instead of triggering a full rebuild.
 
 For production, Vite uses Rollup under the hood: tree-shaking, code splitting, minified output. The two modes don't fight each other. Speed while you develop, optimization when you ship.
 
@@ -30,7 +30,7 @@ When the browser hits the dev server for the first time, each import becomes an 
 
 ## Structure of vite.config.ts
 
-I keep my base config minimal on purpose — Vite's defaults are good, and every option you add is one you have to maintain. Here's what I actually use:
+I keep my base config minimal on purpose; Vite's defaults are good, and every option you add is one you have to maintain. Here's what I actually use:
 
 ```typescript
 import path from 'node:path';
@@ -55,11 +55,11 @@ export default defineConfig({
 });
 ```
 
-The React plugin gives you Fast Refresh — React's version of HMR that preserves component state between saves. The `@` alias is almost mandatory once the project grows (more on that below). Sourcemaps in the build output are something I always enable; they cost nothing at build time and save a lot of pain when debugging a production error.
+The React plugin gives you Fast Refresh (React's version of HMR that preserves component state between saves). The `@` alias is almost mandatory once the project grows (more on that below). Sourcemaps in the build output are something I always enable; they cost nothing at build time and save a lot of pain when debugging a production error.
 
 ## Environment variables
 
-The first time I needed to inject an API URL, I put it in `.env` and tried to read it — and spent twenty minutes wondering why it was `undefined`. Vite has a deliberate rule: **only variables prefixed with `VITE_` are exposed to the client**. Everything else stays server-side, invisible to the browser. I actually like this design; it makes accidental secret leakage harder.
+The first time I needed to inject an API URL, I put it in `.env` and tried to read it, and spent twenty minutes wondering why it was `undefined`. Vite has a deliberate rule: **only variables prefixed with `VITE_` are exposed to the client**. Everything else stays server-side, invisible to the browser. I actually like this design; it makes accidental secret leakage harder.
 
 ```bash
 # .env
@@ -80,7 +80,7 @@ interface ImportMetaEnv {
 
 ## Path aliases
 
-`../../../components/ui/Button` is a sign that something has gone wrong. Not technically, but cognitively — deep relative imports make refactoring painful because moving a file means fixing a dozen paths. The `@` alias maps the entire `src/` tree to a single stable root:
+`../../../components/ui/Button` is a sign that something has gone wrong. Not technically, but cognitively: deep relative imports make refactoring painful because moving a file means fixing a dozen paths. The `@` alias maps the entire `src/` tree to a single stable root:
 
 ```typescript
 // Before
@@ -105,12 +105,12 @@ You also need to tell TypeScript about it, or you'll get red underlines everywhe
 
 ## Compared to Webpack
 
-I'm not going to pretend Webpack is bad — it's powerful, it works, and some projects genuinely need its flexibility. But if you're starting fresh with a standard React + TypeScript setup, there's no reason to reach for it. The concrete differences:
+I'm not going to pretend Webpack is bad: it's powerful, it works, and some projects genuinely need its flexibility. But if you're starting fresh with a standard React + TypeScript setup, there's no reason to reach for it. The concrete differences:
 
-- **Sub-second startup** — no upfront bundling means the server answers immediately
-- **Surgical HMR** — only the changed module is replaced, component state survives
-- **Minimal config** — common setups work out of the box without five config files
-- **Rollup in production** — aggressive tree-shaking, no additional tooling decisions needed
-- **A real plugin ecosystem** — most of Rollup's plugins are already compatible
+- **Sub-second startup**: no upfront bundling means the server answers immediately
+- **Surgical HMR**: only the changed module is replaced, component state survives
+- **Minimal config**: common setups work out of the box without five config files
+- **Rollup in production**: aggressive tree-shaking, no additional tooling decisions needed
+- **A real plugin ecosystem**: most of Rollup's plugins are already compatible
 
 The one edge case where Webpack still wins: very custom build pipelines, legacy integrations that assume CommonJS everywhere, or older tools that generate Webpack-specific configs. For a greenfield project, those edge cases don't apply.

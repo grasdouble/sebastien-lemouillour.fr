@@ -5,13 +5,13 @@ difficulty: intermediate
 tags: [IA, LLM, API]
 ---
 
-Votre premier appel à l'API OpenAI a marché du premier coup. Vous avez collé la clé dans le code, envoyé un message, reçu une réponse — cinq minutes. En local, tout fonctionne.
+Votre premier appel à l'API OpenAI a marché du premier coup. Vous avez collé la clé dans le code, envoyé un message, reçu une réponse (cinq minutes). En local, tout fonctionne.
 
-En production, la réalité est différente : les réseaux sont instables, les rate limits existent, les prompts dépassent parfois la fenêtre de contexte, et les factures peuvent exploser si personne ne surveille. Ce guide parcourt les patterns qui rendent une intégration LLM robuste — pas seulement fonctionnelle.
+En production, la réalité est différente : les réseaux sont instables, les rate limits existent, les prompts dépassent parfois la fenêtre de contexte, et les factures peuvent exploser si personne ne surveille. Ce guide parcourt les patterns qui rendent une intégration LLM robuste, pas seulement fonctionnelle.
 
 ## Réponses en streaming
 
-Le premier problème que vous rencontrez dès qu'une UX est impliquée : l'attente. Avec un appel standard, l'utilisateur fixe un spinner pendant 5 à 15 secondes avant de voir la réponse d'un coup. Le streaming résout ça en affichant les tokens au fil de l'eau, dès qu'ils sont générés — exactement ce que fait ChatGPT.
+Le premier problème que vous rencontrez dès qu'une UX est impliquée : l'attente. Avec un appel standard, l'utilisateur fixe un spinner pendant 5 à 15 secondes avant de voir la réponse d'un coup. Le streaming résout ça en affichant les tokens au fil de l'eau, dès qu'ils sont générés, exactement ce que fait ChatGPT.
 
 En pratique, vous envoyez `stream: true` et vous lisez des Server-Sent Events depuis le `ReadableStream` renvoyé par `fetch`. Gardez toujours la clé API côté serveur : le navigateur doit appeler votre backend, qui appelle le fournisseur. Vous protégez ainsi les secrets et vous centralisez la journalisation et les quotas.
 
@@ -237,7 +237,7 @@ Dans un vrai produit, définissez des budgets par fonctionnalité, suivez la con
 
 ## Requêtes parallèles
 
-Certaines tâches n'ont pas besoin d'attendre : classifier un batch de tickets, enrichir une liste de produits, extraire des entités de plusieurs documents. Envoyer ces appels en parallèle réduit la latence totale — mais un fan-out non contrôlé heurte vite les rate limits. Une file à concurrence fixe est le bon compromis : vous gardez plusieurs appels en vol simultanément sans saturer le provider.
+Certaines tâches n'ont pas besoin d'attendre : classifier un batch de tickets, enrichir une liste de produits, extraire des entités de plusieurs documents. Envoyer ces appels en parallèle réduit la latence totale, mais un fan-out non contrôlé heurte vite les rate limits. Une file à concurrence fixe est le bon compromis : vous gardez plusieurs appels en vol simultanément sans saturer le provider.
 
 C'est pourquoi l'exemple commence par du parallélisme direct, puis ajoute une file dès que le contrôle devient plus important que la vitesse brute.
 
@@ -315,7 +315,7 @@ Ce pattern est simple, prévisible et agnostique au fournisseur. Commencez avec 
 
 ## Choisir le bon modèle
 
-Le choix du modèle est un arbitrage d'ingénierie, pas une décision de marque. Vous le faites en fonction de trois variables : la latence cible, l'exigence qualité, et le budget. Les petits modèles (GPT-4o mini, Claude Haiku) conviennent très bien aux helpers à fort volume — classification, reformulation, extraction. Les plus gros modèles sont meilleurs pour le raisonnement multi-étapes, les consignes ambiguës ou les sorties dont le coût d'erreur est élevé.
+Le choix du modèle est un arbitrage d'ingénierie, pas une décision de marque. Vous le faites en fonction de trois variables : la latence cible, l'exigence qualité, et le budget. Les petits modèles (GPT-4o mini, Claude Haiku) conviennent très bien aux helpers à fort volume : classification, reformulation, extraction. Les plus gros modèles sont meilleurs pour le raisonnement multi-étapes, les consignes ambiguës ou les sorties dont le coût d'erreur est élevé.
 
 Faites vos benchmarks avec vos propres prompts, car le « meilleur » modèle dépend de la route que vous optimisez, pas d'un slogan de leaderboard.
 

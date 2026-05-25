@@ -7,9 +7,9 @@ tags: [IA, LLM, RAG, embeddings]
 
 ## Le modèle qui ne connaît pas vos propres données
 
-Vous avez branché un LLM sur votre produit. Bluffant en démo. Puis quelqu'un demande « quelle est notre politique de remboursement pour les comptes enterprise ? » et le modèle répond avec aplomb — et complètement à côté. Pas parce que le modèle est mauvais. Parce qu'il n'a littéralement aucune idée. Ses connaissances se sont arrêtées au moment de l'entraînement. Votre politique de remboursement, votre wiki interne, le PDF uploadé hier par votre équipe — rien de tout ça n'existe pour lui.
+Vous avez branché un LLM sur votre produit. Bluffant en démo. Puis quelqu'un demande « quelle est notre politique de remboursement pour les comptes enterprise ? » et le modèle répond avec aplomb (et complètement à côté). Pas parce que le modèle est mauvais. Parce qu'il n'a littéralement aucune idée. Ses connaissances se sont arrêtées au moment de l'entraînement. Votre politique de remboursement, votre wiki interne, le PDF uploadé hier par votre équipe : rien de tout ça n'existe pour lui.
 
-C'est exactement le vide que comble le **Retrieval-Augmented Generation (RAG)**. Avant que le modèle réponde, on va chercher les passages pertinents dans vos propres données et on les injecte dans le prompt. Le modèle n'est pas plus intelligent — il lit enfin les bons documents.
+C'est exactement le vide que comble le **Retrieval-Augmented Generation (RAG)**. Avant que le modèle réponde, on va chercher les passages pertinents dans vos propres données et on les injecte dans le prompt. Le modèle n'est pas plus intelligent : il lit enfin les bons documents.
 
 Je choisirais le RAG plutôt que le fine-tuning pour tout ce qui change. Le fine-tuning inscrit le comportement dans les poids, ce qui impose un réentraînement à chaque évolution de la documentation. Le RAG, c'est une requête au moment de l'exécution. Si vos données évoluent chaque semaine, ça tranche le débat.
 
@@ -17,9 +17,9 @@ Je choisirais le RAG plutôt que le fine-tuning pour tout ce qui change. Le fine
 
 Le problème avec la récupération, c'est que les gens ne cherchent pas comme les documents sont rédigés. Un utilisateur demande « politique de congés » ; le handbook dit « règles de vacances payées ». La recherche par mots-clés exacts échoue ici.
 
-Les embeddings règlent ça. Un embedding est un vecteur — une liste de nombres — qui encode le sens d'un texte plutôt que ses mots littéraux. Le modèle mental que j'utilise : des coordonnées GPS pour la sémantique. Deux textes qui veulent dire des choses proches finissent proches dans l'espace vectoriel, exactement comme deux adresses dans le même quartier sont proches sur une carte.
+Les embeddings règlent ça. Un embedding est un vecteur (une liste de nombres) qui encode le sens d'un texte plutôt que ses mots littéraux. Le modèle mental que j'utilise : des coordonnées GPS pour la sémantique. Deux textes qui veulent dire des choses proches finissent proches dans l'espace vectoriel, exactement comme deux adresses dans le même quartier sont proches sur une carte.
 
-La **similarité cosinus** mesure cette proximité — si deux vecteurs pointent dans la même direction sémantique. Inutile d'assimiler les maths. Ce qui compte : un score élevé signifie « ces textes parlent probablement du même sujet », même quand ils ne partagent aucun mot.
+La **similarité cosinus** mesure cette proximité : si deux vecteurs pointent dans la même direction sémantique. Inutile d'assimiler les maths. Ce qui compte : un score élevé signifie « ces textes parlent probablement du même sujet », même quand ils ne partagent aucun mot.
 
 Voici à quoi ressemble un appel d'embedding :
 
@@ -52,17 +52,17 @@ Document -> Chunk -> Embed -> Store
 Query -> Embed -> Search -> Top-K -> LLM -> Answer
 ```
 
-Deux rythmes bien distincts derrière ce schéma. L'indexation est un travail offline, en amont : on découpe les documents, on embede chaque fragment, on stocke les résultats avant que quelqu'un pose une question. C'est la partie coûteuse — et on ne la fait qu'une fois par mise à jour.
+Deux rythmes bien distincts derrière ce schéma. L'indexation est un travail offline, en amont : on découpe les documents, on embede chaque fragment, on stocke les résultats avant que quelqu'un pose une question. C'est la partie coûteuse (et on ne la fait qu'une fois par mise à jour).
 
-Au moment de la requête, la récupération et la génération prennent le relais. La question de l'utilisateur est embeddée avec le même modèle, comparée à tout ce qu'on a indexé, et les correspondances les plus proches sont envoyées au LLM. Le modèle ne voit pas toute la base de connaissance — seulement les trois ou cinq passages les plus susceptibles de contenir la réponse.
+Au moment de la requête, la récupération et la génération prennent le relais. La question de l'utilisateur est embeddée avec le même modèle, comparée à tout ce qu'on a indexé, et les correspondances les plus proches sont envoyées au LLM. Le modèle ne voit pas toute la base de connaissance : seulement les trois ou cinq passages les plus susceptibles de contenir la réponse.
 
-- **Document / Chunk / Embed / Store** — construire la base de connaissance une fois, en amont.
-- **Query / Embed / Search / Top-K** — la réduire à ce qui est pertinent pour cette question précise.
-- **LLM / Answer** — transformer les preuves récupérées en réponse utilisable.
+- **Document / Chunk / Embed / Store**: construire la base de connaissance une fois, en amont.
+- **Query / Embed / Search / Top-K**: la réduire à ce qui est pertinent pour cette question précise.
+- **LLM / Answer**: transformer les preuves récupérées en réponse utilisable.
 
 ## Stratégies de chunking
 
-Pourquoi ne pas embedder des documents entiers et en rester là ? Deux raisons. D'abord, un document long dilue l'embedding — il représente tout en même temps, ce qui le rend plus difficile à faire correspondre à une question précise. Ensuite, les fenêtres de contexte ont des limites, et injecter un document entier dans le prompt est inutilement coûteux quand un seul paragraphe répond réellement à la question.
+Pourquoi ne pas embedder des documents entiers et en rester là ? Deux raisons. D'abord, un document long dilue l'embedding : il représente tout en même temps, ce qui le rend plus difficile à faire correspondre à une question précise. Ensuite, les fenêtres de contexte ont des limites, et injecter un document entier dans le prompt est inutilement coûteux quand un seul paragraphe répond réellement à la question.
 
 Le chunking crée des unités plus petites, plus focalisées. L'overlap compte : si une idée traverse la frontière entre deux chunks, un léger chevauchement préserve la continuité.
 
@@ -72,11 +72,11 @@ Le chunking crée des unités plus petites, plus focalisées. L'overlap compte :
 | Basée sur les phrases | Regroupe des phrases complètes jusqu'à une limite de taille | Chunks plus lisibles       | La longueur des phrases varie beaucoup | FAQ, articles, guides                     |
 | Sémantique            | Coupe sur les changements de sujet ou les titres            | Meilleure cohérence        | Plus difficile à implémenter           | Grosses bases de connaissance structurées |
 
-Mon point de départ : découpage par phrases avec 15 % d'overlap. La taille fixe fonctionne pour prototyper mais a le mauvais réflexe de couper les phrases en plein milieu, ce qui nuit à la fois à la lisibilité et à la récupération. Le chunking sémantique donne les meilleurs résultats mais demande plus d'effort — je l'ajoute une fois que le système fonctionne, pas comme point de départ.
+Mon point de départ : découpage par phrases avec 15 % d'overlap. La taille fixe fonctionne pour prototyper mais a le mauvais réflexe de couper les phrases en plein milieu, ce qui nuit à la fois à la lisibilité et à la récupération. Le chunking sémantique donne les meilleurs résultats mais demande plus d'effort ; je l'ajoute une fois que le système fonctionne, pas comme point de départ.
 
 ## Implémenter un RAG en TypeScript
 
-L'exemple ci-dessous tourne entièrement en mémoire — pas de base vectorielle nécessaire. C'est intentionnel. Comprendre les trois phases dans un environnement auto-suffisant vaut plus que d'ajouter de l'infrastructure avant de maîtriser les fondamentaux.
+L'exemple ci-dessous tourne entièrement en mémoire (pas de base vectorielle nécessaire). C'est intentionnel. Comprendre les trois phases dans un environnement auto-suffisant vaut plus que d'ajouter de l'infrastructure avant de maîtriser les fondamentaux.
 
 ```typescript
 type IndexedChunk = {
@@ -234,9 +234,9 @@ main().catch(console.error);
 
 Les trois phases sont intentionnellement séparées, et cette séparation compte plus qu'il n'y paraît :
 
-1. **Indexation** — le travail coûteux fait une fois par mise à jour de document.
-2. **Récupération** — rapide, au moment de la requête. La qualité de cette étape détermine tout ce qui suit.
-3. **Génération** — le modèle répond sur preuves, pas de mémoire. C'est ce qui prévient les hallucinations confiantes.
+1. **Indexation**: le travail coûteux fait une fois par mise à jour de document.
+2. **Récupération**: rapide, au moment de la requête. La qualité de cette étape détermine tout ce qui suit.
+3. **Génération**: le modèle répond sur preuves, pas de mémoire. C'est ce qui prévient les hallucinations confiantes.
 
 Si la récupération ramène les mauvais chunks, la génération restera confiante et restera fausse. Le maillon faible est presque toujours le chunking et la récupération, pas le modèle.
 
@@ -251,6 +251,6 @@ Un tableau en mémoire suffit pour comprendre les fondamentaux et prototyper sur
 | Weaviate | La recherche hybride et des fonctionnalités de connaissance plus riches | Self-hosted ou cloud managé    | Modéré          |
 | Chroma   | Le développement local et les prototypes légers                         | Local ou self-hosted           | Faible          |
 
-Mon chemin de décision honnête : si vous êtes déjà sur Postgres, commencez par pgvector — c'est une extension, pas de nouvelle infra. Si l'overhead opérationnel est une vraie contrainte et que le budget le permet, Pinecone est genuinement peu contraignant. Je n'ajouterais Weaviate que si vous avez besoin de recherche hybride ou de fonctionnalités de graphe de connaissance plus avancées. Chroma est mon outil de prédilection pour les expériences locales.
+Mon chemin de décision honnête : si vous êtes déjà sur Postgres, commencez par pgvector (c'est une extension, pas de nouvelle infra). Si l'overhead opérationnel est une vraie contrainte et que le budget le permet, Pinecone est genuinement peu contraignant. Je n'ajouterais Weaviate que si vous avez besoin de recherche hybride ou de fonctionnalités de graphe de connaissance plus avancées. Chroma est mon outil de prédilection pour les expériences locales.
 
 Une dernière chose qu'il faut dire franchement : la qualité de la récupération se dégrade progressivement, mais elle se dégrade. Des chunks trop grands, trop petits ou mal chevauchés donnent au modèle un contexte médiocre et produisent des réponses médiocres. Passez du vrai temps à évaluer la récupération sur des questions utilisateur réelles avant de supposer que le problème vient du modèle.

@@ -23,7 +23,7 @@ packages:
   - '!packages/**/node_modules/**'
 ```
 
-Le pattern d'exclusion est facile à oublier et il est important — sans lui, pnpm pourrait essayer de traiter les répertoires `node_modules` comme des packages, avec des résultats prévisiblement mauvais.
+Le pattern d'exclusion est facile à oublier et il est important : sans lui, pnpm pourrait essayer de traiter les répertoires `node_modules` comme des packages, avec des résultats prévisiblement mauvais.
 
 ## Commandes essentielles
 
@@ -64,7 +64,7 @@ C'est la fonctionnalité qui rend le partage de code vraiment opérationnel. Qua
 }
 ```
 
-En développement, pnpm crée un lien direct de B dans le `node_modules` de A — toute modification dans B est immédiatement visible dans A, sans étape de build. Au moment de publier, pnpm substitue automatiquement le vrai numéro de version. Pas de `npm link`, pas de symlinks manuels, pas de "attends, c'est quelle version là ?"
+En développement, pnpm crée un lien direct de B dans le `node_modules` de A : toute modification dans B est immédiatement visible dans A, sans étape de build. Au moment de publier, pnpm substitue automatiquement le vrai numéro de version. Pas de `npm link`, pas de symlinks manuels, pas de "attends, c'est quelle version là ?"
 
 ## Changesets pour la gestion des versions
 

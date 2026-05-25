@@ -7,7 +7,7 @@ tags: [React, architecture, micro-frontend]
 
 Tu es dans une réunion où trois équipes débattent pour savoir si le déploiement est safe. Chacune a touché une section différente de l'appli. L'une d'elles a trouvé un bug au dernier moment dans son bout. Personne ne veut bloquer tout le monde, mais personne ne veut non plus livrer quelque chose de cassé. Alors tout le monde attend. Encore.
 
-C'est le mode d'échec concret que les micro-frontends sont conçus pour prévenir — pas comme une abstraction, mais comme une vraie frontière de déploiement.
+C'est le mode d'échec concret que les micro-frontends sont conçus pour prévenir, pas comme une abstraction, mais comme une vraie frontière de déploiement.
 
 ## Le vrai pari
 
@@ -17,7 +17,7 @@ Je ne recommanderais pas ça à une seule équipe. Pour plusieurs équipes auton
 
 ## single-spa : l'orchestrateur
 
-Le container — parfois appelé shell — doit savoir quelle portion d'UI charger en fonction de l'URL courante, et comment échanger les morceaux sans rechargement de page. single-spa s'occupe exactement de ça. On enregistre chaque micro-frontend avec un nom et une règle d'activation ; single-spa appelle mount et unmount au bon moment.
+Le container (parfois appelé shell) doit savoir quelle portion d'UI charger en fonction de l'URL courante, et comment échanger les morceaux sans rechargement de page. single-spa s'occupe exactement de ça. On enregistre chaque micro-frontend avec un nom et une règle d'activation ; single-spa appelle mount et unmount au bon moment.
 
 ```typescript
 import { registerApplication, start } from 'single-spa';
@@ -41,7 +41,7 @@ Du point de vue du container, chaque micro-frontend n'est qu'une application nom
 
 ## Import maps : résolution des modules
 
-Les imports dynamiques dans le container (`import('@my/parcel-home')`) sont des spécificateurs de modules nus — pas de chemin, pas d'URL. Le navigateur a besoin d'un moyen de les résoudre. Les import maps règlent ça :
+Les imports dynamiques dans le container (`import('@my/parcel-home')`) sont des spécificateurs de modules nus : pas de chemin, pas d'URL. Le navigateur a besoin d'un moyen de les résoudre. Les import maps règlent ça :
 
 ```json
 {
@@ -104,4 +104,4 @@ export default defineConfig({
 });
 ```
 
-Le piège : tous les parcels doivent utiliser la même version de React. Si une équipe passe à React 19 avant les autres, c'est un problème — React ne peut pas coexister en deux versions sur la même page sans que les hooks ne lâchent. Les dépendances partagées nécessitent une coordination inter-équipes, ce qui est exactement ce que les micro-frontends étaient censés réduire. Prévois ça explicitement avant de t'engager dans cette architecture.
+Le piège : tous les parcels doivent utiliser la même version de React. Si une équipe passe à React 19 avant les autres, c'est un problème : React ne peut pas coexister en deux versions sur la même page sans que les hooks ne lâchent. Les dépendances partagées nécessitent une coordination inter-équipes, ce qui est exactement ce que les micro-frontends étaient censés réduire. Prévois ça explicitement avant de t'engager dans cette architecture.

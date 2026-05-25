@@ -64,9 +64,10 @@ These patterns betray a robot, not a person — ban them entirely:
 - ❌ Transitions that exist purely to connect sections ("Now that X is clear, let's move to Y…")
 - ❌ Closing sentences that echo the intro ("In this guide, we covered / saw / explored…")
 - ❌ Lists that just enumerate facts without a stance
-- ❌ Perfect symmetry between sections (same length, same rhythm, same structure — reads as generated)
+- ❌ Perfect symmetry between sections (same length, same rhythm, same structure)
 - ❌ The word "straightforward" — it's almost always a lie
 - ❌ Phrases like "Let's dive in", "In conclusion", "It's worth noting that"
+- ❌ `—` (em dash surrounded by spaces) in prose — it's a strong AI-generation marker. Use a comma, a colon, parentheses, or restructure the sentence instead. Exception: inside inline code or code blocks.
 
 ---
 

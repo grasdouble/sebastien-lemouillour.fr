@@ -5,9 +5,9 @@ difficulty: intermediate
 tags: [IA, LLM, prompt]
 ---
 
-You've tried the model. The results are bad. Not broken-bad — just vague, off-topic, weirdly formatted, or confidently wrong about something obvious. Your first instinct is to blame the model. I had that instinct too. Usually, the model is fine — the instruction is the problem.
+You've tried the model. The results are bad. Not broken-bad: just vague, off-topic, weirdly formatted, or confidently wrong about something obvious. Your first instinct is to blame the model. I had that instinct too. Usually, the model is fine: the instruction is the problem.
 
-Prompt engineering is just the discipline of writing better instructions. No magic. No jailbreaks. Just patterns that reliably move output from "almost useful" to "actually useful" — and a few traps to avoid along the way.
+Prompt engineering is just the discipline of writing better instructions. No magic. No jailbreaks. Just patterns that reliably move output from "almost useful" to "actually useful", and a few traps to avoid along the way.
 
 ## Zero-shot: the default that works less often than you'd think
 
@@ -19,7 +19,7 @@ Classify the sentiment of this review as Positive, Neutral, or Negative:
 "The battery life is disappointing, but the screen quality is excellent."
 ```
 
-This works well for common tasks the model has seen a thousand times. For anything specialized, ambiguous, or where your definition of "correct" differs from the training data's average — it breaks down fast. Zero-shot is where I start, not where I stay.
+This works well for common tasks the model has seen a thousand times. For anything specialized, ambiguous, or where your definition of "correct" differs from the training data's average: it breaks down fast. Zero-shot is where I start, not where I stay.
 
 ## Few-shot: stop explaining, start showing
 
@@ -42,7 +42,7 @@ The examples do two things: they show the format you expect, and they calibrate 
 
 ## Chain-of-thought: don't let the model skip steps
 
-For anything involving multi-step reasoning — math, logic, complex classification — asking for the final answer directly is a mistake. The model can generate a plausible-sounding answer by pattern-matching, without actually working through the problem. Adding a simple instruction to show its reasoning changes everything.
+For anything involving multi-step reasoning (math, logic, complex classification), asking for the final answer directly is a mistake. The model can generate a plausible-sounding answer by pattern-matching, without actually working through the problem. Adding a simple instruction to show its reasoning changes everything.
 
 ```text
 Solve this problem step by step:
@@ -54,11 +54,11 @@ will the second train catch the first?
 Reasoning:
 ```
 
-"Think step by step" is the four-word version that works in most situations. It sounds almost too simple, but the accuracy improvement on multi-step problems is real and measurable. The reason it works is because generating the steps forces the model to build intermediate results it then actually uses — rather than guessing the answer directly.
+"Think step by step" is the four-word version that works in most situations. It sounds almost too simple, but the accuracy improvement on multi-step problems is real and measurable. The reason it works is because generating the steps forces the model to build intermediate results it then actually uses, rather than guessing the answer directly.
 
 ## Role prompting: context shapes output more than you expect
 
-Telling the model it's a cybersecurity auditor versus a product manager changes not just the vocabulary, but the level of detail, what it decides to emphasize, and what it omits. This isn't decorative — I've seen the same question produce genuinely different useful outputs depending on the role.
+Telling the model it's a cybersecurity auditor versus a product manager changes not just the vocabulary, but the level of detail, what it decides to emphasize, and what it omits. This isn't decorative: I've seen the same question produce genuinely different useful outputs depending on the role.
 
 - "You are a cybersecurity expert with 20 years of experience..."
 - "You are a mathematics teacher explaining to high school students..."
@@ -68,7 +68,7 @@ Pick the role that matches the kind of judgment you actually need. If you want c
 
 ## System prompts: set the rules once, don't repeat yourself
 
-In a real application, repeating your constraints in every user message is a maintenance nightmare and inflates token usage. The `system` prompt exists to define the model's persona, constraints, and output format for the entire session. In production, I treat it as the contract between my application and the model — it defines what the model is allowed to do, what format it must respond in, and what it should refuse.
+In a real application, repeating your constraints in every user message is a maintenance nightmare and inflates token usage. The `system` prompt exists to define the model's persona, constraints, and output format for the entire session. In production, I treat it as the contract between my application and the model: it defines what the model is allowed to do, what format it must respond in, and what it should refuse.
 
 ```typescript
 const messages = [
@@ -82,11 +82,11 @@ Schema: { "answer": string, "confidence": number }`,
 ];
 ```
 
-A good system prompt significantly reduces output variance — which matters a lot more in production than it does when you're experimenting.
+A good system prompt significantly reduces output variance (which matters a lot more in production than it does when you're experimenting).
 
 ## Structured output: enforce what you can't rely on
 
-Asking for JSON in the prompt is a reasonable first step, but the model can still decide to add a little explanation before the object or after it, which breaks your parser. Modern APIs offer a structured output mode that enforces the format at the API level, not just through instruction. Use it whenever another system needs to parse the response — it's one fewer failure mode to debug at 2am.
+Asking for JSON in the prompt is a reasonable first step, but the model can still decide to add a little explanation before the object or after it, which breaks your parser. Modern APIs offer a structured output mode that enforces the format at the API level, not just through instruction. Use it whenever another system needs to parse the response: it's one fewer failure mode to debug at 2am.
 
 ```typescript
 const response = await fetch('https://api.openai.com/v1/chat/completions', {

@@ -9,15 +9,15 @@ tags: [IA, LLM, agents, function-calling]
 
 Vous avez construit un workflow support. Il commence par un message utilisateur, et pendant un temps, un seul appel LLM fait le travail : lire le message, générer une réponse. Puis arrive une demande qui nécessite des données de compte. Vous ajoutez une requête. Puis une autre qui demande l'historique de paiement. Puis un croisement avec un log d'incident. Et vous vous retrouvez à écrire du code conditionnel pour chaque combinaison, et le workflow est plus long que pertinent.
 
-Un agent est la réponse à ce type de croissance combinatoire — mais pas de la façon dont ça se vend habituellement. La valeur n'est pas dans l'autonomie. Elle est dans la boucle de contrôle : observer l'état courant, choisir une action, l'exécuter, voir ce que ça donne, puis décider si c'est terminé ou si une étape supplémentaire est nécessaire. C'est cette boucle qui permet au système de s'adapter à ce qu'il découvre, plutôt que d'exiger qu'on code à l'avance chaque chemin possible.
+Un agent est la réponse à ce type de croissance combinatoire, mais pas de la façon dont ça se vend habituellement. La valeur n'est pas dans l'autonomie. Elle est dans la boucle de contrôle : observer l'état courant, choisir une action, l'exécuter, voir ce que ça donne, puis décider si c'est terminé ou si une étape supplémentaire est nécessaire. C'est cette boucle qui permet au système de s'adapter à ce qu'il découvre, plutôt que d'exiger qu'on code à l'avance chaque chemin possible.
 
-Le tradeoff est réel, cependant. Un agent est plus difficile à tester, plus coûteux à faire tourner, et nettement plus difficile à déboguer qu'une fonction déterministe. Si votre workflow a une forme prévisible — même complexe — du code explicite est généralement la bonne réponse. Je choisis un agent quand l'environnement est genuinement inconnu à l'exécution, et que l'action suivante dépend de ce que la précédente a retourné.
+Le tradeoff est réel, cependant. Un agent est plus difficile à tester, plus coûteux à faire tourner, et nettement plus difficile à déboguer qu'une fonction déterministe. Si votre workflow a une forme prévisible (même complexe), du code explicite est généralement la bonne réponse. Je choisis un agent quand l'environnement est genuinement inconnu à l'exécution, et que l'action suivante dépend de ce que la précédente a retourné.
 
 ## Appels de fonctions / utilisation d'outils
 
-La première chose qui rend un agent possible, c'est de donner au modèle un moyen d'agir sur le monde. Pas en exécutant du code lui-même — le modèle retourne une décision structurée (un nom de fonction et des arguments), et votre application valide et exécute l'appel réel. Le résultat est réinjecté dans la conversation, et le modèle continue.
+La première chose qui rend un agent possible, c'est de donner au modèle un moyen d'agir sur le monde. Pas en exécutant du code lui-même : le modèle retourne une décision structurée (un nom de fonction et des arguments), et votre application valide et exécute l'appel réel. Le résultat est réinjecté dans la conversation, et le modèle continue.
 
-Le schéma d'outil est là où la plupart des équipes sous-investissent. Ce n'est pas du boilerplate — c'est un contrat. `properties` définit ce que le modèle peut demander. `required` supprime l'ambiguïté. `enum` l'empêche d'inventer des valeurs. Les descriptions servent d'indices de routage. Un schéma précis réduit radicalement l'espace de ce que le modèle peut faire de travers avant même de prendre une étape.
+Le schéma d'outil est là où la plupart des équipes sous-investissent. Ce n'est pas du boilerplate : c'est un contrat. `properties` définit ce que le modèle peut demander. `required` supprime l'ambiguïté. `enum` l'empêche d'inventer des valeurs. Les descriptions servent d'indices de routage. Un schéma précis réduit radicalement l'espace de ce que le modèle peut faire de travers avant même de prendre une étape.
 
 ```typescript
 import OpenAI from 'openai';
@@ -105,13 +105,13 @@ async function main() {
 main().catch(console.error);
 ```
 
-Un appel de fonction unique est déjà utile en soi — récupération structurée, dispatch déterministe, résultats typés. La boucle vient ensuite.
+Un appel de fonction unique est déjà utile en soi : récupération structurée, dispatch déterministe, résultats typés. La boucle vient ensuite.
 
 ## Le modèle ReAct
 
 Un appel de fonction donne au modèle une action. ReAct (Reason + Act) lui donne une boucle de raisonnement : le modèle décompose la tâche en une suite d'étapes pensée → action → observation, ajustant son plan en fonction de ce que chaque étape retourne.
 
-La valeur n'est pas dans « une IA plus intelligente » — c'est dans l'explicitation. On peut regarder la trace et voir pourquoi l'agent a vérifié les déploiements avant les métriques, quelle observation a modifié le plan, et à quel endroit il s'est bloqué. C'est genuinement utile pour le débogage, et pour construire la confiance que le système fait bien ce qu'on pense qu'il fait.
+La valeur n'est pas dans « une IA plus intelligente » : c'est dans l'explicitation. On peut regarder la trace et voir pourquoi l'agent a vérifié les déploiements avant les métriques, quelle observation a modifié le plan, et à quel endroit il s'est bloqué. C'est genuinement utile pour le débogage, et pour construire la confiance que le système fait bien ce qu'on pense qu'il fait.
 
 ```text
 User: Find why checkout latency increased after the last deployment.
@@ -129,13 +129,13 @@ Action: summarize_findings()
 Observation: likely regression introduced by v2025.09.14; rollback or profile DB calls.
 ```
 
-Le coût est réel : plus de tokens par requête, et le risque que la boucle passe des cycles à raisonner sans converger. Un plan fixe — où on connaît les étapes à l'avance — est presque toujours moins cher et plus sûr. ReAct gagne sa place quand le plan lui-même ne peut pas être écrit à l'avance.
+Le coût est réel : plus de tokens par requête, et le risque que la boucle passe des cycles à raisonner sans converger. Un plan fixe (où on connaît les étapes à l'avance) est presque toujours moins cher et plus sûr. ReAct gagne sa place quand le plan lui-même ne peut pas être écrit à l'avance.
 
 ## Construire une boucle d'agent minimale
 
-La boucle n'est qu'une machine à états bornée. Ce qui compte en production, ce n'est pas l'élégance — ce sont les garde-fous : un plafond d'itérations explicite, un dispatch d'outils strict, une propagation d'erreur structurée, et un log à chaque étape. Sans ça, déboguer un échec d'agent devient de la divination.
+La boucle n'est qu'une machine à états bornée. Ce qui compte en production, ce n'est pas l'élégance : ce sont les garde-fous : un plafond d'itérations explicite, un dispatch d'outils strict, une propagation d'erreur structurée, et un log à chaque étape. Sans ça, déboguer un échec d'agent devient de la divination.
 
-L'exemple ci-dessous parse les arguments d'outils directement depuis JSON. En production, validez-les contre votre schéma avant le dispatch — le modèle finira par envoyer des arguments qui violent vos règles métier, et vous voulez que ça apparaisse comme une erreur d'outil, pas comme un bug silencieux.
+L'exemple ci-dessous parse les arguments d'outils directement depuis JSON. En production, validez-les contre votre schéma avant le dispatch : le modèle finira par envoyer des arguments qui violent vos règles métier, et vous voulez que ça apparaisse comme une erreur d'outil, pas comme un bug silencieux.
 
 ```typescript
 import OpenAI from 'openai';
@@ -269,10 +269,10 @@ runAgent('Investigate whether checkout is degraded and explain why.')
 
 ## Arbitrages et modes d'échec
 
-`max_iterations` est le premier garde-fou que tout le monde ajoute et le premier que tout le monde sous-estime. Un agent peut rester dans son plafond tout en produisant zéro information utile — appeler le même outil avec des arguments légèrement reformulés, obtenir le même résultat, et continuer quand même. La télémétrie au niveau de la boucle, la détection des actions dupliquées et des conditions d'arrêt progressives comptent autant que le plafond lui-même.
+`max_iterations` est le premier garde-fou que tout le monde ajoute et le premier que tout le monde sous-estime. Un agent peut rester dans son plafond tout en produisant zéro information utile : appeler le même outil avec des arguments légèrement reformulés, obtenir le même résultat, et continuer quand même. La télémétrie au niveau de la boucle, la détection des actions dupliquées et des conditions d'arrêt progressives comptent autant que le plafond lui-même.
 
-L'hallucination d'arguments d'outils est l'autre mode d'échec dont personne ne parle avant de l'avoir vécu. Le modèle invente des valeurs enum non supportées, omet des champs requis, ou envoie des combinaisons sémantiquement invalides. La correction n'est pas du prompt engineering — c'est de la validation à la frontière de l'outil. Validez avant l'exécution, retournez une erreur structurée que le modèle peut lire, et la boucle se corrige souvent d'elle-même.
+L'hallucination d'arguments d'outils est l'autre mode d'échec dont personne ne parle avant de l'avoir vécu. Le modèle invente des valeurs enum non supportées, omet des champs requis, ou envoie des combinaisons sémantiquement invalides. La correction n'est pas du prompt engineering : c'est de la validation à la frontière de l'outil. Validez avant l'exécution, retournez une erreur structurée que le modèle peut lire, et la boucle se corrige souvent d'elle-même.
 
-Le coût dans les agents multi-tours s'accumule vite. Chaque itération rejoue l'historique complet des messages — raisonnements précédents, appels d'outils, observations — donc la facture croît avec la profondeur, pas seulement avec le nombre d'appels. Budgétisez en conséquence, et loggez suffisamment pour expliquer pourquoi un agent a tourné douze itérations plutôt que trois quand ça arrive inévitablement.
+Le coût dans les agents multi-tours s'accumule vite. Chaque itération rejoue l'historique complet des messages (raisonnements précédents, appels d'outils, observations), donc la facture croît avec la profondeur, pas seulement avec le nombre d'appels. Budgétisez en conséquence, et loggez suffisamment pour expliquer pourquoi un agent a tourné douze itérations plutôt que trois quand ça arrive inévitablement.
 
 Ma recommandation honnête : si le workflow peut s'exprimer en code déterministe, exprimez-le en code déterministe. Les agents sont genuinement puissants pour des tâches ouvertes, qui demandent des branchements conditionnels sur des données temps réel, et où on ne peut pas énumérer les branches à l'avance. Pour tout le reste, l'overhead opérationnel n'en vaut pas la peine.

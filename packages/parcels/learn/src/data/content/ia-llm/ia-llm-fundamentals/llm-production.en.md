@@ -5,7 +5,7 @@ difficulty: advanced
 tags: [IA, LLM, production, security, observability]
 ---
 
-Your MVP works. Beautifully, in fact — you've shown it to the team, they're impressed, and now it needs to go to production. That's when you discover that an LLM call isn't just a function call. It's a concentrated point of latency spikes, unpredictable costs, security attack surface, and quiet failures that don't throw exceptions. The code that ran fine on your laptop now needs a completely different level of care.
+Your MVP works. Beautifully, in fact: you've shown it to the team, they're impressed, and now it needs to go to production. That's when you discover that an LLM call isn't just a function call. It's a concentrated point of latency spikes, unpredictable costs, security attack surface, and quiet failures that don't throw exceptions. The code that ran fine on your laptop now needs a completely different level of care.
 
 ## Observability
 
@@ -103,19 +103,19 @@ export const withObservability = (
 };
 ```
 
-From there, LangSmith and Helicone give you more LLM-native inspection. OpenTelemetry keeps everything in your existing pipeline. The brand of tooling matters less than having enough evidence to explain what happened — after the fact, without having to reproduce it.
+From there, LangSmith and Helicone give you more LLM-native inspection. OpenTelemetry keeps everything in your existing pipeline. The brand of tooling matters less than having enough evidence to explain what happened (after the fact, without having to reproduce it).
 
 ## Security: prompt injection
 
-Prompt injection is the attack vector that trips up nearly every team the first time. It's not a buffer overflow or an auth bypass — it's a manipulation of the instruction layer. A user pastes crafted text, a partner PDF contains a hidden instruction, a RAG chunk pulled from a web page tells the model to ignore the system policy and exfiltrate data. The model, having no way to distinguish "instructions from the developer" from "instructions embedded in retrieved content," may comply.
+Prompt injection is the attack vector that trips up nearly every team the first time. It's not a buffer overflow or an auth bypass: it's a manipulation of the instruction layer. A user pastes crafted text, a partner PDF contains a hidden instruction, a RAG chunk pulled from a web page tells the model to ignore the system policy and exfiltrate data. The model, having no way to distinguish "instructions from the developer" from "instructions embedded in retrieved content," may comply.
 
-Direct injection is obvious once you know to look for it. Indirect injection — arriving through external data your system fetches and injects into the prompt — is nastier. The main defense is separation: treat retrieved content as untrusted data, never as execution policy. Keep system instructions structurally distinct from user content. Validate inputs before they reach tools. Sandbox agent tools with allowlists, short-lived credentials, and restricted network access. And assume some injections will land. Design for a small blast radius when they do, not for perfect prevention.
+Direct injection is obvious once you know to look for it. Indirect injection (arriving through external data your system fetches and injects into the prompt) is nastier. The main defense is separation: treat retrieved content as untrusted data, never as execution policy. Keep system instructions structurally distinct from user content. Validate inputs before they reach tools. Sandbox agent tools with allowlists, short-lived credentials, and restricted network access. And assume some injections will land. Design for a small blast radius when they do, not for perfect prevention.
 
 ## Cost optimization
 
-The bill looks fine during development. Then traffic grows, and something that seemed cheap at prototype scale compounds into a real expense. The issue is rarely a single bloated prompt — it's usually an accumulation: conversation histories that grow without bounds, retrieval that returns more than needed, wrong model for the task, no caching.
+The bill looks fine during development. Then traffic grows, and something that seemed cheap at prototype scale compounds into a real expense. The issue is rarely a single bloated prompt: it's usually an accumulation: conversation histories that grow without bounds, retrieval that returns more than needed, wrong model for the task, no caching.
 
-Start with caching. Exact-match cache on normalized prompts is cheap to implement and eliminates redundant calls on frequently asked questions. Semantic caching reuses responses for equivalent questions even when phrased differently, but needs embeddings — it's a second step, not the first.
+Start with caching. Exact-match cache on normalized prompts is cheap to implement and eliminates redundant calls on frequently asked questions. Semantic caching reuses responses for equivalent questions even when phrased differently, but needs embeddings: it's a second step, not the first.
 
 Then tackle the structural levers: remove duplicated instructions, summarize history instead of appending it forever, route classification and extraction to small models and reserve the expensive ones for synthesis or hard reasoning, batch offline work where latency permits, and cap `max_tokens` so the model doesn't quietly pad every response.
 
@@ -164,11 +164,11 @@ export async function cachedCompletion(
 
 ## Resilience and multi-provider
 
-Single-provider architectures have a hidden property: they're fine until the day they're not. An outage, a quota limit, a regional degradation, a policy change — any of these can take down an LLM-dependent feature with no warning. The solution is to build a provider-agnostic interface over your actual adapters, then define your fallback policy explicitly rather than discovering it during an incident.
+Single-provider architectures have a hidden property: they're fine until the day they're not. An outage, a quota limit, a regional degradation, a policy change: any of these can take down an LLM-dependent feature with no warning. The solution is to build a provider-agnostic interface over your actual adapters, then define your fallback policy explicitly rather than discovering it during an incident.
 
 My preferred policy: aggressive timeout (2–3 seconds), one retry on transient errors, then switch to a secondary provider. Circuit breakers prevent retry storms from turning one provider's problem into your SLO's problem.
 
-The fallback is not free. Providers differ on JSON mode, tool calling, context window limits, and safety filters. Don't normalize everything — only normalize the capabilities you actually need. Keep prompts portable across providers, maintain golden test cases that run on both, and measure quality drift during failover rather than assuming the outputs will be equivalent.
+The fallback is not free. Providers differ on JSON mode, tool calling, context window limits, and safety filters. Don't normalize everything: only normalize the capabilities you actually need. Keep prompts portable across providers, maintain golden test cases that run on both, and measure quality drift during failover rather than assuming the outputs will be equivalent.
 
 ```typescript
 type ProviderResult = {
@@ -218,7 +218,7 @@ export async function generateWithFallback(
 
 ## Model selection framework
 
-Model selection is an engineering decision, not a brand preference. The right model for a task is the one that meets your constraint budget — latency, quality, cost, data residency — not the most impressive one in a benchmark. I'd pick the cheapest model that can reliably do the job, and upgrade only when I have evidence that quality is the bottleneck.
+Model selection is an engineering decision, not a brand preference. The right model for a task is the one that meets your constraint budget (latency, quality, cost, data residency), not the most impressive one in a benchmark. I'd pick the cheapest model that can reliably do the job, and upgrade only when I have evidence that quality is the bottleneck.
 
 | Constraint           | Recommended default      | Why                                                      | Main tradeoff                        |
 | -------------------- | ------------------------ | -------------------------------------------------------- | ------------------------------------ |
@@ -227,4 +227,4 @@ Model selection is an engineering decision, not a brand preference. The right mo
 | Cost < $0.01/request | Small models             | Scales better under heavy traffic                        | More routing and QA work             |
 | Sensitive data       | Ollama / vLLM on-premise | Stronger data control and residency guarantees           | You own uptime, GPU cost, and tuning |
 
-Beyond the matrix: factor in SLAs, regional availability, quota behavior, eval results on your actual domain, and contract terms around data retention and training. The "best" model in production is the one that satisfies your error budget, your privacy boundary, and your unit economics — simultaneously, not in isolation.
+Beyond the matrix: factor in SLAs, regional availability, quota behavior, eval results on your actual domain, and contract terms around data retention and training. The "best" model in production is the one that satisfies your error budget, your privacy boundary, and your unit economics, simultaneously, not in isolation.

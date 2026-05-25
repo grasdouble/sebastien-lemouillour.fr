@@ -23,7 +23,7 @@ packages:
   - '!packages/**/node_modules/**'
 ```
 
-That exclusion pattern is easy to forget and it matters — without it, pnpm might try to process `node_modules` directories as packages, with predictably bad results.
+That exclusion pattern is easy to forget and it matters: without it, pnpm might try to process `node_modules` directories as packages, with predictably bad results.
 
 ## Essential commands
 
@@ -64,7 +64,7 @@ This is the feature that makes shared code actually work. When package A depends
 }
 ```
 
-During development, pnpm links B directly into A's `node_modules` — any change in B is immediately visible in A, no build step needed. When you publish, pnpm substitutes the real version number automatically. No `npm link`, no manual symlinks, no "wait, which version is this?" confusion.
+During development, pnpm links B directly into A's `node_modules`: any change in B is immediately visible in A, no build step needed. When you publish, pnpm substitutes the real version number automatically. No `npm link`, no manual symlinks, no "wait, which version is this?" confusion.
 
 ## Changesets for version management
 

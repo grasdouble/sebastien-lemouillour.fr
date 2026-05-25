@@ -5,7 +5,7 @@ difficulty: advanced
 tags: [IA, LLM, production, security, observability]
 ---
 
-Votre MVP fonctionne. Plutôt bien, en fait — vous l'avez montré à l'équipe, l'ambiance est bonne, et maintenant il faut passer en production. C'est là que vous découvrez qu'un appel LLM n'est pas juste un appel de fonction. C'est un point de concentration de latences qui piquent, de coûts imprévisibles, de surface d'attaque sécuritaire, et d'échecs silencieux qui ne lancent pas d'exceptions. Le code qui marchait impeccablement sur votre laptop demande maintenant un niveau de soin radicalement différent.
+Votre MVP fonctionne. Plutôt bien, en fait : vous l'avez montré à l'équipe, l'ambiance est bonne, et maintenant il faut passer en production. C'est là que vous découvrez qu'un appel LLM n'est pas juste un appel de fonction. C'est un point de concentration de latences qui piquent, de coûts imprévisibles, de surface d'attaque sécuritaire, et d'échecs silencieux qui ne lancent pas d'exceptions. Le code qui marchait impeccablement sur votre laptop demande maintenant un niveau de soin radicalement différent.
 
 ## Observabilité
 
@@ -103,19 +103,19 @@ export const withObservability = (
 };
 ```
 
-De là, LangSmith et Helicone offrent une inspection plus native au monde LLM. OpenTelemetry garde tout dans votre pipeline existant. La marque de l'outil compte moins que d'avoir suffisamment de preuves pour expliquer ce qui s'est passé — après coup, sans avoir à rejouer la scène.
+De là, LangSmith et Helicone offrent une inspection plus native au monde LLM. OpenTelemetry garde tout dans votre pipeline existant. La marque de l'outil compte moins que d'avoir suffisamment de preuves pour expliquer ce qui s'est passé (après coup, sans avoir à rejouer la scène).
 
 ## Sécurité : prompt injection
 
-La prompt injection est le vecteur d'attaque qui surprend presque toutes les équipes la première fois. Ce n'est pas un buffer overflow ni un contournement d'auth — c'est une manipulation de la couche d'instructions. Un utilisateur colle du texte piégé, un PDF partenaire contient une instruction cachée, un chunk RAG récupéré depuis une page web dit au modèle d'ignorer la politique système et d'exfiltrer des données. Le modèle, n'ayant aucun moyen de distinguer « instructions du développeur » de « instructions embarquées dans du contenu récupéré », peut s'exécuter.
+La prompt injection est le vecteur d'attaque qui surprend presque toutes les équipes la première fois. Ce n'est pas un buffer overflow ni un contournement d'auth : c'est une manipulation de la couche d'instructions. Un utilisateur colle du texte piégé, un PDF partenaire contient une instruction cachée, un chunk RAG récupéré depuis une page web dit au modèle d'ignorer la politique système et d'exfiltrer des données. Le modèle, n'ayant aucun moyen de distinguer « instructions du développeur » de « instructions embarquées dans du contenu récupéré », peut s'exécuter.
 
-La direct injection est évidente une fois qu'on sait la chercher. L'indirect injection — qui arrive via des données externes que votre système va chercher et injecte dans le prompt — est plus pernicieuse. La défense principale est la séparation : traitez le contenu récupéré comme une donnée non fiable, jamais comme une politique d'exécution. Gardez les instructions système structurellement distinctes du contenu utilisateur. Validez les inputs avant qu'ils atteignent les outils. Sandboxez les outils d'agents avec des allowlists, des credentials éphémères et des restrictions réseau. Et supposez que certaines injections passeront. Concevez pour un blast radius limité quand elles passent, pas pour une prévention parfaite.
+La direct injection est évidente une fois qu'on sait la chercher. L'indirect injection (qui arrive via des données externes que votre système va chercher et injecte dans le prompt) est plus pernicieuse. La défense principale est la séparation : traitez le contenu récupéré comme une donnée non fiable, jamais comme une politique d'exécution. Gardez les instructions système structurellement distinctes du contenu utilisateur. Validez les inputs avant qu'ils atteignent les outils. Sandboxez les outils d'agents avec des allowlists, des credentials éphémères et des restrictions réseau. Et supposez que certaines injections passeront. Concevez pour un blast radius limité quand elles passent, pas pour une prévention parfaite.
 
 ## Optimisation des coûts
 
-La facture semble raisonnable pendant le développement. Puis le trafic augmente, et ce qui paraissait peu cher à l'échelle du prototype se compose en une vraie dépense. Le problème est rarement un seul prompt gonflé — c'est généralement une accumulation : des historiques de conversation qui grandissent sans limite, un retrieval trop généreux, le mauvais modèle pour la tâche, aucun cache.
+La facture semble raisonnable pendant le développement. Puis le trafic augmente, et ce qui paraissait peu cher à l'échelle du prototype se compose en une vraie dépense. Le problème est rarement un seul prompt gonflé : c'est généralement une accumulation : des historiques de conversation qui grandissent sans limite, un retrieval trop généreux, le mauvais modèle pour la tâche, aucun cache.
 
-Commencez par le cache. Un cache exact-match sur des prompts normalisés est peu coûteux à implémenter et élimine les appels redondants sur les questions fréquentes. Le semantic caching réutilise des réponses pour des questions équivalentes même formulées différemment, mais nécessite des embeddings — c'est une deuxième étape, pas la première.
+Commencez par le cache. Un cache exact-match sur des prompts normalisés est peu coûteux à implémenter et élimine les appels redondants sur les questions fréquentes. Le semantic caching réutilise des réponses pour des questions équivalentes même formulées différemment, mais nécessite des embeddings : c'est une deuxième étape, pas la première.
 
 Ensuite, attaquez les leviers structurels : retirez les consignes dupliquées, résumez l'historique au lieu de l'accumuler indéfiniment, routez classification et extraction vers des petits modèles et réservez les coûteux pour la synthèse ou le raisonnement difficile, batchez le travail offline quand la latence le permet, et plafonnez `max_tokens` pour que le modèle ne rembourre pas silencieusement chaque réponse.
 
@@ -164,11 +164,11 @@ export async function cachedCompletion(
 
 ## Résilience et multi-provider
 
-Les architectures mono-provider ont une propriété cachée : elles fonctionnent très bien jusqu'au jour où elles ne fonctionnent plus. Une indisponibilité, un quota saturé, une dégradation régionale, un changement de politique — n'importe lequel de ces événements peut faire tomber une fonctionnalité LLM-dépendante sans prévenir. La solution est de construire une interface agnostique du provider par-dessus vos adaptateurs réels, puis de définir explicitement la politique de fallback plutôt que de la découvrir pendant un incident.
+Les architectures mono-provider ont une propriété cachée : elles fonctionnent très bien jusqu'au jour où elles ne fonctionnent plus. Une indisponibilité, un quota saturé, une dégradation régionale, un changement de politique : n'importe lequel de ces événements peut faire tomber une fonctionnalité LLM-dépendante sans prévenir. La solution est de construire une interface agnostique du provider par-dessus vos adaptateurs réels, puis de définir explicitement la politique de fallback plutôt que de la découvrir pendant un incident.
 
 Ma politique préférée : timeout agressif (2–3 secondes), un retry sur les erreurs transitoires, puis bascule vers un provider secondaire. Les circuit breakers empêchent les tempêtes de retries de transformer le problème d'un provider en problème de vos SLOs.
 
-Le fallback n'est pas gratuit. Les providers diffèrent sur le mode JSON, le tool calling, les limites de contexte et les safety filters. Ne normalisez pas tout — normalisez uniquement les capacités dont vous avez réellement besoin. Gardez des prompts portables, maintenez des golden test cases qui tournent sur les deux providers, et mesurez la dérive de qualité pendant le failover plutôt que d'assumer que les sorties seront équivalentes.
+Le fallback n'est pas gratuit. Les providers diffèrent sur le mode JSON, le tool calling, les limites de contexte et les safety filters. Ne normalisez pas tout : normalisez uniquement les capacités dont vous avez réellement besoin. Gardez des prompts portables, maintenez des golden test cases qui tournent sur les deux providers, et mesurez la dérive de qualité pendant le failover plutôt que d'assumer que les sorties seront équivalentes.
 
 ```typescript
 type ProviderResult = {
@@ -218,7 +218,7 @@ export async function generateWithFallback(
 
 ## Sélection du modèle
 
-Le choix du modèle est une décision d'ingénierie, pas une préférence de marque. Le bon modèle pour une tâche est celui qui satisfait votre budget de contraintes — latence, qualité, coût, résidence des données — pas le plus impressionnant sur un benchmark. Je choisirais le modèle le moins cher qui peut faire le travail de façon fiable, et je monterais en gamme uniquement quand j'ai des preuves que la qualité est le goulot d'étranglement.
+Le choix du modèle est une décision d'ingénierie, pas une préférence de marque. Le bon modèle pour une tâche est celui qui satisfait votre budget de contraintes (latence, qualité, coût, résidence des données), pas le plus impressionnant sur un benchmark. Je choisirais le modèle le moins cher qui peut faire le travail de façon fiable, et je monterais en gamme uniquement quand j'ai des preuves que la qualité est le goulot d'étranglement.
 
 | Contrainte           | Recommandation par défaut | Pourquoi                                                                 | Tradeoff principal                             |
 | -------------------- | ------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------- |
@@ -227,4 +227,4 @@ Le choix du modèle est une décision d'ingénierie, pas une préférence de mar
 | Coût < $0.01/requête | Small models              | Passe mieux à l'échelle sous forte charge                                | Plus de travail de routing et de QA            |
 | Données sensibles    | Ollama / vLLM on-premise  | Meilleur contrôle des données et de la résidence                         | Vous portez l'uptime, le coût GPU et le tuning |
 
-Au-delà de la matrice : tenez compte des SLAs, de la disponibilité régionale, du comportement des quotas, des résultats d'evals sur votre domaine réel, et des clauses contractuelles sur la rétention et l'entraînement des données. Le « meilleur » modèle en production est celui qui satisfait simultanément votre error budget, votre frontière de confidentialité et votre économie unitaire — pas celui qui impressionne le plus en démo.
+Au-delà de la matrice : tenez compte des SLAs, de la disponibilité régionale, du comportement des quotas, des résultats d'evals sur votre domaine réel, et des clauses contractuelles sur la rétention et l'entraînement des données. Le « meilleur » modèle en production est celui qui satisfait simultanément votre error budget, votre frontière de confidentialité et votre économie unitaire, pas celui qui impressionne le plus en démo.
