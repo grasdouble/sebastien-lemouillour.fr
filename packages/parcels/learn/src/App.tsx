@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Box, Container, Stack, Text } from '@grasdouble/lufa_design-system';
+import { Box, Container, Divider, Stack, Text } from '@grasdouble/lufa_design-system';
 
 import './i18n';
 
@@ -135,18 +135,21 @@ function App() {
                 {categoryOrder
                   .filter((cat) => groupedGuides[cat]?.length > 0)
                   .map((category) => (
-                    <div key={category} className={styles['category-section']}>
-                      <div className={styles['category-title']}>
-                        <Text as="h2" variant="h3" weight="semibold" color="primary">
-                          {category}
-                        </Text>
-                      </div>
+                    <Stack key={category} direction="vertical" spacing="default">
+                      <Stack direction="vertical" spacing="none">
+                        <Box paddingBottom="compact">
+                          <Text as="h2" variant="h3" weight="semibold" color="primary">
+                            {category}
+                          </Text>
+                        </Box>
+                        <Divider emphasis="subtle" spacing="compact" />
+                      </Stack>
                       <div className={styles['learn-grid']}>
                         {groupedGuides[category].map((guide) => (
                           <LearnCard key={guide.id} tutorial={guide} onClick={openGuide} />
                         ))}
                       </div>
-                    </div>
+                    </Stack>
                   ))}
               </Stack>
             </Stack>

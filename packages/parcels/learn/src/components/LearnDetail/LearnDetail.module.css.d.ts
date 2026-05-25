@@ -1,6 +1,7 @@
 declare const styles: {
   readonly ['overlay']: string;
   readonly ['modal']: string;
+  readonly ['modal-stack']: string;
   readonly ['modal-header']: string;
   readonly ['modal-tags']: string;
   readonly ['modal-content']: string;

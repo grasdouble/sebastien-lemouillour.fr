@@ -1,98 +1,42 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--lufa-semantic-ui-spacing-default) var(--lufa-semantic-ui-spacing-comfortable);
-  backdrop-filter: blur(2px);
 }
 
 .modal {
-  background: var(--lufa-semantic-ui-background-surface-default);
-  border: 1px solid var(--lufa-semantic-ui-border-default);
-  border-radius: 12px;
   width: 100%;
   max-width: 760px;
   max-height: 90vh;
+  overflow: hidden;
+}
+
+.modal > * {
+  max-height: inherit;
+  height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.modal-stack {
+  height: 100%;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--lufa-semantic-ui-spacing-default);
-  padding: var(--lufa-semantic-ui-spacing-comfortable) var(--lufa-semantic-ui-spacing-spacious);
-  border-bottom: 1px solid var(--lufa-semantic-ui-border-default);
-  flex-shrink: 0;
-}
-
-.modal-tags {
-  padding: var(--lufa-semantic-ui-spacing-compact) var(--lufa-semantic-ui-spacing-spacious);
-  border-bottom: 1px solid var(--lufa-semantic-ui-border-default);
-  flex-shrink: 0;
 }
 
 .modal-content {
   overflow-y: auto;
-  padding: var(--lufa-semantic-ui-spacing-comfortable) var(--lufa-semantic-ui-spacing-spacious);
-  flex: 1;
   min-height: 0;
-}
-
-.markdown-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--lufa-semantic-ui-spacing-default);
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--lufa-semantic-ui-text-secondary);
-  font-size: 1.25rem;
-  line-height: 1;
-  padding: 4px 8px;
-  border-radius: 4px;
-  flex-shrink: 0;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
-}
-
-.close-btn:hover {
-  background: var(--lufa-semantic-ui-background-hover);
-  color: var(--lufa-semantic-ui-text-primary);
-}
-
-.close-btn:focus-visible {
-  outline: 2px solid var(--lufa-semantic-ui-border-focus, currentColor);
-  outline-offset: 2px;
+  flex: 1 1 auto;
 }
 
 .code-block {
   background: var(--lufa-semantic-ui-background-page);
   border: 1px solid var(--lufa-semantic-ui-border-default);
-  border-radius: 6px;
   overflow: hidden;
-}
-
-.code-lang {
-  background: var(--lufa-semantic-ui-background-surface-default);
-  border-bottom: 1px solid var(--lufa-semantic-ui-border-default);
-  padding: 4px 12px;
-  font-size: 0.75rem;
-  color: var(--lufa-semantic-ui-text-tertiary);
-  font-family: monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .code-pre {
@@ -105,14 +49,7 @@
   font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
 }
 
-.content-list {
-  margin: 0;
-  padding-left: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: var(--lufa-semantic-ui-spacing-tight);
-}
-
+.content-list,
 .content-list-ordered {
   margin: 0;
   padding-left: 1.5rem;
@@ -124,47 +61,26 @@
 .inline-code {
   background: var(--lufa-semantic-ui-background-page);
   border: 1px solid var(--lufa-semantic-ui-border-default);
-  border-radius: 4px;
   padding: 1px 6px;
   font-size: 0.875em;
   font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
   color: var(--lufa-semantic-ui-text-primary);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .overlay {
-    backdrop-filter: none;
-  }
-}
-
-/* Mobile : plein écran, pas d'overlay, ressemble à une page native */
 @media (max-width: 767px) {
   .overlay {
     padding: 0;
-    background: none;
-    backdrop-filter: none;
     align-items: flex-start;
   }
 
   .modal {
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
     max-width: 100%;
     max-height: 100dvh;
     height: 100dvh;
-    background: var(--lufa-semantic-ui-background-page);
   }
 
-  .modal-header {
-    padding: var(--lufa-semantic-ui-spacing-default);
-  }
-
-  .modal-tags {
-    padding: var(--lufa-semantic-ui-spacing-compact) var(--lufa-semantic-ui-spacing-default);
-  }
-
-  .modal-content {
-    padding: var(--lufa-semantic-ui-spacing-default);
+  .modal > * {
+    max-height: 100dvh;
+    height: 100dvh;
   }
 }

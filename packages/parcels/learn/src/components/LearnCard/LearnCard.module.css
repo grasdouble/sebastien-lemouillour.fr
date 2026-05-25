@@ -1,51 +1,20 @@
 .learn-card {
   cursor: pointer;
   height: 100%;
-  border-radius: 8px;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: transform 0.15s ease;
 }
 
-/* Make the Card DS component fill full height */
 .learn-card > * {
   height: 100%;
 }
 
 .learn-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .learn-card:focus-visible {
-  outline: 2px solid var(--lufa-semantic-ui-border-focus, currentColor);
+  outline: 2px solid var(--lufa-semantic-ui-border-default);
   outline-offset: 2px;
-}
-
-.learn-card-body {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  gap: 16px;
-}
-
-.learn-card-main {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-.learn-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--lufa-semantic-ui-spacing-compact);
-}
-
-.learn-card-header h3 {
-  flex: 1;
-  min-width: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

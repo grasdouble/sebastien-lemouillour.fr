@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Badge, Card, Cluster, Text } from '@grasdouble/lufa_design-system';
+import { Badge, Card, Cluster, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
 
 import type { Difficulty, Tutorial } from '../../data/learn';
 import styles from './LearnCard.module.css';
@@ -11,10 +11,10 @@ type LearnCardProps = {
   onClick: (tutorial: Tutorial) => void;
 };
 
-const DIFFICULTY_VARIANT: Record<Difficulty, 'success' | 'warning' | 'error'> = {
+const DIFFICULTY_VARIANT: Record<Difficulty, 'success' | 'warning' | 'danger'> = {
   beginner: 'success',
   intermediate: 'warning',
-  advanced: 'error',
+  advanced: 'danger',
 };
 
 const DIFFICULTY_I18N_KEY: Record<Difficulty, string> = {
@@ -45,20 +45,22 @@ export function LearnCard({ tutorial, onClick }: LearnCardProps) {
       aria-label={t('aria.openItem', { title })}
     >
       <Card>
-        <div className={styles['learn-card-body']}>
-          <div className={styles['learn-card-main']}>
-            <div className={styles['learn-card-header']}>
-              <Text as="h3" variant="h4" weight="semibold" color="primary">
-                {title}
-              </Text>
+        <Stack direction="vertical" spacing="default">
+          <Stack direction="vertical" spacing="tight">
+            <Flex justify="between" align="start" gap="compact">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Text as="h3" variant="h4" weight="semibold" color="primary">
+                  {title}
+                </Text>
+              </div>
               <Badge variant={DIFFICULTY_VARIANT[difficulty]} size="sm">
                 {t(DIFFICULTY_I18N_KEY[difficulty])}
               </Badge>
-            </div>
+            </Flex>
             <Text as="p" variant="body" color="secondary">
               {description}
             </Text>
-          </div>
+          </Stack>
 
           {tags.length > 0 && (
             <Cluster spacing="compact">
@@ -69,7 +71,7 @@ export function LearnCard({ tutorial, onClick }: LearnCardProps) {
               ))}
             </Cluster>
           )}
-        </div>
+        </Stack>
       </Card>
     </div>
   );
