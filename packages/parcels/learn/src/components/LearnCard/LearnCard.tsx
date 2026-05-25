@@ -45,14 +45,14 @@ export function LearnCard({ tutorial, onClick }: LearnCardProps) {
       aria-label={t('aria.openItem', { title })}
     >
       <Card>
-        <Stack direction="vertical" spacing="default" className={styles['learn-card-inner']}>
+        <Stack direction="vertical" spacing="default" grow>
           <Stack direction="vertical" spacing="tight">
             <Flex justify="between" align="start" gap="compact">
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <Stack grow>
                 <Text as="h3" variant="h4" weight="semibold" color="primary">
                   {title}
                 </Text>
-              </div>
+              </Stack>
               <Badge variant={DIFFICULTY_VARIANT[difficulty]} size="sm">
                 {t(DIFFICULTY_I18N_KEY[difficulty])}
               </Badge>

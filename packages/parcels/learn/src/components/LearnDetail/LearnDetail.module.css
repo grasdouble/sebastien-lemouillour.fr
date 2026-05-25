@@ -23,14 +23,11 @@
 }
 
 .modal-stack {
-  height: 100%;
   overflow: hidden;
 }
 
 .modal-content {
   overflow-y: auto;
-  min-height: 0;
-  flex: 1 1 auto;
 }
 
 .code-block {

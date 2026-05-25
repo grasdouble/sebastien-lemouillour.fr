@@ -48,8 +48,8 @@ importers:
   packages/parcels/header-bar:
     dependencies:
       '@grasdouble/lufa_design-system':
-        specifier: ^3.1.0
-        version: 3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^3.3.0
+        version: 3.3.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       i18next:
         specifier: ^26.2.0
         version: 26.2.0(typescript@6.0.3)
@@ -124,8 +124,8 @@ importers:
   packages/parcels/landing-page:
     dependencies:
       '@grasdouble/lufa_design-system':
-        specifier: ^3.1.0
-        version: 3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^3.3.0
+        version: 3.3.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_shared':
         specifier: workspace:*
         version: link:../../shared
@@ -209,8 +209,8 @@ importers:
   packages/parcels/learn:
     dependencies:
       '@grasdouble/lufa_design-system':
-        specifier: ^3.1.0
-        version: 3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^3.3.0
+        version: 3.3.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_shared':
         specifier: workspace:*
         version: link:../../shared
@@ -300,8 +300,8 @@ importers:
   packages/parcels/professional-experience:
     dependencies:
       '@grasdouble/lufa_design-system':
-        specifier: ^3.1.0
-        version: 3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^3.3.0
+        version: 3.3.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_shared':
         specifier: workspace:*
         version: link:../../shared
@@ -478,8 +478,8 @@ importers:
   packages/slm-container:
     dependencies:
       '@grasdouble/lufa_design-system':
-        specifier: ^3.1.0
-        version: 3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^3.3.0
+        version: 3.3.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/lufa_design-system-themes':
         specifier: ^1.1.5
         version: 1.1.5
@@ -777,8 +777,8 @@ packages:
   '@grasdouble/lufa_design-system-tokens@1.2.5':
     resolution: {integrity: sha512-RYGYLfgF/9wJi5pchQ+vQGnFRRlFLtArE3M5c9+RzBiSXntq2mWBWVi7EaAGf8hSe1MaGh/Sv6HyXAN2pAcKAA==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_design-system-tokens/1.2.5/d55aa2df228a7c29765bdcc10586362c29b916bc}
 
-  '@grasdouble/lufa_design-system@3.1.0':
-    resolution: {integrity: sha512-0yKugl+yK6c1BypVqob5EpY0Crp90u32HjgsjnlMepCajRaV1n3vpu+evnirvLJqvKTxO9ARvR2o1siN2t5rXA==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_design-system/3.1.0/58d29c3c316ad4f8550312b412aa08bd92e8eed5}
+  '@grasdouble/lufa_design-system@3.3.0':
+    resolution: {integrity: sha512-1SbUIO4aYhucQeZMZD4IajMYfw5AoSwvaWBUsyC5XfR0KiClBEMD0XhXSn0bRtwhmmEpgBT1j0kAoWF+Hqi1Kw==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_design-system/3.3.0/36856fb097ac0dc2cb1236fcbe03a817e5ee8ef9}
     peerDependencies:
       react: ^19.1.0
       react-dom: ^19.1.0
@@ -3292,7 +3292,7 @@ snapshots:
 
   '@grasdouble/lufa_design-system-tokens@1.2.5': {}
 
-  '@grasdouble/lufa_design-system@3.1.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@grasdouble/lufa_design-system@3.3.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@grasdouble/lufa_design-system-tokens': 1.2.5
       '@headlessui/react': 2.2.10(react-dom@19.2.6(react@19.2.6))(react@19.2.6)

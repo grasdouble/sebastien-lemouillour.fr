@@ -48,7 +48,7 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
           className={styles.modal}
         >
           <Card>
-            <Stack direction="vertical" spacing="none" className={styles['modal-stack']}>
+            <Stack direction="vertical" spacing="none" grow className={styles['modal-stack']}>
               <Box padding="comfortable">
                 <Flex justify="between" align="start" gap="compact">
                   <Text as="h2" id="learn-detail-title" variant="h3" weight="bold" color="primary">
@@ -84,7 +84,7 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
                 </>
               )}
 
-              <Box className={styles['modal-content']} padding="comfortable">
+              <Box grow className={styles['modal-content']} padding="comfortable">
                 <Stack direction="vertical" spacing="default">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
