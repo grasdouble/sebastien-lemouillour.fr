@@ -1,0 +1,1 @@
+export { LearnDetail } from './LearnDetail';

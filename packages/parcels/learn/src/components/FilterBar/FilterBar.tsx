@@ -44,7 +44,7 @@ export function FilterBar({
   onClear,
   hasActiveFilters,
 }: FilterBarProps) {
-  const { t } = useTranslation('tutorials');
+  const { t } = useTranslation('learn');
 
   return (
     <div className={styles['filter-bar']}>

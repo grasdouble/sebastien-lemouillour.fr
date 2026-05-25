@@ -1,4 +1,4 @@
-.tutorial-card {
+.learn-card {
   cursor: pointer;
   height: 100%;
   border-radius: 8px;
@@ -8,52 +8,52 @@
 }
 
 /* Make the Card DS component fill full height */
-.tutorial-card > * {
+.learn-card > * {
   height: 100%;
 }
 
-.tutorial-card:hover {
+.learn-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
-.tutorial-card:focus-visible {
+.learn-card:focus-visible {
   outline: 2px solid var(--lufa-semantic-ui-border-focus, currentColor);
   outline-offset: 2px;
 }
 
-.tutorial-card-body {
+.learn-card-body {
   display: flex;
   flex-direction: column;
   height: 100%;
   gap: 16px;
 }
 
-.tutorial-card-main {
+.learn-card-main {
   display: flex;
   flex-direction: column;
   gap: 8px;
   flex: 1;
 }
 
-.tutorial-card-header {
+.learn-card-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--lufa-semantic-ui-spacing-compact);
 }
 
-.tutorial-card-header h3 {
+.learn-card-header h3 {
   flex: 1;
   min-width: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tutorial-card {
+  .learn-card {
     transition: none;
   }
 
-  .tutorial-card:hover {
+  .learn-card:hover {
     transform: none;
   }
 }

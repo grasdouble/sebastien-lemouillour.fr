@@ -1,16 +1,16 @@
 {
   "page": {
-    "title": "Tutoriels & Cours",
-    "subtitle": "Explorez des tutoriels sur l'IA, le tooling et le développement"
+    "title": "Guides",
+    "subtitle": "Explorez des guides sur l'IA, le tooling et le développement"
   },
   "filter": {
     "searchPlaceholder": "Rechercher par titre…",
-    "searchLabel": "Rechercher un tutoriel",
+    "searchLabel": "Rechercher un guide",
     "tagsLabel": "Filtrer par tags",
     "clearFilters": "Effacer les filtres",
-    "noResults": "Aucun tutoriel ne correspond à vos filtres.",
-    "results": "{{count}} tutoriel",
-    "results_plural": "{{count}} tutoriels"
+    "noResults": "Aucun guide ne correspond à vos filtres.",
+    "results": "{{count}} guide",
+    "results_plural": "{{count}} guides"
   },
   "detail": {
     "close": "Fermer",
@@ -21,7 +21,7 @@
     "intermediate": "Intermédiaire",
     "advanced": "Avancé"
   },
-  "tutorials": {
+  "items": {
     "intro-ia-generative": {
       "title": "Introduction à l'IA générative",
       "description": "Comprendre les bases de l'IA générative, les LLMs et comment les utiliser dans vos projets."
@@ -49,9 +49,9 @@
     "architecture": "Architecture"
   },
   "aria": {
-    "openTutorial": "Ouvrir le tutoriel : {{title}}"
+    "openItem": "Ouvrir le guide : {{title}}"
   },
   "seo": {
-    "description": "Tutoriels techniques sur l'IA, le tooling et l'architecture front-end."
+    "description": "Guides techniques sur l'IA, le tooling et l'architecture front-end."
   }
 }

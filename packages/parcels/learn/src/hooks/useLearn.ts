@@ -1,27 +1,27 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { Tutorial } from '../data/tutorials';
-import { ALL_TAGS, CATEGORY_KEYS, RAW_TUTORIALS } from '../data/tutorials';
+import type { Tutorial } from '../data/learn';
+import { ALL_TAGS, CATEGORY_KEYS, RAW_LEARN_ITEMS } from '../data/learn';
 
-type UseTutorialsResult = {
+type UseLearnResult = {
   tutorials: Tutorial[];
   allTags: readonly string[];
   categoryOrder: string[];
 };
 
-export function useTutorials(): UseTutorialsResult {
-  const { t, i18n } = useTranslation('tutorials');
+export function useLearn(): UseLearnResult {
+  const { t, i18n } = useTranslation('learn');
 
   const tutorials = useMemo<Tutorial[]>(
     () =>
-      RAW_TUTORIALS.map((raw) => ({
+      RAW_LEARN_ITEMS.map((raw) => ({
         id: raw.id,
         categoryKey: raw.categoryKey,
         difficulty: raw.difficulty,
         tags: raw.tags,
-        title: t(`tutorials.${raw.id}.title`),
-        description: t(`tutorials.${raw.id}.description`),
+        title: t(`items.${raw.id}.title`),
+        description: t(`items.${raw.id}.description`),
         category: t(`categories.${raw.categoryKey}`),
         content: raw.content[i18n.language as 'fr' | 'en'] ?? raw.content.fr,
       })),

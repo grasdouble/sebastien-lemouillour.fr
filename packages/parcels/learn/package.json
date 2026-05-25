@@ -1,5 +1,5 @@
 {
-  "name": "@grasdouble/slm_parcel_tutorials",
+  "name": "@grasdouble/slm_parcel_learn",
   "version": "0.0.1",
   "private": false,
   "repository": {
@@ -10,7 +10,7 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/tutorials.mjs"
+      "import": "./dist/learn.mjs"
     }
   },
   "files": [

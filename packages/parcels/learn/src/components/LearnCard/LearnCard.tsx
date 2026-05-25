@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 
 import { Badge, Card, Cluster, Text } from '@grasdouble/lufa_design-system';
 
-import type { Difficulty, Tutorial } from '../../data/tutorials';
-import styles from './TutorialCard.module.css';
+import type { Difficulty, Tutorial } from '../../data/learn';
+import styles from './LearnCard.module.css';
 
-type TutorialCardProps = {
+type LearnCardProps = {
   tutorial: Tutorial;
   onClick: (tutorial: Tutorial) => void;
 };
@@ -23,8 +23,8 @@ const DIFFICULTY_I18N_KEY: Record<Difficulty, string> = {
   advanced: 'difficulty.advanced',
 };
 
-export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
-  const { t } = useTranslation('tutorials');
+export function LearnCard({ tutorial, onClick }: LearnCardProps) {
+  const { t } = useTranslation('learn');
   const { title, description, tags, difficulty } = tutorial;
 
   const handleClick = () => onClick(tutorial);
@@ -41,13 +41,13 @@ export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className={styles['tutorial-card']}
-      aria-label={t('aria.openTutorial', { title })}
+      className={styles['learn-card']}
+      aria-label={t('aria.openItem', { title })}
     >
       <Card>
-        <div className={styles['tutorial-card-body']}>
-          <div className={styles['tutorial-card-main']}>
-            <div className={styles['tutorial-card-header']}>
+        <div className={styles['learn-card-body']}>
+          <div className={styles['learn-card-main']}>
+            <div className={styles['learn-card-header']}>
               <Text as="h3" variant="h4" weight="semibold" color="primary">
                 {title}
               </Text>

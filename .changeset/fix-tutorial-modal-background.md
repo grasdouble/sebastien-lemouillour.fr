@@ -1,5 +1,5 @@
 ---
-'@grasdouble/slm_parcel_tutorials': patch
+'@grasdouble/slm_parcel_learn': patch
 ---
 
 fix: correct CSS variable name for modal and filter bar backgrounds

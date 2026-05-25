@@ -1,1 +1,0 @@
-export { TutorialDetail } from './TutorialDetail';

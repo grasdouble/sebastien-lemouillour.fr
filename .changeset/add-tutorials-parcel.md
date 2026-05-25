@@ -1,5 +1,5 @@
 ---
-"@grasdouble/slm_parcel_tutorials": minor
+"@grasdouble/slm_parcel_learn": minor
 "@grasdouble/slm_parcel_header-bar": patch
 ---
 

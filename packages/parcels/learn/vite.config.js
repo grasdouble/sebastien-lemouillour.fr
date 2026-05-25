@@ -29,7 +29,7 @@ export default defineConfig({
       entry: {
         index: 'src/parcel.tsx',
       },
-      fileName: () => 'tutorials.mjs',
+      fileName: () => 'learn.mjs',
       preserveEntrySignatures: 'strict',
     },
     sourcemap: true,

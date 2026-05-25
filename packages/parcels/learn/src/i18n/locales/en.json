@@ -1,16 +1,16 @@
 {
   "page": {
-    "title": "Tutorials & Courses",
-    "subtitle": "Explore tutorials on AI, tooling, and development"
+    "title": "Learn",
+    "subtitle": "Explore guides on AI, tooling, and development"
   },
   "filter": {
     "searchPlaceholder": "Search by title…",
-    "searchLabel": "Search tutorials",
+    "searchLabel": "Search guides",
     "tagsLabel": "Filter by tags",
     "clearFilters": "Clear filters",
-    "noResults": "No tutorials match your filters.",
-    "results": "{{count}} tutorial",
-    "results_plural": "{{count}} tutorials"
+    "noResults": "No guides match your filters.",
+    "results": "{{count}} guide",
+    "results_plural": "{{count}} guides"
   },
   "detail": {
     "close": "Close",
@@ -21,7 +21,7 @@
     "intermediate": "Intermediate",
     "advanced": "Advanced"
   },
-  "tutorials": {
+  "items": {
     "intro-ia-generative": {
       "title": "Introduction to Generative AI",
       "description": "Understand the basics of generative AI, LLMs and how to use them in your projects."
@@ -49,9 +49,9 @@
     "architecture": "Architecture"
   },
   "aria": {
-    "openTutorial": "Open tutorial: {{title}}"
+    "openItem": "Open guide: {{title}}"
   },
   "seo": {
-    "description": "Technical tutorials on AI, tooling and front-end architecture."
+    "description": "Technical guides on AI, tooling and front-end architecture."
   }
 }

@@ -5,16 +5,16 @@ import remarkGfm from 'remark-gfm';
 
 import { Badge, Cluster, Portal, Text } from '@grasdouble/lufa_design-system';
 
-import type { Tutorial } from '../../data/tutorials';
-import styles from './TutorialDetail.module.css';
+import type { Tutorial } from '../../data/learn';
+import styles from './LearnDetail.module.css';
 
-type TutorialDetailProps = {
+type LearnDetailProps = {
   tutorial: Tutorial;
   onClose: () => void;
 };
 
-export function TutorialDetail({ tutorial, onClose }: TutorialDetailProps) {
-  const { t } = useTranslation('tutorials');
+export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
+  const { t } = useTranslation('learn');
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -44,11 +44,11 @@ export function TutorialDetail({ tutorial, onClose }: TutorialDetailProps) {
           ref={modalRef}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="tutorial-detail-title"
+          aria-labelledby="learn-detail-title"
           className={styles.modal}
         >
           <div className={styles['modal-header']}>
-            <Text as="h2" id="tutorial-detail-title" variant="h3" weight="bold" color="primary">
+            <Text as="h2" id="learn-detail-title" variant="h3" weight="bold" color="primary">
               {tutorial.title}
             </Text>
             <button

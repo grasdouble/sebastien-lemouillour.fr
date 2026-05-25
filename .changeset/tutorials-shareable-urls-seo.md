@@ -1,5 +1,5 @@
 ---
-'@grasdouble/slm_parcel_tutorials': minor
+'@grasdouble/slm_parcel_learn': minor
 ---
 
 feat: add shareable URLs and dynamic SEO meta tags for tutorial detail pages

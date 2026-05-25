@@ -7,38 +7,38 @@ import './i18n';
 
 import { usePageSeo } from '@grasdouble/slm_shared';
 
-import type { Tutorial } from './data/tutorials';
+import type { Tutorial } from './data/learn';
 import styles from './App.module.css';
-import { FilterBar, TutorialCard, TutorialDetail } from './components';
-import { useTutorials } from './hooks/useTutorials';
+import { FilterBar, LearnCard, LearnDetail } from './components';
+import { useLearn } from './hooks/useLearn';
 
 const SITE_NAME = 'sebastien-lemouillour.fr';
-const BASE_URL = 'https://sebastien-lemouillour.fr/tutorials';
+const BASE_URL = 'https://sebastien-lemouillour.fr/learn';
 
-const TUTORIAL_PARAM = 'tutorial';
+const GUIDE_PARAM = 'guide';
 
-function getTutorialIdFromUrl(): string | null {
-  return new URLSearchParams(window.location.search).get(TUTORIAL_PARAM);
+function getGuideIdFromUrl(): string | null {
+  return new URLSearchParams(window.location.search).get(GUIDE_PARAM);
 }
 
 function App() {
-  const { t } = useTranslation('tutorials');
-  const { tutorials, allTags, categoryOrder } = useTutorials();
+  const { t } = useTranslation('learn');
+  const { tutorials, allTags, categoryOrder } = useLearn();
 
   const [searchValue, setSearchValue] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [activeTutorialId, setActiveTutorialId] = useState<string | null>(getTutorialIdFromUrl);
+  const [activeGuideId, setActiveGuideId] = useState<string | null>(getGuideIdFromUrl);
 
-  const activeTutorial = useMemo(
-    () => (activeTutorialId ? (tutorials.find((t) => t.id === activeTutorialId) ?? null) : null),
-    [activeTutorialId, tutorials]
+  const activeGuide = useMemo(
+    () => (activeGuideId ? (tutorials.find((t) => t.id === activeGuideId) ?? null) : null),
+    [activeGuideId, tutorials]
   );
 
-  const seoConfig = activeTutorial
+  const seoConfig = activeGuide
     ? {
-        title: `${activeTutorial.title} | ${SITE_NAME}`,
-        description: activeTutorial.description,
-        url: `${BASE_URL}?tutorial=${activeTutorial.id}`,
+        title: `${activeGuide.title} | ${SITE_NAME}`,
+        description: activeGuide.description,
+        url: `${BASE_URL}?guide=${activeGuide.id}`,
       }
     : {
         title: `${t('page.title')} | ${SITE_NAME}`,
@@ -48,23 +48,23 @@ function App() {
 
   usePageSeo(seoConfig);
 
-  const openTutorial = useCallback((tutorial: Tutorial) => {
+  const openGuide = useCallback((tutorial: Tutorial) => {
     const url = new URL(window.location.href);
-    url.searchParams.set(TUTORIAL_PARAM, tutorial.id);
-    history.pushState({ tutorialId: tutorial.id }, '', url.toString());
-    setActiveTutorialId(tutorial.id);
+    url.searchParams.set(GUIDE_PARAM, tutorial.id);
+    history.pushState({ guideId: tutorial.id }, '', url.toString());
+    setActiveGuideId(tutorial.id);
   }, []);
 
-  const closeTutorial = useCallback(() => {
+  const closeGuide = useCallback(() => {
     const url = new URL(window.location.href);
-    url.searchParams.delete(TUTORIAL_PARAM);
+    url.searchParams.delete(GUIDE_PARAM);
     history.pushState({}, '', url.toString());
-    setActiveTutorialId(null);
+    setActiveGuideId(null);
   }, []);
 
   useEffect(() => {
     const handlePopState = () => {
-      setActiveTutorialId(getTutorialIdFromUrl());
+      setActiveGuideId(getGuideIdFromUrl());
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -81,7 +81,7 @@ function App() {
 
   const hasActiveFilters = searchValue.trim().length > 0 || selectedTags.length > 0;
 
-  const filteredTutorials = useMemo(() => {
+  const filteredGuides = useMemo(() => {
     const query = searchValue.trim().toLowerCase();
     return tutorials.filter((tutorial) => {
       const matchesTitle = query === '' || tutorial.title.toLowerCase().includes(query);
@@ -90,17 +90,17 @@ function App() {
     });
   }, [tutorials, searchValue, selectedTags]);
 
-  const groupedTutorials = useMemo(() => {
+  const groupedGuides = useMemo(() => {
     const groups: Record<string, Tutorial[]> = {};
-    for (const tutorial of filteredTutorials) {
-      if (!groups[tutorial.category]) groups[tutorial.category] = [];
-      groups[tutorial.category].push(tutorial);
+    for (const guide of filteredGuides) {
+      if (!groups[guide.category]) groups[guide.category] = [];
+      groups[guide.category].push(guide);
     }
     return groups;
-  }, [filteredTutorials]);
+  }, [filteredGuides]);
 
   return (
-    <Box id="lufa-tutorials" className={styles['lufa-tutorials']}>
+    <Box id="lufa-learn" className={styles['lufa-learn']}>
       <Container as="main" size="lg" paddingBlock="spacious">
         <Stack direction="vertical" spacing="comfortable">
           <Stack direction="vertical" spacing="compact" align="center">
@@ -122,18 +122,18 @@ function App() {
             hasActiveFilters={hasActiveFilters}
           />
 
-          {filteredTutorials.length === 0 ? (
+          {filteredGuides.length === 0 ? (
             <Text as="p" variant="body" color="tertiary" align="center">
               {t('filter.noResults')}
             </Text>
           ) : (
             <Stack direction="vertical" spacing="comfortable">
               <Text as="p" variant="body-small" color="tertiary">
-                {t('filter.results', { count: filteredTutorials.length })}
+                {t('filter.results', { count: filteredGuides.length })}
               </Text>
               <Stack direction="vertical" spacing="spacious">
                 {categoryOrder
-                  .filter((cat) => groupedTutorials[cat]?.length > 0)
+                  .filter((cat) => groupedGuides[cat]?.length > 0)
                   .map((category) => (
                     <div key={category} className={styles['category-section']}>
                       <div className={styles['category-title']}>
@@ -141,9 +141,9 @@ function App() {
                           {category}
                         </Text>
                       </div>
-                      <div className={styles['tutorials-grid']}>
-                        {groupedTutorials[category].map((tutorial) => (
-                          <TutorialCard key={tutorial.id} tutorial={tutorial} onClick={openTutorial} />
+                      <div className={styles['learn-grid']}>
+                        {groupedGuides[category].map((guide) => (
+                          <LearnCard key={guide.id} tutorial={guide} onClick={openGuide} />
                         ))}
                       </div>
                     </div>
@@ -154,7 +154,7 @@ function App() {
         </Stack>
       </Container>
 
-      {activeTutorial && <TutorialDetail tutorial={activeTutorial} onClose={closeTutorial} />}
+      {activeGuide && <LearnDetail tutorial={activeGuide} onClose={closeGuide} />}
     </Box>
   );
 }

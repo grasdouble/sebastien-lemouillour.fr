@@ -1,5 +1,5 @@
 ---
-'@grasdouble/slm_parcel_tutorials': minor
+'@grasdouble/slm_parcel_learn': minor
 ---
 
 feat: améliore l'organisation des cards tutoriels par catégorie et niveau de difficulté.

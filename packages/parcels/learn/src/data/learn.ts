@@ -21,7 +21,7 @@ export type Tutorial = {
   content: string;
 };
 
-export type RawTutorial = {
+export type RawLearnItem = {
   id: string;
   categoryKey: string;
   difficulty: Difficulty;
@@ -31,7 +31,7 @@ export type RawTutorial = {
 
 export const CATEGORY_KEYS: readonly string[] = ['ia-llm', 'tooling', 'architecture'];
 
-export const RAW_TUTORIALS: readonly RawTutorial[] = [
+export const RAW_LEARN_ITEMS: readonly RawLearnItem[] = [
   {
     id: 'intro-ia-generative',
     categoryKey: 'ia-llm',
@@ -69,4 +69,4 @@ export const RAW_TUTORIALS: readonly RawTutorial[] = [
   },
 ];
 
-export const ALL_TAGS: readonly string[] = [...new Set(RAW_TUTORIALS.flatMap((t) => t.tags))].sort();
+export const ALL_TAGS: readonly string[] = [...new Set(RAW_LEARN_ITEMS.flatMap((t) => t.tags))].sort();

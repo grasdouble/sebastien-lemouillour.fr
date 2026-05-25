@@ -1,9 +1,9 @@
-.lufa-tutorials {
+.lufa-learn {
   min-height: 100vh;
   background: var(--lufa-semantic-ui-background-page);
 }
 
-.tutorials-grid {
+.learn-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
