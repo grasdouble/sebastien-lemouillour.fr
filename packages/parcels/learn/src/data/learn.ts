@@ -83,6 +83,9 @@ function parseFrontmatter(raw: string, path: string): { meta: GuideFrontmatter; 
     if (key === 'id') {
       meta.id = value;
     } else if (key === 'difficulty') {
+      if (!DIFFICULTIES.includes(value as Difficulty)) {
+        throw new Error(`[learn] Invalid difficulty "${value}" in ${path}. Must be one of: ${DIFFICULTIES.join(', ')}`);
+      }
       meta.difficulty = value as Difficulty;
     } else if (key === 'tags') {
       meta.tags = value
@@ -190,6 +193,7 @@ if (import.meta.env.DEV) {
     const match = idPattern.exec(raw);
     if (match) idCounts.set(match[1], (idCounts.get(match[1]) ?? 0) + 1);
   }
+  // Each guide id should appear exactly twice: once for EN, once for FR
   const duplicates = [...idCounts.entries()].filter(([, count]) => count > 2).map(([id]) => id);
   if (duplicates.length > 0) {
     console.warn(

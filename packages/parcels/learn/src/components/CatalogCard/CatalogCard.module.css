@@ -1,7 +1,5 @@
 .catalog-card {
-  cursor: pointer;
-  height: 100%;
-  transition: transform 0.15s ease;
+  composes: clickable-card from '../shared.module.css';
 }
 
 .catalog-card > * {
@@ -18,10 +16,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .catalog-card {
-    transition: none;
-  }
-
   .catalog-card:hover {
     transform: none;
   }

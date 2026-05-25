@@ -1,7 +1,5 @@
 .learn-card {
-  cursor: pointer;
-  height: 100%;
-  transition: transform 0.15s ease;
+  composes: clickable-card from '../shared.module.css';
 }
 
 .learn-card > * {
@@ -18,10 +16,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .learn-card {
-    transition: none;
-  }
-
   .learn-card:hover {
     transform: none;
   }

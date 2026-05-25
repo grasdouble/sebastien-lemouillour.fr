@@ -10,6 +10,7 @@ import { usePageSeo } from '@grasdouble/slm_shared';
 import type { Catalog, Difficulty, Tutorial } from './data/learn';
 import styles from './App.module.css';
 import { CatalogCard, CatalogDetail, FilterBar, LearnCard, LearnDetail } from './components';
+import sharedStyles from './components/shared.module.css';
 import { RAW_CATALOGS } from './data/learn';
 import { useCatalogs } from './hooks/useCatalogs';
 import { useLearn } from './hooks/useLearn';
@@ -80,14 +81,22 @@ function App() {
   const openGuide = useCallback((tutorial: Tutorial) => {
     const url = new URL(window.location.href);
     url.searchParams.set(GUIDE_PARAM, tutorial.id);
-    history.pushState({ guideId: tutorial.id }, '', url.toString());
+    try {
+      history.pushState({ guideId: tutorial.id }, '', url.toString());
+    } catch {
+      // pushState can fail in restricted environments; navigation state still updates
+    }
     setActiveGuideId(tutorial.id);
   }, []);
 
   const closeGuide = useCallback(() => {
     const url = new URL(window.location.href);
     url.searchParams.delete(GUIDE_PARAM);
-    history.pushState({}, '', url.toString());
+    try {
+      history.pushState({}, '', url.toString());
+    } catch {
+      // pushState can fail in restricted environments; navigation state still updates
+    }
     setActiveGuideId(null);
   }, []);
 
@@ -95,7 +104,11 @@ function App() {
     const url = new URL(window.location.href);
     url.searchParams.set(CATALOG_PARAM, catalog.id);
     url.searchParams.delete(GUIDE_PARAM);
-    history.pushState({ catalogId: catalog.id }, '', url.toString());
+    try {
+      history.pushState({ catalogId: catalog.id }, '', url.toString());
+    } catch {
+      // pushState can fail in restricted environments; navigation state still updates
+    }
     setActiveCatalogId(catalog.id);
     setActiveGuideId(null);
   }, []);
@@ -104,7 +117,11 @@ function App() {
     const url = new URL(window.location.href);
     url.searchParams.delete(CATALOG_PARAM);
     url.searchParams.delete(GUIDE_PARAM);
-    history.pushState({}, '', url.toString());
+    try {
+      history.pushState({}, '', url.toString());
+    } catch {
+      // pushState can fail in restricted environments; navigation state still updates
+    }
     setActiveCatalogId(null);
     setActiveGuideId(null);
   }, []);
@@ -211,7 +228,7 @@ function App() {
                           </Box>
                           <Divider emphasis="subtle" spacing="compact" />
                         </Stack>
-                        <div className={styles['learn-grid']}>
+                        <div className={sharedStyles['learn-grid']}>
                           {groupedCatalogs[category].map((catalog) => (
                             <CatalogCard key={catalog.id} catalog={catalog} onClick={openCatalog} />
                           ))}
@@ -256,7 +273,7 @@ function App() {
                                 </Box>
                                 <Divider emphasis="subtle" spacing="compact" />
                               </Stack>
-                              <div className={styles['learn-grid']}>
+                              <div className={sharedStyles['learn-grid']}>
                                 {groupedGuides[category].map((guide) => (
                                   <LearnCard key={guide.id} tutorial={guide} onClick={openGuide} />
                                 ))}

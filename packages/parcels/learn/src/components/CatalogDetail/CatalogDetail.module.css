@@ -1,5 +1,3 @@
 .catalog-detail-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--lufa-semantic-ui-spacing-comfortable);
+  composes: learn-grid from '../shared.module.css';
 }

@@ -16,16 +16,20 @@ export function useLearn(): UseLearnResult {
 
   const tutorials = useMemo<Tutorial[]>(
     () =>
-      RAW_LEARN_ITEMS.map((raw) => ({
-        id: raw.id,
-        categoryKey: raw.categoryKey,
-        difficulty: raw.difficulty,
-        tags: raw.tags,
-        title: t(`items.${raw.id}.title`),
-        description: t(`items.${raw.id}.description`),
-        category: t(`categories.${raw.categoryKey}`),
-        content: raw.content[(i18n.resolvedLanguage ?? i18n.language).split('-')[0] as 'fr' | 'en'] ?? raw.content.fr,
-      })),
+      RAW_LEARN_ITEMS.map((raw) => {
+        const lang = (i18n.resolvedLanguage ?? i18n.language).split('-')[0];
+
+        return {
+          id: raw.id,
+          categoryKey: raw.categoryKey,
+          difficulty: raw.difficulty,
+          tags: raw.tags,
+          title: t(`items.${raw.id}.title`),
+          description: t(`items.${raw.id}.description`),
+          category: t(`categories.${raw.categoryKey}`),
+          content: raw.content[lang as 'fr' | 'en'] ?? raw.content.fr ?? raw.content.en ?? '',
+        };
+      }),
     [t, i18n.language, i18n.resolvedLanguage]
   );
 
