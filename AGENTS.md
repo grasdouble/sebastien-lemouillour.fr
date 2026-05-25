@@ -54,10 +54,11 @@ Before implementing anything, evaluate the request critically:
 
 ## Git — No commits, no destructive operations
 
-Never create git commits. Stage changes and present them for the user to review and commit manually.
+Never create git commits. Stage changes and present them for the user to review and commit manually. **This rule also applies to any sub-agent or background agent you launch — always instruct sub-agents explicitly to only `git add`, never `git commit`.**
 
 - ✅ `git add <files>`, `git diff`, `git status`, `git log`, `git stash`
 - ❌ `git commit` — never, even when asked to "save" or "apply" changes
+- ❌ Launching a sub-agent without explicitly telling it "never run git commit, only git add"
 - ❌ `git rebase` — rewrites history
 - ❌ `git reset --hard` — destroys uncommitted work
 - ❌ `git push --force` / `git push --force-with-lease` — overwrites remote

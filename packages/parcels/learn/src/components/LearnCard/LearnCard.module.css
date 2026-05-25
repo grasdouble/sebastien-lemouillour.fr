@@ -8,6 +8,10 @@
   height: 100%;
 }
 
+.learn-card-inner {
+  height: 100%;
+}
+
 .learn-card:hover {
   transform: translateY(-2px);
 }
