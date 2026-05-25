@@ -6,6 +6,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--lufa-semantic-ui-spacing-default) var(--lufa-semantic-ui-spacing-comfortable);
+  background-color: rgb(0 0 0 / 50%);
 }
 
 .modal {
