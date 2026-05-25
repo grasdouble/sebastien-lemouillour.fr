@@ -121,4 +121,19 @@ if (import.meta.env.DEV) {
       orphans.map((g) => g.id)
     );
   }
+
+  const knownIds = new Set(RAW_LEARN_ITEMS.map((g) => g.id));
+  const dangling = RAW_CATALOGS.flatMap((c) => c.guideIds.filter((id) => !knownIds.has(id)));
+  if (dangling.length > 0) {
+    console.warn('[learn] Catalog references unknown guide ids:', dangling);
+  }
+
+  const validCategoryKeys = new Set(CATEGORY_KEYS);
+  const unknownCategory = RAW_LEARN_ITEMS.filter((g) => !validCategoryKeys.has(g.categoryKey));
+  if (unknownCategory.length > 0) {
+    console.warn(
+      '[learn] Guides with unknown categoryKey (not in CATEGORY_KEYS):',
+      unknownCategory.map((g) => g.id)
+    );
+  }
 }

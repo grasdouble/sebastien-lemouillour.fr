@@ -24,9 +24,9 @@ export function useLearn(): UseLearnResult {
         title: t(`items.${raw.id}.title`),
         description: t(`items.${raw.id}.description`),
         category: t(`categories.${raw.categoryKey}`),
-        content: raw.content[i18n.language as 'fr' | 'en'] ?? raw.content.fr,
+        content: raw.content[(i18n.resolvedLanguage ?? i18n.language).split('-')[0] as 'fr' | 'en'] ?? raw.content.fr,
       })),
-    [t, i18n.language]
+    [t, i18n.language, i18n.resolvedLanguage]
   );
 
   const categoryOrder = useMemo<string[]>(() => CATEGORY_KEYS.map((key) => t(`categories.${key}`)), [t]);

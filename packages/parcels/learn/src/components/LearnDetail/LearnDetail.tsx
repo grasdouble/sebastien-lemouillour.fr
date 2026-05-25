@@ -21,6 +21,7 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
   useEffect(() => {
     closeButtonRef.current?.focus();
 
+    const previousOverflow = document.body.style.overflow;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
@@ -29,7 +30,7 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
+      document.body.style.overflow = previousOverflow;
     };
   }, [onClose]);
 
