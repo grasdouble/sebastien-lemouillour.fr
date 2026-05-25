@@ -7,7 +7,7 @@ tags: [IA, LLM, RAG, embeddings]
 
 ## Why LLMs need your data
 
-An LLM is powerful, but it has a blind spot: its knowledge is frozen at training time. It does not know your product catalog, your internal wiki, your support procedures, or the PDF your team uploaded yesterday. If you ask, "What is our refund policy for enterprise customers?", the model can only guess unless you provide the answer in the request.
+An LLM can sound incredibly confident, but it still has a blind spot: its knowledge is frozen at training time. It does not know your product catalog, your internal wiki, your support procedures, or the PDF your team uploaded yesterday. If you ask, "What is our refund policy for enterprise customers?", the model can only guess unless you provide the answer in the request.
 
 That is the core idea behind **Retrieval-Augmented Generation (RAG)**: before asking the model to answer, you first retrieve relevant information from your own data, then inject that information into the prompt.
 
@@ -21,7 +21,7 @@ To retrieve relevant content, you need a way to compare meaning, not just keywor
 
 Think of it like GPS coordinates, but for meaning instead of geography. Two addresses close on a map are probably in the same neighborhood. Two embeddings close in vector space are probably about the same topic.
 
-That is why a search for "holiday policy" can still find a chunk containing "paid vacation rules" even if the exact words do not match.
+That is why a search for "holiday policy" can still find a chunk containing "paid vacation rules" even if the exact words do not match. Once you have that mental model, the next step is straightforward: you need a way to measure how close two meaning-coordinates are.
 
 **Cosine similarity** is the common way to measure that closeness. You do not need the full math intuition: it tells you whether two vectors point in a similar semantic direction. High cosine similarity means "these texts probably mean related things."
 
@@ -56,24 +56,19 @@ Document -> Chunk -> Embed -> Store
 Query -> Embed -> Search -> Top-K -> LLM -> Answer
 ```
 
-Each step has a specific job:
+The diagram looks simple, but it really describes two different tempos. Indexing happens ahead of time: you prepare documents, split them, embed them, and store the results before any user asks a question. That part is the expensive setup work.
 
-- **Document** — your source data: Markdown, PDFs, Notion pages, tickets, product docs.
-- **Chunk** — split large documents into smaller passages so retrieval stays precise and fits the context window.
-- **Embed** — convert each chunk into a vector.
-- **Store** — save text + vector in memory, a database, or a dedicated vector store.
-- **Query** — the user's question.
-- **Embed** — convert the question into a vector too.
-- **Search** — compare the query vector with stored vectors.
-- **Top-K** — keep the best matches, often 3 to 5 chunks.
-- **LLM** — build a prompt containing the question and retrieved context.
-- **Answer** — generate a grounded response based on that context.
+Later, at request time, retrieval and generation take over. A user question is embedded, compared against what you indexed earlier, and only the best matching chunks are sent to the LLM. Retrieval narrows the search space; generation turns the retrieved facts into a useful answer.
 
-The key idea is simple: retrieval narrows the search space, and generation turns the retrieved facts into a useful answer.
+If you break it down, each phase has a specific role:
+
+- **Document / Chunk / Embed / Store** — build the searchable knowledge base once, upstream.
+- **Query / Embed / Search / Top-K** — find the few passages that matter for this specific question.
+- **LLM / Answer** — turn those passages into a grounded response.
 
 ## Chunking strategies
 
-You rarely embed full documents as-is. Large documents dilute meaning, exceed context limits, and make retrieval less precise. Chunking creates smaller units that are easier to match.
+Why not just embed the whole document once and be done with it? Because full documents dilute meaning, exceed context limits, and make retrieval less precise. Chunking creates smaller units that are easier to match to a real question.
 
 Overlap matters too. If one idea spans the boundary between two chunks, a small overlap preserves continuity.
 
@@ -87,7 +82,7 @@ A practical starting point is fixed-size or sentence-based chunking with 10–20
 
 ## Implementing RAG in TypeScript
 
-The example below shows the full flow: index documents in memory, retrieve the most similar chunks, then send them to an LLM. For learning, an in-memory array is enough. In production, you would replace it with persistent storage.
+The example below shows the full flow in a self-contained way: index documents in memory, retrieve the closest chunks, then send them to an LLM. For learning, an in-memory array is enough. In production, you'll replace this with persistent storage.
 
 ```typescript
 type IndexedChunk = {
@@ -249,11 +244,11 @@ Notice the three distinct phases:
 2. **Retrieval** — find the most relevant chunks for a new question.
 3. **Generation** — ask the LLM to answer using only those chunks.
 
-That separation is important because indexing is expensive, while retrieval and generation happen at request time.
+This separation is important: indexing is expensive and done upfront, while retrieval and generation happen at request time.
 
 ## Choosing a vector database
 
-Once your data no longer fits in memory, use a vector database or a relational database with vector support.
+When your data no longer fits in memory — or when you need persistence across restarts — you need a vector database or a relational database with vector support.
 
 | Option   | Best for                                     | Hosting                         | Cost profile     |
 | -------- | -------------------------------------------- | ------------------------------- | ---------------- |
@@ -270,4 +265,4 @@ A good rule of thumb:
 - Look at **Weaviate** for more advanced retrieval features.
 - Use **Chroma** for experimentation and local demos.
 
-RAG is not magic. It is a pipeline: prepare good chunks, retrieve the right context, and ask the model to stay grounded in that context. If those three pieces are solid, you already have a useful minimal system.
+RAG is not magic, but it is dependable when the foundations are solid: good chunks, good retrieval, and a model forced to answer from that evidence. Those three bricks are how you build trust between your data and the model.

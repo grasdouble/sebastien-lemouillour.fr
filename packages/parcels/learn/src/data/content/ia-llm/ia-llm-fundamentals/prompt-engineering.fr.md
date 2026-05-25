@@ -5,9 +5,13 @@ difficulty: intermediate
 tags: [IA, LLM, prompt]
 ---
 
-## Zero-shot prompting
+Vous avez essayé un LLM pour la première fois, et les résultats sont tièdes. Le modèle répond à côté, trop vaguement, dans le mauvais format. Le réflexe naturel est de blâmer le modèle — mais la plupart du temps, le problème vient de la façon dont vous lui parlez.
 
-Le zero-shot prompting est la forme la plus simple : demander au modèle d'effectuer une tâche sans fournir d'exemples. Le modèle s'appuie entièrement sur ses connaissances pré-entraînées.
+Le prompt engineering, c'est l'art de formuler vos instructions pour obtenir des réponses utiles. Ce n'est pas de la magie : c'est une compétence qui se construit progressivement, du cas le plus simple au plus sophistiqué.
+
+## Zero-shot : commencer simple
+
+La forme la plus directe consiste à demander sans exemples. Le modèle s'appuie sur tout ce qu'il a appris pendant l'entraînement pour inférer ce que vous attendez.
 
 ```text
 Classe le sentiment de cette critique comme Positif, Neutre ou Négatif :
@@ -15,11 +19,11 @@ Classe le sentiment de cette critique comme Positif, Neutre ou Négatif :
 "L'autonomie de la batterie est décevante, mais la qualité de l'écran est excellente."
 ```
 
-Cela fonctionne bien pour les tâches que le modèle a vues à l'entraînement. Pour des tâches de niche ou ambiguës, le few-shot prompting est plus fiable.
+Pour une tâche courante et bien définie, c'est souvent suffisant. Là où ça devient fragile, c'est face à des tâches spécialisées ou ambiguës — le modèle n'a pas assez de contexte pour deviner ce que vous voulez vraiment. C'est là qu'entrent les exemples.
 
-## Few-shot prompting
+## Few-shot : guider par l'exemple
 
-Le few-shot prompting consiste à fournir des exemples dans le prompt pour guider le modèle. Plus les exemples sont représentatifs, plus le résultat est précis.
+Plutôt que d'expliquer longuement ce que vous attendez, montrez-le. Deux ou trois exemples représentatifs calibrent le modèle bien mieux qu'une longue instruction abstraite.
 
 ```text
 Traduis du français vers l'anglais :
@@ -34,9 +38,11 @@ Français: "Je voudrais réserver une table pour deux personnes."
 Anglais:
 ```
 
-## Chain-of-thought (CoT)
+La règle pratique : si vous pouvez montrer ce que « bon » ressemble à travers deux ou trois cas, montrez-le plutôt que de l'écrire.
 
-Le CoT demande au modèle de raisonner étape par étape avant de donner sa réponse finale. Cela améliore significativement les performances sur les tâches complexes. Ajouter « Raisonne étape par étape » ou « Think step by step » à un prompt suffit souvent.
+## Chain-of-thought : forcer le raisonnement
+
+Certaines tâches exigent plusieurs étapes de réflexion. Si vous demandez directement la réponse finale, le modèle peut sauter des étapes et se tromper. Lui demander de raisonner étape par étape améliore souvent le résultat de façon spectaculaire.
 
 ```text
 Résous ce problème étape par étape :
@@ -48,17 +54,19 @@ le second train rattrapera-t-il le premier ?
 Raisonnement :
 ```
 
-## Role prompting
+En pratique, ajouter « Raisonne étape par étape » ou « Think step by step » à un prompt suffit souvent à améliorer les tâches mathématiques, logiques ou plus généralement multi-étapes.
 
-Assigner un rôle au modèle améliore la qualité et la cohérence des réponses dans un domaine spécifique.
+## Role prompting : donner un contexte d'expertise
+
+Le contexte professionnel change le registre, la profondeur et la précision des réponses. Assigner un rôle explicite aide le modèle à ancrer ses réponses dans un domaine. Ce n'est pas juste cosmétique — le modèle ajuste son niveau de détail, son vocabulaire et la structure de ses réponses en fonction du rôle :
 
 - "Tu es un expert en cybersécurité avec 20 ans d'expérience..."
 - "Tu es un professeur de mathématiques qui explique à des lycéens..."
 - "Tu es un code reviewer senior qui cherche des bugs critiques..."
 
-## System prompts
+## System prompts : fixer les règles une fois pour toutes
 
-La plupart des APIs LLM modernes supportent un message `system`, qui est placé avant la conversation. Les system prompts établissent la persona, les contraintes et le format de sortie du modèle de façon persistante dans toute la conversation.
+Dans une application, vous ne voulez pas répéter les mêmes contraintes à chaque message utilisateur. Le message `system` résout cela en définissant pour toute la conversation la persona du modèle, ses limites et le format de sortie attendu. En production, un bon system prompt est votre première ligne de défense : il réduit la variance des réponses, facilite le parsing et rend les comportements indésirables plus difficiles à déclencher.
 
 ```typescript
 const messages = [
@@ -72,9 +80,9 @@ Schéma : { "réponse": string, "confiance": number }`,
 ];
 ```
 
-## Structured output
+## Structured output : rendre le parsing fiable
 
-Pour un usage en production, instruire le modèle à retourner des données structurées (JSON, YAML) rend le parsing fiable. De nombreuses APIs supportent désormais `response_format: { type: 'json_object' }`.
+Demander du JSON dans le system prompt aide, mais ce n'est pas garanti — le modèle peut encore ajouter du texte avant ou après. Les APIs modernes proposent de plus en plus un mode de sortie structurée qui impose directement le format, ce qui est bien plus sûr quand un autre système doit parser la réponse.
 
 ```typescript
 const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -94,3 +102,5 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
   }),
 });
 ```
+
+Ces techniques ne sont pas mutuellement exclusives — un bon prompt de production combine souvent un rôle clair, des exemples few-shot, une instruction de raisonnement et un format de sortie structuré. La règle est de commencer simple, mesurer les résultats, et ajouter de la complexité seulement là où ça améliore vraiment les sorties.

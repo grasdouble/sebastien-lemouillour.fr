@@ -5,11 +5,15 @@ difficulty: intermediate
 tags: [IA, LLM, API]
 ---
 
+Votre premier appel à l'API OpenAI a marché du premier coup. Vous avez collé la clé dans le code, envoyé un message, reçu une réponse — cinq minutes. En local, tout fonctionne.
+
+En production, la réalité est différente : les réseaux sont instables, les rate limits existent, les prompts dépassent parfois la fenêtre de contexte, et les factures peuvent exploser si personne ne surveille. Ce guide parcourt les patterns qui rendent une intégration LLM robuste — pas seulement fonctionnelle.
+
 ## Réponses en streaming
 
-Le streaming améliore la latence perçue, car vous affichez les tokens au fil de l'eau au lieu d'attendre la réponse complète. En pratique, vous envoyez `stream: true` et vous lisez des Server-Sent Events depuis le `ReadableStream` renvoyé par `fetch`. C'est particulièrement utile pour une interface de chat, un résumé en direct ou une génération de code où le feedback rapide compte.
+Le premier problème que vous rencontrez dès qu'une UX est impliquée : l'attente. Avec un appel standard, l'utilisateur fixe un spinner pendant 5 à 15 secondes avant de voir la réponse d'un coup. Le streaming résout ça en affichant les tokens au fil de l'eau, dès qu'ils sont générés — exactement ce que fait ChatGPT.
 
-Gardez toujours la clé API côté serveur, même si votre frontend affiche le flux. Le navigateur doit appeler votre backend, puis votre backend doit appeler le fournisseur LLM. Vous protégez ainsi les secrets et vous centralisez la journalisation, les quotas et la modération.
+En pratique, vous envoyez `stream: true` et vous lisez des Server-Sent Events depuis le `ReadableStream` renvoyé par `fetch`. Gardez toujours la clé API côté serveur : le navigateur doit appeler votre backend, qui appelle le fournisseur. Vous protégez ainsi les secrets et vous centralisez la journalisation et les quotas.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -85,7 +89,9 @@ Paramètres clés : `model` pilote la qualité et le coût, `stream: true` activ
 
 ## Gestion des erreurs
 
-En production, les intégrations LLM échouent pour des raisons normales : réseau lent, rate limit temporaire en 429, ou requête trop large pour la fenêtre de contexte du modèle. Un client robuste doit définir un timeout, distinguer les erreurs réessayables, puis réessayer avec un exponential backoff. Il doit aussi arrêter de réessayer sur les erreurs permanentes comme des identifiants invalides ou un prompt trop gros.
+Un appel LLM qui échoue sur votre laptop n'a pas de conséquence. En production, un échec non géré signifie une fonctionnalité cassée pour l'utilisateur. Les causes sont prévisibles : réseau instable, rate limit temporaire en 429, ou prompt trop large pour la fenêtre de contexte. Un client robuste les distingue et ne traite pas de la même façon une erreur transitoire et une erreur permanente.
+
+C'est pourquoi l'exemple ci-dessous combine un timeout, des règles de retry explicites et un échec immédiat pour les requêtes qui n'ont aucune chance de réussir en l'état.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -165,7 +171,9 @@ Journalisez les codes de statut, le nombre de retries et le modèle utilisé, ma
 
 ## Gestion des coûts
 
-Le coût d'un LLM dépend surtout des tokens : les input tokens pour ce que vous envoyez, les output tokens pour ce que le modèle génère. Vous devez estimer le coût avant d'envoyer des prompts chers, puis limiter la sortie avec `max_tokens` pour éviter qu'une mauvaise requête ne fasse exploser la facture. L'estimation reste approximative, mais elle suffit pour bloquer tôt les requêtes trop volumineuses.
+La facture LLM peut surprendre. Un prototype avec quelques appels manuels coûte quelques centimes. Un produit qui fait des appels LLM sur chaque action utilisateur peut coûter des milliers de dollars par mois si personne ne surveille. Les deux leviers principaux : estimer le coût avant d'envoyer, et plafonner la sortie avec `max_tokens`.
+
+L'exemple ci-dessous montre la discipline de base : rejeter tôt les requêtes trop coûteuses, puis borner la génération avant que le fournisseur ne le fasse pour vous.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -229,7 +237,9 @@ Dans un vrai produit, définissez des budgets par fonctionnalité, suivez la con
 
 ## Requêtes parallèles
 
-Le parallélisme est utile pour la classification, l'extraction ou l'enrichissement par lot. `Promise.all` donne la plus faible latence pour un petit batch, mais un fan-out non contrôlé finit vite par heurter les rate limits. Une file à concurrence fixe suffit souvent : vous gardez un nombre limité de requêtes en vol et vous ne lancez la suivante que lorsqu'une autre se termine.
+Certaines tâches n'ont pas besoin d'attendre : classifier un batch de tickets, enrichir une liste de produits, extraire des entités de plusieurs documents. Envoyer ces appels en parallèle réduit la latence totale — mais un fan-out non contrôlé heurte vite les rate limits. Une file à concurrence fixe est le bon compromis : vous gardez plusieurs appels en vol simultanément sans saturer le provider.
+
+C'est pourquoi l'exemple commence par du parallélisme direct, puis ajoute une file dès que le contrôle devient plus important que la vitesse brute.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -305,7 +315,9 @@ Ce pattern est simple, prévisible et agnostique au fournisseur. Commencez avec 
 
 ## Choisir le bon modèle
 
-Le choix du modèle est un arbitrage d'ingénierie, pas une décision de marque. Les petits modèles conviennent très bien aux helpers à fort volume, tandis que les plus gros sont meilleurs pour le raisonnement multi-étapes, les consignes ambiguës ou les sorties dont le coût d'erreur est élevé. Faites vos benchmarks avec vos propres prompts, car le « meilleur » modèle dépend de votre cible de latence, de votre exigence qualité et de votre budget.
+Le choix du modèle est un arbitrage d'ingénierie, pas une décision de marque. Vous le faites en fonction de trois variables : la latence cible, l'exigence qualité, et le budget. Les petits modèles (GPT-4o mini, Claude Haiku) conviennent très bien aux helpers à fort volume — classification, reformulation, extraction. Les plus gros modèles sont meilleurs pour le raisonnement multi-étapes, les consignes ambiguës ou les sorties dont le coût d'erreur est élevé.
+
+Faites vos benchmarks avec vos propres prompts, car le « meilleur » modèle dépend de la route que vous optimisez, pas d'un slogan de leaderboard.
 
 | Modèle        | Idéal pour                                                           | Latence typique  | Profil de coût |
 | ------------- | -------------------------------------------------------------------- | ---------------- | -------------- |
@@ -314,4 +326,4 @@ Le choix du modèle est un arbitrage d'ingénierie, pas une décision de marque.
 | Claude Haiku  | Résumés rapides, routage, tâches métier légères                      | Très faible      | Faible         |
 | Claude Sonnet | Analyse plus profonde, rédaction longue, aide au code complexe       | Moyenne          | Moyen à élevé  |
 
-Un bon défaut consiste à démarrer avec un modèle mini ou de classe Haiku, mesurer les échecs, puis n'améliorer que les routes qui ont réellement besoin de meilleure qualité. Revalidez régulièrement les tarifs des fournisseurs, car la latence et le coût évoluent plus vite que la plupart des applications.
+Commencez avec le modèle le moins cher qui passe la barre, puis ne montez en gamme que sur les routes où un meilleur raisonnement mérite vraiment son coût.

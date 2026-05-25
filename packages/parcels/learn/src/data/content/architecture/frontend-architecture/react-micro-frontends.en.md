@@ -5,13 +5,17 @@ difficulty: advanced
 tags: [React, architecture, micro-frontend]
 ---
 
+A growing React application eventually runs into the same organizational problem: multiple teams work in the same codebase, deployments stay coupled, and a bug in Checkout can block a release for Account. The classic answer is to split the teams. But if the code remains monolithic, most of the coordination pain stays exactly where it was.
+
+Micro-frontends address the problem at the architectural level. Each team owns its slice of the interface end to end, from code to production, and can deploy without waiting for the others. The trade-off is clear: less coupling in the codebase, more complexity at the boundaries.
+
 ## What is a micro-frontend?
 
-A micro-frontend is an architectural approach that decomposes a web application into several independent parts, each developed, deployed and maintained separately. Each team can choose its own stack, release cycle and functional scope. The container (or shell) is responsible for orchestrating the parts together.
+A micro-frontend is an architectural approach that decomposes a web application into several independent parts, each developed, deployed, and maintained separately. Each team can choose its own stack, release cycle, and functional scope. The container, sometimes called the shell, is responsible for bringing those parts together into one coherent product.
 
 ## single-spa: the orchestrator
 
-single-spa is a framework that orchestrates the loading and unloading of micro-frontends based on the active URL. It manages the lifecycle (bootstrap, mount, unmount) of each application and decouples routing from rendering.
+Once you split the interface into independent applications, the container needs a way to load and unload UI parts based on the active URL. single-spa is the framework that plays this role: it manages each application's lifecycle and keeps routing concerns separate from rendering.
 
 ```typescript
 import { registerApplication, start } from 'single-spa';
@@ -31,9 +35,11 @@ registerApplication({
 start();
 ```
 
+From the container's point of view, each micro-frontend is just a named application with an activation rule.
+
 ## Import maps: module resolution
 
-Import maps allow the browser to resolve bare module specifiers (e.g. `@my/parcel-home`) to a URL. In development, they point to localhost; in production, to a CDN.
+single-spa loads applications on demand — but how does it know where to find them? That is where import maps come in. They let the browser resolve bare module specifiers such as `@my/parcel-home` to concrete URLs. During development those URLs usually point to localhost; in production, they point to a CDN.
 
 ```json
 {
@@ -44,9 +50,11 @@ Import maps allow the browser to resolve bare module specifiers (e.g. `@my/parce
 }
 ```
 
-This enables independent deployments: updating one micro-frontend only requires changing its URL in the import map — no rebuild of the container needed.
+That makes deployments independent: updating one micro-frontend often means changing only one URL in the import map, without rebuilding the container.
 
 ## Parcel lifecycle
+
+Each micro-frontend must expose three functions that single-spa will call at the right time: `bootstrap` for one-time initialization, `mount` to display the UI, and `unmount` to clean up when the user navigates away. In React 18, that usually means keeping a `createRoot` reference between lifecycle calls.
 
 ```typescript
 import { createRoot } from 'react-dom/client';
@@ -73,7 +81,7 @@ export const unmount = () => new Promise((resolve) => {
 
 ## Shared dependencies
 
-To avoid shipping React multiple times, declare shared dependencies as externals in each parcel's build config and import them via the import map.
+If each micro-frontend bundles its own copy of React, the browser downloads React as many times as there are parcels. On a product with ten teams, that quickly turns into hundreds of duplicated kilobytes. The usual fix is to load React once through the import map and mark it as external in every parcel.
 
 ```json
 {
@@ -95,3 +103,5 @@ export default defineConfig({
   },
 });
 ```
+
+Micro-frontend architecture is not a universal solution. It trades code coupling complexity for orchestration complexity. It becomes relevant when multiple autonomous teams need to deploy independently on the same interface. For a single team, a well-structured monorepo with lazy loading is often enough.

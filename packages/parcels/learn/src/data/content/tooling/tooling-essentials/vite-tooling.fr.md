@@ -5,11 +5,19 @@ difficulty: beginner
 tags: [tooling, Vite, build]
 ---
 
+Pendant longtemps, démarrer un projet frontend signifiait attendre. Webpack devait analyser et bundler toute l'application avant de servir la première page — 20, 30, parfois 60 secondes à chaque `npm start`. Et dès qu'un fichier changeait, le Hot Module Replacement recompilait tout le graphe de dépendances. Dans un projet de taille moyenne, enregistrer un fichier et voir le résultat dans le navigateur prenait plusieurs secondes.
+
+Vite repart de zéro en posant une question différente : et si on ne bundlait rien du tout en développement ?
+
 ## Pourquoi Vite ?
 
-Vite est un build tool nouvelle génération qui exploite les ES Modules natifs du navigateur en mode développement. Contrairement à Webpack qui bundle tout au démarrage, Vite sert les fichiers à la demande — ce qui donne des démarrages quasi-instantanés et un HMR ultra-rapide.
+Vite exploite les ES Modules natifs que les navigateurs modernes supportent directement. En mode développement, il ne bundle pas votre code — il le sert tel quel au navigateur, fichier par fichier, à la demande. Le résultat est un démarrage quasi-instantané, même sur un projet avec des centaines de composants, et un HMR qui ne met à jour que le module qui a changé.
+
+En production, Vite utilise Rollup pour produire un bundle optimisé : tree-shaking, code splitting, compression. Vous bénéficiez du meilleur des deux mondes — vitesse en développement, optimisation en production.
 
 ## Créer un projet Vite + React + TypeScript
+
+Trois commandes suffisent pour démarrer :
 
 ```bash
 pnpm create vite my-app --template react-ts
@@ -18,7 +26,11 @@ pnpm install
 pnpm dev
 ```
 
+Le serveur démarre en moins d'une seconde. La première visite dans le navigateur transforme les imports en requêtes HTTP — Vite répond à chacune en transformant le fichier à la volée (TypeScript, JSX, CSS Modules).
+
 ## Structure du vite.config.ts
+
+Une fois le projet lancé, la configuration arrive généralement juste après. Bonne nouvelle : la configuration de base de Vite tient en quelques lignes.
 
 ```typescript
 import path from 'node:path';
@@ -43,9 +55,11 @@ export default defineConfig({
 });
 ```
 
+Les options les plus utiles ici sont la configuration des plugins (React avec Fast Refresh), les alias de chemin pour éviter les imports relatifs profonds, et les réglages du serveur de développement.
+
 ## Variables d'environnement
 
-Vite expose au bundle client les variables préfixées par `VITE_`. Les variables sans ce préfixe restent côté serveur uniquement (scripts de build, SSR).
+Une question concrète arrive vite : comment passer l'URL d'une API au frontend sans injecter tout votre environnement dans le navigateur ? Vite applique une règle simple : seules les variables préfixées par `VITE_` sont injectées dans le bundle client. Les autres restent côté serveur et demeurent invisibles pour le navigateur.
 
 ```bash
 # .env
@@ -66,7 +80,7 @@ interface ImportMetaEnv {
 
 ## Alias de chemins
 
-Utilisez l'option `resolve.alias` pour éviter les imports relatifs profonds :
+Dès qu'un projet grandit, les imports relatifs deviennent difficiles à lire : `../../../components/ui/Button`. Un alias de chemin corrige ça en donnant à tout l'arbre `src/` un point d'entrée stable :
 
 ```typescript
 // Avant
@@ -91,8 +105,12 @@ Ajoutez également l'alias dans `tsconfig.json` pour que TypeScript résolve les
 
 ## Avantages vs Webpack
 
-- Démarrage en millisecondes (pas de bundling initial)
-- HMR basé sur ESM natif — mise à jour chirurgicale
-- Configuration minimaliste par défaut
-- Rollup en production — output optimisé
-- Plugins compatibles Rollup
+Si vous venez de Webpack, voici ce que vous gagnez concrètement :
+
+- **Démarrage en millisecondes** — pas de bundling initial, le serveur répond immédiatement
+- **HMR chirurgical** — seul le module modifié est mis à jour, sans recharger l'état de l'application
+- **Configuration minimaliste** — la plupart des cas sont couverts par défaut, sans configuration custom
+- **Rollup en production** — tree-shaking agressif et output optimisé sans configuration supplémentaire
+- **Écosystème Rollup** — des centaines de plugins déjà compatibles
+
+Vite ne remplace pas Webpack dans tous les cas. Les pipelines de build très personnalisés ou les intégrations inhabituelles peuvent encore demander davantage de travail. Mais pour un projet React + TypeScript standard, il est difficile de trouver un meilleur choix par défaut.

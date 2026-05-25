@@ -5,11 +5,15 @@ difficulty: intermediate
 tags: [IA, LLM, API]
 ---
 
+Your first OpenAI API call worked on the first try. You pasted the key into the code, sent a message, got a response — five minutes. On your laptop, everything works.
+
+In production, reality is different: networks are unreliable, rate limits exist, prompts sometimes exceed the context window, and bills can explode if nobody watches. This guide walks through the patterns that make an LLM integration robust, not just functional.
+
 ## Streaming responses
 
-Streaming improves perceived latency because you can render tokens as they arrive instead of waiting for the full answer. In practice, you send `stream: true` and read Server-Sent Events from the `ReadableStream` returned by `fetch`. This is useful for chat UIs, live summaries, or code generation where fast feedback matters.
+The first problem you hit as soon as a UX is involved: the wait. With a standard call, the user stares at a spinner for 5–15 seconds before seeing the response all at once. Streaming fixes this by displaying tokens as they are generated, exactly what ChatGPT does.
 
-Keep the API key on the server side, even if your frontend consumes the stream. The browser should call your backend, and your backend should call the LLM provider. That keeps secrets out of the client and gives you one place to enforce logging, quotas, and moderation.
+To make that work, you send `stream: true` and read Server-Sent Events from the `ReadableStream` returned by `fetch`. Keep the API key server-side — the browser calls your backend, which calls the provider. This protects secrets and centralizes logging and quotas.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -81,11 +85,13 @@ async function streamChatCompletion(prompt: string): Promise<string> {
 await streamChatCompletion('Explain SSE streaming for LLM APIs in 3 bullet points.');
 ```
 
-Key parameters: `model` controls quality and cost, `stream: true` enables incremental delivery, and `temperature` keeps the answer stable. Always handle the case where the stream ends early or returns malformed chunks.
+Key parameters: `model` controls quality and cost, `stream: true` enables incremental delivery, and `temperature` stabilizes the response. Always handle the case where the stream ends early or returns malformed chunks.
 
 ## Error handling
 
-Production integrations fail for normal reasons: slow networks, temporary 429 rate limits, or requests that exceed the model context window. A robust client should use a timeout, classify retryable errors, and retry with exponential backoff. It should also stop retrying on permanent errors such as invalid credentials or an oversized prompt.
+An LLM call that fails on your laptop has no consequences. In production, an unhandled failure means a broken feature for the user. The causes are predictable: unstable network, temporary 429 rate limit, or prompt too large for the context window. A robust client distinguishes them and doesn't treat transient errors the same as permanent ones.
+
+That is why the example below combines a timeout, explicit retry rules, and early failure for requests that will never succeed as-is.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -165,7 +171,9 @@ Log status codes, retry count, and model name, but never log raw secrets or priv
 
 ## Cost management
 
-LLM cost is driven mostly by tokens: input tokens for what you send, output tokens for what the model generates. You should estimate cost before sending expensive prompts, then cap output with `max_tokens` so one bad request does not create a surprise bill. Estimates are approximate, but they are good enough to reject oversized requests early.
+The LLM bill can be surprising. A prototype with a few manual calls costs a few cents. A product that makes LLM calls on every user action can cost thousands of dollars a month if nobody is watching. The two main levers: estimate cost before sending, and cap output with `max_tokens`.
+
+The example below shows the basic discipline: reject expensive requests early, then bound generation before the provider does it for you.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -229,7 +237,9 @@ In real systems, store per-feature budgets, track usage by user or workspace, an
 
 ## Parallel requests
 
-Parallelism is useful for classification, extraction, or batch enrichment. `Promise.all` gives the lowest latency when you have a small batch, but uncontrolled fan-out quickly hits rate limits. A simple concurrency queue is often enough: keep a fixed number of in-flight requests and process the next job only when one finishes.
+Some tasks don't need to wait: classifying a batch of tickets, enriching a product list, extracting entities from multiple documents. Sending these calls in parallel reduces total latency — but uncontrolled fan-out quickly hits rate limits. A fixed-concurrency queue is the right trade-off: you keep several calls in-flight simultaneously without overwhelming the provider.
+
+That is why the example starts with direct parallelism, then adds a queue once control matters more than raw speed.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -305,7 +315,9 @@ This pattern is simple, predictable, and provider-agnostic. Start with low concu
 
 ## Choosing the right model
 
-Model choice is an engineering trade-off, not a branding decision. Small models are ideal for high-volume helpers, while larger models are better for multi-step reasoning, ambiguous instructions, or outputs with a high cost of failure. Benchmark with your own prompts because the “best” model depends on your latency target, quality bar, and budget.
+Model choice is an engineering trade-off, not a brand decision. You make it based on three variables: latency target, quality requirement, and budget. Small models (GPT-4o mini, Claude Haiku) work great for high-volume helpers — classification, rewriting, extraction. Larger models are better for multi-step reasoning, ambiguous instructions, or outputs where the cost of failure is high.
+
+Benchmark with your own prompts, because the “best” model depends on the route you are optimizing, not on a leaderboard headline.
 
 | Model         | Best for                                                    | Typical latency | Cost profile   |
 | ------------- | ----------------------------------------------------------- | --------------- | -------------- |
@@ -314,4 +326,4 @@ Model choice is an engineering trade-off, not a branding decision. Small models 
 | Claude Haiku  | Fast summaries, routing, lightweight enterprise tasks       | Very low        | Low            |
 | Claude Sonnet | Deeper analysis, long-form drafting, complex code help      | Medium          | Medium to high |
 
-A practical default is: start with a mini or Haiku-class model, measure failures, then upgrade only the routes that need better quality. Re-evaluate vendor pricing regularly because latency and cost change faster than most application code.
+Start with the cheapest model that clears the bar, then upgrade only the routes where better reasoning earns its cost.

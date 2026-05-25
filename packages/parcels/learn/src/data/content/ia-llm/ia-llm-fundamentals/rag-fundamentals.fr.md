@@ -9,7 +9,7 @@ tags: [IA, LLM, RAG, embeddings]
 
 Un LLM est puissant, mais il a un angle mort : ses connaissances sont figées au moment de l'entraînement. Il ne connaît pas votre catalogue produit, votre wiki interne, vos procédures support ou le PDF ajouté hier par votre équipe. Si vous lui demandez « quelle est notre politique de remboursement pour les clients enterprise ? », le modèle ne peut que deviner tant que vous ne lui fournissez pas l'information.
 
-C'est exactement l'idée du **Retrieval-Augmented Generation (RAG)** : avant de demander au modèle de répondre, on récupère d'abord les informations pertinentes dans vos propres données, puis on injecte ces informations dans le prompt.
+C'est exactement l'idée du **Retrieval-Augmented Generation (RAG)** : avant de demander au modèle de répondre, on récupère d'abord les informations pertinentes dans vos propres données, puis on injecte ces informations dans le prompt. Autrement dit, on ne rend pas le modèle plus intelligent ; on lui évite surtout de répondre dans le vide.
 
 Une bonne analogie est celle d'un consultant expert. Le consultant est intelligent et sait bien formuler ses réponses, mais il a quand même besoin d'accéder à votre documentation pour répondre à des questions propres à votre entreprise. Le RAG donne cette documentation au modèle au bon moment.
 
@@ -17,11 +17,11 @@ C'est souvent plus adapté qu'un fine-tuning pour des connaissances qui changent
 
 ## Que sont les embeddings ?
 
-Pour retrouver les bons passages, il faut pouvoir comparer le sens d'un texte, pas seulement des mots-clés. C'est le rôle des **embeddings**. Un embedding est une liste de nombres qui représente le sens d'un texte.
+Pour que ce mécanisme fonctionne, il faut maintenant résoudre un problème très concret : comment retrouver les bons passages sans compter uniquement sur des mots-clés exacts ? C'est le rôle des **embeddings**. Un embedding est une liste de nombres qui représente le sens d'un texte.
 
-Imaginez des coordonnées GPS, mais pour le sens au lieu de la géographie. Deux adresses proches sur une carte sont probablement dans le même quartier. Deux embeddings proches dans l'espace vectoriel parlent probablement du même sujet.
+Imaginez des coordonnées GPS, mais pour le sens au lieu de la géographie. Deux adresses proches sur une carte sont probablement dans le même quartier. Deux embeddings proches dans l'espace vectoriel parlent probablement du même sujet. Cette analogie est utile, parce qu'elle rappelle qu'on ne cherche pas une égalité parfaite, mais une proximité.
 
-C'est pour cela qu'une recherche sur « politique de congés » peut retrouver un chunk qui contient « règles de vacances payées », même si les mots exacts ne correspondent pas.
+C'est pour cela qu'une recherche sur « politique de congés » peut retrouver un chunk qui contient « règles de vacances payées », même si les mots exacts ne correspondent pas. Une fois ce modèle mental acquis, l'étape suivante devient naturelle : il faut maintenant mesurer à quel point deux coordonnées de sens sont proches.
 
 La **similarité cosinus** est la mesure la plus courante pour évaluer cette proximité. Pas besoin de retenir la formule : elle indique si deux vecteurs pointent dans une direction sémantique similaire. Une similarité cosinus élevée signifie en pratique « ces textes veulent probablement dire des choses proches ».
 
@@ -45,11 +45,11 @@ const vector = data.data[0].embedding;
 console.log(vector.length);
 ```
 
-En pratique, on stocke ce vecteur à côté du chunk de texte original pour pouvoir le rechercher plus tard.
+En pratique, on stocke ce vecteur à côté du chunk de texte original pour pouvoir le rechercher plus tard. C'est ce pont entre texte et espace vectoriel qui rend la récupération sémantique possible.
 
 ## Le pipeline RAG
 
-Un flux RAG minimal ressemble à ceci :
+Une fois cette brique comprise, le reste du pipeline devient beaucoup plus lisible. Un flux RAG minimal ressemble à ceci :
 
 ```text
 Document -> Chunk -> Embed -> Store
@@ -69,11 +69,13 @@ Chaque étape a un rôle précis :
 - **LLM** — construire un prompt avec la question et le contexte récupéré.
 - **Answer** — générer une réponse fondée sur ce contexte.
 
-L'idée clé est simple : la récupération réduit l'espace de recherche, puis la génération transforme les faits récupérés en réponse utile.
+On peut résumer ce pipeline en trois phases distinctes. D'abord, **l'indexation** prépare la base de connaissance : on découpe les documents, on calcule leurs embeddings et on les stocke. Ensuite, **la récupération** prend une nouvelle question, la projette dans le même espace vectoriel et retrouve les chunks les plus proches. Enfin, **la génération** transforme ces faits récupérés en une réponse utile.
+
+Cette séparation est importante, parce que chaque phase a un rythme et un coût différents. L'indexation coûte cher mais se fait en amont. La récupération doit être rapide au moment de la question. La génération, elle, dépend de la qualité du contexte envoyé. Si vous mélangez tout, vous rendez le système plus difficile à optimiser, à tester et à faire évoluer.
 
 ## Stratégies de chunking
 
-On évite en général d'embedder des documents entiers tels quels. Les gros documents diluent le sens, dépassent les limites de contexte et rendent la recherche moins précise. Le chunking crée des unités plus petites, donc plus faciles à faire correspondre.
+Pourquoi ne pas embedder chaque document en entier, une seule fois, et s'arrêter là ? Parce qu'un document complet dilue le sens, dépasse plus facilement les limites de contexte et rend la récupération moins précise. Le chunking crée des unités plus petites, donc plus faciles à faire correspondre à une vraie question utilisateur.
 
 L'overlap compte aussi. Si une idée traverse la frontière entre deux chunks, un léger chevauchement permet de conserver la continuité.
 
@@ -87,7 +89,7 @@ Un bon point de départ consiste à utiliser un découpage à taille fixe ou bas
 
 ## Implémenter un RAG en TypeScript
 
-L'exemple ci-dessous montre tout le flux : indexer des documents en mémoire, récupérer les chunks les plus proches, puis les envoyer à un LLM. Pour apprendre, un tableau en mémoire suffit. En production, vous remplacerez cela par un stockage persistant.
+Maintenant que le pipeline est clair, le code ci-dessous montre comment ces trois phases s'enchaînent concrètement : indexer des documents en mémoire, récupérer les chunks les plus proches, puis les envoyer à un LLM. Pour apprendre, un tableau en mémoire suffit. En production, vous remplacerez cela par un stockage persistant.
 
 ```typescript
 type IndexedChunk = {
@@ -249,11 +251,11 @@ Remarquez les trois phases distinctes :
 2. **Récupération** — trouver les chunks les plus pertinents pour une nouvelle question.
 3. **Génération** — demander au LLM de répondre uniquement à partir de ces chunks.
 
-Cette séparation est importante : l'indexation coûte cher et se fait en amont, tandis que la récupération et la génération se produisent au moment de la requête.
+Cette séparation est importante : l'indexation coûte cher et se fait en amont, tandis que la récupération et la génération se produisent au moment de la requête. En pratique, c'est aussi ce qui permet d'optimiser, de tester et de faire évoluer chaque phase sans rendre l'ensemble du système opaque.
 
 ## Choisir une base vectorielle
 
-Quand les données ne tiennent plus en mémoire, il faut utiliser une base vectorielle ou une base relationnelle avec support vectoriel.
+Tant que vous apprenez, un tableau en mémoire fait très bien l'affaire. Mais dès que vos données ne tiennent plus confortablement en mémoire — ou que vous avez besoin de persistance entre deux redémarrages — cette approche atteint ses limites. À ce stade, il faut utiliser une base vectorielle ou une base relationnelle avec support vectoriel.
 
 | Option   | Idéal pour                                                              | Hébergement                    | Profil de coût  |
 | -------- | ----------------------------------------------------------------------- | ------------------------------ | --------------- |
@@ -270,4 +272,4 @@ Règle pratique :
 - Regardez **Weaviate** pour des fonctions de retrieval plus avancées.
 - Utilisez **Chroma** pour expérimenter et faire des démos locales.
 
-Le RAG n'a rien de magique. C'est un pipeline : préparer de bons chunks, récupérer le bon contexte, puis demander au modèle de rester ancré dans ce contexte. Si ces trois briques sont solides, vous avez déjà un système minimal utile.
+Le RAG n'est pas magique, mais il devient fiable quand les fondations sont solides : de bons chunks, un bon retrieval et un modèle obligé de répondre à partir de ces preuves. Ces trois briques sont ce qui permet de construire la confiance entre vos données et le modèle.

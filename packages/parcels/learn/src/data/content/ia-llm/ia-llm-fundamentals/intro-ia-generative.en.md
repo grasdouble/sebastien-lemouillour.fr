@@ -5,6 +5,8 @@ difficulty: beginner
 tags: [IA, LLM]
 ---
 
+A developer drafts a support FAQ answer in seconds. A designer generates a quick mockup from a text prompt. The outputs look different, but the underlying idea is the same: software that can generate new content instead of only following fixed rules.
+
 ## What is Generative AI?
 
 Generative AI refers to systems capable of creating original content: text, images, code, audio. What sets them apart from traditional software is that they don't follow predefined rules — they have _learned_ from billions of examples.
@@ -22,9 +24,11 @@ An **LLM** (Large Language Model) is the type of model behind ChatGPT, Claude, o
 - **Temperature** — a slider between precision and creativity. At 0, the model is very predictable; at 1, it is more inventive but less reliable.
 - **Prompt** — the message you send to give the model a task. How you phrase it directly impacts the quality of the response.
 
+Those four ideas explain most of what you observe in practice: why prompts matter, why long conversations get expensive, and why the same question can produce slightly different answers.
+
 ## How to interact with an LLM?
 
-The most direct way is to call a provider's API (OpenAI, Anthropic, Google…). You send a structured message, you receive a text response.
+The most direct way to interact with an LLM is to call a provider's API. You send a structured message, you receive a text response — here's what that looks like:
 
 ```typescript
 const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -56,9 +60,9 @@ Three key parameters to understand:
 
 LLMs are powerful, but they come with important constraints to anticipate:
 
-- **No persistent memory** — each API call starts fresh. The model has no memory of previous exchanges unless you retransmit the context.
-- **Frozen data** — the model only knows what existed at training time. It has no real-time internet access (unless a tool is provided).
-- **Hallucinations** — the model can generate plausible but false information. Always verify critical information before using it.
+- **No persistent memory** — each API call starts from zero, so if your chatbot needs conversation history, you must resend it in every request.
+- **Frozen data** — the model only knows what existed at training time, so it cannot answer about your latest pricing page or yesterday's incident unless you provide that information or attach a tool.
+- **Hallucinations** — the model can generate plausible but false information, which means a confident answer is not enough when the output affects a customer, a payment, or a technical decision.
 
 ## What's next?
 

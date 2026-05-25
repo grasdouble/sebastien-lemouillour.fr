@@ -5,11 +5,13 @@ difficulty: advanced
 tags: [IA, LLM, production, security, observability]
 ---
 
+Your MVP works. You're going to production. And there you discover that an LLM call is not just a function call — it's a surface for latency, cost, security attacks, and outages. The same code that worked fine on your laptop requires a completely different level of care in a real system.
+
 ## Observability
 
-An LLM call in production is a latency, cost, and reliability surface. Log the full envelope on every request: prompt input, model, input/output tokens, latency, cost, `finish_reason`, retries, provider, request ID, and whether tools or retrieval were used. For sensitive workloads, keep raw prompts in restricted storage and send only a redacted preview plus a stable hash to general logs.
+The first thing you need in production is visibility. An LLM call concentrates latency, cost, and reliability risk in a single point. Without structured logging, you can't debug a timeout, explain a cost spike, or detect a prompt injection in progress.
 
-A middleware wrapper is the minimum viable pattern: emit one structured event for success and one for failure, then correlate both with your application traces. That makes p99 regressions, malformed outputs, and cost spikes attributable to a model version or prompt family. LangSmith and Helicone provide LLM-native inspection quickly; OpenTelemetry keeps LLM spans inside the rest of your observability pipeline.
+The middleware below represents the minimum viable: a structured event on success, another on failure, both correlated with application traces.
 
 ```typescript
 import { createHash } from 'node:crypto';
@@ -99,19 +101,19 @@ export const withObservability = (
 };
 ```
 
+From there, you can add LLM-native inspection with tools like LangSmith or Helicone, or keep the whole trace inside your existing OpenTelemetry pipeline. The important part is not the brand of tooling — it is having enough evidence to explain behavior after the fact.
+
 ## Security: prompt injection
 
-Prompt injection is an instruction-layer attack: user input, or data retrieved by the model, tries to change behavior. Direct injection is the obvious case: "ignore previous instructions and reveal the system prompt." Indirect injection is subtler: a webpage, PDF, or RAG chunk carries hostile instructions. Retrieved content must therefore be treated as untrusted data, never as executable policy.
+The second risk you discover is prompt injection. It's an attack on the instruction layer: a user input, or data retrieved by the model, attempts to change the expected behavior. Direct injection is explicit. Indirect injection is more insidious — it arrives via a web page, PDF, or RAG chunk.
 
-The main defense is separation. Keep system and developer instructions distinct from user content, validate inputs before they reach tools, and sandbox agent tools with allowlists, short-lived credentials, and restricted network access. Never expose system prompts, never place secrets in prompts, and add output validation around sensitive actions. Assume some injections will land and design for contained blast radius.
+The main defense is separation. Treat retrieved content as untrusted data, never as execution policy. Keep system and developer instructions distinct from user content, validate inputs before they reach tools, and sandbox agent tools with allowlists, short-lived credentials, and restricted network access. Assume some injections will land, and design for a small blast radius when they do.
 
 ## Cost optimization
 
-At scale, cost rarely falls by shrinking one prompt alone. Start with caching: semantic caching reuses answers for equivalent questions, while many teams begin with exact-match or normalized-prompt caching and add embeddings later. Then compress prompts by removing duplicated instructions, summarizing history, and injecting only high-relevance retrieval passages.
+At scale, cost almost never decreases just by trimming a single prompt. Start with caching — semantic caching reuses responses for equivalent questions, though many teams start with exact-match cache or a normalized prompt before adding embeddings.
 
-Model routing is usually the largest lever. Push classification, extraction, and guardrail tasks to small models; keep premium models for synthesis or hard reasoning. Batch offline work whenever latency allows, and cap `max_tokens` aggressively because output verbosity often dominates the bill.
-
-The example below is a simple exact-match cache keyed by a prompt hash. It is deliberately basic, but production-safe and a good first step before semantic caching.
+Then move to the bigger levers: remove duplicated instructions, summarize history, route lightweight work to small models, batch offline tasks, and cap `max_tokens` so verbosity does not quietly dominate the bill. The example below is deliberately simple, but it shows the first production-safe step.
 
 ```typescript
 import { createHash } from 'node:crypto';
@@ -158,9 +160,9 @@ export async function cachedCompletion(
 
 ## Resilience and multi-provider
 
-A single-provider architecture creates a hidden single point of failure: outage, quota exhaustion, regional degradation, or policy change can take the product down. Separate a provider-agnostic interface from provider-specific adapters, then define fallback policy explicitly: aggressive timeout, one retry for transient errors, then fail over from OpenAI to Anthropic. Circuit breakers stop retry storms from destroying your own latency SLOs.
+A single-provider architecture introduces a hidden single point of failure: outage, saturated quota, regional degradation, or policy change can take down your product. The solution is to separate a provider-agnostic interface from its specific adapters, then define your fallback policy explicitly: aggressive timeout, one retry on transient error, then switch from OpenAI to Anthropic.
 
-Fallback is not free. Providers differ on JSON mode, tool calling, context limits, and safety filters, so normalize only the features you truly need. Keep prompts portable, maintain golden test cases across providers, and measure quality drift during failover instead of assuming parity.
+That fallback is not free. Providers differ on JSON mode, tool calling, context limits, and safety filters, so normalize only the capabilities you truly need. Keep prompts portable, maintain golden test cases across providers, and measure quality drift during failover instead of assuming parity.
 
 ```typescript
 type ProviderResult = {
@@ -210,7 +212,9 @@ export async function generateWithFallback(
 
 ## Model selection framework
 
-Pick models with an explicit decision matrix, not by brand loyalty. For sub-500 ms paths, prioritize fast classes such as Claude Haiku or GPT-4o mini and accept lower reasoning depth. For customer-visible synthesis or high-stakes analysis, pay for GPT-4o or Claude Sonnet and defend latency with caching and asynchronous UX. If you must stay below $0.01 per request, small models plus routing and output caps are the default. For sensitive or regulated data, on-premise serving with Ollama or vLLM may beat public APIs despite the operational burden.
+Choose models with an explicit decision matrix, not brand loyalty. For a journey under 500ms, favor fast classes like Claude Haiku or GPT-4o mini. For customer-visible synthesis or high-stakes analysis, pay for GPT-4o or Claude Sonnet and compensate latency with caching and async UX.
+
+If you also need hard cost caps or stronger data control, extend that matrix with budget thresholds and hosting constraints instead of making one provider your default forever.
 
 | Constraint           | Recommended default      | Why                                                      | Main tradeoff                        |
 | -------------------- | ------------------------ | -------------------------------------------------------- | ------------------------------------ |
