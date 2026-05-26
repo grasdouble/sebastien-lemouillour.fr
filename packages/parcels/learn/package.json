@@ -11,7 +11,8 @@
   "exports": {
     ".": {
       "import": "./dist/learn.mjs"
-    }
+    },
+    "./sitemap.xml": "./dist/sitemap.xml"
   },
   "files": [
     "dist",
