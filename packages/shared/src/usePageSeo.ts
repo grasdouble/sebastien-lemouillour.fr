@@ -35,5 +35,6 @@ export function usePageSeo({ title, description, url, trackPageView = true }: Pa
   useEffect(() => {
     if (!trackPageView) return;
     trackGoogleAnalyticsPageView({ title, url });
-  }, [title, trackPageView, url]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- title is intentionally excluded: it's metadata, not a navigation signal. Only url changes indicate a new page view.
+  }, [trackPageView, url]);
 }
