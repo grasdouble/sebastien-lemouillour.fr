@@ -30,7 +30,7 @@ const MODE_EMOJI: Record<ThemeMode, string> = { light: '☀️', dark: '🌙', a
 
 export function ThemeSelector() {
   const { theme, mode, setTheme, setMode } = useTheme({
-    defaultTheme: 'lufa' as ThemeName,
+    defaultTheme: 'ocean' as ThemeName,
     defaultMode: 'dark',
   });
   const [open, setOpen] = useState(false);
