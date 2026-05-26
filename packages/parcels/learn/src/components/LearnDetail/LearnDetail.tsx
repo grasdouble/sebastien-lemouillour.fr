@@ -40,7 +40,7 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
 
   return (
     <Portal>
-      <div className={styles.overlay} onClick={handleOverlayClick} aria-hidden="true">
+      <div className={styles.overlay} onClick={handleOverlayClick}>
         <div
           ref={modalRef}
           role="dialog"

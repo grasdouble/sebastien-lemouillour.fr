@@ -3,5 +3,9 @@
     "home": "Accueil",
     "experience": "Expérience",
     "learn": "Guides"
+  },
+  "aria": {
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
   }
 }

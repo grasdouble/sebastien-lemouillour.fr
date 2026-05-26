@@ -61,7 +61,7 @@ export function FilterBar({
               radius="full"
               iconLeft="x"
               onClick={() => onSearchChange('')}
-              aria-label="Clear search"
+              aria-label={t('filter.clearSearch')}
             />
           )}
         </Flex>

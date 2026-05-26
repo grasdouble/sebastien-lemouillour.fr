@@ -205,29 +205,37 @@ function App() {
             {catalogs.length > 0 && (
               <div role="tablist" aria-label={t('view.label')} className={styles['view-tabs']}>
                 <Button
+                  id="tab-catalogs"
                   type={activeView === 'catalogs' ? 'solid' : 'ghost'}
                   variant={activeView === 'catalogs' ? 'primary' : 'neutral'}
                   size="sm"
                   onClick={() => setActiveView('catalogs')}
                   role="tab"
                   aria-selected={activeView === 'catalogs'}
+                  aria-controls="tabpanel-view"
                 >
                   {t('view.catalogs')}
                 </Button>
                 <Button
+                  id="tab-guides"
                   type={activeView === 'guides' ? 'solid' : 'ghost'}
                   variant={activeView === 'guides' ? 'primary' : 'neutral'}
                   size="sm"
                   onClick={() => setActiveView('guides')}
                   role="tab"
                   aria-selected={activeView === 'guides'}
+                  aria-controls="tabpanel-view"
                 >
                   {t('view.guides')}
                 </Button>
               </div>
             )}
 
-            <div role="tabpanel">
+            <div
+              id="tabpanel-view"
+              role="tabpanel"
+              aria-labelledby={activeView === 'catalogs' ? 'tab-catalogs' : 'tab-guides'}
+            >
               {activeView === 'catalogs' ? (
                 <Stack direction="vertical" spacing="spacious">
                   {categoryOrder

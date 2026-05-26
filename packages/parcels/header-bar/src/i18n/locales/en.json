@@ -3,5 +3,9 @@
     "home": "Home",
     "experience": "Experience",
     "learn": "Learn"
+  },
+  "aria": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   }
 }

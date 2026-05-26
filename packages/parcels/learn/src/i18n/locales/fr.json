@@ -6,6 +6,7 @@
   "filter": {
     "searchPlaceholder": "Rechercher par titre…",
     "searchLabel": "Rechercher un guide",
+    "clearSearch": "Effacer la recherche",
     "tagsLabel": "Filtrer par tags",
     "difficultyLabel": "Filtrer par difficulté",
     "clearFilters": "Effacer les filtres",

@@ -79,7 +79,7 @@ export function NavBar() {
               size="sm"
               radius="full"
               iconLeft={menuOpen ? 'x' : 'menu'}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-label={menuOpen ? t('aria.closeMenu') : t('aria.openMenu')}
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((v) => !v)}
             />
