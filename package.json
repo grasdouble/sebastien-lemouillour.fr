@@ -34,6 +34,9 @@
     "slm:preview": "pnpm --filter @grasdouble/slm-container run preview & pnpm --filter \"@grasdouble/slm_parcel_*\" run preview",
     "slm:sync:importmaps": "pnpm --filter @grasdouble/slm-container run sync:importmaps",
     "slm--------------------------------------------": "",
+    "sync:agents": "lufa-agents-sync",
+    "sync:agents:local": "lufa-agents-sync --local ../Lufa-Core",
+    "sync-----------------------------": "",
     "tools:generate-outdated-report": "node .github/actions/dependency-update/generateOutdatedReport.js",
     "tools---------------------------------------------": ""
   },
@@ -54,7 +57,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
-    "@grasdouble/lufa_config_agents": "file:../Lufa-Core/packages/config/agents",
+    "@grasdouble/lufa_config_agents": "^1.1.0",
     "@grasdouble/lufa_config_eslint": "^0.1.8",
     "@grasdouble/lufa_config_prettier": "^0.1.5",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
