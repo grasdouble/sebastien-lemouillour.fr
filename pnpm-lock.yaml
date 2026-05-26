@@ -483,6 +483,9 @@ importers:
       '@grasdouble/lufa_design-system-themes':
         specifier: ^1.1.5
         version: 1.1.5
+      '@grasdouble/slm_shared':
+        specifier: workspace:*
+        version: link:../shared
       import-map-overrides:
         specifier: ^6.1.0
         version: 6.1.0
