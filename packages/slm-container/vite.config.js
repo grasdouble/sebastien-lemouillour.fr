@@ -42,7 +42,7 @@ export default defineConfig({
     rolldownOptions: {
       output: {
         format: 'esm',
-        entryFileNames: '[name].js',
+        entryFileNames: '[name].[hash].js',
       },
     },
   },
