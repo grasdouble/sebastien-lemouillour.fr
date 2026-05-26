@@ -2,6 +2,7 @@ const GOOGLE_ANALYTICS_SCRIPT_ID = 'slm-google-analytics';
 const GOOGLE_ANALYTICS_MEASUREMENT_ID_PATTERN = /^G-[A-Za-z0-9]+$/;
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- required for declaration merging, `type` is not valid here
   interface Window {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
@@ -30,11 +31,9 @@ function getMeasurementId() {
 function ensureGoogleAnalyticsRuntime() {
   window.dataLayer ??= [];
 
-  if (!window.gtag) {
-    window.gtag = (...args: unknown[]) => {
-      window.dataLayer?.push(args);
-    };
-  }
+  window.gtag ??= (...args: unknown[]) => {
+    window.dataLayer?.push(args);
+  };
 }
 
 function ensureGoogleAnalyticsScript(measurementId: string) {

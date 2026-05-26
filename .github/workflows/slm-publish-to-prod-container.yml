@@ -30,6 +30,8 @@ jobs:
 
       - name: 🏗️ Build SLM container
         shell: bash
+        env:
+          VITE_GOOGLE_ANALYTICS_ID: ${{ secrets.VITE_GOOGLE_ANALYTICS_ID }}
         run: |
           pnpm all:build
 
