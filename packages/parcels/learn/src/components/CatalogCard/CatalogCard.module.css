@@ -1,0 +1,22 @@
+.catalog-card {
+  composes: clickable-card from '../shared.module.css';
+}
+
+.catalog-card > * {
+  height: 100%;
+}
+
+.catalog-card:hover {
+  transform: translateY(-2px);
+}
+
+.catalog-card:focus-visible {
+  outline: var(--lufa-semantic-ui-border-width-medium) solid var(--lufa-semantic-interactive-focus-ring);
+  outline-offset: var(--lufa-semantic-interactive-focus-ring-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-card:hover {
+    transform: none;
+  }
+}

@@ -1,6 +1,11 @@
 {
   "nav": {
     "home": "Home",
-    "experience": "Experience"
+    "experience": "Experience",
+    "learn": "Learn"
+  },
+  "aria": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   }
 }

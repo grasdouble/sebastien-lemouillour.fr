@@ -42,5 +42,8 @@
   },
   "footer": {
     "built": "Construit avec React, TypeScript & Lufa Design System"
+  },
+  "seo": {
+    "description": "Portfolio de Sébastien Lemouillour — Développeur Frontend passionné par React, TypeScript et l'architecture front-end."
   }
 }

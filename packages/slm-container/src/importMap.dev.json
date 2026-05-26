@@ -2,6 +2,7 @@
   "imports": {
     "@grasdouble/slm_parcel_header-bar": "http://localhost:4100/src/parcel.tsx",
     "@grasdouble/slm_parcel_landing-page": "http://localhost:4101/src/parcel.tsx",
-    "@grasdouble/slm_parcel_professional-experience": "http://localhost:4102/src/parcel.tsx"
+    "@grasdouble/slm_parcel_professional-experience": "http://localhost:4102/src/parcel.tsx",
+    "@grasdouble/slm_parcel_learn": "http://localhost:4103/src/parcel.tsx"
   }
 }

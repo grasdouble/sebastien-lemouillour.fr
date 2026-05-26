@@ -2,6 +2,7 @@ packages:
   - packages/plugins/vite/*
   - packages/cdn/*
   - packages/parcels/*
+  - packages/shared
   - packages/slm-container
 
 hoist: false

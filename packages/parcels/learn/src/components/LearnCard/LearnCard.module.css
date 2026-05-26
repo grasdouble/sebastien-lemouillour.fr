@@ -1,0 +1,22 @@
+.learn-card {
+  composes: clickable-card from '../shared.module.css';
+}
+
+.learn-card > * {
+  height: 100%;
+}
+
+.learn-card:hover {
+  transform: translateY(-2px);
+}
+
+.learn-card:focus-visible {
+  outline: var(--lufa-semantic-ui-border-width-medium) solid var(--lufa-semantic-interactive-focus-ring);
+  outline-offset: var(--lufa-semantic-interactive-focus-ring-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learn-card:hover {
+    transform: none;
+  }
+}

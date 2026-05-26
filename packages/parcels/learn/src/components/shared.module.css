@@ -1,0 +1,19 @@
+/* Shared CSS Module — common patterns reused across components */
+
+.learn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--lufa-semantic-ui-spacing-comfortable);
+}
+
+.clickable-card {
+  cursor: pointer;
+  height: 100%;
+  transition: transform 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clickable-card {
+    transition: none;
+  }
+}

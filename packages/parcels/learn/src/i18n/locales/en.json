@@ -1,0 +1,106 @@
+{
+  "page": {
+    "title": "Learn",
+    "subtitle": "Explore guides on AI, tooling, and development"
+  },
+  "filter": {
+    "searchPlaceholder": "Search by title…",
+    "searchLabel": "Search guides",
+    "clearSearch": "Clear search",
+    "tagsLabel": "Filter by tags",
+    "difficultyLabel": "Filter by difficulty",
+    "clearFilters": "Clear filters",
+    "noResults": "No guides match your filters.",
+    "results": "{{count}} guide",
+    "results_plural": "{{count}} guides"
+  },
+  "detail": {
+    "close": "Close",
+    "backToList": "Back to list"
+  },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  },
+  "items": {
+    "intro-ia-generative": {
+      "title": "Introduction to Generative AI",
+      "description": "Understand generative AI and LLMs: key concepts (tokens, context window, temperature), how transformers work, and an introduction to embeddings and RAG."
+    },
+    "vite-tooling": {
+      "title": "Vite: the modern build tool",
+      "description": "Discover Vite, its advantages over Webpack, and how to configure a React/TypeScript project with env variables and path aliases."
+    },
+    "pnpm-workspaces": {
+      "title": "Monorepo with pnpm workspaces",
+      "description": "Structure and manage a JavaScript/TypeScript monorepo with pnpm workspaces, workspace protocol, changesets and shared scripts."
+    },
+    "react-micro-frontends": {
+      "title": "Micro-frontends with React and single-spa",
+      "description": "Architect an application into independent micro-frontends with single-spa, import maps, React parcels and shared dependencies."
+    },
+    "prompt-engineering": {
+      "title": "Prompt Engineering",
+      "description": "Master prompt engineering with zero-shot, few-shot, chain-of-thought, role prompting, system prompts and structured output."
+    },
+    "llm-api-patterns": {
+      "title": "LLM API Patterns",
+      "description": "Build robust LLM integrations: streaming responses, error handling, rate limiting, cost management and parallel requests."
+    },
+    "rag-fundamentals": {
+      "title": "RAG Fundamentals",
+      "description": "Connect LLMs to your own data with Retrieval-Augmented Generation: embeddings, vector databases, chunking strategies and a full TypeScript pipeline."
+    },
+    "llm-agents": {
+      "title": "LLM Agents",
+      "description": "Design autonomous LLM systems: function calling, the ReAct pattern, agent loops in TypeScript, and production failure modes."
+    },
+    "llm-production": {
+      "title": "LLMs in Production",
+      "description": "Make LLM integrations production-ready: observability, prompt injection defence, cost optimisation, resilience patterns and model selection."
+    }
+  },
+  "view": {
+    "label": "Switch view",
+    "catalogs": "Catalogues",
+    "guides": "Guides"
+  },
+  "aria": {
+    "openItem": "Open guide: {{title}}",
+    "openCatalog": "Open catalog: {{title}}"
+  },
+  "seo": {
+    "description": "Technical guides on AI, tooling and front-end architecture."
+  },
+  "categories": {
+    "ia-llm": "AI & LLM",
+    "tooling": "Tooling",
+    "architecture": "Architecture"
+  },
+  "catalogs": {
+    "sectionTitle": "Catalogues",
+    "sectionSubtitle": "Collections of guides around a common theme",
+    "guideCount": "{{count}} guide",
+    "guideCount_plural": "{{count}} guides",
+    "back": "Back to list",
+    "items": {
+      "ia-llm-fundamentals": {
+        "title": "AI & LLM Fundamentals",
+        "description": "The essentials to understand generative AI: how LLMs work, tokens, context window, and mastering prompt engineering"
+      },
+      "ia-llm-applied": {
+        "title": "Building with LLMs",
+        "description": "Concrete patterns for building with LLM APIs: robust integrations, RAG on your own data, autonomous agents and production deployment"
+      },
+      "tooling-essentials": {
+        "title": "Modern Tooling",
+        "description": "Master the essential tools of a modern JavaScript project: fast builds with Vite and monorepo management with pnpm workspaces"
+      },
+      "frontend-architecture": {
+        "title": "Front-end Architecture",
+        "description": "Design scalable front-end systems using micro-frontend patterns with React and single-spa"
+      }
+    }
+  }
+}

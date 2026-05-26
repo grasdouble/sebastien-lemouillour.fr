@@ -5,12 +5,20 @@ import { Box, Container, Stack, Text } from '@grasdouble/lufa_design-system';
 
 import './i18n';
 
+import { usePageSeo } from '@grasdouble/slm_shared';
+
 import styles from './App.module.css';
 import { ExperienceCard } from './components';
 import { EXPERIENCES } from './data/experiences';
 
 function App() {
   const { t } = useTranslation('professional-experience');
+
+  usePageSeo({
+    title: `${t('page.title')} | sebastien-lemouillour.fr`,
+    description: t('seo.description'),
+    url: 'https://sebastien-lemouillour.fr/experience',
+  });
 
   return (
     <Box id="lufa-professional-experience" className={styles['lufa-professional-experience']}>

@@ -1,6 +1,11 @@
 {
   "nav": {
     "home": "Accueil",
-    "experience": "Expérience"
+    "experience": "Expérience",
+    "learn": "Guides"
+  },
+  "aria": {
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
   }
 }

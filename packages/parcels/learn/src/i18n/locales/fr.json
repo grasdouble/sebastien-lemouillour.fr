@@ -1,0 +1,106 @@
+{
+  "page": {
+    "title": "Guides",
+    "subtitle": "Explorez des guides sur l'IA, le tooling et le développement"
+  },
+  "filter": {
+    "searchPlaceholder": "Rechercher par titre…",
+    "searchLabel": "Rechercher un guide",
+    "clearSearch": "Effacer la recherche",
+    "tagsLabel": "Filtrer par tags",
+    "difficultyLabel": "Filtrer par difficulté",
+    "clearFilters": "Effacer les filtres",
+    "noResults": "Aucun guide ne correspond à vos filtres.",
+    "results": "{{count}} guide",
+    "results_plural": "{{count}} guides"
+  },
+  "detail": {
+    "close": "Fermer",
+    "backToList": "Retour à la liste"
+  },
+  "difficulty": {
+    "beginner": "Débutant",
+    "intermediate": "Intermédiaire",
+    "advanced": "Avancé"
+  },
+  "items": {
+    "intro-ia-generative": {
+      "title": "Introduction à l'IA générative",
+      "description": "Comprendre l'IA générative et les LLMs : concepts clés (tokens, context window, temperature), fonctionnement des transformers et introduction aux embeddings et au RAG."
+    },
+    "vite-tooling": {
+      "title": "Vite : le build tool moderne",
+      "description": "Découvrez Vite, ses avantages par rapport à Webpack et comment configurer un projet React/TypeScript avec des variables d'environnement et des alias de chemins."
+    },
+    "pnpm-workspaces": {
+      "title": "Monorepo avec pnpm workspaces",
+      "description": "Structurer et gérer un monorepo JavaScript/TypeScript avec pnpm workspaces, le protocole workspace, les changesets et les scripts partagés."
+    },
+    "react-micro-frontends": {
+      "title": "Micro-frontends avec React et single-spa",
+      "description": "Architecturer une application en micro-frontends indépendants avec single-spa, des import maps, des parcels React et des dépendances partagées."
+    },
+    "prompt-engineering": {
+      "title": "Prompt Engineering",
+      "description": "Maîtriser le prompt engineering avec le zero-shot, few-shot, chain-of-thought, role prompting, les system prompts et le structured output."
+    },
+    "llm-api-patterns": {
+      "title": "Patterns d'API LLM",
+      "description": "Construire des intégrations LLM robustes : streaming, gestion des erreurs, rate limiting, maîtrise des coûts et requêtes parallèles."
+    },
+    "rag-fundamentals": {
+      "title": "Fondamentaux du RAG",
+      "description": "Connecter un LLM à vos données avec le Retrieval-Augmented Generation : embeddings, bases vectorielles, stratégies de chunking et pipeline TypeScript complet."
+    },
+    "llm-agents": {
+      "title": "Agents LLM",
+      "description": "Concevoir des systèmes LLM autonomes : function calling, pattern ReAct, boucle d'agent en TypeScript et modes d'échec en production."
+    },
+    "llm-production": {
+      "title": "LLMs en production",
+      "description": "Rendre les intégrations LLM production-ready : observabilité, défense contre le prompt injection, optimisation des coûts, résilience et sélection de modèle."
+    }
+  },
+  "view": {
+    "label": "Changer de vue",
+    "catalogs": "Catalogues",
+    "guides": "Guides"
+  },
+  "aria": {
+    "openItem": "Ouvrir le guide : {{title}}",
+    "openCatalog": "Ouvrir le catalogue : {{title}}"
+  },
+  "seo": {
+    "description": "Guides techniques sur l'IA, le tooling et l'architecture front-end."
+  },
+  "categories": {
+    "ia-llm": "IA & LLM",
+    "tooling": "Tooling",
+    "architecture": "Architecture"
+  },
+  "catalogs": {
+    "sectionTitle": "Catalogues",
+    "sectionSubtitle": "Collections de guides autour d'un thème commun",
+    "guideCount": "{{count}} guide",
+    "guideCount_plural": "{{count}} guides",
+    "back": "Retour à la liste",
+    "items": {
+      "ia-llm-fundamentals": {
+        "title": "Fondamentaux IA & LLM",
+        "description": "Les bases pour comprendre l'IA générative : fonctionnement des LLMs, tokens, context window et maîtrise du prompt engineering"
+      },
+      "ia-llm-applied": {
+        "title": "Construire avec les LLMs",
+        "description": "Des patterns concrets pour builder avec les APIs LLM : intégrations robustes, RAG sur vos données, agents autonomes et mise en production"
+      },
+      "tooling-essentials": {
+        "title": "Tooling moderne",
+        "description": "Maîtriser les outils essentiels d'un projet JavaScript moderne : builds rapides avec Vite et gestion de monorepo avec pnpm workspaces"
+      },
+      "frontend-architecture": {
+        "title": "Architecture front-end",
+        "description": "Concevoir des systèmes front-end scalables grâce aux patterns micro-frontend avec React et single-spa"
+      }
+    }
+  }
+}

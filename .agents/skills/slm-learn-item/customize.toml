@@ -1,0 +1,7 @@
+[agent]
+code = "learn-item"
+name = "Learn Item Author"
+title = "Learn Item Author"
+icon = "📝"
+description = "Creates and updates learn guides (markdown EN+FR, i18n keys, data entry) for sebastien-lemouillour.fr."
+agent_type = "stateless"

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Container, Stack, Text } from '@grasdouble/lufa_design-system';
+import { Button, Cluster, Container, Divider, Flex, Text } from '@grasdouble/lufa_design-system';
 
 import { LangSwitcher } from '../LangSwitcher';
 import { ThemeSelector } from '../ThemeSelector';
@@ -15,6 +15,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { href: '/', labelKey: 'nav.home' },
   { href: '/experience', labelKey: 'nav.experience' },
+  { href: '/learn', labelKey: 'nav.learn' },
 ];
 
 export function NavBar() {
@@ -58,32 +59,32 @@ export function NavBar() {
   return (
     <div>
       <Container paddingBlock="compact">
-        <div className={styles['nav-bar']}>
-          <Text as="span" variant="body" weight="bold" color="primary">
-            SL
-          </Text>
+        <Flex justify="between" align="center" gap="default">
+          <div className={styles['nav-left']}>
+            <Text as="span" variant="body" weight="bold" color="primary">
+              SL
+            </Text>
+          </div>
 
-          {/* Desktop nav */}
           <nav className={styles.nav}>{navLinks}</nav>
 
-          {/* Right controls */}
-          <Stack direction="horizontal" spacing="compact" align="center">
+          <Cluster spacing="compact" align="center" className={styles['nav-right']}>
             <ThemeSelector />
-            <span className={styles.separator} />
+            <Divider orientation="vertical" emphasis="subtle" spacing="compact" />
             <LangSwitcher />
-            {/* Hamburger — mobile only */}
-            <button
+            <Button
               className={styles.hamburger}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              type="ghost"
+              variant="neutral"
+              size="sm"
+              radius="full"
+              iconLeft={menuOpen ? 'x' : 'menu'}
+              aria-label={menuOpen ? t('aria.closeMenu') : t('aria.openMenu')}
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((v) => !v)}
-            >
-              <span className={[styles['hamburger-bar'], menuOpen ? styles['bar-top-open'] : ''].join(' ').trim()} />
-              <span className={[styles['hamburger-bar'], menuOpen ? styles['bar-mid-open'] : ''].join(' ').trim()} />
-              <span className={[styles['hamburger-bar'], menuOpen ? styles['bar-bot-open'] : ''].join(' ').trim()} />
-            </button>
-          </Stack>
-        </div>
+            />
+          </Cluster>
+        </Flex>
       </Container>
 
       {/* Mobile menu */}
