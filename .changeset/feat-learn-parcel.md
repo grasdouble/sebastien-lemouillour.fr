@@ -1,16 +1,17 @@
 ---
-'@grasdouble/slm_parcel_learn': minor
+'@grasdouble/slm_parcel_learn': major
 ---
 
-feat: add learn parcel with filterable guides, catalogs, bilingual content (EN/FR), shareable URLs, and dynamic SEO.
+feat: add learn parcel — filterable guides, catalogs, bilingual content, shareable URLs, and dynamic SEO.
 
 - New parcel at `/learn` with guide cards grouped by category and difficulty badges
-- Catalog view to group guides around a common theme
-- Full i18n: metadata, markdown content, categories, aria-labels and SEO description
-- Shareable URLs via `?guide=<id>` and `?catalog=<id>` query params with browser back support
-- Dynamic SEO: updates document.title, meta description and Open Graph tags per guide
+- Catalog view with category grouping and explicit ordering via `order` frontmatter field
+- 9 guides across 2 catalogs: IA/LLM fundamentals and Applied LLMs (API patterns, RAG, agents, production)
+- Guide prose rewritten with human voice, opinions, and narrative transitions (EN + FR)
+- Full i18n: categories, aria-labels, SEO, and markdown content
+- Shareable URLs via `?guide=<id>` and `?catalog=<id>` query params with browser history support
+- Dynamic SEO: document.title, meta description, and Open Graph tags per guide/catalog
 - FilterBar with search, tag multi-select, and difficulty multi-select
-- Detail modal with keyboard navigation (Escape to close) and focus management
-- Dev-time integrity checks (orphan guides, dangling catalog refs, unknown categoryKey)
-- Reorganize content files as `<category>/<catalog>/<guide>.<lang>.md`
-- Auto-discover guides via `import.meta.glob`; metadata (difficulty, tags) declared in markdown frontmatter — adding a guide now only requires creating a file at the right path
+- Detail modal with keyboard navigation (Escape), focus management, and a11y compliance
+- Code quality: i18n fallback chain, frontmatter validation, shared CSS module, error handling
+- chore: upgrade @grasdouble/lufa-design-system to 3.3.0
