@@ -15,6 +15,8 @@ export type GoogleAnalyticsPageView = {
   url?: string;
 };
 
+export type GoogleAnalyticsEventParams = Record<string, unknown>;
+
 function getPageUrl(url?: string) {
   try {
     return url ? new URL(url, window.location.href) : new URL(window.location.href);
@@ -79,5 +81,17 @@ export function trackGoogleAnalyticsPageView({ title, url }: GoogleAnalyticsPage
     page_title: title ?? document.title,
     page_location: pageUrl.toString(),
     page_path: `${pageUrl.pathname}${pageUrl.search}`,
+  });
+}
+
+export function trackGoogleAnalyticsEvent(eventName: string, params?: GoogleAnalyticsEventParams) {
+  if (typeof window === 'undefined') return;
+
+  const measurementId = getMeasurementId();
+  if (!measurementId || !window.gtag) return;
+
+  window.gtag('event', eventName, {
+    send_to: measurementId,
+    ...params,
   });
 }
