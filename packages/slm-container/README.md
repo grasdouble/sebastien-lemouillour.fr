@@ -42,3 +42,33 @@ New microfrontends are registered in the container configuration. Each microfron
 - Loads independently at runtime
 - Shares common dependencies through the container
 - Communicates via custom events or shared state
+
+## Server configuration
+
+The `.htaccess` files below must be configured manually on the servers. They are **not** managed by CI.
+
+### Container hosting
+
+Place a `.htaccess` at the root of the server where the container (`index.html`, JS, CSS) is hosted:
+
+```apache
+# index.html — always revalidated, never served from cache
+<FilesMatch "^index\.html$">
+  Header set Cache-Control "no-cache, must-revalidate"
+</FilesMatch>
+
+# Hashed assets (e.g. index.DDQFmmI_.js, main-ClsXMC0j.js, main-C0tzyRio.css) — permanent cache
+<FilesMatch "[-\.][A-Za-z0-9_-]{6,}\.(js|css)$">
+  Header set Cache-Control "max-age=31536000, immutable"
+</FilesMatch>
+```
+
+### CDN (importMap.json)
+
+Place a `.htaccess` at the root of the CDN server where `importMap.json` is hosted:
+
+```apache
+<FilesMatch "^importMap\.json$">
+  Header set Cache-Control "no-cache, must-revalidate"
+</FilesMatch>
+```
