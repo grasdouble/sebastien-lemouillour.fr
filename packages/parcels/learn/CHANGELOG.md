@@ -1,5 +1,12 @@
 # @grasdouble/slm_parcel_learn
 
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies [ea4f02c]
+  - @grasdouble/slm_shared@0.2.0
+
 ## 1.0.0
 
 ### Major Changes

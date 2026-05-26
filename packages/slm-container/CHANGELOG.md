@@ -1,5 +1,13 @@
 # @grasdouble/slm-container
 
+## 1.1.5
+
+### Patch Changes
+
+- ea4f02c: feat: add optional Google Analytics initialization and shared pageview tracking.
+- Updated dependencies [ea4f02c]
+  - @grasdouble/slm_shared@0.2.0
+
 ## 1.1.4
 
 ### Patch Changes
