@@ -1,6 +1,8 @@
 import type { LifeCycles } from 'single-spa';
 import { registerApplication, start } from 'single-spa';
 
+import { initializeGoogleAnalytics } from '@grasdouble/slm_shared';
+
 import 'import-map-overrides';
 import './i18n';
 import './reset.css';
@@ -16,6 +18,8 @@ import '@grasdouble/lufa_design-system-themes/volt.css';
 import '@grasdouble/lufa_design-system-themes/steampunk.css';
 
 import { hideLoader, loaderPreview, showLoader } from './loader';
+
+initializeGoogleAnalytics(import.meta.env.VITE_GOOGLE_ANALYTICS_ID);
 
 window.addEventListener('single-spa:before-app-change', showLoader);
 window.addEventListener('single-spa:app-change', hideLoader);

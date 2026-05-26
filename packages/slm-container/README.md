@@ -34,6 +34,10 @@ pnpm app:mf:build
 pnpm app:mf:preview
 ```
 
+## Google Analytics
+
+Set `VITE_GOOGLE_ANALYTICS_ID` in the container environment to enable Google Analytics. When configured, the container initializes `gtag.js` once and parcels using `@grasdouble/slm_shared`'s `usePageSeo` hook automatically emit page views.
+
 ## Microfrontend Integration
 
 New microfrontends are registered in the container configuration. Each microfrontend:
