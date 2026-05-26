@@ -50,7 +50,7 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
         >
           <Card>
             <Stack direction="vertical" spacing="none" grow className={styles['modal-stack']}>
-              <Box padding="comfortable">
+              <Box padding="compact">
                 <Flex justify="between" align="start" gap="compact">
                   <Text as="h2" id="learn-detail-title" variant="h3" weight="bold" color="primary">
                     {tutorial.title}
@@ -72,7 +72,7 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
 
               {tutorial.tags.length > 0 && (
                 <>
-                  <Box padding="comfortable">
+                  <Box padding="compact">
                     <Cluster spacing="compact">
                       {tutorial.tags.map((tag) => (
                         <Badge key={tag} variant="info" size="sm">
