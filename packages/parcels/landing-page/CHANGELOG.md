@@ -1,5 +1,12 @@
 # @grasdouble/slm_parcel_landing-page
 
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies [ea4f02c]
+  - @grasdouble/slm_shared@0.2.0
+
 ## 1.2.2
 
 ### Patch Changes
