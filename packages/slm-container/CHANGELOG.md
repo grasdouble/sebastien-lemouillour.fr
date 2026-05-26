@@ -1,5 +1,11 @@
 # @grasdouble/slm-container
 
+## 1.1.3
+
+### Patch Changes
+
+- 6e48fb2: feat: add Open Graph meta tags to index.html, register learn parcel in routing and import maps, and upgrade DS to 3.3.0.
+
 ## 1.1.2
 
 ### Patch Changes
