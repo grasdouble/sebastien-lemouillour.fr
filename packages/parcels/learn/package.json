@@ -12,7 +12,8 @@
     ".": {
       "import": "./dist/learn.mjs"
     },
-    "./sitemap.xml": "./dist/sitemap.xml"
+    "./sitemap.xml": "./dist/sitemap.xml",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",

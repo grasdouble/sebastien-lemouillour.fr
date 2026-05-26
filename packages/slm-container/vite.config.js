@@ -53,10 +53,6 @@ const sitemapGeneratorPlugin = () => ({
       ...PARCEL_ROUTES.map((route) => ({ loc: `${BASE_URL}/${route}/sitemap.xml`, lastmod: today })),
     ];
     this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: buildSitemapIndex(indexEntries) });
-
-    // Emit importMap.json so the PHP sitemap proxy can resolve the CDN URL at runtime.
-    const importMap = readFileSync(resolve(import.meta.dirname, 'src/importMap.json'), 'utf8');
-    this.emitFile({ type: 'asset', fileName: 'importMap.json', source: importMap });
   },
 });
 
