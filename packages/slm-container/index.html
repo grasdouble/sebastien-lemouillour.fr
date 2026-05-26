@@ -42,7 +42,7 @@
           console.error('Failed to load main.js in local import-map mode:', err);
         });
       } else {
-        fetch('https://cdn.sebastien-lemouillour.fr/importMap.json')
+        fetch('https://cdn.sebastien-lemouillour.fr/importMap.json', { cache: 'no-cache' })
           .then((res) => res.json())
           .then((importMap) => {
             const script = document.createElement('script');
