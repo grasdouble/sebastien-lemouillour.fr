@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.3
+
+### Patch Changes
+
+- 6e48fb2: feat: add dynamic SEO (document.title, meta description, Open Graph) with i18n support and upgrade DS to 3.3.0.
+- Updated dependencies [6e48fb2]
+  - @grasdouble/slm_shared@0.1.0
+
 ## 1.0.2
 
 ### Patch Changes

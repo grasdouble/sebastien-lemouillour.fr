@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4
+
+### Patch Changes
+
+- 6e48fb2: feat: add Learn nav entry, rename route tutorials → learn, fix navigation centering, set Ocean as default theme, translate hamburger aria-labels, and upgrade DS to 3.3.0.
+
 ## 1.0.3
 
 ### Patch Changes
