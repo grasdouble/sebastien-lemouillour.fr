@@ -1,6 +1,6 @@
 ---
 id: llm-production
-order: 6
+order: 4
 difficulty: advanced
 tags: [IA, LLM, production, security, observability]
 ---

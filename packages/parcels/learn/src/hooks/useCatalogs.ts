@@ -18,6 +18,7 @@ export function useCatalogs(): UseCatalogsResult {
         id: raw.id,
         categoryKey: raw.categoryKey,
         category: t(`categories.${raw.categoryKey}`),
+        order: raw.order,
         title: t(`catalogs.items.${raw.id}.title`),
         description: t(`catalogs.items.${raw.id}.description`),
         guideIds: raw.guideIds,
@@ -30,6 +31,9 @@ export function useCatalogs(): UseCatalogsResult {
     for (const catalog of catalogs) {
       if (!groups[catalog.category]) groups[catalog.category] = [];
       groups[catalog.category].push(catalog);
+    }
+    for (const group of Object.values(groups)) {
+      group.sort((a, b) => a.order - b.order);
     }
     return groups;
   }, [catalogs]);

@@ -86,7 +86,11 @@
     "items": {
       "ia-llm-fundamentals": {
         "title": "Fondamentaux IA & LLM",
-        "description": "Un parcours progressif des bases de l'IA générative aux systèmes LLM production-ready — prompts, RAG, agents et observabilité"
+        "description": "Les bases pour comprendre l'IA générative : fonctionnement des LLMs, tokens, context window et maîtrise du prompt engineering"
+      },
+      "ia-llm-applied": {
+        "title": "Construire avec les LLMs",
+        "description": "Des patterns concrets pour builder avec les APIs LLM : intégrations robustes, RAG sur vos données, agents autonomes et mise en production"
       },
       "tooling-essentials": {
         "title": "Tooling moderne",

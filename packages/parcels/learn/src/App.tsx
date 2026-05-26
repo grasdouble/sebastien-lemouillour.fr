@@ -163,6 +163,12 @@ function App() {
     });
   }, [tutorials, searchValue, selectedTags, selectedDifficulties]);
 
+  const catalogOrderMap = useMemo<Map<string, number>>(() => {
+    const map = new Map<string, number>();
+    catalogs.forEach((c) => map.set(c.id, c.order));
+    return map;
+  }, [catalogs]);
+
   const groupedGuides = useMemo(() => {
     const groups: Record<string, Tutorial[]> = {};
     for (const guide of filteredGuides) {
@@ -171,12 +177,14 @@ function App() {
     }
     for (const guides of Object.values(groups)) {
       guides.sort((a, b) => {
-        if (a.catalogId !== b.catalogId) return a.catalogId.localeCompare(b.catalogId);
+        const catOrderA = catalogOrderMap.get(a.catalogId) ?? Infinity;
+        const catOrderB = catalogOrderMap.get(b.catalogId) ?? Infinity;
+        if (catOrderA !== catOrderB) return catOrderA - catOrderB;
         return (a.order ?? Infinity) - (b.order ?? Infinity);
       });
     }
     return groups;
-  }, [filteredGuides]);
+  }, [filteredGuides, catalogOrderMap]);
 
   return (
     <Box id="lufa-learn" className={styles['lufa-learn']}>

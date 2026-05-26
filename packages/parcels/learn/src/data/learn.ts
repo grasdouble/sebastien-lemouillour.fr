@@ -3,6 +3,7 @@ export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 export type RawCatalog = {
   id: string;
   categoryKey: string;
+  order: number;
   guideIds: readonly string[];
 };
 
@@ -10,6 +11,7 @@ export type Catalog = {
   id: string;
   categoryKey: string;
   category: string;
+  order: number;
   title: string;
   description: string;
   guideIds: readonly string[];
@@ -40,6 +42,14 @@ export type RawLearnItem = {
 
 // CATEGORY_KEYS controls category display order.
 export const CATEGORY_KEYS: readonly string[] = ['ia-llm', 'tooling', 'architecture'];
+
+// CATALOG_ORDER controls the display order of catalogs within their category.
+export const CATALOG_ORDER: readonly string[] = [
+  'ia-llm-fundamentals',
+  'ia-llm-applied',
+  'tooling-essentials',
+  'frontend-architecture',
+];
 
 export const DIFFICULTIES: readonly Difficulty[] = ['beginner', 'intermediate', 'advanced'];
 
@@ -194,7 +204,8 @@ export const RAW_CATALOGS: readonly RawCatalog[] = [..._catalogMap.entries()].ma
     const orderB = _guideMap.get(b)?.order ?? Infinity;
     return orderA - orderB;
   });
-  return { id, categoryKey: acc.categoryKey, guideIds: sortedGuideIds };
+  const order = CATALOG_ORDER.indexOf(id);
+  return { id, categoryKey: acc.categoryKey, order: order === -1 ? Infinity : order, guideIds: sortedGuideIds };
 });
 
 export const ALL_TAGS: readonly string[] = [...new Set(RAW_LEARN_ITEMS.flatMap((t) => t.tags))].sort();
@@ -206,6 +217,15 @@ if (import.meta.env.DEV) {
     console.warn(
       '[learn] Guides found in unknown category folders (not listed in CATEGORY_KEYS):',
       unknownCategory.map((g) => g.id)
+    );
+  }
+
+  const catalogOrderSet = new Set(CATALOG_ORDER);
+  const unknownCatalogs = RAW_CATALOGS.filter((c) => !catalogOrderSet.has(c.id));
+  if (unknownCatalogs.length > 0) {
+    console.warn(
+      '[learn] Catalogs found that are not listed in CATALOG_ORDER (they will appear last):',
+      unknownCatalogs.map((c) => c.id)
     );
   }
 

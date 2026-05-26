@@ -1,6 +1,6 @@
 ---
 id: rag-fundamentals
-order: 4
+order: 2
 difficulty: intermediate
 tags: [IA, LLM, RAG, embeddings]
 ---

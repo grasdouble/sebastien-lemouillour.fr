@@ -1,6 +1,6 @@
 ---
 id: llm-agents
-order: 5
+order: 3
 difficulty: advanced
 tags: [IA, LLM, agents, function-calling]
 ---

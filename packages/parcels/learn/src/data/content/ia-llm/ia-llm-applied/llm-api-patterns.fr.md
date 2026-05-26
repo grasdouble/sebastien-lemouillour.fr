@@ -1,19 +1,19 @@
 ---
 id: llm-api-patterns
-order: 3
+order: 1
 difficulty: intermediate
 tags: [IA, LLM, API]
 ---
 
-Your first OpenAI API call worked on the first try. You pasted the key into the code, sent a message, got a response (five minutes). On your laptop, everything works.
+Votre premier appel à l'API OpenAI a marché du premier coup. Vous avez collé la clé dans le code, envoyé un message, reçu une réponse (cinq minutes). En local, tout fonctionne.
 
-In production, reality is different: networks are unreliable, rate limits exist, prompts sometimes exceed the context window, and bills can explode if nobody watches. This guide walks through the patterns that make an LLM integration robust, not just functional.
+En production, la réalité est différente : les réseaux sont instables, les rate limits existent, les prompts dépassent parfois la fenêtre de contexte, et les factures peuvent exploser si personne ne surveille. Ce guide parcourt les patterns qui rendent une intégration LLM robuste, pas seulement fonctionnelle.
 
-## Streaming responses
+## Réponses en streaming
 
-The first problem you hit as soon as a UX is involved: the wait. With a standard call, the user stares at a spinner for 5–15 seconds before seeing the response all at once. Streaming fixes this by displaying tokens as they are generated, exactly what ChatGPT does.
+Le premier problème que vous rencontrez dès qu'une UX est impliquée : l'attente. Avec un appel standard, l'utilisateur fixe un spinner pendant 5 à 15 secondes avant de voir la réponse d'un coup. Le streaming résout ça en affichant les tokens au fil de l'eau, dès qu'ils sont générés, exactement ce que fait ChatGPT.
 
-To make that work, you send `stream: true` and read Server-Sent Events from the `ReadableStream` returned by `fetch`. Keep the API key server-side: the browser calls your backend, which calls the provider. This protects secrets and centralizes logging and quotas.
+En pratique, vous envoyez `stream: true` et vous lisez des Server-Sent Events depuis le `ReadableStream` renvoyé par `fetch`. Gardez toujours la clé API côté serveur : le navigateur doit appeler votre backend, qui appelle le fournisseur. Vous protégez ainsi les secrets et vous centralisez la journalisation et les quotas.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -85,13 +85,13 @@ async function streamChatCompletion(prompt: string): Promise<string> {
 await streamChatCompletion('Explain SSE streaming for LLM APIs in 3 bullet points.');
 ```
 
-Key parameters: `model` controls quality and cost, `stream: true` enables incremental delivery, and `temperature` stabilizes the response. Always handle the case where the stream ends early or returns malformed chunks.
+Paramètres clés : `model` pilote la qualité et le coût, `stream: true` active la livraison incrémentale, et `temperature` stabilise la réponse. Prévoyez toujours le cas où le flux s'arrête trop tôt ou renvoie un chunk mal formé.
 
-## Error handling
+## Gestion des erreurs
 
-An LLM call that fails on your laptop has no consequences. In production, an unhandled failure means a broken feature for the user. The causes are predictable: unstable network, temporary 429 rate limit, or prompt too large for the context window. A robust client distinguishes them and doesn't treat transient errors the same as permanent ones.
+Un appel LLM qui échoue sur votre laptop n'a pas de conséquence. En production, un échec non géré signifie une fonctionnalité cassée pour l'utilisateur. Les causes sont prévisibles : réseau instable, rate limit temporaire en 429, ou prompt trop large pour la fenêtre de contexte. Un client robuste les distingue et ne traite pas de la même façon une erreur transitoire et une erreur permanente.
 
-That is why the example below combines a timeout, explicit retry rules, and early failure for requests that will never succeed as-is.
+C'est pourquoi l'exemple ci-dessous combine un timeout, des règles de retry explicites et un échec immédiat pour les requêtes qui n'ont aucune chance de réussir en l'état.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -167,13 +167,13 @@ const answer = await createCompletionWithRetry('Summarize HTTP caching in 5 line
 console.log(answer);
 ```
 
-Log status codes, retry count, and model name, but never log raw secrets or private prompts unless your policy explicitly allows it. If a request repeatedly hits token limits, fix the payload instead of hiding the problem behind more retries.
+Journalisez les codes de statut, le nombre de retries et le modèle utilisé, mais jamais les secrets bruts ni des prompts privés, sauf si votre politique l'autorise explicitement. Si une requête dépasse souvent la limite de tokens, corrigez le payload plutôt que de masquer le problème avec plus de retries.
 
-## Cost management
+## Gestion des coûts
 
-The LLM bill can be surprising. A prototype with a few manual calls costs a few cents. A product that makes LLM calls on every user action can cost thousands of dollars a month if nobody is watching. The two main levers: estimate cost before sending, and cap output with `max_tokens`.
+La facture LLM peut surprendre. Un prototype avec quelques appels manuels coûte quelques centimes. Un produit qui fait des appels LLM sur chaque action utilisateur peut coûter des milliers de dollars par mois si personne ne surveille. Les deux leviers principaux : estimer le coût avant d'envoyer, et plafonner la sortie avec `max_tokens`.
 
-The example below shows the basic discipline: reject expensive requests early, then bound generation before the provider does it for you.
+L'exemple ci-dessous montre la discipline de base : rejeter tôt les requêtes trop coûteuses, puis borner la génération avant que le fournisseur ne le fasse pour vous.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -233,13 +233,13 @@ async function createBudgetedCompletion(prompt: string): Promise<void> {
 await createBudgetedCompletion('Write a concise release note for a caching feature.');
 ```
 
-In real systems, store per-feature budgets, track usage by user or workspace, and prefer shorter prompts over higher `max_tokens`. If you can summarize context before reuse, you usually save more money than by chasing tiny parameter tweaks.
+Dans un vrai produit, définissez des budgets par fonctionnalité, suivez la consommation par utilisateur ou par workspace, et préférez des prompts plus courts à un `max_tokens` trop généreux. Si vous pouvez résumer du contexte avant de le réutiliser, vous économisez souvent plus que par de petits réglages de paramètres.
 
-## Parallel requests
+## Requêtes parallèles
 
-Some tasks don't need to wait: classifying a batch of tickets, enriching a product list, extracting entities from multiple documents. Sending these calls in parallel reduces total latency, but uncontrolled fan-out quickly hits rate limits. A fixed-concurrency queue is the right trade-off: you keep several calls in-flight simultaneously without overwhelming the provider.
+Certaines tâches n'ont pas besoin d'attendre : classifier un batch de tickets, enrichir une liste de produits, extraire des entités de plusieurs documents. Envoyer ces appels en parallèle réduit la latence totale, mais un fan-out non contrôlé heurte vite les rate limits. Une file à concurrence fixe est le bon compromis : vous gardez plusieurs appels en vol simultanément sans saturer le provider.
 
-That is why the example starts with direct parallelism, then adds a queue once control matters more than raw speed.
+C'est pourquoi l'exemple commence par du parallélisme direct, puis ajoute une file dès que le contrôle devient plus important que la vitesse brute.
 
 ```typescript
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -311,19 +311,19 @@ const queuedResults = await runWithConcurrency(prompts, 2, classifyPrompt);
 console.log('Queued:', queuedResults);
 ```
 
-This pattern is simple, predictable, and provider-agnostic. Start with low concurrency, watch 429 rates, then increase only when your telemetry says it is safe.
+Ce pattern est simple, prévisible et agnostique au fournisseur. Commencez avec une faible concurrence, observez les 429 dans votre télémétrie, puis augmentez uniquement quand les mesures montrent que c'est sûr.
 
-## Choosing the right model
+## Choisir le bon modèle
 
-Model choice is an engineering trade-off, not a brand decision. You make it based on three variables: latency target, quality requirement, and budget. Small models (GPT-4o mini, Claude Haiku) work great for high-volume helpers: classification, rewriting, extraction. Larger models are better for multi-step reasoning, ambiguous instructions, or outputs where the cost of failure is high.
+Le choix du modèle est un arbitrage d'ingénierie, pas une décision de marque. Vous le faites en fonction de trois variables : la latence cible, l'exigence qualité, et le budget. Les petits modèles (GPT-4o mini, Claude Haiku) conviennent très bien aux helpers à fort volume : classification, reformulation, extraction. Les plus gros modèles sont meilleurs pour le raisonnement multi-étapes, les consignes ambiguës ou les sorties dont le coût d'erreur est élevé.
 
-Benchmark with your own prompts, because the “best” model depends on the route you are optimizing, not on a leaderboard headline.
+Faites vos benchmarks avec vos propres prompts, car le « meilleur » modèle dépend de la route que vous optimisez, pas d'un slogan de leaderboard.
 
-| Model         | Best for                                                    | Typical latency | Cost profile   |
-| ------------- | ----------------------------------------------------------- | --------------- | -------------- |
-| GPT-4o mini   | Classification, rewriting, extraction, chat UX              | Very low        | Low            |
-| GPT-4o        | Production assistants, multimodal flows, stronger reasoning | Low to medium   | Medium         |
-| Claude Haiku  | Fast summaries, routing, lightweight enterprise tasks       | Very low        | Low            |
-| Claude Sonnet | Deeper analysis, long-form drafting, complex code help      | Medium          | Medium to high |
+| Modèle        | Idéal pour                                                           | Latence typique  | Profil de coût |
+| ------------- | -------------------------------------------------------------------- | ---------------- | -------------- |
+| GPT-4o mini   | Classification, reformulation, extraction, chat UX                   | Très faible      | Faible         |
+| GPT-4o        | Assistants de production, flux multimodaux, raisonnement plus solide | Faible à moyenne | Moyen          |
+| Claude Haiku  | Résumés rapides, routage, tâches métier légères                      | Très faible      | Faible         |
+| Claude Sonnet | Analyse plus profonde, rédaction longue, aide au code complexe       | Moyenne          | Moyen à élevé  |
 
-Start with the cheapest model that clears the bar, then upgrade only the routes where better reasoning earns its cost.
+Commencez avec le modèle le moins cher qui passe la barre, puis ne montez en gamme que sur les routes où un meilleur raisonnement mérite vraiment son coût.
