@@ -27,14 +27,29 @@ const WRITE = process.argv.includes('--write');
 
 /**
  * Candidate node_modules locations, in resolution order.
- * Covers local package, workspace root, and sibling packages (pnpm workspaces).
+ * Covers local package, workspace root, siblings (depth 1), and nested packages
+ * (depth 2, e.g. packages/parcels/learn/node_modules in pnpm workspaces).
  */
+const collectNodeModulesRoots = (dir, depth = 0, acc = []) => {
+  if (depth > 2) return acc;
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return acc;
+  }
+  for (const entry of entries) {
+    if (!entry.isDirectory() || entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+    acc.push(resolve(dir, entry.name, 'node_modules'));
+    collectNodeModulesRoots(resolve(dir, entry.name), depth + 1, acc);
+  }
+  return acc;
+};
+
 const NODE_MODULES_ROOTS = [
   resolve(PKG_ROOT, 'node_modules'),
   resolve(WORKSPACE_ROOT, 'node_modules'),
-  ...readdirSync(resolve(PKG_ROOT, '..'), { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => resolve(PKG_ROOT, '..', d.name, 'node_modules')),
+  ...collectNodeModulesRoots(resolve(PKG_ROOT, '..')),
 ];
 
 const versionCache = new Map();
@@ -101,17 +116,24 @@ const resolveInstalledVersion = (pkgName) => {
 
 /**
  * Parses a CDN URL of the form:
- *   https://cdn.example.com/(@scope/pkg|pkg)@VERSION[/path]
+ *   https://cdn.example.com/(@scope/pkg|pkg)@VERSION[/path][?query]
  *
  * Returns { pkgName, currentVersion, urlPrefix, urlSuffix } or null if the
  * URL does not match the expected pattern (e.g. relative paths).
+ * urlSuffix preserves both the path segment and the query string so that
+ * parameters like `?external=react,react-dom` are not lost on version bumps.
  */
 const parseCdnUrl = (url) => {
-  const match = url.match(/^(https?:\/\/[^/]+\/)(.+?)@([0-9][^/]*)(\/.*)?$/);
+  // Split query string before matching so it is never captured as part of the version.
+  const queryIndex = url.indexOf('?');
+  const querySuffix = queryIndex !== -1 ? url.slice(queryIndex) : '';
+  const urlWithoutQuery = queryIndex !== -1 ? url.slice(0, queryIndex) : url;
+
+  const match = urlWithoutQuery.match(/^(https?:\/\/[^/]+\/)(.+?)@([0-9][^/]*)(\/.*)?$/);
   if (!match) return null;
 
-  const [, base, pkgName, currentVersion, urlSuffix = ''] = match;
-  return { pkgName, currentVersion, urlPrefix: `${base}${pkgName}@`, urlSuffix };
+  const [, base, pkgName, currentVersion, pathSuffix = ''] = match;
+  return { pkgName, currentVersion, urlPrefix: `${base}${pkgName}@`, urlSuffix: `${pathSuffix}${querySuffix}` };
 };
 
 // --- Sync logic ---
