@@ -77,7 +77,7 @@ export default function importMapPlugin({
       // The choice has been made to use standard importmap for the external dependencies like that it will not be possible to override them
       const importMapScripts = [`<script type="importmap">${JSON.stringify(extImportMapContent, null, 2)}</script>`];
 
-      if (isDev || isPreviewBuild) {
+      if (isDev || isPreviewBuild || isProdBuild) {
         importMapScripts.push(
           `<script type="importmap" overridable="true">${JSON.stringify(mergedImportMap, null, 2)}</script>`
         );

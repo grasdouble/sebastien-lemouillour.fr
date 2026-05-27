@@ -5,5 +5,5 @@
     "checkJs": false,
     "noEmit": true
   },
-  "include": ["index.mjs"]
+  "include": ["index.mjs", "vitest.config.ts", "__tests__/**/*.ts"]
 }
