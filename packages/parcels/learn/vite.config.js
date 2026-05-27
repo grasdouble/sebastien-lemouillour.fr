@@ -17,7 +17,7 @@ export default defineConfig({
       devDeps: false,
       optionalDeps: false,
       peerDeps: false,
-      except: ['react-markdown', 'remark-gfm', '@grasdouble/slm_shared', '@tanstack/react-router'],
+      except: ['react-markdown', 'remark-gfm', '@grasdouble/slm_shared'],
       nodeBuiltins: true,
     }),
   ],
