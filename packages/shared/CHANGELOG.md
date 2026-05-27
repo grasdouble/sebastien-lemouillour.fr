@@ -1,5 +1,17 @@
 # @grasdouble/slm_shared
 
+## 1.0.0
+
+### Major Changes
+
+- bd682ee: fix: use traditional function with `arguments` for GA4 gtag polyfill.
+
+  GA4's `gtag.js` checks `Object.prototype.toString.call(entry) === "[object Arguments]"` to identify queued gtag commands in the dataLayer. The previous polyfill used an arrow function with rest params (`...args`), which pushed a real `Array` — silently ignored by GA4, causing no events (page views, custom events) to ever reach Google Analytics.
+
+### Patch Changes
+
+- bd682ee: test: add Vitest configuration and unit tests to all parcels, vite plugins, and the container. Each package uses `mergeConfig(baseConfig, defineConfig({...}))` with local numeric thresholds. `test:coverage` is the quality gate (autoUpdate disabled). `test:coverage:update` refreshes thresholds using the base config formula (floor - 1 buffer).
+
 ## 0.3.0
 
 ### Minor Changes

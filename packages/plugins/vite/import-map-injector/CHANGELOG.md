@@ -1,5 +1,14 @@
 # @grasdouble/slm_plugin_vite_import-map-injector
 
+## 1.0.2
+
+### Patch Changes
+
+- bd682ee: test: add Vitest configuration and unit tests to all parcels, vite plugins, and the container. Each package uses `mergeConfig(baseConfig, defineConfig({...}))` with local numeric thresholds. `test:coverage` is the quality gate (autoUpdate disabled). `test:coverage:update` refreshes thresholds using the base config formula (floor - 1 buffer).
+- bd682ee: fix: production build now correctly injects the overridable import map script.
+
+  test: add Vitest configuration and unit tests for the import map injector plugin.
+
 ## 1.0.1
 
 ### Patch Changes
