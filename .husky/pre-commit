@@ -1,5 +1,9 @@
 #!/usr/bin/env sh
 
+# Sync import maps and stage any version bumps that were applied
+pnpm slm:sync:importmaps
+git add packages/slm-container/src/importMap*.json
+
 # Run lint-staged to process staged files
 # Configuration is in each package's package.json ("lint-staged" field)
 npx lint-staged

@@ -44,7 +44,7 @@ export function buildLearnUrls() {
         .split('T')[0];
 
       urls.push({
-        loc: `${BASE_ROUTE}?catalog=${encodeURIComponent(catalogDir)}`,
+        loc: `${BASE_ROUTE}/${catalogDir}`,
         lastmod: catalogLastmod,
         changefreq: 'monthly',
         priority: '0.7',
@@ -57,7 +57,7 @@ export function buildLearnUrls() {
         if (!guideId) continue;
 
         urls.push({
-          loc: `${BASE_ROUTE}?catalog=${encodeURIComponent(catalogDir)}&guide=${encodeURIComponent(guideId)}`,
+          loc: `${BASE_ROUTE}/${catalogDir}/${guideId}`,
           lastmod: fileDate(filePath),
           changefreq: 'monthly',
           priority: '0.6',

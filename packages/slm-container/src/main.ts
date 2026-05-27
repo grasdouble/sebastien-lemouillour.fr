@@ -30,6 +30,13 @@ const loadApp =
   () =>
     import(/* @vite-ignore */ url);
 
+function buildActiveWhen(parcel: (typeof PARCELS)[number]): (location: Location) => boolean {
+  if ('alwaysActive' in parcel) return () => true;
+  if (parcel.pathPrefix)
+    return (location) => location.pathname === parcel.path || location.pathname.startsWith(`${parcel.path}/`);
+  return (location) => location.pathname === parcel.path;
+}
+
 registerApplication({
   name: '@grasdouble/slm_loader-preview',
   app: () => Promise.resolve(loaderPreview),
@@ -40,7 +47,7 @@ for (const parcel of PARCELS) {
   registerApplication({
     name: `@grasdouble/slm_parcel_${parcel.name}`,
     app: loadApp(`@grasdouble/slm_parcel_${parcel.name}`),
-    activeWhen: 'alwaysActive' in parcel ? () => true : (location: Location) => location.pathname === parcel.path,
+    activeWhen: buildActiveWhen(parcel),
   });
 }
 
