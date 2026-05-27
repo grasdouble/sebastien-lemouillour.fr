@@ -29,14 +29,25 @@ export function HeroCanvas() {
   const [hasMounted, setHasMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
+  // Read the user's motion preference once on mount, then keep it in sync
+  // when the OS setting changes (e.g. user toggles "Reduce Motion").
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // Initial sync: matchMedia is only available client-side, so we read the
+    // current state here instead of during render to avoid SSR/hydration mismatches.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time initial sync, empty deps, no cascade risk
-    setReducedMotion(mq.matches);
+    setReducedMotion(motionMq.matches);
     setHasMounted(true);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+
+    // Keep state in sync when the user changes their OS preference.
+    const motionHandler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    motionMq.addEventListener('change', motionHandler);
+
+    // Remove listener on unmount to avoid memory leaks.
+    return () => {
+      motionMq.removeEventListener('change', motionHandler);
+    };
   }, []);
 
   useEffect(() => {
