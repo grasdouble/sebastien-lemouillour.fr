@@ -3,10 +3,13 @@ import { defineConfig } from 'vite';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 import { externalizeDeps } from 'vite-plugin-externalize-deps';
 
+import sitemapPlugin from '@grasdouble/slm_plugin_vite_sitemap-generator';
+
 export default defineConfig({
   plugins: [
     react(),
     cssInjectedByJsPlugin(),
+    sitemapPlugin({ urls: [{ loc: '/', changefreq: 'monthly', priority: '1.0' }] }),
     externalizeDeps({
       deps: true,
       devDeps: false,

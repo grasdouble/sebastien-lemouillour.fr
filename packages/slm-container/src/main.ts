@@ -18,6 +18,7 @@ import '@grasdouble/lufa_design-system-themes/volt.css';
 import '@grasdouble/lufa_design-system-themes/steampunk.css';
 
 import { hideLoader, loaderPreview, showLoader } from './loader';
+import { PARCELS } from './parcels';
 
 initializeGoogleAnalytics(import.meta.env.VITE_GOOGLE_ANALYTICS_ID);
 
@@ -35,28 +36,12 @@ registerApplication({
   activeWhen: (location: Location) => location.pathname === '/loader',
 });
 
-registerApplication({
-  name: '@grasdouble/slm_parcel_header-bar',
-  app: loadApp('@grasdouble/slm_parcel_header-bar'),
-  activeWhen: () => true,
-});
-
-registerApplication({
-  name: '@grasdouble/slm_parcel_landing-page',
-  app: loadApp('@grasdouble/slm_parcel_landing-page'),
-  activeWhen: (location: Location) => location.pathname === '/',
-});
-
-registerApplication({
-  name: '@grasdouble/slm_parcel_professional-experience',
-  app: loadApp('@grasdouble/slm_parcel_professional-experience'),
-  activeWhen: (location: Location) => location.pathname === '/experience',
-});
-
-registerApplication({
-  name: '@grasdouble/slm_parcel_learn',
-  app: loadApp('@grasdouble/slm_parcel_learn'),
-  activeWhen: (location: Location) => location.pathname === '/learn',
-});
+for (const parcel of PARCELS) {
+  registerApplication({
+    name: `@grasdouble/slm_parcel_${parcel.name}`,
+    app: loadApp(`@grasdouble/slm_parcel_${parcel.name}`),
+    activeWhen: 'alwaysActive' in parcel ? () => true : (location: Location) => location.pathname === parcel.path,
+  });
+}
 
 start();

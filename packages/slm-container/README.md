@@ -56,6 +56,23 @@ The `.htaccess` files below must be configured manually on the servers. They are
 Place a `.htaccess` at the root of the server where the container (`index.html`, JS, CSS) is hosted:
 
 ```apache
+Options -MultiViews
+RewriteEngine On
+
+# Redirect www to non-www
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+# PHP proxy: /<parcel>/sitemap.xml → sitemap-proxy.php
+# sitemap-proxy.php reads CDN importMap.json at runtime to resolve the parcel version,
+# then fetches and proxies the sitemap.xml published by each parcel on the CDN.
+RewriteRule ^([a-z-]+)/sitemap\.xml$ /sitemap-proxy.php?parcel=$1 [L]
+
+# Single-spa: serve index.html for all non-file, non-directory requests
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+
 # index.html — always revalidated, never served from cache
 <FilesMatch "^index\.html$">
   Header set Cache-Control "no-cache, must-revalidate"

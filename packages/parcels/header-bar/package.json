@@ -11,7 +11,9 @@
   "exports": {
     ".": {
       "import": "./dist/header-bar.mjs"
-    }
+    },
+    "./sitemap.xml": "./dist/sitemap.xml",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
@@ -55,6 +57,7 @@
     "@grasdouble/lufa_config_eslint": "^0.1.8",
     "@grasdouble/lufa_config_prettier": "^0.1.5",
     "@grasdouble/lufa_config_tsconfig": "^0.1.4",
+    "@grasdouble/slm_plugin_vite_sitemap-generator": "workspace:*",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",

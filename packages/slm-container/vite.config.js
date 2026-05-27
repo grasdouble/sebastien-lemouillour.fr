@@ -6,8 +6,35 @@ import { externalizeDeps } from 'vite-plugin-externalize-deps';
 import importMapInjectorPlugin from '@grasdouble/slm_plugin_vite_import-map-injector';
 import reactPreamblePlugin from '@grasdouble/slm_plugin_vite_react-preamble';
 
+import { PARCELS } from './src/parcels.ts';
+
 const dsPkgPath = resolve(import.meta.dirname, 'node_modules/@grasdouble/lufa_design-system/package.json');
 const dsVersion = JSON.parse(readFileSync(dsPkgPath, 'utf8')).version;
+
+const BASE_URL = 'https://sebastien-lemouillour.fr';
+
+function buildSitemapIndex(entries) {
+  const toEntry = ({ loc, lastmod }) =>
+    `  <sitemap>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </sitemap>`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map(toEntry).join('\n')}\n</sitemapindex>\n`;
+}
+
+/**
+ * Emits dist/sitemap.xml as a sitemapindex referencing each parcel's sitemap.
+ * Parcel list is shared with main.ts via src/parcels.ts — single source of truth.
+ */
+const sitemapGeneratorPlugin = () => ({
+  name: 'slm-sitemap-generator',
+  generateBundle() {
+    const today = new Date().toISOString().split('T')[0];
+    // Exclude always-active parcels (e.g. header-bar) — they have no public routes.
+    const indexEntries = PARCELS.filter((p) => !('alwaysActive' in p)).map(({ name }) => ({
+      loc: `${BASE_URL}/${name}/sitemap.xml`,
+      lastmod: today,
+    }));
+    this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: buildSitemapIndex(indexEntries) });
+  },
+});
 
 /** Injects %LUFA_DS_VERSION% in index.html so the CDN stylesheet URL always
  *  matches the version installed by pnpm — no manual sync needed. */
@@ -19,6 +46,7 @@ const dsVersionPlugin = () => ({
 export default defineConfig({
   plugins: [
     dsVersionPlugin(),
+    sitemapGeneratorPlugin(),
     importMapInjectorPlugin({
       extImportMap: 'src/importMapExternal.json',
       devImportMap: 'src/importMap.dev.json',
