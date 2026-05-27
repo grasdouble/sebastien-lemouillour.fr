@@ -260,6 +260,16 @@ Run these commands to validate your changes before presenting them to the user. 
 
 ---
 
+## `index.ts` files — Barrels only, never logic
+
+`src/**/index.ts` files are globally excluded from coverage in the shared Vitest config. This means any logic placed in an `index.ts` will be silently invisible to coverage.
+
+- ✅ `index.ts` files must only contain re-export statements (`export { X } from './X'`)
+- ❌ Never put functions, classes, constants, or any runtime logic in an `index.ts`
+- ❌ If you see logic in an `index.ts`, move it to a dedicated file and re-export it
+
+---
+
 ## Design System — Prefer components over custom CSS
 
 Always use Lufa Design System components before writing custom CSS. Use the `lufa-design-system` skill to discover the current list of available components and their props.
