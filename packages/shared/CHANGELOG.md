@@ -1,5 +1,12 @@
 # @grasdouble/slm_shared
 
+## 0.3.0
+
+### Minor Changes
+
+- 76a00fa: feat: expose `trackGoogleAnalyticsEvent` to allow parcels to send custom GA4 events.
+  docs: add README documenting the Google Analytics integration, `usePageSeo` options, and available API.
+
 ## 0.2.0
 
 ### Minor Changes

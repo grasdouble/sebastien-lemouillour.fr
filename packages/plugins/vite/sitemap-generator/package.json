@@ -1,6 +1,6 @@
 {
   "name": "@grasdouble/slm_plugin_vite_sitemap-generator",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": false,
   "description": "Vite plugin that generates a sitemap.xml asset at build time",
   "keywords": [
