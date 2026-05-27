@@ -1,5 +1,4 @@
 packages:
-  - packages/configs/*
   - packages/plugins/vite/*
   - packages/cdn/*
   - packages/parcels/*

@@ -45,36 +45,6 @@ importers:
         specifier: ^3.6.1
         version: 3.6.1
 
-  packages/configs/vitest:
-    devDependencies:
-      '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.9
-        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
-      '@grasdouble/lufa_config_prettier':
-        specifier: ^0.1.5
-        version: 0.1.5(prettier@3.8.3)
-      '@grasdouble/lufa_config_tsconfig':
-        specifier: ^0.1.4
-        version: 0.1.4
-      '@ianvs/prettier-plugin-sort-imports':
-        specifier: ^4.7.1
-        version: 4.7.1(prettier@3.8.3)
-      eslint:
-        specifier: ^10.4.0
-        version: 10.4.0
-      prettier:
-        specifier: ^3.8.3
-        version: 3.8.3
-      sort-package-json:
-        specifier: ^3.6.1
-        version: 3.6.1
-      typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: ^4.1.7
-        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@8.0.14(@types/node@25.9.1)(yaml@2.9.0))
-
   packages/parcels/header-bar:
     dependencies:
       '@grasdouble/lufa_design-system':
@@ -105,9 +75,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
-      '@grasdouble/slm_config_vitest':
-        specifier: workspace:*
-        version: link:../../configs/vitest
+      '@grasdouble/lufa_config_vitest':
+        specifier: ^1.0.1
+        version: 1.0.1(vitest@4.1.7)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -208,9 +178,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
-      '@grasdouble/slm_config_vitest':
-        specifier: workspace:*
-        version: link:../../configs/vitest
+      '@grasdouble/lufa_config_vitest':
+        specifier: ^1.0.1
+        version: 1.0.1(vitest@4.1.7)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -320,9 +290,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
-      '@grasdouble/slm_config_vitest':
-        specifier: workspace:*
-        version: link:../../configs/vitest
+      '@grasdouble/lufa_config_vitest':
+        specifier: ^1.0.1
+        version: 1.0.1(vitest@4.1.7)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -426,9 +396,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
-      '@grasdouble/slm_config_vitest':
-        specifier: workspace:*
-        version: link:../../configs/vitest
+      '@grasdouble/lufa_config_vitest':
+        specifier: ^1.0.1
+        version: 1.0.1(vitest@4.1.7)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -511,9 +481,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
-      '@grasdouble/slm_config_vitest':
-        specifier: workspace:*
-        version: link:../../../configs/vitest
+      '@grasdouble/lufa_config_vitest':
+        specifier: ^1.0.1
+        version: 1.0.1(vitest@4.1.7)
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -551,9 +521,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
-      '@grasdouble/slm_config_vitest':
-        specifier: workspace:*
-        version: link:../../../configs/vitest
+      '@grasdouble/lufa_config_vitest':
+        specifier: ^1.0.1
+        version: 1.0.1(vitest@4.1.7)
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -591,9 +561,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
-      '@grasdouble/slm_config_vitest':
-        specifier: workspace:*
-        version: link:../../../configs/vitest
+      '@grasdouble/lufa_config_vitest':
+        specifier: ^1.0.1
+        version: 1.0.1(vitest@4.1.7)
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -631,9 +601,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
-      '@grasdouble/slm_config_vitest':
-        specifier: workspace:*
-        version: link:../configs/vitest
+      '@grasdouble/lufa_config_vitest':
+        specifier: ^1.0.1
+        version: 1.0.1(vitest@4.1.7)
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -692,9 +662,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
-      '@grasdouble/slm_config_vitest':
-        specifier: workspace:*
-        version: link:../configs/vitest
+      '@grasdouble/lufa_config_vitest':
+        specifier: ^1.0.1
+        version: 1.0.1(vitest@4.1.7)
       '@grasdouble/slm_plugin_vite_import-map-injector':
         specifier: workspace:^
         version: link:../plugins/vite/import-map-injector
@@ -979,6 +949,11 @@ packages:
 
   '@grasdouble/lufa_config_tsconfig@0.1.4':
     resolution: {integrity: sha512-6bcpudkysFj4Ms1d85Ki/gaaN93s+xMV0aLQICVGgj5knWaKwx/K5ann/jnjGTtFjqQ7AsP0Nhn7rFZotFnFlA==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_tsconfig/0.1.4/ef2a174ae547cca28e705db62967533c8dcb4f3a}
+
+  '@grasdouble/lufa_config_vitest@1.0.1':
+    resolution: {integrity: sha512-8uanTHcHOggTP34UdRFl8CCoa4KITIZALHwSEoTZ5PcfcYeqQJktNFIjY28aaCJ8C4MW/+9J99ClFMPqCuF+OA==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_vitest/1.0.1/9e1e64aaec5bd4712fdae9fc282b458b3a542b15}
+    peerDependencies:
+      vitest: ^4.0.0
 
   '@grasdouble/lufa_design-system-themes@1.1.5':
     resolution: {integrity: sha512-ye8QvTWOebrR3VA3O/yvaYgP5usLmZZGcmIVVmy5yCbUNLBpc7sU34PeVvncjJeOn+SONFZRm0bbsCaJyQIH3A==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_design-system-themes/1.1.5/243714db0698bfd2db9a6c1f5370b6fa4b9e0645}
@@ -3739,6 +3714,10 @@ snapshots:
       - supports-color
 
   '@grasdouble/lufa_config_tsconfig@0.1.4': {}
+
+  '@grasdouble/lufa_config_vitest@1.0.1(vitest@4.1.7)':
+    dependencies:
+      vitest: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@8.0.14(@types/node@25.9.1)(yaml@2.9.0))
 
   '@grasdouble/lufa_design-system-themes@1.1.5':
     dependencies:
