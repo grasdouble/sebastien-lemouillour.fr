@@ -91,7 +91,7 @@ export function trackGoogleAnalyticsEvent(eventName: string, params?: GoogleAnal
   if (!measurementId || !window.gtag) return;
 
   window.gtag('event', eventName, {
-    send_to: measurementId,
     ...params,
+    send_to: measurementId,
   });
 }

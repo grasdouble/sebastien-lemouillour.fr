@@ -27,7 +27,11 @@ const sitemapGeneratorPlugin = () => ({
   name: 'slm-sitemap-generator',
   generateBundle() {
     const today = new Date().toISOString().split('T')[0];
-    const indexEntries = PARCELS.map(({ name }) => ({ loc: `${BASE_URL}/${name}/sitemap.xml`, lastmod: today }));
+    // Exclude always-active parcels (e.g. header-bar) — they have no public routes.
+    const indexEntries = PARCELS.filter((p) => !('alwaysActive' in p)).map(({ name }) => ({
+      loc: `${BASE_URL}/${name}/sitemap.xml`,
+      lastmod: today,
+    }));
     this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: buildSitemapIndex(indexEntries) });
   },
 });

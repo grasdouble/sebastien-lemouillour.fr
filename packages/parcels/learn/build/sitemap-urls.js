@@ -33,6 +33,10 @@ export function buildLearnUrls() {
       if (!statSync(catalogPath).isDirectory()) continue;
 
       const catalogFiles = readdirSync(catalogPath).map((f) => resolve(catalogPath, f));
+
+      // Guard: skip empty catalog directories to avoid a 1970-01-01 lastmod from reduce's seed.
+      if (catalogFiles.length === 0) continue;
+
       const catalogLastmod = catalogFiles
         .map((f) => statSync(f).mtime)
         .reduce((latest, mtime) => (mtime > latest ? mtime : latest), new Date(0))
@@ -40,7 +44,7 @@ export function buildLearnUrls() {
         .split('T')[0];
 
       urls.push({
-        loc: `${BASE_ROUTE}?catalog=${catalogDir}`,
+        loc: `${BASE_ROUTE}?catalog=${encodeURIComponent(catalogDir)}`,
         lastmod: catalogLastmod,
         changefreq: 'monthly',
         priority: '0.7',
@@ -53,7 +57,7 @@ export function buildLearnUrls() {
         if (!guideId) continue;
 
         urls.push({
-          loc: `${BASE_ROUTE}?catalog=${catalogDir}&amp;guide=${guideId}`,
+          loc: `${BASE_ROUTE}?catalog=${encodeURIComponent(catalogDir)}&guide=${encodeURIComponent(guideId)}`,
           lastmod: fileDate(filePath),
           changefreq: 'monthly',
           priority: '0.6',

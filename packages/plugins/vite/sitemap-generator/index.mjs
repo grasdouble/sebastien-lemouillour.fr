@@ -14,11 +14,22 @@
  *   Pass an empty array to emit an empty urlset (e.g. for utility parcels).
  */
 
+/** Escapes XML special characters so loc values produce valid XML regardless of URL content. */
+function xmlEscape(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 function buildSitemapXml(entries, baseUrl) {
   const today = new Date().toISOString().split('T')[0];
 
   const toEntry = ({ loc, lastmod, changefreq, priority }) => {
-    const resolvedLoc = baseUrl && loc.startsWith('/') ? `${baseUrl}${loc}` : loc;
+    const rawLoc = baseUrl && loc.startsWith('/') ? `${baseUrl}${loc}` : loc;
+    const resolvedLoc = xmlEscape(rawLoc);
     const safeLastmod = lastmod ?? today;
     const safeChangefreq = changefreq ?? 'monthly';
     const safePriority = priority ?? '0.5';
