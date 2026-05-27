@@ -1,0 +1,61 @@
+{
+  "name": "@grasdouble/slm_plugin_vite_sitemap-generator",
+  "version": "0.0.1",
+  "private": false,
+  "description": "Vite plugin that generates a sitemap.xml asset at build time",
+  "keywords": [
+    "vite",
+    "plugin",
+    "sitemap"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grasdouble/lufa.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "index.mjs",
+  "files": [
+    "index.mjs",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write .",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "lint-staged": {
+    "*.{js,ts,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.ts": [
+      "bash -c 'pnpm typecheck'"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@grasdouble/lufa_config_eslint": "^0.1.8",
+    "@grasdouble/lufa_config_prettier": "^0.1.5",
+    "@grasdouble/lufa_config_tsconfig": "^0.1.4",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "eslint": "^10.4.0",
+    "prettier": "^3.8.3",
+    "sort-package-json": "^3.6.1",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "vite": "^6 || ^7 || ^8"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
+  }
+}

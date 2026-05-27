@@ -1,6 +1,10 @@
 ---
+'@grasdouble/slm_plugin_vite_sitemap-generator': major
 '@grasdouble/slm-container': patch
 '@grasdouble/slm_parcel_learn': patch
+'@grasdouble/slm_parcel_landing-page': patch
+'@grasdouble/slm_parcel_professional-experience': patch
+'@grasdouble/slm_parcel_header-bar': patch
 ---
 
-feat: add sitemap and robots.txt — learn parcel generates dist/sitemap.xml (all learn routes) deployed to CDN; Apache mod_proxy proxies /learn?sitemap to the CDN so the container never needs rebuilding when parcel content changes; container generates sitemap-core.xml (static routes), sitemap.xml (index), robots.txt, and .htaccess with the proxy rule.
+feat: add decoupled sitemap architecture for all parcels — each parcel owns its routes and generates dist/sitemap.xml at build time via the new shared @grasdouble/slm_plugin_vite_sitemap-generator Vite plugin; container emits only a sitemapindex aggregating all parcels; Apache routes /<name>/sitemap.xml to a PHP proxy that reads the CDN importMap.json to resolve versions dynamically; robots.txt added; sitemap-core.xml removed.

@@ -75,6 +75,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
+      '@grasdouble/slm_plugin_vite_sitemap-generator':
+        specifier: workspace:*
+        version: link:../../plugins/vite/sitemap-generator
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -157,6 +160,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
+      '@grasdouble/slm_plugin_vite_sitemap-generator':
+        specifier: workspace:*
+        version: link:../../plugins/vite/sitemap-generator
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -248,6 +254,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
+      '@grasdouble/slm_plugin_vite_sitemap-generator':
+        specifier: workspace:*
+        version: link:../../plugins/vite/sitemap-generator
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -333,6 +342,9 @@ importers:
       '@grasdouble/lufa_config_tsconfig':
         specifier: ^0.1.4
         version: 0.1.4
+      '@grasdouble/slm_plugin_vite_sitemap-generator':
+        specifier: workspace:*
+        version: link:../../plugins/vite/sitemap-generator
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -414,6 +426,37 @@ importers:
         version: 6.0.3
 
   packages/plugins/vite/react-preamble:
+    dependencies:
+      vite:
+        specifier: ^6 || ^7 || ^8
+        version: 8.0.14(yaml@2.9.0)
+    devDependencies:
+      '@grasdouble/lufa_config_eslint':
+        specifier: ^0.1.8
+        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+      '@grasdouble/lufa_config_prettier':
+        specifier: ^0.1.5
+        version: 0.1.5(prettier@3.8.3)
+      '@grasdouble/lufa_config_tsconfig':
+        specifier: ^0.1.4
+        version: 0.1.4
+      '@ianvs/prettier-plugin-sort-imports':
+        specifier: ^4.7.1
+        version: 4.7.1(prettier@3.8.3)
+      eslint:
+        specifier: ^10.4.0
+        version: 10.4.0
+      prettier:
+        specifier: ^3.8.3
+        version: 3.8.3
+      sort-package-json:
+        specifier: ^3.6.1
+        version: 3.6.1
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
+  packages/plugins/vite/sitemap-generator:
     dependencies:
       vite:
         specifier: ^6 || ^7 || ^8
