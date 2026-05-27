@@ -3,7 +3,8 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { Box, Container, Stack, Text } from '@grasdouble/lufa_design-system';
 
-import { getImageUrl } from '../../../getImageUrl';
+import dioramaDesktop from '../../../assets/diorama-desktop.webp?inline';
+import dioramaMobile from '../../../assets/diorama-mobile.webp?inline';
 import sectionStyles from '../section.module.css';
 import { HeroCanvas } from './HeroCanvas';
 import styles from './HeroSection.module.css';
@@ -16,7 +17,15 @@ export function HeroSection() {
       <HeroCanvas />
       <Stack direction="vertical" spacing="spacious" align="center">
         <Stack direction="vertical" spacing="default" align="center">
-          <img src={getImageUrl('diorama')} alt="Diorama" className={styles['hero-logo']} />
+          <img
+            src={dioramaDesktop}
+            srcSet={`${dioramaMobile} 320w, ${dioramaDesktop} 512w`}
+            sizes="(max-width: 639px) 160px, (max-width: 767px) 192px, 256px"
+            alt="Diorama"
+            className={styles['hero-logo']}
+            fetchPriority="high"
+            loading="eager"
+          />
           <Stack direction="vertical" spacing="none" align="center">
             <Text as="h1" variant="h1" weight="bold" align="center" color="primary">
               Sébastien LE MOUILLOUR
