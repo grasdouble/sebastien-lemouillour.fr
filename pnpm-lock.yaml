@@ -18,8 +18,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -48,8 +48,8 @@ importers:
   packages/configs/vitest:
     devDependencies:
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -97,8 +97,8 @@ importers:
         version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
     devDependencies:
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -200,8 +200,8 @@ importers:
         version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
     devDependencies:
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -312,8 +312,8 @@ importers:
         version: 4.0.1
     devDependencies:
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -418,8 +418,8 @@ importers:
         version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
     devDependencies:
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -503,8 +503,8 @@ importers:
         version: 8.0.14(@types/node@25.9.1)(yaml@2.9.0)
     devDependencies:
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -543,8 +543,8 @@ importers:
         version: 8.0.14(@types/node@25.9.1)(yaml@2.9.0)
     devDependencies:
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -583,8 +583,8 @@ importers:
         version: 8.0.14(@types/node@25.9.1)(yaml@2.9.0)
     devDependencies:
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -623,8 +623,8 @@ importers:
         version: 19.2.6
     devDependencies:
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -684,8 +684,8 @@ importers:
         version: 6.0.3
     devDependencies:
       '@grasdouble/lufa_config_eslint':
-        specifier: ^0.1.8
-        version: 0.1.8(eslint@10.4.0)(typescript@6.0.3)
+        specifier: ^0.1.9
+        version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
       '@grasdouble/lufa_config_prettier':
         specifier: ^0.1.5
         version: 0.1.5(prettier@3.8.3)
@@ -967,8 +967,8 @@ packages:
     resolution: {integrity: sha512-7tHBDB0Fhjx/J8RgxdfRAD0dFiuAxDk7FW0gPfCUOT9kEhYorBJWB00sBjr4lrO0w4VI36zZsyvR4OM90cfpqQ==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_agents/1.1.1/7b640cfca92d3b8d719f420c55df44f434b01b76}
     hasBin: true
 
-  '@grasdouble/lufa_config_eslint@0.1.8':
-    resolution: {integrity: sha512-oAS6I+REhtTUKJXzqVjw6Q2oVQd3RDrR0F5lOC4PV5hyo7Vr+hN7A8qOOsf7lIx2szjiKLG36oWDaYJtU8qnDg==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_eslint/0.1.8/6e3137be943457e0a8b64003631f8449a3c1e582}
+  '@grasdouble/lufa_config_eslint@0.1.9':
+    resolution: {integrity: sha512-9cNrK3/ivfBXQrvpCK8dqmBcb6CCCVomdpV6vUCXqUSQC1B2Pa/sTVQBRAmE1BaedalaLxfjYZuz045qKU8nSQ==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_eslint/0.1.9/1d84fe38a50e20f06ad8f657e11ef46adc27d6cf}
     peerDependencies:
       eslint: ^10.0.0
 
@@ -3713,7 +3713,7 @@ snapshots:
 
   '@grasdouble/lufa_config_agents@1.1.1': {}
 
-  '@grasdouble/lufa_config_eslint@0.1.8(eslint@10.4.0)(typescript@6.0.3)':
+  '@grasdouble/lufa_config_eslint@0.1.9(eslint@10.4.0)(typescript@6.0.3)':
     dependencies:
       '@eslint/js': 10.0.1(eslint@10.4.0)
       eslint: 10.4.0
