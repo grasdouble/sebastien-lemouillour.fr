@@ -1,4 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  RouterProvider,
+  useNavigate,
+  useRouterState,
+} from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { Box, Button, Container, Divider, Stack, Text } from '@grasdouble/lufa_design-system';
@@ -18,28 +26,25 @@ import { useLearn } from './hooks/useLearn';
 const SITE_NAME = 'sebastien-lemouillour.fr';
 const BASE_URL = 'https://sebastien-lemouillour.fr/learn';
 
-const GUIDE_PARAM = 'guide';
-const CATALOG_PARAM = 'catalog';
-
-function getGuideIdFromUrl(): string | null {
-  return new URLSearchParams(window.location.search).get(GUIDE_PARAM);
-}
-
-function getCatalogIdFromUrl(): string | null {
-  return new URLSearchParams(window.location.search).get(CATALOG_PARAM);
-}
-
-function App() {
+function AppContent() {
   const { t } = useTranslation('learn');
   const { tutorials, allTags, allDifficulties, categoryOrder } = useLearn();
   const { catalogs, groupedCatalogs } = useCatalogs();
+  const navigate = useNavigate();
+
+  // Read current route params from the matched routes (catalog and guide params may both be present)
+  const routerState = useRouterState();
+  const routeParams = routerState.matches.reduce<Record<string, string>>(
+    (acc, m) => ({ ...acc, ...(m.params as Record<string, string>) }),
+    {}
+  );
+  const activeCatalogId = routeParams.catalogId ?? null;
+  const activeGuideId = routeParams.guideId ?? null;
 
   const [activeView, setActiveView] = useState<'catalogs' | 'guides'>(RAW_CATALOGS.length > 0 ? 'catalogs' : 'guides');
   const [searchValue, setSearchValue] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<Difficulty[]>([]);
-  const [activeGuideId, setActiveGuideId] = useState<string | null>(getGuideIdFromUrl);
-  const [activeCatalogId, setActiveCatalogId] = useState<string | null>(getCatalogIdFromUrl);
 
   const activeGuide = useMemo(
     () => (activeGuideId ? (tutorials.find((t) => t.id === activeGuideId) ?? null) : null),
@@ -58,82 +63,43 @@ function App() {
       .filter((t): t is Tutorial => t !== undefined);
   }, [activeCatalog, tutorials]);
 
-  const seoConfig = activeCatalog
-    ? {
-        title: `${activeCatalog.title} | ${SITE_NAME}`,
-        description: activeCatalog.description,
-        url: `${BASE_URL}?catalog=${activeCatalog.id}`,
-      }
-    : activeGuide
+  const seoConfig =
+    activeCatalog && activeGuide
       ? {
           title: `${activeGuide.title} | ${SITE_NAME}`,
           description: activeGuide.description,
-          url: `${BASE_URL}?guide=${activeGuide.id}`,
+          url: `${BASE_URL}/${activeCatalog.id}/${activeGuide.id}`,
         }
-      : {
-          title: `${t('page.title')} | ${SITE_NAME}`,
-          description: t('seo.description'),
-          url: BASE_URL,
-        };
+      : activeCatalog
+        ? {
+            title: `${activeCatalog.title} | ${SITE_NAME}`,
+            description: activeCatalog.description,
+            url: `${BASE_URL}/${activeCatalog.id}`,
+          }
+        : {
+            title: `${t('page.title')} | ${SITE_NAME}`,
+            description: t('seo.description'),
+            url: BASE_URL,
+          };
 
   usePageSeo(seoConfig);
 
-  const openGuide = useCallback((tutorial: Tutorial) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set(GUIDE_PARAM, tutorial.id);
-    try {
-      history.pushState({ guideId: tutorial.id }, '', url.toString());
-    } catch {
-      // pushState can fail in restricted environments; navigation state still updates
-    }
-    setActiveGuideId(tutorial.id);
-  }, []);
+  // Always navigate to /$catalogId/$guideId so the URL includes full catalog context.
+  const openGuide = (tutorial: Tutorial) => {
+    void navigate({ to: guideRoute.to, params: { catalogId: tutorial.catalogId, guideId: tutorial.id } });
+  };
 
-  const closeGuide = useCallback(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.delete(GUIDE_PARAM);
-    try {
-      history.pushState({}, '', url.toString());
-    } catch {
-      // pushState can fail in restricted environments; navigation state still updates
-    }
-    setActiveGuideId(null);
-  }, []);
+  const closeGuide = () => {
+    void navigate(activeCatalog ? { to: catalogRoute.to, params: { catalogId: activeCatalog.id } } : { to: '/' });
+  };
 
-  const openCatalog = useCallback((catalog: Catalog) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set(CATALOG_PARAM, catalog.id);
-    url.searchParams.delete(GUIDE_PARAM);
-    try {
-      history.pushState({ catalogId: catalog.id }, '', url.toString());
-    } catch {
-      // pushState can fail in restricted environments; navigation state still updates
-    }
-    setActiveCatalogId(catalog.id);
-    setActiveGuideId(null);
-  }, []);
+  const openCatalog = (catalog: Catalog) => {
+    void navigate({ to: catalogRoute.to, params: { catalogId: catalog.id } });
+  };
 
-  const closeCatalog = useCallback(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.delete(CATALOG_PARAM);
-    url.searchParams.delete(GUIDE_PARAM);
-    try {
-      history.pushState({}, '', url.toString());
-    } catch {
-      // pushState can fail in restricted environments; navigation state still updates
-    }
-    setActiveCatalogId(null);
-    setActiveGuideId(null);
-  }, []);
-
-  useEffect(() => {
-    const handlePopState = () => {
-      setActiveCatalogId(getCatalogIdFromUrl());
-      setActiveGuideId(getGuideIdFromUrl());
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  const closeCatalog = () => {
+    void navigate({ to: '/' });
+  };
 
   const handleTagToggle = (tag: string) => {
     setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
@@ -315,6 +281,26 @@ function App() {
       {activeGuide && <LearnDetail tutorial={activeGuide} onClose={closeGuide} />}
     </Box>
   );
+}
+
+// Router definition — AppContent is a function declaration so it's hoisted and available here.
+const rootRoute = createRootRoute({ component: AppContent });
+const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/' });
+const catalogRoute = createRoute({ getParentRoute: () => rootRoute, path: '$catalogId' });
+const guideRoute = createRoute({ getParentRoute: () => catalogRoute, path: '$guideId' });
+
+const routeTree = rootRoute.addChildren([indexRoute, catalogRoute.addChildren([guideRoute])]);
+const router = createRouter({ routeTree, basepath: '/learn' });
+
+declare module '@tanstack/react-router' {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- required by TanStack Router's module augmentation API
+  interface Register {
+    router: typeof router;
+  }
+}
+
+function App() {
+  return <RouterProvider router={router} />;
 }
 
 export default App;
