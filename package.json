@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
-    "@grasdouble/lufa_config_agents": "^1.1.1",
+    "@grasdouble/lufa_config_agents": "^1.1.2",
     "@grasdouble/lufa_config_eslint": "^0.1.9",
     "@grasdouble/lufa_config_prettier": "^0.1.5",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",

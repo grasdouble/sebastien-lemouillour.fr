@@ -5,7 +5,7 @@ These rules apply to every session, including after a compact or checkpoint. Bef
 ---
 
 <!-- BEGIN:AGENTS.shared -->
-<!-- source: @grasdouble/lufa_config_agents@1.1.0 — DO NOT EDIT this block manually, run `pnpm sync:agents` -->
+<!-- source: @grasdouble/lufa_config_agents@1.1.2 — DO NOT EDIT this block manually, run `pnpm sync:agents` -->
 
 # Shared Agent Rules — Grasdouble Ecosystem
 
@@ -77,13 +77,14 @@ Before implementing anything, evaluate the request critically:
 
 ---
 
-## Git — No commits, no destructive operations
+## Git — No commits, no staging, no destructive operations
 
-Never create git commits. Stage changes and present them for the user to review and commit manually. **This rule also applies to any sub-agent or background agent you launch — always instruct sub-agents explicitly to only `git add`, never `git commit`.**
+Never create git commits and never stage files. Leave all git operations to the user. **This rule also applies to any sub-agent or background agent you launch — always instruct sub-agents explicitly to never run `git commit` or `git add`.**
 
-- ✅ `git add <files>`, `git diff`, `git status`, `git log`, `git stash`
+- ✅ `git diff`, `git status`, `git log`, `git stash`
+- ❌ `git add` — never; staging is the user's responsibility
 - ❌ `git commit` — never, even when asked to "save" or "apply" changes
-- ❌ Launching a sub-agent without explicitly telling it "never run git commit, only git add"
+- ❌ Launching a sub-agent without explicitly telling it "never run git commit or git add"
 - ❌ `git rebase` — rewrites history
 - ❌ `git reset --hard` — destroys uncommitted work
 - ❌ `git push --force` / `git push --force-with-lease` — overwrites remote
@@ -193,7 +194,10 @@ When creating a changeset file manually in `.changeset/`, always use a **descrip
 **Content rules:**
 
 - Always check `rtk git diff main --name-only` first to identify **all** changed packages before writing changesets (assumes `main` is the default branch — adjust if different)
-- **Every package with changed files must be covered** — do not skip secondary packages (tests, storybook, docs…); if their files changed, they need a changeset entry
+- **Every package with changed files must be covered** — no exception, including private packages (`"private": true`), tests, storybook, docs…
+  - ✅ All packages with file changes → changeset entry required
+  - ❌ Never skip a package, regardless of its `private` field or purpose
+- **Exception: the root `package.json` of a monorepo** — it is not a workspace package and does not need a changeset entry (changes to it, e.g. root devDependencies, are not tracked by changesets)
 - Use `patch` for fixes/refactors, `minor` for new user-visible features, `major` for breaking changes
 - **Always prefix the description** with a conventional commit type: `feat:`, `fix:`, `chore:`, `refactor:`, `perf:`, `docs:`, `style:`, `test:`
 - **Always verify** the changeset after creation: `rtk pnpm changeset status`
