@@ -1,4 +1,4 @@
-import { debounce, getOpacityScale, getThemeColor } from './utils';
+import { getOpacityScale, getThemeColor } from './utils';
 
 const CONNECTION_THRESHOLD = 130;
 const CONNECTION_THRESHOLD_SQ = CONNECTION_THRESHOLD * CONNECTION_THRESHOLD;
@@ -15,6 +15,7 @@ type Dot = {
 
 export function setupParticleNetwork(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): () => void {
   let animId: number;
+  let resizeTimer: ReturnType<typeof setTimeout>;
   let dots: Dot[] = [];
   let w = 0;
   let h = 0;
@@ -32,9 +33,10 @@ export function setupParticleNetwork(canvas: HTMLCanvasElement, ctx: CanvasRende
     attributeFilter: ['data-theme', 'data-mode'],
   });
 
-  const resize = () => {
-    w = canvas.width = canvas.offsetWidth;
-    h = canvas.height = canvas.offsetHeight;
+  // Accept explicit dimensions to avoid forced layout reflow when called from ResizeObserver
+  const resize = (width: number, height: number) => {
+    w = canvas.width = width;
+    h = canvas.height = height;
     dots.forEach((d) => {
       d.x = Math.min(d.x, w);
       d.y = Math.min(d.y, h);
@@ -42,7 +44,7 @@ export function setupParticleNetwork(canvas: HTMLCanvasElement, ctx: CanvasRende
   };
 
   const init = () => {
-    resize();
+    resize(canvas.offsetWidth, canvas.offsetHeight);
     dots = Array.from({ length: PARTICLE_COUNT }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -102,14 +104,26 @@ export function setupParticleNetwork(canvas: HTMLCanvasElement, ctx: CanvasRende
     animId = requestAnimationFrame(draw);
   };
 
-  init();
-  draw();
+  // Defer the initial layout read to rAF to avoid forced reflow after React's commit phase
+  const initRafId = requestAnimationFrame(() => {
+    init();
+    draw();
+  });
 
-  const ro = new ResizeObserver(debounce(resize, 50));
+  // Use entries[0].contentRect (already computed by the browser) to avoid a second forced layout
+  const ro = new ResizeObserver((entries: ResizeObserverEntry[]) => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const { width, height } = entries[0].contentRect;
+      resize(width, height);
+    }, 50);
+  });
   ro.observe(canvas);
 
   return () => {
+    cancelAnimationFrame(initRafId);
     cancelAnimationFrame(animId);
+    clearTimeout(resizeTimer);
     ro.disconnect();
     themeObserver.disconnect();
     ctx.clearRect(0, 0, w, h);

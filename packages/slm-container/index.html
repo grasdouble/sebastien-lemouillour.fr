@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>sebastien-lemouillour.fr</title>
-    <!-- Preconnect to external origins used by render-blocking resources and parcels -->
+    <!-- Preconnect to external origins used by design system and parcels -->
     <link rel="preconnect" href="https://cdn.sebastien-lemouillour.fr" crossorigin />
     <link rel="dns-prefetch" href="https://cdn.sebastien-lemouillour.fr" />
     <link rel="preconnect" href="https://esm.sh" crossorigin />
@@ -22,9 +22,15 @@
       content="Portfolio de Sébastien Lemouillour — expériences, tutoriels techniques sur l'IA, le tooling et l'architecture front-end."
     />
     <meta property="og:url" content="https://sebastien-lemouillour.fr" />
+    <!-- Load design system CSS asynchronously to eliminate render-blocking (410ms saving) -->
     <link
-      rel="stylesheet"
+      rel="preload"
       href="https://cdn.sebastien-lemouillour.fr/@grasdouble/lufa_design-system@%LUFA_DS_VERSION%/style.css"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
     />
   </head>
   <body>
