@@ -2,9 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { Cluster } from '@grasdouble/lufa_design-system';
 
-import { setupFloatingTokens } from './animations/floatingTokens';
-import { setupMatrixRain } from './animations/matrixRain';
-import { setupParticleNetwork } from './animations/particleNetwork';
 import styles from './HeroCanvas.module.css';
 
 type AnimationType = 'tokens' | 'network' | 'matrix';
@@ -13,13 +10,12 @@ type AnimationConfig = {
   id: AnimationType;
   label: string;
   title: string;
-  setup: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => () => void;
 };
 
 const ANIMATIONS: AnimationConfig[] = [
-  { id: 'tokens', label: '</>', title: 'Tokens flottants', setup: setupFloatingTokens },
-  { id: 'network', label: '◎', title: 'Réseau de particules', setup: setupParticleNetwork },
-  { id: 'matrix', label: '▓', title: 'Matrix', setup: setupMatrixRain },
+  { id: 'tokens', label: '</>', title: 'Tokens flottants' },
+  { id: 'network', label: '◎', title: 'Réseau de particules' },
+  { id: 'matrix', label: '▓', title: 'Matrix' },
 ];
 
 export function HeroCanvas() {
@@ -69,10 +65,36 @@ export function HeroCanvas() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const config = ANIMATIONS.find((a) => a.id === active);
-    if (!config) return;
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
 
-    return config.setup(canvas, ctx);
+    const loadAndStart = async () => {
+      let setup: (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => () => void;
+
+      switch (active) {
+        case 'tokens':
+          setup = (await import('./animations/floatingTokens')).setupFloatingTokens;
+          break;
+        case 'network':
+          setup = (await import('./animations/particleNetwork')).setupParticleNetwork;
+          break;
+        case 'matrix':
+          setup = (await import('./animations/matrixRain')).setupMatrixRain;
+          break;
+        default:
+          return;
+      }
+
+      if (cancelled) return;
+      cleanup = setup(canvas, ctx);
+    };
+
+    void loadAndStart();
+
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
   }, [active, reducedMotion, isVisible, hasMounted]);
 
   if (!hasMounted || reducedMotion) return null;
