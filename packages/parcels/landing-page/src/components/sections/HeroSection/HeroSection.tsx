@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Box, Container, Stack, Text } from '@grasdouble/lufa_design-system';
@@ -11,10 +11,20 @@ import styles from './HeroSection.module.css';
 
 export function HeroSection() {
   const { t } = useTranslation('landing-page');
+  const [showCanvas, setShowCanvas] = useState(false);
+
+  useEffect(() => {
+    if ('requestIdleCallback' in window) {
+      const id = requestIdleCallback(() => setShowCanvas(true));
+      return () => cancelIdleCallback(id);
+    }
+    const id = setTimeout(() => setShowCanvas(true), 200);
+    return () => clearTimeout(id);
+  }, []);
 
   return (
     <Box id="hero" as="section" className={styles['section-hero']}>
-      <HeroCanvas />
+      {showCanvas && <HeroCanvas />}
       <Stack direction="vertical" spacing="spacious" align="center">
         <Stack direction="vertical" spacing="default" align="center">
           <img
