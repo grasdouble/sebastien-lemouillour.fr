@@ -49,6 +49,7 @@ export const CATALOG_ORDER: readonly string[] = [
   'ia-llm-applied',
   'tooling-essentials',
   'frontend-architecture',
+  'copilot-with-ai-agents',
 ];
 
 export const DIFFICULTIES: readonly Difficulty[] = ['beginner', 'intermediate', 'advanced'];

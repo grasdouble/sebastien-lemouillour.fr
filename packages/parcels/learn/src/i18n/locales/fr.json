@@ -59,6 +59,30 @@
     "llm-production": {
       "title": "LLMs en production",
       "description": "Rendre les intégrations LLM production-ready : observabilité, défense contre le prompt injection, optimisation des coûts, résilience et sélection de modèle."
+    },
+    "copilot-intro": {
+      "title": "Prendre en main GitHub Copilot",
+      "description": "Comprendre les différents modes de GitHub Copilot (inline, chat, agent), comment il s'intègre dans votre workflow et pourquoi il change fondamentalement la façon de coder."
+    },
+    "copilot-agents-md-setup": {
+      "title": "Configurer AGENTS.md",
+      "description": "Comprendre le rôle de AGENTS.md, mettre en place le lien symbolique vers .github/copilot-instructions.md et structurer le fichier pour donner le bon contexte à Copilot."
+    },
+    "copilot-agents-md-best-practices": {
+      "title": "Bonnes pratiques pour AGENTS.md",
+      "description": "Écrire des règles actionnables avec des exemples ✅/❌, structurer les sections, doser le niveau de détail et éviter les règles vagues qui ne changent rien au comportement de l'agent."
+    },
+    "copilot-skills": {
+      "title": "Créer et utiliser des Skills",
+      "description": "Comprendre ce qu'est un Skill Copilot, comment en créer un, quand les skills sont plus adaptés qu'une instruction dans AGENTS.md, et comment les organiser dans le projet."
+    },
+    "copilot-mcp": {
+      "title": "Les MCP (Model Context Protocol)",
+      "description": "Découvrir le Model Context Protocol : principe, cas d'usage concrets, configuration dans Copilot et différence avec les skills pour choisir le bon outil."
+    },
+    "copilot-custom-agents": {
+      "title": "Les Custom Agents",
+      "description": "Concevoir et créer des Custom Agents : quand un agent dédié est plus adapté qu'une instruction dans AGENTS.md, structure d'un agent et exemples concrets."
     }
   },
   "view": {
@@ -100,6 +124,10 @@
       "frontend-architecture": {
         "title": "Architecture front-end",
         "description": "Concevoir des systèmes front-end scalables grâce aux patterns micro-frontend avec React et single-spa"
+      },
+      "copilot-with-ai-agents": {
+        "title": "Développer avec Copilot & AI Agents",
+        "description": "Configurer GitHub Copilot efficacement, maîtriser AGENTS.md, créer des skills et des custom agents, et tirer parti des MCP pour automatiser son workflow de développement"
       }
     }
   }
