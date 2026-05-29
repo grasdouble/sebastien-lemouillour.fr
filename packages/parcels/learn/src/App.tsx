@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   createRootRoute,
   createRoute,
@@ -42,6 +42,27 @@ function AppContent() {
   const activeGuideId = routeParams.guideId ?? null;
 
   const [activeView, setActiveView] = useState<'catalogs' | 'guides'>(RAW_CATALOGS.length > 0 ? 'catalogs' : 'guides');
+  const tabRefs = useRef<Record<string, HTMLElement | null>>({});
+  const VIEWS = useMemo<('catalogs' | 'guides')[]>(
+    () => (catalogs.length > 0 ? ['catalogs', 'guides'] : ['guides']),
+    [catalogs.length]
+  );
+
+  const handleTabKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const currentIndex = VIEWS.indexOf(activeView);
+      if (e.key === 'ArrowRight') {
+        const next = VIEWS[(currentIndex + 1) % VIEWS.length];
+        setActiveView(next);
+        tabRefs.current[next]?.focus();
+      } else if (e.key === 'ArrowLeft') {
+        const prev = VIEWS[(currentIndex - 1 + VIEWS.length) % VIEWS.length];
+        setActiveView(prev);
+        tabRefs.current[prev]?.focus();
+      }
+    },
+    [activeView, VIEWS]
+  );
   const [searchValue, setSearchValue] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<Difficulty[]>([]);
@@ -169,9 +190,17 @@ function AppContent() {
             </Stack>
 
             {catalogs.length > 0 && (
-              <div role="tablist" aria-label={t('view.label')} className={styles['view-tabs']}>
+              <div
+                role="tablist"
+                aria-label={t('view.label')}
+                className={styles['view-tabs']}
+                onKeyDown={handleTabKeyDown}
+              >
                 <Button
                   id="tab-catalogs"
+                  ref={(el) => {
+                    tabRefs.current.catalogs = el;
+                  }}
                   type={activeView === 'catalogs' ? 'solid' : 'ghost'}
                   variant={activeView === 'catalogs' ? 'primary' : 'neutral'}
                   size="sm"
@@ -179,11 +208,15 @@ function AppContent() {
                   role="tab"
                   aria-selected={activeView === 'catalogs'}
                   aria-controls="tabpanel-view"
+                  tabIndex={activeView === 'catalogs' ? 0 : -1}
                 >
                   {t('view.catalogs')}
                 </Button>
                 <Button
                   id="tab-guides"
+                  ref={(el) => {
+                    tabRefs.current.guides = el;
+                  }}
                   type={activeView === 'guides' ? 'solid' : 'ghost'}
                   variant={activeView === 'guides' ? 'primary' : 'neutral'}
                   size="sm"
@@ -191,6 +224,7 @@ function AppContent() {
                   role="tab"
                   aria-selected={activeView === 'guides'}
                   aria-controls="tabpanel-view"
+                  tabIndex={activeView === 'guides' ? 0 : -1}
                 >
                   {t('view.guides')}
                 </Button>

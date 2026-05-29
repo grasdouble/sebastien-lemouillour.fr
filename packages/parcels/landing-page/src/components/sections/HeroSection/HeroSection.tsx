@@ -31,7 +31,8 @@ export function HeroSection() {
             src={dioramaDesktop}
             srcSet={`${dioramaMobile} 320w, ${dioramaDesktop} 512w`}
             sizes="(max-width: 639px) 160px, (max-width: 767px) 192px, 256px"
-            alt="Diorama"
+            alt=""
+            aria-hidden="true"
             className={styles['hero-logo']}
             fetchPriority="high"
             loading="eager"

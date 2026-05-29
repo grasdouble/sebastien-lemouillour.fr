@@ -15,8 +15,8 @@ importers:
         specifier: ^2.31.0
         version: 2.31.0(@types/node@25.9.1)
       '@grasdouble/lufa_config_agents':
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.1.3
+        version: 1.1.3
       '@grasdouble/lufa_config_eslint':
         specifier: ^0.1.9
         version: 0.1.9(eslint@10.4.0)(typescript@6.0.3)
@@ -76,8 +76,8 @@ importers:
         specifier: ^0.1.4
         version: 0.1.4
       '@grasdouble/lufa_config_vitest':
-        specifier: ^1.0.1
-        version: 1.0.1(vitest@4.1.7)
+        specifier: ^1.0.2
+        version: 1.0.2(vitest@4.1.7)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -179,8 +179,8 @@ importers:
         specifier: ^0.1.4
         version: 0.1.4
       '@grasdouble/lufa_config_vitest':
-        specifier: ^1.0.1
-        version: 1.0.1(vitest@4.1.7)
+        specifier: ^1.0.2
+        version: 1.0.2(vitest@4.1.7)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -294,8 +294,8 @@ importers:
         specifier: ^0.1.4
         version: 0.1.4
       '@grasdouble/lufa_config_vitest':
-        specifier: ^1.0.1
-        version: 1.0.1(vitest@4.1.7)
+        specifier: ^1.0.2
+        version: 1.0.2(vitest@4.1.7)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -400,8 +400,8 @@ importers:
         specifier: ^0.1.4
         version: 0.1.4
       '@grasdouble/lufa_config_vitest':
-        specifier: ^1.0.1
-        version: 1.0.1(vitest@4.1.7)
+        specifier: ^1.0.2
+        version: 1.0.2(vitest@4.1.7)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -485,8 +485,8 @@ importers:
         specifier: ^0.1.4
         version: 0.1.4
       '@grasdouble/lufa_config_vitest':
-        specifier: ^1.0.1
-        version: 1.0.1(vitest@4.1.7)
+        specifier: ^1.0.2
+        version: 1.0.2(vitest@4.1.7)
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -525,8 +525,8 @@ importers:
         specifier: ^0.1.4
         version: 0.1.4
       '@grasdouble/lufa_config_vitest':
-        specifier: ^1.0.1
-        version: 1.0.1(vitest@4.1.7)
+        specifier: ^1.0.2
+        version: 1.0.2(vitest@4.1.7)
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -565,8 +565,8 @@ importers:
         specifier: ^0.1.4
         version: 0.1.4
       '@grasdouble/lufa_config_vitest':
-        specifier: ^1.0.1
-        version: 1.0.1(vitest@4.1.7)
+        specifier: ^1.0.2
+        version: 1.0.2(vitest@4.1.7)
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -605,8 +605,8 @@ importers:
         specifier: ^0.1.4
         version: 0.1.4
       '@grasdouble/lufa_config_vitest':
-        specifier: ^1.0.1
-        version: 1.0.1(vitest@4.1.7)
+        specifier: ^1.0.2
+        version: 1.0.2(vitest@4.1.7)
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
@@ -666,8 +666,8 @@ importers:
         specifier: ^0.1.4
         version: 0.1.4
       '@grasdouble/lufa_config_vitest':
-        specifier: ^1.0.1
-        version: 1.0.1(vitest@4.1.7)
+        specifier: ^1.0.2
+        version: 1.0.2(vitest@4.1.7)
       '@grasdouble/slm_plugin_vite_import-map-injector':
         specifier: workspace:^
         version: link:../plugins/vite/import-map-injector
@@ -936,8 +936,8 @@ packages:
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
 
-  '@grasdouble/lufa_config_agents@1.1.2':
-    resolution: {integrity: sha512-3bvkZYs7mu2ujIwioD6/Qqm8zngIFQQpgU3e8aYDn75b+U2U1I2TfJPa5BDkOTEBMU+BXA8V7QxRGybI+VBzCA==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_agents/1.1.2/9ad550e6db1cc5888588dbf88104b7b08a9c4c99}
+  '@grasdouble/lufa_config_agents@1.1.3':
+    resolution: {integrity: sha512-hZXJY0iB9oN/NKHhO24sDMghM9XgsO6bJqsCOOXI4ehm2tz8Zw6XDLzD2X+MpAFWgWJjIqplcaeLbz3TkUWOzQ==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_agents/1.1.3/6445414cb9f020b15f52f1b2fdab19fce4e2ed7b}
     hasBin: true
 
   '@grasdouble/lufa_config_eslint@0.1.9':
@@ -953,8 +953,8 @@ packages:
   '@grasdouble/lufa_config_tsconfig@0.1.4':
     resolution: {integrity: sha512-6bcpudkysFj4Ms1d85Ki/gaaN93s+xMV0aLQICVGgj5knWaKwx/K5ann/jnjGTtFjqQ7AsP0Nhn7rFZotFnFlA==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_tsconfig/0.1.4/ef2a174ae547cca28e705db62967533c8dcb4f3a}
 
-  '@grasdouble/lufa_config_vitest@1.0.1':
-    resolution: {integrity: sha512-8uanTHcHOggTP34UdRFl8CCoa4KITIZALHwSEoTZ5PcfcYeqQJktNFIjY28aaCJ8C4MW/+9J99ClFMPqCuF+OA==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_vitest/1.0.1/9e1e64aaec5bd4712fdae9fc282b458b3a542b15}
+  '@grasdouble/lufa_config_vitest@1.0.2':
+    resolution: {integrity: sha512-ZmQyctMS6Qo18zyHA3PxfuvAbOuY7yA7psvFsS+W8ATNrVG2kmGEUSahv0cB7yw3zKA0/ZKrUyHqptGrsVVVBQ==, tarball: https://npm.pkg.github.com/download/@grasdouble/lufa_config_vitest/1.0.2/73386453f449089fb2dccb6a193745411b7bea07}
     peerDependencies:
       vitest: ^4.0.0
 
@@ -3730,7 +3730,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
-  '@grasdouble/lufa_config_agents@1.1.2': {}
+  '@grasdouble/lufa_config_agents@1.1.3': {}
 
   '@grasdouble/lufa_config_eslint@0.1.9(eslint@10.4.0)(typescript@6.0.3)':
     dependencies:
@@ -3759,7 +3759,7 @@ snapshots:
 
   '@grasdouble/lufa_config_tsconfig@0.1.4': {}
 
-  '@grasdouble/lufa_config_vitest@1.0.1(vitest@4.1.7)':
+  '@grasdouble/lufa_config_vitest@1.0.2(vitest@4.1.7)':
     dependencies:
       vitest: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@20.9.0)(vite@8.0.14(@types/node@25.9.1)(yaml@2.9.0))
 

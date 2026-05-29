@@ -5,16 +5,16 @@ description: |
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
-  deployments: write
+permissions: {}
 
 jobs:
   deploy:
     name: Deploy to production
     runs-on: ubuntu-latest
     environment: 'MF_Container'
-
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v6

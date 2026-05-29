@@ -49,7 +49,7 @@ export function ProjectsSection() {
                       variant={variant}
                       size="sm"
                       iconRight="external-link"
-                      aria-label={label === 'GitHub' ? `View ${title} on GitHub` : label}
+                      aria-label={label === 'GitHub' ? t('projects.viewOnGithub', { title }) : label}
                     >
                       {label}
                     </Button>

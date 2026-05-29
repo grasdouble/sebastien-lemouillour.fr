@@ -41,12 +41,13 @@ describe('HeroSection', () => {
     expect(screen.getByText('about.p3')).toBeTruthy();
   });
 
-  it('renders the diorama image with alt text', async () => {
+  it('renders the diorama image as decorative (aria-hidden)', async () => {
     const { HeroSection } = await import('../components/sections/HeroSection/HeroSection');
     render(<HeroSection />);
 
-    const img = screen.getByRole('img', { name: 'Diorama' });
+    // Image is decorative — hidden from accessibility tree, no accessible name
+    const img = document.querySelector<HTMLImageElement>('img[aria-hidden="true"]');
     expect(img).toBeTruthy();
-    expect((img as HTMLImageElement).src).toContain('diorama');
+    expect(img!.alt).toBe('');
   });
 });

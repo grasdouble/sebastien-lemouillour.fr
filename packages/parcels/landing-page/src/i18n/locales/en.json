@@ -15,6 +15,7 @@
   "projects": {
     "title": "Projects",
     "archived": "Archived",
+    "viewOnGithub": "View {{title}} on GitHub",
     "sebastien-lemouillour-fr": "The source code of this personal website — built with React and the Lufa Design System.",
     "lufa-design-system": "A React design system with semantic tokens, supporting dark/light mode. Includes interactive Storybook documentation.",
     "lufa-lab": "Experimental playground for new ideas in the Lufa workspace.",

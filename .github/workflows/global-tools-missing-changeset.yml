@@ -4,16 +4,16 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, labeled]
 
-permissions:
-  contents: read
-  pull-requests: write
-  id-token: write
+permissions: {}
 
 jobs:
   validate-changesets:
     if: github.head_ref != 'changeset-release/main'
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v6

@@ -20,7 +20,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export function NavBar() {
   const { t } = useTranslation('header-bar');
-  const [activePath, setActivePath] = useState(window.location.pathname);
+  const [activePath, setActivePath] = useState(() => (typeof window !== 'undefined' ? window.location.pathname : '/'));
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -28,11 +28,16 @@ export function NavBar() {
       setActivePath(window.location.pathname);
       setMenuOpen(false);
     };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
     window.addEventListener('popstate', onPopState);
     window.addEventListener('single-spa:routing-event', onPopState);
+    window.addEventListener('keydown', onKeyDown);
     return () => {
       window.removeEventListener('popstate', onPopState);
       window.removeEventListener('single-spa:routing-event', onPopState);
+      window.removeEventListener('keydown', onKeyDown);
     };
   }, []);
 
@@ -66,7 +71,9 @@ export function NavBar() {
             </Text>
           </div>
 
-          <nav className={styles.nav}>{navLinks}</nav>
+          <nav className={styles.nav} aria-label={t('aria.mainNav')}>
+            {navLinks}
+          </nav>
 
           <Cluster spacing="compact" align="center" className={styles['nav-right']}>
             <ThemeSelector />
@@ -81,6 +88,7 @@ export function NavBar() {
               iconLeft={menuOpen ? 'x' : 'menu'}
               aria-label={menuOpen ? t('aria.closeMenu') : t('aria.openMenu')}
               aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
               onClick={() => setMenuOpen((v) => !v)}
             />
           </Cluster>
@@ -89,9 +97,11 @@ export function NavBar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className={styles['mobile-menu']}>
+        <div id="mobile-menu" className={styles['mobile-menu']}>
           <Container>
-            <nav className={styles['mobile-nav']}>{navLinks}</nav>
+            <nav className={styles['mobile-nav']} aria-label={t('aria.mobileNav')}>
+              {navLinks}
+            </nav>
           </Container>
         </div>
       )}
