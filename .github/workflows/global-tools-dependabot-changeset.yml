@@ -4,13 +4,14 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   add-changeset:
     if: github.actor == 'dependabot[bot]' && github.head_ref != 'changeset-release/main'
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout repository
