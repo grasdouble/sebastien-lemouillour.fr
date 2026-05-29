@@ -54,7 +54,7 @@
     "@grasdouble/lufa_config_eslint": "^0.1.9",
     "@grasdouble/lufa_config_prettier": "^0.1.5",
     "@grasdouble/lufa_config_tsconfig": "^0.1.4",
-    "@grasdouble/lufa_config_vitest": "^1.0.1",
+    "@grasdouble/lufa_config_vitest": "^1.0.2",
     "@grasdouble/slm_plugin_vite_import-map-injector": "workspace:^",
     "@grasdouble/slm_plugin_vite_react-preamble": "workspace:^",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
