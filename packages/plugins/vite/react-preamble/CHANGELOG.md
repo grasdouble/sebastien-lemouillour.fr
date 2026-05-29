@@ -1,5 +1,11 @@
 # @grasdouble/slm_plugin_vite_react-preamble
 
+## 1.0.3
+
+### Patch Changes
+
+- ac334d9: chore: bump @grasdouble/lufa_config_vitest from ^1.0.1 to ^1.0.2
+
 ## 1.0.2
 
 ### Patch Changes

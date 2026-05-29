@@ -1,5 +1,14 @@
 # @grasdouble/slm-container
 
+## 1.2.3
+
+### Patch Changes
+
+- ac334d9: chore: bump @grasdouble/lufa_config_vitest from ^1.0.1 to ^1.0.2
+- 95089ba: fix: upgrade deps
+- Updated dependencies [ac334d9]
+  - @grasdouble/slm_shared@1.0.1
+
 ## 1.2.2
 
 ### Patch Changes

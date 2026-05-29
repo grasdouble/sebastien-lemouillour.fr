@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.7
+
+### Patch Changes
+
+- ac334d9: chore: bump @grasdouble/lufa_config_vitest from ^1.0.1 to ^1.0.2
+- 95089ba: fix: upgrade deps
+- Updated dependencies [ac334d9]
+  - @grasdouble/slm_shared@1.0.1
+
 ## 1.0.6
 
 ### Patch Changes
