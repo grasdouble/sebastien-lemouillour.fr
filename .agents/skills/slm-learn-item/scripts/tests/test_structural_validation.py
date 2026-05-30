@@ -115,6 +115,14 @@ class TestStructuralValidation(unittest.TestCase):
         types = [i["type"] for i in result["structural_issues"]]
         self.assertIn("banned_phrase", types)
 
+    def test_banned_phrase_at_end_of_day(self) -> None:
+        body = "At the end of the day, it depends on your use case."
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "en", "my-guide", body=body)
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "fr", "my-guide")
+        result = self._run()
+        types = [i["type"] for i in result["structural_issues"]]
+        self.assertIn("banned_phrase", types)
+
     def test_missing_content_dir_exits_1(self) -> None:
         with self.assertRaises(SystemExit) as ctx:
             load_module("structural-validation").main()

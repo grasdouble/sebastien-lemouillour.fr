@@ -23,6 +23,7 @@ BANNED = [
     "It's worth noting that",
     "Now that",
     "In summary",
+    "At the end of the day",
 ]
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 FM_FIELDS = ["id", "order", "difficulty", "publishedAt", "updatedAt"]

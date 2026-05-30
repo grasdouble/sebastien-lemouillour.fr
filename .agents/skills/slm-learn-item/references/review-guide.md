@@ -33,7 +33,12 @@ If more than one guide is in scope, use sub-agents (see the batch orchestration 
 
 ## Review checklist
 
-> **Load `{skill-root}/assets/content-quality-rules.md` before reviewing.** The checklist below applies those rules; the asset file is the authoritative source for link counts, anchor text, project-agnosticism, and narrative arc.
+> **Load both asset files before reviewing:**
+>
+> - `{skill-root}/assets/content-quality-rules.md` — the authoritative source for link counts, anchor text, project-agnosticism, and narrative arc
+> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, tone calibration by difficulty, antipatterns, reformulation examples
+>
+> The checklist below applies both files. Apply all rules without exception.
 
 For each guide, verify:
 
@@ -76,13 +81,17 @@ For each guide, verify:
 ### Voice compliance
 
 - [ ] No `—` (em dash with surrounding spaces) in prose
-- [ ] No "straightforward", "Let's dive in", "In conclusion", "It's worth noting that"
+- [ ] No "straightforward", "Let's dive in", "In conclusion", "It's worth noting that", "At the end of the day"
 - [ ] No mechanical section transitions ("Now that X is clear, let's move to Y")
 - [ ] No closing sentence that echoes the intro or summarizes what was covered
-- [ ] Opens with a concrete pain the reader recognizes
+- [ ] No lists that enumerate facts without a stated preference or recommendation
+- [ ] Opens with a concrete pain the reader recognizes — not a definition or a "we will cover" statement
 - [ ] Each concept introduced as the answer to the previous problem
 - [ ] One natural transition sentence before every code block
 - [ ] Closes with a decision rule, a caveat, or a threshold — not a summary
+- [ ] Takes a clear stance at least once: states what it would recommend and why, not just neutral options
+- [ ] Tone matches the difficulty: warm/reassuring for `beginner`, peer-to-peer for `intermediate`, blunt for `advanced`
+- [ ] EN and FR match in voice: same opinions, stance, humor — FR is not a reduced version
 
 ## Pre-pass — Structural validation
 

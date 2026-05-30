@@ -92,7 +92,12 @@ python3 {skill-root}/scripts/inventory-snapshot.py
 
 If drafting content, write substantive markdown — introduction, key concepts, practical examples, code blocks where relevant. Aim for ~400–800 words per language. Mirror structure between EN and FR — same sections, same examples, translated.
 
-> **Load `{skill-root}/assets/content-quality-rules.md` before drafting.** It contains the authoritative rules for narrative arc, persona alignment, project-agnosticism, official documentation links, and link anchor text. Apply all of them without exception.
+> **Load both asset files before drafting:**
+>
+> - `{skill-root}/assets/content-quality-rules.md` — narrative arc, persona alignment, project-agnosticism, official documentation links, link anchor text
+> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, tone calibration by difficulty, antipatterns, reformulation examples
+>
+> Apply all rules from both files without exception.
 
 ## Soft Checkpoint
 

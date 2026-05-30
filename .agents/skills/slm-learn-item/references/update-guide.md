@@ -108,7 +108,12 @@ If the user asks for a content update but only provides one language, offer to t
 
 Keep the existing structure (headings, sections) unless the user asks to reorganize.
 
-> **Load `{skill-root}/assets/content-quality-rules.md` before revising.** It contains the authoritative rules for narrative arc, persona alignment, project-agnosticism, official documentation links, and link anchor text. Apply all of them without exception.
+> **Load both asset files before revising:**
+>
+> - `{skill-root}/assets/content-quality-rules.md` — narrative arc, persona alignment, project-agnosticism, official documentation links, link anchor text
+> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, tone calibration by difficulty, antipatterns, reformulation examples
+>
+> Apply all rules from both files without exception.
 
 ### Frontmatter metadata update (difficulty, tags, order)
 
