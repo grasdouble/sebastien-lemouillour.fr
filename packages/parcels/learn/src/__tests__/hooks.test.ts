@@ -42,7 +42,11 @@ describe('learn hooks', () => {
   it('maps catalogs and groups them by translated category', () => {
     const { result } = renderHook(() => useCatalogs());
 
-    expect(result.current.catalogs).toHaveLength(RAW_CATALOGS.length);
+    const publishedCatalogs = RAW_CATALOGS.filter((raw) => {
+      const firstGuide = RAW_LEARN_ITEMS.find((item) => item.id === raw.guideIds[0]);
+      return firstGuide ? isPublished(firstGuide.publishedAt) : false;
+    });
+    expect(result.current.catalogs).toHaveLength(publishedCatalogs.length);
     expect(Object.keys(result.current.groupedCatalogs).length).toBeGreaterThan(0);
 
     for (const catalog of result.current.catalogs) {

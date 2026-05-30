@@ -54,6 +54,10 @@ export const CATALOG_ORDER: readonly string[] = [
   'tooling-essentials',
   'frontend-architecture',
   'copilot-with-ai-agents',
+  'understanding-llms',
+  'building-with-llms',
+  'rag-vector-search',
+  'ai-engineering-production',
 ];
 
 export const DIFFICULTIES: readonly Difficulty[] = ['beginner', 'intermediate', 'advanced'];

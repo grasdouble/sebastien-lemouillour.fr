@@ -85,6 +85,410 @@
     "copilot-custom-agents": {
       "title": "Les Custom Agents",
       "description": "Concevoir et créer des Custom Agents : quand un agent dédié est plus adapté qu'une instruction dans AGENTS.md, structure d'un agent et exemples concrets."
+    },
+    "what-is-artificial-intelligence": {
+      "title": "Qu'est-ce que l'Intelligence Artificielle ?",
+      "description": "Une introduction à l'intelligence artificielle, son histoire et les concepts clés derrière les systèmes IA modernes"
+    },
+    "ai-machine-learning-and-deep-learning": {
+      "title": "IA, Machine Learning et Deep Learning",
+      "description": "Comprendre la relation entre intelligence artificielle, machine learning et deep learning"
+    },
+    "generative-ai-definition-and-use-cases": {
+      "title": "IA générative : définition et cas d'usage",
+      "description": "Découvrir ce qu'est l'IA générative, en quoi elle diffère des autres approches et où elle s'applique"
+    },
+    "what-is-an-llm": {
+      "title": "Qu'est-ce qu'un LLM ?",
+      "description": "Comprendre ce qu'est un Large Language Model, comment il est entraîné et en quoi il diffère du logiciel traditionnel"
+    },
+    "how-does-an-llm-generate-text": {
+      "title": "Comment un LLM génère-t-il du texte ?",
+      "description": "Comprendre le processus de génération token par token derrière chaque réponse d'un LLM"
+    },
+    "different-types-of-ai-models": {
+      "title": "Les différents types de modèles IA",
+      "description": "Explorer le paysage des modèles IA : modèles de langage, modèles d'image et modèles multimodaux"
+    },
+    "open-source-vs-proprietary-models": {
+      "title": "Modèles open-source vs propriétaires",
+      "description": "Comparer les modèles IA open-source et propriétaires : compromis de coût, contrôle, performance et confidentialité"
+    },
+    "tokens": {
+      "title": "Tokens",
+      "description": "Comprendre ce que sont les tokens et pourquoi ils constituent l'unité fondamentale du texte dans les LLMs"
+    },
+    "tokenization": {
+      "title": "Tokenisation",
+      "description": "Découvrir comment fonctionne la tokenisation et comment les tokenizers découpent le texte en tokens"
+    },
+    "context-window": {
+      "title": "Fenêtre de contexte",
+      "description": "Comprendre ce qu'est la fenêtre de contexte et comment sa taille affecte ce qu'un LLM peut traiter"
+    },
+    "embeddings": {
+      "title": "Embeddings",
+      "description": "Comprendre comment les embeddings représentent le texte sous forme de vecteurs et permettent la similarité sémantique"
+    },
+    "hallucinations": {
+      "title": "Hallucinations",
+      "description": "Comprendre pourquoi les LLMs génèrent de fausses informations et comment détecter et atténuer les hallucinations"
+    },
+    "model-biases": {
+      "title": "Biais des modèles",
+      "description": "Explorer les sources de biais dans les modèles IA et leur impact sur les sorties et l'équité"
+    },
+    "llm-limitations": {
+      "title": "Limitations des LLMs",
+      "description": "Comprendre les limites inhérentes aux LLMs : coupure de connaissances, échecs de raisonnement et contraintes de contexte"
+    },
+    "how-to-evaluate-an-ai-response": {
+      "title": "Comment évaluer une réponse IA",
+      "description": "Apprendre des critères pratiques pour évaluer la qualité, la précision et la fiabilité d'une réponse LLM"
+    },
+    "transformers": {
+      "title": "Transformers",
+      "description": "Comprendre l'architecture Transformer qui alimente les LLMs modernes : encodeur, décodeur et auto-attention"
+    },
+    "attention-mechanism": {
+      "title": "Mécanisme d'attention",
+      "description": "Plonger dans le mécanisme d'attention et comprendre comment il permet aux LLMs de se concentrer sur les parties pertinentes de l'entrée"
+    },
+    "pre-training": {
+      "title": "Pré-entraînement",
+      "description": "Comprendre comment les LLMs sont pré-entraînés sur de grands corpus de texte et ce que ce processus produit"
+    },
+    "reasoning-in-llms": {
+      "title": "Le raisonnement dans les LLMs",
+      "description": "Explorer comment les LLMs abordent les tâches de raisonnement et où ils réussissent ou échouent"
+    },
+    "temperature": {
+      "title": "Température",
+      "description": "Comprendre le paramètre de température et comment il contrôle l'aléatoire des sorties LLM"
+    },
+    "top-p": {
+      "title": "Top-P",
+      "description": "Comprendre comment fonctionne l'échantillonnage Top-P (nucleus) et comment l'utiliser pour contrôler la diversité des sorties"
+    },
+    "top-k": {
+      "title": "Top-K",
+      "description": "Comprendre la stratégie d'échantillonnage Top-K et quand la préférer aux autres méthodes"
+    },
+    "generation-parameters": {
+      "title": "Paramètres de génération",
+      "description": "Maîtriser tous les paramètres de génération LLM : temperature, top-p, top-k, max tokens et stop sequences"
+    },
+    "rlhf": {
+      "title": "RLHF",
+      "description": "Comprendre le Reinforcement Learning from Human Feedback et comment il aligne les LLMs sur les préférences humaines"
+    },
+    "dpo": {
+      "title": "DPO",
+      "description": "Comprendre comment le Direct Preference Optimization simplifie l'entraînement d'alignement par rapport au RLHF"
+    },
+    "alignment": {
+      "title": "Alignement",
+      "description": "Explorer le défi de l'alignement IA : rendre les modèles sûrs, utiles et conformes aux valeurs humaines"
+    },
+    "ai-benchmarks": {
+      "title": "Benchmarks IA",
+      "description": "Comprendre les principaux benchmarks utilisés pour évaluer les LLMs, leurs forces et leurs limites"
+    },
+    "automated-llm-evaluation": {
+      "title": "Évaluation automatisée des LLMs",
+      "description": "Apprendre à utiliser des métriques automatisées et des techniques LLM-as-judge pour évaluer les sorties à grande échelle"
+    },
+    "human-evaluation-of-models": {
+      "title": "Évaluation humaine des modèles",
+      "description": "Concevoir des cadres d'évaluation humaine pour mesurer la qualité, la sécurité et l'alignement des modèles"
+    },
+    "what-is-a-prompt": {
+      "title": "Qu'est-ce qu'un prompt ?",
+      "description": "Comprendre ce qu'est un prompt et comment il contrôle le comportement d'un LLM"
+    },
+    "structure-of-a-good-prompt": {
+      "title": "Structure d'un bon prompt",
+      "description": "Apprendre les éléments clés d'un prompt efficace : instruction, contexte, exemples et format de sortie"
+    },
+    "common-prompting-mistakes": {
+      "title": "Erreurs courantes de prompting",
+      "description": "Identifier et éviter les erreurs les plus fréquentes qui réduisent la qualité des réponses LLM"
+    },
+    "zero-shot-prompting": {
+      "title": "Zero-shot prompting",
+      "description": "Utiliser le zero-shot prompting pour obtenir des réponses utiles sans fournir d'exemples"
+    },
+    "one-shot-prompting": {
+      "title": "One-shot prompting",
+      "description": "Améliorer les réponses LLM en fournissant un exemple unique pour guider le modèle"
+    },
+    "few-shot-prompting": {
+      "title": "Few-shot prompting",
+      "description": "Utiliser plusieurs exemples dans le prompt pour orienter plus précisément le comportement du LLM"
+    },
+    "chain-of-thought": {
+      "title": "Chain of Thought",
+      "description": "Appliquer le Chain of Thought prompting pour guider les LLMs dans un raisonnement étape par étape"
+    },
+    "self-consistency": {
+      "title": "Auto-cohérence",
+      "description": "Améliorer la fiabilité du raisonnement en échantillonnant plusieurs réponses et en sélectionnant la plus cohérente"
+    },
+    "prompt-chaining": {
+      "title": "Chaînage de prompts",
+      "description": "Construire des workflows complexes en chaînant plusieurs prompts, en passant les sorties comme entrées aux étapes suivantes"
+    },
+    "prompt-templates": {
+      "title": "Templates de prompts",
+      "description": "Créer des templates de prompts réutilisables avec des variables dynamiques pour standardiser et scaler vos interactions LLM"
+    },
+    "json-generation": {
+      "title": "Génération de JSON",
+      "description": "Générer des sorties JSON structurées de manière fiable depuis les LLMs en utilisant des contraintes de schéma"
+    },
+    "structured-outputs": {
+      "title": "Sorties structurées",
+      "description": "Utiliser les fonctionnalités de sorties structurées pour garantir que les réponses LLM respectent un schéma prédéfini"
+    },
+    "output-validation": {
+      "title": "Validation des sorties",
+      "description": "Valider et assainir les sorties LLM pour s'assurer qu'elles sont sûres, correctes et conformes aux exigences"
+    },
+    "function-calling": {
+      "title": "Appel de fonctions",
+      "description": "Permettre aux LLMs d'appeler des fonctions et des APIs externes en les décrivant dans le prompt"
+    },
+    "tool-calling": {
+      "title": "Appel d'outils",
+      "description": "Étendre les capacités des LLMs en les connectant à des outils : recherche web, exécution de code et requêtes de base de données"
+    },
+    "llm-workflows": {
+      "title": "Workflows LLM",
+      "description": "Concevoir des workflows LLM multi-étapes combinant plusieurs appels, outils et logique conditionnelle"
+    },
+    "what-is-an-ai-agent": {
+      "title": "Qu'est-ce qu'un agent IA ?",
+      "description": "Comprendre ce qu'est un agent IA, en quoi il diffère d'un simple appel LLM et ce qui le rend autonome"
+    },
+    "agent-memory": {
+      "title": "Mémoire des agents",
+      "description": "Explorer les différents types de mémoire disponibles pour les agents IA : en contexte, externe et épisodique"
+    },
+    "task-planning": {
+      "title": "Planification de tâches",
+      "description": "Comprendre comment les agents IA décomposent des objectifs complexes en étapes actionnables via des stratégies de planification"
+    },
+    "autonomous-agents": {
+      "title": "Agents autonomes",
+      "description": "Concevoir et construire des agents IA autonomes capables d'exécuter des tâches en plusieurs étapes sans intervention humaine"
+    },
+    "multi-agent-architectures": {
+      "title": "Architectures multi-agents",
+      "description": "Architecturer des systèmes où plusieurs agents IA collaborent, délèguent et se coordonnent pour résoudre des problèmes complexes"
+    },
+    "agentic-workflows": {
+      "title": "Workflows agentiques",
+      "description": "Construire des workflows agentiques de qualité production avec orchestration, gestion des erreurs et points de contrôle humains"
+    },
+    "mcp-model-context-protocol": {
+      "title": "MCP (Model Context Protocol)",
+      "description": "Comprendre le Model Context Protocol et comment il permet aux agents d'interagir avec des outils externes de manière standardisée"
+    },
+    "model-routing": {
+      "title": "Routage de modèles",
+      "description": "Implémenter des stratégies de routage de modèles pour sélectionner le bon LLM selon le coût, la latence et les capacités"
+    },
+    "what-is-rag": {
+      "title": "Qu'est-ce que le RAG ?",
+      "description": "Comprendre le Retrieval-Augmented Generation et comment il étend les capacités des LLMs avec des connaissances externes"
+    },
+    "why-use-rag": {
+      "title": "Pourquoi utiliser le RAG ?",
+      "description": "Découvrir les avantages clés du RAG par rapport au fine-tuning et au pur prompting pour les tâches à forte intensité de connaissances"
+    },
+    "limitations-of-an-llm-without-rag": {
+      "title": "Limitations d'un LLM sans RAG",
+      "description": "Comprendre pourquoi les LLMs sans RAG peinent avec les informations récentes, les données privées et la précision factuelle"
+    },
+    "semantic-similarity": {
+      "title": "Similarité sémantique",
+      "description": "Comprendre comment la similarité sémantique est calculée avec les embeddings et pourquoi elle fonde la recherche vectorielle"
+    },
+    "vector-search": {
+      "title": "Recherche vectorielle",
+      "description": "Comprendre comment la recherche vectorielle trouve du contenu sémantiquement similaire en utilisant la distance entre embeddings"
+    },
+    "vectors-and-distance": {
+      "title": "Vecteurs et distance",
+      "description": "Apprendre les concepts mathématiques derrière les représentations vectorielles et les métriques de distance en recherche vectorielle"
+    },
+    "vector-databases": {
+      "title": "Bases de données vectorielles",
+      "description": "Explorer les bases de données vectorielles : stockage d'embeddings, recherche par similarité rapide et comparaison aux bases traditionnelles"
+    },
+    "document-indexing": {
+      "title": "Indexation de documents",
+      "description": "Apprendre à indexer des documents pour le RAG : parsing, embedding et stockage dans une base vectorielle"
+    },
+    "metadata": {
+      "title": "Métadonnées",
+      "description": "Utiliser les métadonnées pour filtrer et enrichir les résultats de recherche vectorielle dans les pipelines RAG"
+    },
+    "chunking": {
+      "title": "Chunking",
+      "description": "Comprendre les stratégies de chunking de documents et comment elles affectent la qualité de récupération dans les systèmes RAG"
+    },
+    "chunk-size": {
+      "title": "Taille des chunks",
+      "description": "Apprendre à choisir la bonne taille de chunk pour votre pipeline RAG et les compromis impliqués"
+    },
+    "overlap": {
+      "title": "Chevauchement",
+      "description": "Utiliser le chevauchement de chunks pour préserver le contexte aux frontières et améliorer la précision de récupération"
+    },
+    "document-cleaning": {
+      "title": "Nettoyage de documents",
+      "description": "Nettoyer et prétraiter les documents avant l'indexation pour améliorer la qualité des embeddings et la pertinence de récupération"
+    },
+    "hybrid-search": {
+      "title": "Recherche hybride",
+      "description": "Combiner la recherche vectorielle et la recherche par mots-clés pour améliorer la couverture et la précision de récupération"
+    },
+    "reranking": {
+      "title": "Reranking",
+      "description": "Utiliser des modèles de reranking pour réordonner les documents récupérés par pertinence avant de les passer au LLM"
+    },
+    "query-expansion": {
+      "title": "Expansion de requête",
+      "description": "Améliorer le rappel de récupération en enrichissant les requêtes avec des synonymes, termes connexes ou variantes générées par LLM"
+    },
+    "multi-vector-rag": {
+      "title": "RAG multi-vecteur",
+      "description": "Améliorer la précision de récupération en indexant plusieurs représentations vectorielles par document"
+    },
+    "graph-rag": {
+      "title": "Graph RAG",
+      "description": "Améliorer la récupération grâce aux structures de graphes pour capturer les relations entre documents et entités"
+    },
+    "agentic-rag": {
+      "title": "RAG agentique",
+      "description": "Construire des systèmes RAG qui utilisent des agents pour affiner itérativement les requêtes et raisonner sur les résultats"
+    },
+    "long-context-vs-rag": {
+      "title": "Contexte long vs RAG",
+      "description": "Comparer les LLMs à contexte long et les approches RAG : quand utiliser chaque approche et comment les combiner"
+    },
+    "recall": {
+      "title": "Rappel",
+      "description": "Comprendre le rappel comme métrique de qualité de récupération et comment le mesurer et l'améliorer dans les systèmes RAG"
+    },
+    "precision": {
+      "title": "Précision",
+      "description": "Mesurer et améliorer la précision dans la récupération RAG pour réduire le bruit et le contexte non pertinent"
+    },
+    "faithfulness": {
+      "title": "Fidélité",
+      "description": "Évaluer si les réponses LLM sont ancrées dans le contexte récupéré et exemptes d'hallucinations"
+    },
+    "evaluating-a-rag-system": {
+      "title": "Évaluer un système RAG",
+      "description": "Construire un cadre d'évaluation complet pour les systèmes RAG couvrant la qualité de récupération et de génération"
+    },
+    "api-vs-local-models": {
+      "title": "API vs modèles locaux",
+      "description": "Comparer les APIs LLM cloud et les modèles hébergés localement : compromis de coût, latence, confidentialité et contrôle"
+    },
+    "cost-of-using-an-llm": {
+      "title": "Coût d'utilisation d'un LLM",
+      "description": "Comprendre les modèles de tarification LLM, les coûts en tokens et les stratégies pour optimiser votre budget IA"
+    },
+    "choosing-a-model": {
+      "title": "Choisir un modèle",
+      "description": "Apprendre à sélectionner le bon LLM pour votre cas d'usage selon les performances, le coût et les contraintes de déploiement"
+    },
+    "data-privacy": {
+      "title": "Confidentialité des données",
+      "description": "Comprendre les risques de confidentialité lors de l'utilisation des APIs LLM et comment protéger les informations sensibles"
+    },
+    "prompt-injection": {
+      "title": "Injection de prompt",
+      "description": "Comprendre ce que sont les attaques par injection de prompt et comment défendre vos applications IA contre elles"
+    },
+    "securing-ai-applications": {
+      "title": "Sécuriser les applications IA",
+      "description": "Appliquer les bonnes pratiques de sécurité aux applications IA : validation des entrées, assainissement des sorties et contrôle d'accès"
+    },
+    "fine-tuning": {
+      "title": "Fine-tuning",
+      "description": "Comprendre le fine-tuning : quand il en vaut la peine, en quoi il diffère du prompting et le processus d'entraînement de base"
+    },
+    "lora": {
+      "title": "LoRA",
+      "description": "Comprendre comment le Low-Rank Adaptation permet un fine-tuning efficace des grands modèles avec un minimum de calcul"
+    },
+    "peft": {
+      "title": "PEFT",
+      "description": "Explorer les techniques de fine-tuning à efficacité paramétrique qui adaptent les grands modèles avec une fraction du coût d'entraînement"
+    },
+    "inference": {
+      "title": "Inférence",
+      "description": "Comprendre le processus d'inférence LLM : comment un modèle génère une réponse et ce qui affecte sa vitesse"
+    },
+    "serving": {
+      "title": "Serving",
+      "description": "Apprendre à servir les LLMs efficacement : batching, streaming, serveurs de modèles et patterns de déploiement"
+    },
+    "gpu-and-vram": {
+      "title": "GPU et VRAM",
+      "description": "Comprendre le rôle des GPUs et de la VRAM dans l'inférence LLM et comment estimer les besoins en mémoire"
+    },
+    "quantization": {
+      "title": "Quantification",
+      "description": "Réduire la taille du modèle et le coût d'inférence grâce aux techniques de quantification sans trop sacrifier la qualité"
+    },
+    "ai-logs": {
+      "title": "Logs IA",
+      "description": "Mettre en place une journalisation structurée pour les applications IA afin de suivre les requêtes, réponses, latences et erreurs"
+    },
+    "agent-traces": {
+      "title": "Traces d'agents",
+      "description": "Instrumenter les agents IA avec du tracing distribué pour observer leur exécution et déboguer les échecs"
+    },
+    "llm-monitoring": {
+      "title": "Monitoring LLM",
+      "description": "Surveiller les applications LLM en production : suivre les métriques de qualité, détecter les dégradations et configurer des alertes"
+    },
+    "continuous-evaluation": {
+      "title": "Évaluation continue",
+      "description": "Implémenter des pipelines d'évaluation continue pour évaluer automatiquement la qualité du modèle à chaque release"
+    },
+    "ai-application-testing": {
+      "title": "Tests d'applications IA",
+      "description": "Tester les applications IA avec des tests unitaires déterministes, des assertions probabilistes et l'évaluation sur des jeux de données de référence"
+    },
+    "guardrails": {
+      "title": "Garde-fous",
+      "description": "Implémenter des garde-fous pour contraindre les sorties LLM : filtrage de contenu, application de format et vérifications de sécurité"
+    },
+    "ai-governance": {
+      "title": "Gouvernance IA",
+      "description": "Établir des cadres de gouvernance IA couvrant la responsabilité, l'auditabilité et les pratiques IA responsables"
+    },
+    "ai-engineering": {
+      "title": "Ingénierie IA",
+      "description": "Comprendre la discipline de l'ingénierie IA : faire le pont entre la recherche ML et le développement logiciel en production"
+    },
+    "ai-system-architecture": {
+      "title": "Architecture de systèmes IA",
+      "description": "Concevoir des architectures de systèmes IA scalables gérant les appels LLM, les pipelines de données et la coordination des agents"
+    },
+    "ai-application-scalability": {
+      "title": "Scalabilité des applications IA",
+      "description": "Scaler les applications IA pour gérer un trafic élevé avec du cache, un équilibrage de charge et le parallélisme de modèles"
+    },
+    "ai-cost-optimization": {
+      "title": "Optimisation des coûts IA",
+      "description": "Réduire les coûts d'infrastructure IA grâce au cache, à la sélection de modèles, au batching et aux stratégies d'optimisation"
     }
   },
   "view": {
@@ -134,7 +538,26 @@
       "copilot-with-ai-agents": {
         "title": "Développer avec Copilot & AI Agents",
         "description": "Configurer GitHub Copilot efficacement, maîtriser AGENTS.md, créer des skills et des custom agents, et tirer parti des MCP pour automatiser son workflow de développement"
+      },
+      "understanding-llms": {
+        "title": "Comprendre les LLMs",
+        "description": "Comprendre ce qu'est un LLM, son fonctionnement et ses limites"
+      },
+      "building-with-llms": {
+        "title": "Développer avec les LLMs",
+        "description": "Apprendre à exploiter les modèles dans des applications concrètes"
+      },
+      "rag-vector-search": {
+        "title": "RAG & Recherche Vectorielle",
+        "description": "Permettre à un LLM d'exploiter des connaissances externes grâce à la génération augmentée par récupération"
+      },
+      "ai-engineering-production": {
+        "title": "Ingénierie IA & Production",
+        "description": "Construire et opérer des systèmes IA en production"
       }
     }
+  },
+  "badge": {
+    "draft": "Brouillon"
   }
 }

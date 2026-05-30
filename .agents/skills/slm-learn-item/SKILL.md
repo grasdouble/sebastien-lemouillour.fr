@@ -1,6 +1,6 @@
 ---
 name: slm-learn-item
-description: Learn item author for sebastien-lemouillour.fr. Use when the user says "create a guide", "add a learn item", "update guide [id]", "edit a learn item", "review guide [id]", "review all guides", "create a catalog", "add a catalog", "update catalog [id]", or "edit a catalog".
+description: Learn item author for sebastien-lemouillour.fr. Use when the user says "create a guide", "add a learn item", "update guide [id]", "edit a learn item", "review guide [id]", "review all guides", "create a catalog", "add a catalog", "update catalog [id]", "edit a catalog", "create catalogs from prd", "import prd", "créer depuis un prd", "catalogues depuis un prd", "create prd", "créer un prd", "rédiger un prd", "write prd", "new prd", "nouveau prd".
 ---
 
 # Learn Item Author
@@ -233,15 +233,19 @@ Read the user's full opening message before doing anything else.
 - **Reviewer un ou plusieurs guides** → Load `{workflow.ref_review_guide}` — for multiple guides, parallel delegation applies automatically (rolling cap: 4 sub-agents)
 - **Créer un nouveau catalogue** → Load `{workflow.ref_create_catalog}`
 - **Mettre à jour un catalogue existant** → Load `{workflow.ref_update_catalog}`
+- **Créer des catalogues depuis un PRD** (fichier markdown structuré avec plusieurs catalogues et listes de guides) → Load `{workflow.ref_create_catalog_from_prd}`
+- **Créer un nouveau PRD** (rédiger un fichier PRD structuré pour planifier des catalogues, à utiliser ensuite avec "create catalogs from prd") → Load `{workflow.ref_create_prd}`
 
 **Wrong intent / off-ramp:** If the user describes a task outside this skill's scope (e.g. updating non-guide content, requesting changes to `learn.ts` beyond what's documented here, asking about deployment or CI), politely clarify: "Ce skill gère uniquement les guides et catalogues du parcel `learn`. Pour [the described task], tu voudras peut-être utiliser [the appropriate tool]."
 
 ## Capabilities
 
-| Capability     | Route                                |
-| -------------- | ------------------------------------ |
-| Create guide   | Load `{workflow.ref_create_guide}`   |
-| Update guide   | Load `{workflow.ref_update_guide}`   |
-| Review guide   | Load `{workflow.ref_review_guide}`   |
-| Create catalog | Load `{workflow.ref_create_catalog}` |
-| Update catalog | Load `{workflow.ref_update_catalog}` |
+| Capability               | Route                                         |
+| ------------------------ | --------------------------------------------- |
+| Create guide             | Load `{workflow.ref_create_guide}`            |
+| Update guide             | Load `{workflow.ref_update_guide}`            |
+| Review guide             | Load `{workflow.ref_review_guide}`            |
+| Create catalog           | Load `{workflow.ref_create_catalog}`          |
+| Update catalog           | Load `{workflow.ref_update_catalog}`          |
+| Create catalogs from PRD | Load `{workflow.ref_create_catalog_from_prd}` |
+| Create PRD               | Load `{workflow.ref_create_prd}`              |

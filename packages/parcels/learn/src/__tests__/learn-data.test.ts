@@ -5,6 +5,7 @@ import {
   CATEGORY_KEYS,
   DIFFICULTIES,
   DIFFICULTY_VARIANT,
+  isPublished,
   RAW_CATALOGS,
   RAW_LEARN_ITEMS,
 } from '../data/learn';
@@ -60,9 +61,11 @@ describe('learn data', () => {
     }
   });
 
-  it('ensures updatedAt is never older than publishedAt', () => {
+  it('ensures published guides are not updated before publication', () => {
     for (const item of RAW_LEARN_ITEMS) {
-      expect(item.updatedAt >= item.publishedAt).toBe(true);
+      if (isPublished(item.publishedAt)) {
+        expect(item.updatedAt >= item.publishedAt).toBe(true);
+      }
     }
   });
 

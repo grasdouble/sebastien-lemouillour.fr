@@ -48,6 +48,10 @@ ref_review_guide   = "references/review-guide.md"
 ref_create_catalog = "references/create-catalog.md"
 # Example: ref_update_catalog = "custom-workflows/my-update-catalog.md"
 ref_update_catalog = "references/update-catalog.md"
+# Example: ref_create_catalog_from_prd = "custom-workflows/my-create-catalog-from-prd.md"
+ref_create_catalog_from_prd = "references/create-catalog-from-prd.md"
+# Example: ref_create_prd = "custom-workflows/my-create-prd.md"
+ref_create_prd = "references/create-prd.md"
 
 # Path to the voice and style guide loaded into persistent_facts.
 # Override to substitute your own style guide.
