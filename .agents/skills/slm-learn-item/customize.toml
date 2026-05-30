@@ -23,6 +23,7 @@ activation_steps_append = []
 # whose contents are loaded as facts.
 persistent_facts = [
   "file:{project-root}/**/project-context.md",
+  "file:{skill-root}/assets/voice-rules.md",
 ]
 
 # Executed after a capability confirms completion to the user.

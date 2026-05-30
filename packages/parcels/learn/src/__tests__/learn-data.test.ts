@@ -32,7 +32,17 @@ describe('learn data', () => {
       expect(catalog.id).toBeTruthy();
       expect(catalog.categoryKey).toBeTruthy();
       expect(typeof catalog.order).toBe('number');
+      expect(Number.isFinite(catalog.order)).toBe(true);
       expect(Array.isArray(catalog.guideIds)).toBe(true);
+    }
+  });
+
+  it('ensures every discovered catalog is listed in CATALOG_ORDER', () => {
+    for (const catalog of RAW_CATALOGS) {
+      expect(
+        Number.isFinite(catalog.order),
+        `Catalog "${catalog.id}" is not listed in CATALOG_ORDER — add it to learn.ts to avoid it appearing last with a dev warning`
+      ).toBe(true);
     }
   });
 

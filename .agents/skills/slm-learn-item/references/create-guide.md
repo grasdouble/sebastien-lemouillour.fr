@@ -19,6 +19,12 @@ All files for a new guide exist and are wired up: two markdown files (with front
 
 ## Discovery
 
+**First-timer orientation:** If the user's message is exploratory ("I'd like to write a guide", "je veux créer un article learn") without a clear topic — open the floor before collecting any schema field:
+
+> "Super ! Dis-moi sur quoi tu veux écrire. Je vais te poser quelques questions ensuite pour placer le guide dans le bon catalogue et définir sa structure."
+
+Then proceed to the normal discovery flow once the topic is established.
+
 Gather these before writing anything. If the user has already provided some, skip those questions.
 
 **Yolo quick-intake:** If the user's message already contains a clear topic, target catalog (or enough context to infer it), and at least 3 additional fields from the list below — skip the step-by-step discovery. Jump directly to the Soft Checkpoint with all inferred fields pre-filled.
@@ -42,7 +48,28 @@ Gather these before writing anything. If the user has already provided some, ski
 
 In Headless mode, never prompt. Log all assumptions in the `assumptions` field of the confirmation output.
 
-**Run the inventory snapshot from SKILL.md first.** Use its JSON output to answer without re-scanning:
+**Headless return contract** (always return this JSON object — no prose, no markdown outside the schema):
+
+```json
+{
+  "status": "created" | "blocked" | "dry_run",
+  "id": "<guide-id>",
+  "categoryKey": "<string>",
+  "catalogId": "<string>",
+  "files_created": ["<relative-path>"],
+  "changeset": "<relative-path>",
+  "assumptions": ["<assumption made>"],
+  "error": "<message if status is blocked, else null>"
+}
+```
+
+`dry_run` is returned when the payload includes `"dryRun": true` — no files are written. `blocked` is returned when a pre-pass failure or conflict prevents safe execution.
+
+**Run the inventory snapshot first.** Use its JSON output to answer without re-scanning:
+
+```bash
+python3 {skill-root}/scripts/inventory-snapshot.py
+```
 
 - **Step 3** (`categoryKey` / `catalogId`): list catalogs grouped by `categoryKey` from the snapshot
 - **Step 6** (`order`): find the max `order` among guides in the target catalog, then propose `max + 1` as the default (or `1` if the catalog is empty)
@@ -50,7 +77,7 @@ In Headless mode, never prompt. Log all assumptions in the `assumptions` field o
 1. **Topic** — what is the guide about?
 2. **`id`** — propose a kebab-case id from the topic (e.g. `react-query-basics`). Confirm with user.
 3. **`categoryKey`** — one of `ia-llm`, `tooling`, `architecture`. If none fits, propose a new one (kebab-case) and confirm.
-4. **`catalogId`** — which existing catalog should this guide belong to? List the existing catalogs. If none fits, propose creating a new one (load `references/create-catalog.md` first).
+4. **`catalogId`** — which existing catalog should this guide belong to? List the existing catalogs. If none fits, propose creating a new one (load `{workflow.ref_create_catalog}` first).
 5. **`difficulty`** — `beginner`, `intermediate`, or `advanced`. Infer from topic if obvious, confirm.
    - `beginner` → Découvreur: analogies, define every term on first use, explicit limits. ✅ End with "what next" path. ❌ No unexplained code blocks.
    - `intermediate` → Développeur: working code with commented parameters, mention costs/rate limits/security. ❌ No purely theoretical content.
@@ -65,43 +92,7 @@ In Headless mode, never prompt. Log all assumptions in the `assumptions` field o
 
 If drafting content, write substantive markdown — introduction, key concepts, practical examples, code blocks where relevant. Aim for ~400–800 words per language. Mirror structure between EN and FR — same sections, same examples, translated.
 
-**Every guide must tell a story**: open with a concrete pain the reader recognizes, introduce each concept as the answer to the previous problem, add a transition sentence before every code block, and close with a real takeaway — not a summary. Both EN and FR must have the same narrative richness.
-
-**Always write for the target persona**:
-
-- `beginner` → Découvreur: analogies, plain language, explicit limitations, path to next guides
-- `intermediate` → Développeur: working code examples with commented parameters, practical patterns
-- `advanced` → Architecte: tradeoffs, security, production patterns, no hand-holding on basics
-
-**Content must be project-agnostic**: no references to any specific codebase, internal tooling, or organizational setup. Use generic names (`@my/shared`, `my-app`). Any reader on any project must be able to follow the guide.
-
-**Back every significant claim with an official documentation link**: add inline links to primary sources (provider docs, tool websites, specs, papers). Each URL must appear **at most once** per guide — link it the first time it appears; refer to the name elsewhere. If multiple references apply, add a `## Resources` section at the end.
-
-**Keep external links in the 3–7 range per guide**: fewer than 3 leaves key claims unsupported and weakens SEO authority signals; more than 7 dilutes link equity and risks being flagged as over-linked. Hard cap: 10. When you'd exceed the cap, consolidate into a `## Resources` section rather than adding more inline links. Count all external links across the guide body and the Resources section together.
-
-**Verify before writing**: check API shapes, configuration option names, and defaults against official docs. Mention the version when behavior is version-specific.
-
-## Voice
-
-These guides live on Sébastien's personal site. They must sound like a developer with opinions, not a system following a template.
-
-**Write with a point of view:**
-
-- ✅ State what you would choose and why ("I'd start with X every time unless…")
-- ✅ Acknowledge what's genuinely tricky ("This is the part that confused me")
-- ✅ Allow light humor or informal asides
-- ❌ Never be a neutral narrator — neutral is forgettable
-- ❌ Never list options without saying which one you'd actually pick
-
-**Antipatterns — ban these in all guide content:**
-
-- ❌ `—` (em dash surrounded by spaces) in prose — use a comma, colon, or restructure
-- ❌ "straightforward", "Let's dive in", "In conclusion", "It's worth noting that"
-- ❌ Mechanical transitions ("Now that X is clear, let's move to Y")
-- ❌ Closing sentences that echo the intro or summarize what was covered
-- ❌ Perfect symmetry between sections (same length, rhythm, structure)
-
-**EN and FR must match in voice:** same opinions, stance, and personality — not just the same structure. FR is not a reduced version; translate the narrative including the lightness.
+> **Load `{skill-root}/assets/content-quality-rules.md` before drafting.** It contains the authoritative rules for narrative arc, persona alignment, project-agnosticism, official documentation links, and link anchor text. Apply all of them without exception.
 
 ## Soft Checkpoint
 

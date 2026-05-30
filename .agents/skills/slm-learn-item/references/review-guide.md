@@ -17,7 +17,12 @@ Each reviewed guide is factually accurate, fully project-agnostic, backed by off
 
 ## Discovery
 
-1. **Which guide(s)?** — ask for guide `id`(s) or titles. If the user says "all guides", run the **inventory snapshot** from SKILL.md to enumerate every guide — do not scan folders manually.
+1. **Which guide(s)?** — ask for guide `id`(s) or titles. If the user says "all guides", run the inventory snapshot to enumerate every guide — do not scan folders manually:
+
+   ```bash
+   python3 {skill-root}/scripts/inventory-snapshot.py
+   ```
+
 2. **Scope** — clarify what to review (default: everything):
    - Factual accuracy against official documentation
    - Voice compliance (em-dash, mechanical transitions, narrative arc…)
@@ -27,6 +32,8 @@ Each reviewed guide is factually accurate, fully project-agnostic, backed by off
 If more than one guide is in scope, use sub-agents (see the batch orchestration in the Steps section below).
 
 ## Review checklist
+
+> **Load `{skill-root}/assets/content-quality-rules.md` before reviewing.** The checklist below applies those rules; the asset file is the authoritative source for link counts, anchor text, project-agnosticism, and narrative arc.
 
 For each guide, verify:
 
@@ -82,82 +89,7 @@ For each guide, verify:
 Run this command before any LLM review begins. It performs deterministic checks that the model should not re-derive by reading files.
 
 ```bash
-python3 - <<'PYEOF'
-import os, re, json
-
-base = "packages/parcels/learn/src/data/content"
-BANNED = [
-    "straightforward", "Let's dive in", "In conclusion",
-    "It's worth noting that", "Now that", "In summary",
-]
-DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
-FM_FIELDS = ["id", "order", "difficulty", "publishedAt", "updatedAt"]
-URL_RE = re.compile(r'https?://[^\s)\]"\']+')
-issues = []
-
-def parse_fm_and_body(path):
-    content = open(path).read()
-    parts = content.split('---', 2)
-    if len(parts) < 3:
-        return {}, content
-    fm = {}
-    for line in parts[1].split('\n'):
-        idx = line.find(':')
-        if idx != -1:
-            k, v = line[:idx].strip(), line[idx+1:].strip()
-            if k: fm[k] = v
-    return fm, parts[2]
-
-for cat in sorted(os.listdir(base)):
-    cat_p = os.path.join(base, cat)
-    if not os.path.isdir(cat_p): continue
-    for catalog in sorted(os.listdir(cat_p)):
-        clog_p = os.path.join(cat_p, catalog)
-        if not os.path.isdir(clog_p): continue
-        for f in sorted(os.listdir(clog_p)):
-            if not f.endswith('.en.md'): continue
-            gid = f.replace('.en.md', '')
-            en_p = os.path.join(clog_p, f)
-            fr_p = os.path.join(clog_p, gid + '.fr.md')
-
-            if not os.path.exists(fr_p):
-                issues.append({"id": gid, "type": "missing_fr_file"})
-                continue
-
-            en_fm, en_body = parse_fm_and_body(en_p)
-            fr_fm, _ = parse_fm_and_body(fr_p)
-
-            # Frontmatter parity (EN is authoritative)
-            for key in FM_FIELDS:
-                if en_fm.get(key) != fr_fm.get(key):
-                    issues.append({"id": gid, "type": "fm_mismatch", "field": key,
-                                   "en": en_fm.get(key), "fr": fr_fm.get(key)})
-
-            # Date validity and ordering
-            for fm, lang in [(en_fm, "en"), (fr_fm, "fr")]:
-                for field in ["publishedAt", "updatedAt"]:
-                    val = fm.get(field, "")
-                    if not DATE_RE.match(val):
-                        issues.append({"id": gid, "type": "invalid_date",
-                                       "field": field, "lang": lang, "value": val})
-                if fm.get("updatedAt", "9") < fm.get("publishedAt", "0"):
-                    issues.append({"id": gid, "type": "updated_before_published", "lang": lang})
-
-            # Duplicate URLs (EN body — source of truth for links)
-            seen_urls, dupes = set(), []
-            for url in URL_RE.findall(en_body):
-                if url in seen_urls: dupes.append(url)
-                seen_urls.add(url)
-            if dupes:
-                issues.append({"id": gid, "type": "duplicate_urls", "urls": list(set(dupes))})
-
-            # Banned phrases (EN body only — phrase list is English-specific)
-            for phrase in BANNED:
-                if phrase in en_body:
-                    issues.append({"id": gid, "type": "banned_phrase", "phrase": phrase})
-
-print(json.dumps({"structural_issues": issues}, indent=2))
-PYEOF
+python3 {skill-root}/scripts/structural-validation.py
 ```
 
 **Interpreting the output and acting on it:**
@@ -191,11 +123,12 @@ Apply these orchestration rules:
 
 1. List all guides to review
 2. **Pre-execution scope summary** — for reviews covering more than 3 guides (or any "review all" request), present a scope summary before launching any sub-agent:
-   > "Je vais reviewer N guides : [list of ids]. Dimensions : [checklist items in scope]. Plan : [batch count] batch(es) de 4 sous-agents en parallèle. Confirme ou ajuste la liste."
+   > "Je vais reviewer N guides : [list of ids]. Dimensions : [checklist items in scope]. Plan : rolling queue (cap 4 sous-agents en parallèle). Confirme ou ajuste la liste."
    > Wait for explicit confirmation before launching sub-agents.
-3. Launch sub-agents in batches of **4 in parallel** — exactly 4 per batch (or fewer if fewer remain); **1 sub-agent per guide, 1 guide per sub-agent**
-4. Wait for the entire batch to complete before launching the next
-5. Each sub-agent prompt must include: file paths, voice rules, content quality rules, constraints (`no git add/commit`), the validation command, and the **exact JSON schema from the Subagent return contract below** — instruct the sub-agent explicitly that it must return only that JSON object, no prose, no markdown outside the schema
+   > **Escape hatch:** If the request includes `confirm: false` or is in headless mode (strict JSON payload with `mode: headless`), skip the scope confirmation and proceed directly.
+3. Launch sub-agents with a rolling concurrency cap of **4** — start the next guide immediately as each sub-agent completes, rather than waiting for an entire batch to finish; **1 sub-agent per guide, 1 guide per sub-agent**
+4. Track which guides have been started and completed; never launch more than 4 concurrently
+5. Each sub-agent prompt must include: file paths, voice rules (from session persistent_facts), content quality rules, constraints (`no git add/commit`), and the **exact JSON schema from the Subagent return contract below** — instruct the sub-agent explicitly that it must return only that JSON object, no prose, no markdown outside the schema. Sub-agents must NOT run `pnpm lint` or `pnpm build` — the parent runs the final validation once after all guides complete.
 6. After all batches: run `rtk pnpm lint && rtk pnpm typecheck && rtk pnpm build` from `packages/parcels/learn`
 7. Report a summary of what each sub-agent changed
 
@@ -238,7 +171,7 @@ After all batches complete (parallel or fallback), emit this compact JSON log **
   "intent": "review",
   "scope": ["<guide-id>", ...],
   "orderedTargets": ["<guide-id>", ...],
-  "mode": "parallel-batch" | "sequential-fallback",
+  "mode": "rolling-queue" | "sequential-fallback",
   "resumeFromIndex": "<0-based index of first target whose status is not done>",
   "results": [
     {
@@ -254,6 +187,14 @@ After all batches complete (parallel or fallback), emit this compact JSON log **
 ```
 
 `orderedTargets` is the definitive ordered list of all guides that were in scope. `resumeFromIndex` is `results.length` when all guides completed, otherwise the index of the first non-`done` entry. Set `status: "skipped"` for guides that were not reached due to an interruption.
+
+**Write the decision log to disk:** after emitting the JSON above in the conversation, also:
+
+1. Write it to `.agents/skills/slm-learn-item/.analysis/review-{ISO-timestamp}.json` (create the file)
+2. Append a one-line summary entry to `.agents/skills/slm-learn-item/.decision-log.md`:
+   ```
+   | {YYYY-MM-DD} | review | {N} guides reviewed | {status summary} |
+   ```
 
 ### Changeset
 

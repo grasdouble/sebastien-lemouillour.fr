@@ -17,7 +17,12 @@ The targeted guide is updated consistently across all files it touches. No stale
 
 ## Discovery
 
-1. **Which guide?** — ask for the guide `id` or title. If unclear, run the **inventory snapshot** from SKILL.md and display the result as a table.
+1. **Which guide?** — ask for the guide `id` or title. If unclear, run the inventory snapshot and display the result as a table:
+
+   ```bash
+   python3 {skill-root}/scripts/inventory-snapshot.py
+   ```
+
 2. **What changes?** — ask what the user wants to update:
    - Markdown content (EN, FR, or both)
    - Frontmatter metadata (`difficulty`, `tags`)
@@ -61,34 +66,33 @@ Before applying any change, present a one-message scope summary:
 - **Yolo:** mandatory — allow one correction exchange, then execute
 - **Headless:** skip prompt; include the planned scope in the structured output's `planned_changes` field
 
+**Headless return contract** (always return this JSON object — no prose, no markdown outside the schema):
+
+```json
+{
+  "status": "updated" | "blocked" | "dry_run",
+  "id": "<guide-id>",
+  "planned_changes": ["<what changed>"],
+  "files_edited": ["<relative-path>"],
+  "changeset": "<relative-path>",
+  "assumptions": ["<assumption made>"],
+  "error": "<message if status is blocked, else null>"
+}
+```
+
+`dry_run` is returned when the payload includes `"dryRun": true`. `blocked` is returned when the guide `id` is not found, or a pre-pass reveals a conflict that prevents safe execution.
+
 ### Listing existing guides
 
-If needed, run the **inventory snapshot** from SKILL.md and display the result as:
+If needed, run the inventory snapshot and display the result as:
+
+```bash
+python3 {skill-root}/scripts/inventory-snapshot.py
+```
 
 | id  | categoryKey | catalogId | difficulty | order |
 | --- | ----------- | --------- | ---------- | ----- |
 | …   | …           | …         | …          | …     |
-
-## Voice
-
-These guides live on Sébastien's personal site. They must sound like a developer with opinions, not a system following a template.
-
-**Write with a point of view:**
-
-- ✅ State what you would choose and why ("I'd start with X every time unless…")
-- ✅ Acknowledge what's genuinely tricky ("This is the part that confused me")
-- ✅ Allow light humor or informal asides
-- ❌ Never be a neutral narrator — neutral is forgettable
-- ❌ Never list options without saying which one you'd actually pick
-
-**Antipatterns — ban these in all guide content:**
-
-- ❌ `—` (em dash surrounded by spaces) in prose — use a comma, colon, or restructure
-- ❌ "straightforward", "Let's dive in", "In conclusion", "It's worth noting that"
-- ❌ Mechanical transitions ("Now that X is clear, let's move to Y")
-- ❌ Closing sentences that echo the intro or summarize what was covered
-
-**EN and FR must match in voice:** same opinions, stance, and personality — not just structure. FR is not a reduced version; translate the narrative including the lightness.
 
 ## Steps
 
@@ -104,21 +108,7 @@ If the user asks for a content update but only provides one language, offer to t
 
 Keep the existing structure (headings, sections) unless the user asks to reorganize.
 
-**Write for the target persona**:
-
-- `beginner` → Découvreur: analogies, define every term on first use, explicit limits. ✅ End with "what next" path. ❌ No unexplained code blocks.
-- `intermediate` → Développeur: working code with commented parameters, mention costs/rate limits/security. ❌ No purely theoretical content.
-- `advanced` → Architecte: tradeoffs, observability, production patterns, SLAs. ❌ Don't explain basics.
-
-**Every guide must tell a story**: open with a concrete pain, transition between every major section, set context before every code block, close with a real takeaway. Both EN and FR must have the same narrative richness.
-
-**Content must be project-agnostic**: no references to any specific codebase, internal tooling, or organizational setup. Use generic names. Any reader on any project must be able to follow the guide.
-
-**Back every significant claim with an official documentation link**: add inline links to primary sources (provider docs, tool websites, specs, papers). Each URL must appear **at most once** per guide — link it the first time; refer to the name elsewhere. If multiple references apply, add a `## Resources` section at the end.
-
-**Keep external links in the 3–7 range per guide**: fewer than 3 leaves key claims unsupported and weakens SEO authority signals; more than 7 dilutes link equity and risks being flagged as over-linked. Hard cap: 10. Count all external links across body and Resources section together. When adding links would exceed the cap, consolidate into the `## Resources` section instead of adding more inline links.
-
-**Verify before writing**: check API shapes, configuration option names, and defaults against official docs. Mention the version when behavior is version-specific.
+> **Load `{skill-root}/assets/content-quality-rules.md` before revising.** It contains the authoritative rules for narrative arc, persona alignment, project-agnosticism, official documentation links, and link anchor text. Apply all of them without exception.
 
 ### Frontmatter metadata update (difficulty, tags, order)
 
