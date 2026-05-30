@@ -3,40 +3,40 @@ id: pnpm-workspaces
 order: 2
 difficulty: intermediate
 tags: [tooling, monorepo, pnpm]
-publishedAt: 2026-05-31
-updatedAt: 2026-05-31
+publishedAt: 2026-05-22
+updatedAt: 2026-05-30
 ---
 
-Tu copies un utilitaire de validation du projet A vers le projet B parce que c'est plus rapide que de configurer un package partagé. Six mois plus tard, il y a un bug dans le validateur. Tu le corriges dans A. Tu ne le corriges pas dans B parce que tu as oublié qu'il y est. Un utilisateur de B trouve le bug trois semaines plus tard.
+Tu découpes un repo en quelques packages pour arrêter de copier du code partout, puis la première question pénible tombe tout de suite : comment faire une seule install, viser un seul package, et garder les dépendances locales cohérentes sans bricoler des scripts shell tout le week-end ?
 
-Je l'ai vécu deux fois. La deuxième fois, c'était suffisamment embarrassant pour que je prenne enfin le temps de mettre en place un monorepo correctement.
+J'ai déjà perdu trop de temps là-dessus. Je partirais sur [pnpm workspaces](https://pnpm.io/workspaces) presque à chaque fois, sauf si tes packages n'ont vraiment rien à partager, parce qu'un lockfile unique et le lien entre packages locaux règlent le problème plus tôt qu'on l'imagine.
 
-## Le monorepo, c'est pas une mode
+## Le monorepo n'aide que si le workflow reste ennuyeux
 
-Un seul dépôt git, plusieurs packages, des outils partagés. Avec pnpm workspaces, chaque package garde son propre `package.json` et déclare ses propres dépendances. Ils peuvent se référencer mutuellement sans passer par npm. Les versions de TypeScript restent alignées. On lance lint et les tests depuis un seul endroit. Ça ne paraît pas révolutionnaire jusqu'à ce qu'on se souvienne comment c'était avant.
+Chaque package garde son propre `package.json`, mais le workspace racine donne à pnpm un point central pour les installs. C'est ça qui m'intéresse en pratique : tu arrêtes de répéter la même plomberie de dépendances partout, et tu peux travailler sur des packages locaux sans les publier d'abord.
 
-## Configuration pnpm-workspace.yaml
+## Configurer pnpm-workspace.yaml
 
-Un seul fichier à la racine indique à pnpm quels répertoires contiennent des packages :
+Le fichier racine [pnpm-workspace.yaml](https://pnpm.io/pnpm-workspace_yaml) décide quels dossiers font partie du workspace. Je préfère partir du glob le plus petit qui colle à la structure du repo, puis n'ajouter des exclusions que si l'arborescence l'exige vraiment.
 
 ```yaml
 packages:
-  - 'packages/**'
-  - '!packages/**/node_modules/**'
+  - 'packages/*'
+  - '!**/test/**'
 ```
 
-Le pattern d'exclusion est facile à oublier et il est important : sans lui, pnpm pourrait essayer de traiter les répertoires `node_modules` comme des packages, avec des résultats prévisiblement mauvais.
+Ce pattern est volontairement banal. Il colle au cas classique où les packages vivent un niveau plus bas, et il évite d'enseigner un glob attrape-tout avant d'en avoir besoin.
 
-## Commandes essentielles
+## Les deux commandes que tu vas garder ouvertes
 
-Le changement de workflow est réel. Au lieu de faire des `cd` entre les repos et de réinstaller des dépendances partout, tu pilotes tout depuis une seule racine :
+La doc du [mode récursif](https://pnpm.io/cli/recursive) et celle du [filtering](https://pnpm.io/filtering) sont les deux pages que je mettrais en favori en premier, parce que le quotidien d'un workspace ressemble surtout à "lancer ça partout" ou "lancer ça seulement ici".
 
 ```bash
 # Installer toutes les dépendances du workspace
 pnpm install
 
-# Builder tous les packages (récursif)
-pnpm -r build
+# Builder tous les packages qui exposent un script build
+pnpm -r run build
 
 # Lancer un script dans un package spécifique
 pnpm --filter @my/package dev
@@ -47,15 +47,15 @@ pnpm add -D typescript --filter @my/package
 # Ajouter un package du workspace comme dépendance
 pnpm add @my/shared --filter @my/app --workspace
 
-# Lancer une commande dans tous les packages qui ont un script donné
+# Lancer lint dans tous les packages qui ont un script lint
 pnpm -r --parallel run lint
 ```
 
-J'utilise `--filter` en permanence. C'est ce qui permet de rester dans le monorepo sans perdre de vue le package sur lequel on travaille vraiment.
+J'abuse de `--filter`. Sans lui, un monorepo ressemble vite à un open space où chaque commande dérange tous les packages.
 
-## Packages internes (protocole workspace)
+## Les packages internes sans zone grise
 
-C'est la fonctionnalité qui rend le partage de code vraiment opérationnel. Quand le package A dépend du package B dans le même monorepo, on le déclare comme ça :
+C'est là que le [protocole workspace](https://pnpm.io/workspaces#workspace-protocol-workspace) devient vraiment utile. Si tu veux qu'une dépendance se résolve uniquement depuis le workspace local, dis-le explicitement au lieu d'espérer qu'une plage semver fasse ce que tu voulais.
 
 ```json
 {
@@ -66,20 +66,20 @@ C'est la fonctionnalité qui rend le partage de code vraiment opérationnel. Qua
 }
 ```
 
-En développement, pnpm crée un lien direct de B dans le `node_modules` de A : toute modification dans B est immédiatement visible dans A, sans étape de build. Au moment de publier, pnpm substitue automatiquement le vrai numéro de version. Pas de `npm link`, pas de symlinks manuels, pas de "attends, c'est quelle version là ?"
+pnpm peut déjà lier des packages locaux quand les versions correspondent, même sans `workspace:`, mais je l'utiliserais quand même pour les dépendances internes censées rester locales. Ça enlève le doute du "ça vient du registre ou du repo ?", et pnpm réécrit ces plages en semver classique au moment du pack ou de la publication.
 
-## Changesets pour la gestion des versions
+## Le versioning est un problème à part
 
-Dès qu'on a plusieurs packages publiés, "bumper la version" cesse d'être une simple commande. Quel package a changé ? De combien ? Changesets règle ça en demandant d'attacher une petite déclaration à chaque changement significatif, puis en agrégeant ces déclarations au moment de la release.
+Dès que plusieurs packages sont publiés, l'install n'est plus la partie pénible. La release, si. La [CLI Changesets](https://github.com/changesets/changesets/blob/main/packages/cli/README.md) est le choix que je ferais avec pnpm, justement parce que pnpm ne cherche pas à résoudre lui-même le versioning du workspace.
 
 ```bash
 # Ajouter un changeset (interactif)
 pnpm changeset
 
-# Bumper les versions selon les changesets
+# Mettre à jour les versions à partir des changesets en attente
 pnpm changeset version
 
-# Publier les packages modifiés sur npm
+# Publier les packages dont la version est prête
 pnpm changeset publish
 ```
 
@@ -91,9 +91,9 @@ Un fichier changeset ressemble à ceci :
 '@my/app': patch
 ---
 
-feat: ajout du variant "ghost" sur le Button
+feat: add Button variant "ghost"
 ```
 
-Le fichier vit dans le repo, il est reviewé dans la PR, mergé avec la feature. Au moment de lancer `changeset version`, tu as déjà un historique clair de ce qui a changé et pourquoi.
+Ce qui compte, ce n'est pas le format du fichier. C'est le fait que l'intention de release est relue avec le code, au lieu d'être reconstituée depuis l'historique git au pire moment.
 
-Un avertissement honnête : les dépendances circulaires, les builds incrémentaux qui fonctionnent vraiment, et les déploiements coordonnés deviennent tous plus difficiles à mesure que le monorepo grossit. pnpm workspaces couvrent l'essentiel, mais ce n'est pas une réponse complète à tous les problèmes de passage à l'échelle d'un monorepo. Sache dans quoi tu t'embarques avant de migrer six repos.
+Si tu as deux ou trois packages qui évoluent ensemble, un workspace rentabilise vite son coût. Si tu as déjà besoin d'une orchestration de build stricte, de trains de release et de graphes de dépendances sur des dizaines de packages, considère les workspaces comme le point de départ, pas comme toute la stratégie monorepo.
