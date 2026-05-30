@@ -3,90 +3,59 @@ id: copilot-custom-agents
 order: 6
 difficulty: advanced
 tags: [copilot, custom-agents, ai-agents]
+publishedAt: 2026-12-31
+updatedAt: 2026-12-31
 ---
 
-The problem isn't what Copilot does. It's what it tries to do at the same time. In the same session, it's expected to be an architect (propose designs), a developer (implement), and a reviewer (critique its own code). These three modes have contradictory priorities: an architect looks 6 months ahead, a developer looks at the next PR, a reviewer looks for everything that can break. Having them coexist in the same agent produces lukewarm responses that are none of the three.
+You know the feeling: you ask Copilot to think like an architect, code like a teammate, and nitpick like a reviewer, all in one prompt, then you get an answer that is a bit of all three and convincing at none of them.
 
-Custom Agents solve this by isolating context and instructions per role.
+Custom agents exist for exactly that mess. They let you turn a recurring role into a reusable specialist, so planning, implementation, and review stop fighting for the same slice of attention.
 
-## What a Custom Agent actually brings
+## An agent file is just a contract
 
-A Custom Agent is a Copilot agent configured independently from the main agent. It can have a distinct persona, a subset of the project context, specific tools, and different priorities. This is not a different display mode: it's an agent that actively ignores what is outside its scope.
+In local tools such as the CLI and VS Code, a custom agent is a Markdown file with the `.agent.md` extension, YAML frontmatter, and a Markdown body. [VS Code custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents) also document editor-specific extras such as `agents`, `handoffs`, and preview `hooks`, which matters when you want a workflow instead of a single persona.
 
-The standard agent reads `AGENTS.md` and knows the project as a whole. A Custom Architect Agent, on the other hand, only reads the architecture documentation and ADRs. It has no access to the application code, because its value comes precisely from not being influenced by the existing implementation.
+The [configuration reference](https://docs.github.com/en/copilot/reference/custom-agents-configuration) is the part I keep open in another tab because the sharp edges live there: `name` is optional, `description` is the field Copilot uses to understand the role, omitting `tools` or using `tools: ["*"]` enables all available tools, `tools: []` disables them all, `infer` is deprecated, and fields such as `model`, `target`, `mcp-servers`, `user-invocable`, and `disable-model-invocation` change where the agent runs and who can invoke it.
 
-## Structure of a real agent
-
-Here is a realistic architect agent. The important point is what it refuses to do, as much as what it does:
+I prefer starting with the most boring profile I can get away with, because boring files age better. This is usually enough to prove the role is real.
 
 ```markdown
-# Agent: System Architect
+---
+name: architecture-reviewer
+description: Review architecture proposals, explain trade-offs, and stay out of implementation details
+tools: ['read', 'search']
+---
 
-## Identity
+You review architecture decisions.
 
-You are Winston, a senior system architect with 15 years of experience
-on distributed systems in production. You analyse requirements and
-propose designs that are defensible over the long term.
+Rules:
 
-## Available context
-
-- `docs/architecture/`: ADRs and past decisions
-- `docs/api-contracts/`: interface contracts between services
-
-## Out of scope
-
-- You do not read application code (you are not influenced by existing implementation)
-- You do not propose implementation details
-- You do not validate syntax
-
-## Behaviour
-
-- Before any design: ask for non-functional constraints
-  (volume, SLA, infra budget, team size)
-- Every proposal includes explicit trade-offs
-- If a request implies a change to an existing design:
-  propose an ADR before proceeding
-- Raise an alert if a decision creates silent technical debt
+- Read only the code and docs needed to understand system boundaries
+- Do not write production code
+- For every recommendation, explain trade-offs, migration cost, and failure modes
+- Call out missing constraints before suggesting a design
 ```
 
-The "Out of scope" section is often forgotten. Yet it is what gives the agent its value: an architect who descends into implementation is no longer an architect.
+If you already feel tempted to add ten tools and three pages of instructions, that is usually the moment the agent stops being a role and becomes a junk drawer.
 
-## When a Custom Agent is justified
+## Storage follows ownership
 
-Most needs don't require a Custom Agent. Here is the real complexity gradient:
+The CLI rule is simple: use `.github/agents` when the agent belongs to the project, use `~/.copilot/agents` when it belongs to you, and remember that a user-level file with the same filename overrides the project one, as the [CLI custom agents guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli) explains.
 
-An **instruction in `AGENTS.md`** is enough when the behaviour applies to all conversations without a context shift. Code rules, commit conventions, tools to use.
+When you want the same idea to live on GitHub.com, the [cloud agent guide](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/create-custom-agents) says the official flow creates repository agents in `.github/agents`, and organization or enterprise agents in an `agents/` directory at the root of the `.github-private` repository.
 
-A **Skill** is enough when the task is a reproducible procedure but the project context stays the same. Creating a component, generating a changeset, running a code review.
+## Most custom agents should stay prompt files or instructions
 
-A **Custom Agent** becomes relevant when the role needs a fundamentally different context, or when the same content seen by two different agents must produce two opposite types of response (implementation vs critique).
+GitHub's [feature comparison](https://docs.github.com/en/copilot/concepts/agents/copilot-cli/comparing-cli-features) is useful because it kills a common misconception: custom instructions tell Copilot how to behave in general, skills describe how to handle a class of tasks, and custom agents define specialized abilities that the main agent can delegate through subagents.
 
-## Examples that actually justify a distinct agent
+If a rule should load automatically in the CLI, the [instructions docs](https://docs.github.com/en/copilot/how-tos/copilot-cli/add-custom-instructions) send you to `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md`, or `AGENTS.md`, not to a new agent file.
 
-**Adversarial Reviewer Agent** — Its only job is to find what can break. It has access to the diff and existing tests, but its instructions are oriented toward scepticism: find edge cases, implicit assumptions, places where the specification is incomplete. A development agent cannot play this role honestly because it has a bias toward validation.
+If the behavior is just a reusable manual entry point, a prompt file is lighter. [VS Code prompt files](https://code.visualstudio.com/docs/copilot/customization/prompt-files) are slash-command Markdown files, which is perfect when you want to run a task on demand without inventing a permanent teammate.
 
-**QA Agent** — Knows the project's test patterns and generates exhaustive test cases. Its primary context is the specification and business rules, not the implementation. If the implementation is in its context, it tests what is coded rather than what should be.
+That last distinction matters more than the word "expert." Plenty of tasks sound specialized but are still just prompts. The real threshold is whether the agent needs different incentives, a smaller tool budget, or a narrower context than the default agent should have.
 
-**PM Agent** — Helps structure user stories, challenges scope, identifies business dependencies. No access to code: that would be a distraction from the value it brings.
+## The maintenance bill arrives later
 
-## Custom Agents and BMAD
+A custom agent is not a tiny constitution you write once and frame on the wall. Tool names change, docs drift, MCP setups move, and yesterday's clever prompt quietly turns into today's bad habit.
 
-This project uses BMAD, which provides a system of pre-built Custom Agents in `.agents/`:
-
-```
-.agents/
-  skills/
-    ...
-  agents/    (if you use custom agents)
-    ...
-```
-
-BMAD agents follow the same structure: identity, scope, behaviour, tools. Orchestration between agents is handled either manually (you explicitly choose which agent to invoke) or via triggers in Skills.
-
-## The question to ask before creating an agent
-
-Is this persona distinct enough from the main agent to justify a separate configuration?
-
-If the answer is "I could get the same result with a well-worded instruction in `AGENTS.md`", then it's probably simpler. Custom Agents have a maintenance cost: they age, drift from the actual project context, and need to be updated when conventions change.
-
-The rule I apply: if the role needs to actively ignore part of the project context to be effective, it's a Custom Agent. Otherwise, it's an instruction or a Skill.
+Create a custom agent only when the role must intentionally see less, do less, or judge by different criteria. If you cannot explain that constraint in one sentence, do not build the agent yet, write a prompt file first and wait to see whether the pain comes back twice.

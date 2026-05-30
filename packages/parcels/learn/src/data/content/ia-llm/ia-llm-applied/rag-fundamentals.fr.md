@@ -3,8 +3,8 @@ id: rag-fundamentals
 order: 2
 difficulty: intermediate
 tags: [IA, LLM, RAG, embeddings]
-publishedAt: 2026-05-29
-updatedAt: 2026-05-29
+publishedAt: 2026-12-31
+updatedAt: 2026-12-31
 ---
 
 ## Le modèle qui ne connaît pas vos propres données

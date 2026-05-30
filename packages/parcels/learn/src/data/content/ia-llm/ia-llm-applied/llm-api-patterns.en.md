@@ -3,8 +3,8 @@ id: llm-api-patterns
 order: 1
 difficulty: intermediate
 tags: [IA, LLM, API]
-publishedAt: 2026-05-29
-updatedAt: 2026-05-29
+publishedAt: 2026-12-31
+updatedAt: 2026-12-31
 ---
 
 Your first OpenAI API call worked on the first try. You pasted the key into the code, sent a message, got a response (five minutes). On your laptop, everything works.

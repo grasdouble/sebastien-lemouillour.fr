@@ -3,91 +3,127 @@ id: copilot-mcp
 order: 5
 difficulty: intermediate
 tags: [copilot, mcp, tools]
+publishedAt: 2026-12-31
+updatedAt: 2026-12-31
 ---
 
-Tu es en train de demander à Copilot d'analyser un bug signalé dans une issue GitHub. Il te répond avec des généralités parce qu'il n'a pas accès à cette issue. Tu dois copier-coller le contenu à la main dans le chat. Ce n'est pas bloquant, mais c'est exactement le genre de friction qui te fait penser que l'outil n'est "pas encore prêt".
+Tu demandes à Copilot pourquoi un job CI a raté, et la réponse est planquée dans GitHub Actions, dans un autre tableau de bord, ou dans une API que personne n'a envie d'interroger à la main avant le café. Alors tu colles des liens, des logs, puis un bout de JSON. Copilot n'est pas paresseux, il lui manque juste la pièce.
 
-Les MCP résolvent ce problème.
+Le MCP règle ça.
 
-## Le Model Context Protocol en une phrase
+## Quand le chat a besoin d'un vrai outil
 
-Le **Model Context Protocol (MCP)** est un standard open source créé par Anthropic et adopté par les principaux outils AI (GitHub Copilot, Claude Code, Cursor…). Il définit comment un agent peut appeler des outils externes de façon standardisée : lire une issue, interroger une base de données, rechercher sur le web.
+La [spécification du Model Context Protocol](https://modelcontextprotocol.io/specification/2025-03-26) décrit MCP comme un protocole JSON-RPC 2.0 avec des hôtes, des clients et des serveurs. Les serveurs peuvent exposer des outils, des ressources et des prompts, et les clients peuvent prendre en charge le sampling. Dit comme ça, c'est assez abstrait, mais l'idée utile tient en une ligne : au lieu d'entasser plus de contexte dans le prompt, tu laisses Copilot interroger le système qui sait déjà.
 
-La différence avec un Skill : un Skill est une procédure écrite en texte que l'agent suit. Un MCP est une connexion à un système externe qui fournit des données ou exécute des actions en temps réel.
+C'est aussi pour ça qu'un MCP n'est pas la même chose qu'un prompt file ou qu'une instruction personnalisée. Les instructions cadrent le comportement. Le MCP donne au modèle un outil appelable ou une ressource lisible. Je préfère penser comme ça, parce que ça évite de sortir le marteau-piqueur quand un tournevis suffit.
 
-## Cas d'usage concrets
+## Où Copilot le prend vraiment en charge aujourd'hui
 
-**MCP GitHub** — l'agent peut lire des issues, créer des PRs, consulter l'historique de commits, lire des fichiers dans des repos distants. Sans MCP, il ne peut accéder qu'aux fichiers locaux.
+La [documentation MCP de VS Code](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) explique que tu peux installer des serveurs depuis la galerie MCP avec `@mcp`, ou les configurer à la main dans `.vscode/mcp.json` pour un workspace, ou dans `mcp.json` dans ton profil utilisateur. Les [GitHub MCP docs](https://docs.github.com/en/copilot/how-tos/provide-context/use-mcp-in-your-ide/extend-copilot-chat-with-mcp) ajoutent deux détails pratiques : MCP dans Copilot demande VS Code 1.99 ou plus, et une organisation sur Copilot Business ou Copilot Enterprise peut désactiver MCP via une politique.
 
-**MCP base de données** — l'agent interroge directement ta base : "combien d'utilisateurs actifs ce mois-ci ?" sans que tu aies à copier-coller les résultats.
+Si tu passes ta journée dans VS Code, c'est ce passage qui compte : MCP n'est plus une bidouille exotique. C'est intégré à l'éditeur, au mode Agent, et au sélecteur d'outils.
 
-**MCP recherche web** — l'agent recherche sur le web et injecte les résultats dans sa réponse. Utile pour les questions sur des bibliothèques récentes ou des erreurs très spécifiques.
+## Le setup GitHub par lequel je commencerais
 
-**MCP maison** — tu écris ton propre serveur pour exposer des données spécifiques à ton contexte : un système interne, une API propriétaire, des métadonnées d'infrastructure. C'est là que les MCP deviennent vraiment puissants.
+La [documentation du GitHub MCP Server](https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md) documente le serveur distant hébergé, la contrainte VS Code 1.101 ou plus pour le flux OAuth dans VS Code, ainsi que les URLs par toolset avec les variantes `/readonly`. J'aime beaucoup ce choix, parce que commencer en lecture seule fait partie des rares réflexes de sécurité qui ne te ridiculisent jamais plus tard.
 
-## Configuration dans VS Code
-
-Pour qu'un MCP soit disponible dans Copilot, il faut déclarer le serveur dans `.vscode/mcp.json`. Voici à quoi ça ressemble avec le MCP GitHub officiel :
+Voici la configuration distante minimale à garder en tête.
 
 ```json
 {
   "servers": {
     "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/readonly"
+    }
+  }
+}
+```
+
+Si ton hôte ne peut pas utiliser le serveur distant, un setup local avec Docker fonctionne toujours. La [référence MCP VS Code](https://code.visualstudio.com/docs/copilot/reference/mcp-configuration) précise que `type` est obligatoire pour les serveurs stdio, et elle documente `inputs`, `envFile` et `sandboxEnabled` pour les moments où la configuration devient vite pénible.
+
+```json
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "github_mcp_pat",
+      "description": "GitHub Personal Access Token",
+      "password": true
+    }
+  ],
+  "servers": {
+    "github": {
+      "type": "stdio",
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "ghcr.io/github/github-mcp-server"],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:githubToken}"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_mcp_pat}"
       }
     }
   }
 }
 ```
 
-La plupart des MCP standards se lancent avec `npx` (ou `pnpm dlx`). Le serveur tourne localement et communique avec l'agent via stdio. VS Code te demandera la valeur de `githubToken` au lancement.
+## Deux détails de sécurité que beaucoup sautent
 
-## Sécurité : deux règles non négociables
+Cette référence de configuration est claire sur la partie ennuyeuse mais importante : pas de secret en dur, des variables d'entrée ou un fichier d'environnement pour les valeurs sensibles, et la sandbox pour les serveurs stdio locaux sur macOS et Linux. Ce dernier point est facile à ignorer jusqu'au moment où un serveur demande plus d'accès disque ou réseau que prévu.
 
-Les MCP ont accès à des systèmes potentiellement sensibles. Deux règles à respecter sans exception :
-
-Ne jamais commiter de tokens dans `.vscode/mcp.json`. Utilise la syntaxe `${input:nomDuSecret}` pour que VS Code te le demande, ou des variables d'environnement configurées en dehors du dépôt.
-
-Limite les permissions du token au strict nécessaire. Un token en lecture seule suffit pour 90% des cas d'usage. Ce n'est pas de la paranoïa : un serveur MCP tiers malveillant peut exfiltrer des données si le token a trop de droits.
+Je préfère des permissions étroites, un serveur en lecture seule quand c'est possible, et la sandbox pour tout serveur local qui parle au réseau. C'est moins sexy qu'une démo qui clignote, mais c'est aussi comme ça qu'on évite de transformer un assistant utile en processus beaucoup trop enthousiaste.
 
 ## Écrire ton propre serveur MCP
 
-Quand aucun MCP existant ne couvre ton cas, le SDK TypeScript te permet d'en écrire un en quelques dizaines de lignes. Ce code expose un outil `get_deploy_status` que l'agent peut appeler pour connaître l'état de ton infrastructure :
+S'il existe déjà un serveur officiel pour le système dont tu as besoin, commence par ça. Écrire son propre serveur, c'est amusant comme refaire sa cuisine est amusant : satisfaisant, plein de quêtes secondaires, et très facile à sous-estimer.
 
-```typescript
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+Cet exemple utilise le [README du SDK TypeScript](https://github.com/modelcontextprotocol/typescript-sdk), parce que l'équipe y présente encore v2 comme pré-alpha et recommande v1.x pour la production. Sur cette ligne du SDK, tu importes `McpServer` depuis `@modelcontextprotocol/sdk/server/mcp.js` et tu déclares les outils avec `registerTool`.
+
+```ts
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import * as z from 'zod/v4';
 
-const server = new Server(
-  { name: 'mon-mcp', version: '1.0.0' },
+const server = new McpServer({ name: 'build-status', version: '1.0.0' });
+
+server.registerTool(
+  'get_build_status',
   {
-    capabilities: { tools: {} },
+    title: 'Build status',
+    description: 'Return the latest CI status for a repository branch',
+    inputSchema: {
+      repository: z.string(),
+      branch: z.string(),
+    },
+  },
+  async ({ repository, branch }) => {
+    const response = await fetch(
+      `${process.env.BUILD_API_BASE_URL}/status?repository=${encodeURIComponent(repository)}&branch=${encodeURIComponent(branch)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.BUILD_API_TOKEN}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Build API request failed with ${response.status}`);
+    }
+
+    const status = await response.json();
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(status, null, 2),
+        },
+      ],
+    };
   }
 );
 
-server.setRequestHandler('tools/list', async () => ({
-  tools: [
-    {
-      name: 'get_deploy_status',
-      description: "Retourne l'état du dernier déploiement en production",
-      inputSchema: { type: 'object', properties: {} },
-    },
-  ],
-}));
-
-server.setRequestHandler('tools/call', async (req) => {
-  if (req.params.name === 'get_deploy_status') {
-    const status = await fetchDeployStatus();
-    return { content: [{ type: 'text', text: JSON.stringify(status) }] };
-  }
-  throw new Error('Outil inconnu');
-});
-
-const transport = new StdioServerTransport();
-await server.connect(transport);
+await server.connect(new StdioServerTransport());
 ```
 
-C'est utile quand tu veux que l'agent accède à des données internes (métriques, états de déploiement, données métier) sans les copier manuellement dans chaque conversation. Un investissement de deux heures pour supprimer une friction quotidienne.
+Le motif compte plus que la fausse API de build : déclarer l'outil, valider l'entrée, appeler un système que tu connais déjà, puis renvoyer du texte que le modèle peut exploiter sans deviner.
+
+Si tu colles le même contexte dans Copilot plus de deux fois par semaine, installe un serveur MCP. Si tu es encore en phase d'essai, prends lecture seule et stdio d'abord. Tu auras tout le temps de compliquer les choses une fois que la version ennuyeuse t'aura vraiment fait gagner du temps.

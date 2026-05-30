@@ -3,8 +3,8 @@ id: react-micro-frontends
 order: 1
 difficulty: advanced
 tags: [React, architecture, micro-frontend]
-publishedAt: 2026-05-29
-updatedAt: 2026-05-29
+publishedAt: 2026-12-31
+updatedAt: 2026-12-31
 ---
 
 Tu es dans une réunion où trois équipes débattent pour savoir si le déploiement est safe. Chacune a touché une section différente de l'appli. L'une d'elles a trouvé un bug au dernier moment dans son bout. Personne ne veut bloquer tout le monde, mais personne ne veut non plus livrer quelque chose de cassé. Alors tout le monde attend. Encore.

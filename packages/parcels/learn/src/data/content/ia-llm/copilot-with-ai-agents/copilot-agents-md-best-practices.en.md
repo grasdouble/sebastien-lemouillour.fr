@@ -3,80 +3,67 @@ id: copilot-agents-md-best-practices
 order: 3
 difficulty: intermediate
 tags: [copilot, agents-md, best-practices]
+publishedAt: 2026-12-31
+updatedAt: 2026-12-31
 ---
 
-You've set up `AGENTS.md`. You've added some rules. And yet the agent keeps doing things you didn't expect. The problem is almost never the number of rules: it's how they're phrased.
+You've written `AGENTS.md`, added a rule about tests, and the agent still charges into the codebase like it is late for a train. That usually means the file is carrying the wrong kind of instruction, not that the model suddenly forgot how to read.
 
-## The rule about rules: observable or pointless
+## Pick the file before you write the rule
 
-An instruction you can't verify doesn't change the agent's behaviour.
+GitHub documents three repository instruction types on GitHub.com: repository-wide `.github/copilot-instructions.md`, path-specific `.github/instructions/*.instructions.md`, and agent instructions such as `AGENTS.md` ([GitHub custom instructions docs](https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot), [Custom instructions support](https://docs.github.com/en/copilot/reference/custom-instructions-support)). The same support matrix also shows why the file choice matters: on GitHub.com, Copilot Chat reads repository-wide instructions, while Copilot cloud agent also reads path-specific and agent instructions. `AGENTS.md` can live anywhere in the repository, with the nearest file in the directory tree taking precedence for agent work. I prefer to decide the file first, because dumping everything into `AGENTS.md` is how you build a junk drawer with headings.
 
-Test yourself on these:
+This is the split I would use in a generic project:
 
-- "Be careful about security" — How would you know if the agent respected it?
-- "Use best practices" — Which ones exactly?
-- "Think about performance" — This sentence can mean a hundred things depending on context.
-
-These formulations seem reasonable. They don't work because they don't encode a decision. An observable behaviour, on the other hand, lets you check after the fact:
-
-- ✅ "Never call `tsc` directly. Use `pnpm typecheck` instead."
-- ✅ "Never run `git add` or `git commit`. Leave all staging to the user."
-- ✅ "Every decorative SVG must have `aria-hidden=\"true\"`."
-
-For each of these, you can look at what the agent did and immediately see whether the rule was followed. That's the criterion.
-
-## The format that works
-
-Section headings in the form "subject — directive" are particularly effective because they communicate the gist before the body is even read:
-
-```markdown
-## Package Manager — Always use pnpm
-
-## Git — No commits, no staging
-
-## TypeScript — Never call tsc directly
-
-## Accessibility — Non-negotiable
+```text
+my-app/
+├─ .github/copilot-instructions.md
+├─ .github/instructions/frontend.instructions.md
+├─ packages/web/AGENTS.md
+└─ packages/api/AGENTS.md
 ```
 
-For the body of each rule, add a sentence explaining the _why_ when it isn't obvious. The agent handles constraints better when it understands where they come from. Here's a complete example for a rule where the "why" genuinely changes what's expected:
+Use `copilot-instructions.md` for rules that should follow the repository everywhere, use `.instructions.md` for rules that only make sense for part of the tree, and use `AGENTS.md` for operating constraints the agent must obey while working there.
+
+## Write rules the model can actually audit
+
+GitHub says custom instructions work best as short, self-contained statements, reminds you that Copilot is non-deterministic, and notes that Copilot code review only reads the first 4,000 characters of any custom instruction file ([Copilot response customization](https://docs.github.com/en/copilot/concepts/prompting/response-customization)). That is why vague rules fail twice: they are hard to follow and impossible to verify.
+
+Here is the sort of `AGENTS.md` block I trust:
 
 ```markdown
-## TypeScript — Never call tsc directly
+## Validation
 
-The tsconfig files have `declaration: true`. Running tsc without `--noEmit`
-emits .js, .d.ts and .map files into src/. Always use the project scripts.
+Run the affected test suite before finishing work.
 
-- ✅ `pnpm typecheck`
-- ✅ `ide-get_diagnostics`
-- ❌ `tsc`, `pnpm tsc`, `tsc -p tsconfig.json`
+- ✅ Run `pnpm test --filter my-package`
+- ✅ Report the failing command if validation does not pass
+- ❌ Mark the task done without running the tests
 ```
 
-Without the explanation, the prohibition seems arbitrary. With it, the agent understands the concrete risk it needs to avoid.
+"Be careful with security" sounds serious, but it does not force a decision. "Never copy values from `.env` into code, examples, or logs" is better because you can inspect whether the rule was followed.
 
-## What belongs in the file and what doesn't
+## Keep local rules local
 
-A common confusion: `AGENTS.md` is not project documentation, and it's not a duplicate of your ESLint config.
+I like `AGENTS.md` for instructions with consequences, required validation, forbidden Git actions, secrets handling, documentation duties, and review habits that tooling will not enforce for you. If the rule is really about a folder, a language, or a framework, a scoped instructions file stays cleaner. VS Code documents `.instructions.md` files with `applyTo` frontmatter, automatic workspace support for `.github/copilot-instructions.md`, and `AGENTS.md` support for Copilot Chat, while nested `AGENTS.md` files are still experimental there ([VS Code custom instructions](https://code.visualstudio.com/docs/copilot/customization/custom-instructions)).
 
-**Put in `AGENTS.md`:**
+This is the kind of path-specific file I would reach for first:
 
-- Tool choices the agent can't guess (package manager, builder, validation scripts)
-- Git behaviours that are off-limits
-- Project conventions not encoded in tools (naming, folder structure, changeset rules)
-- Accessibility rules you want applied systematically
-- Monorepo structure if it's non-standard
+```markdown
+---
+applyTo: 'packages/web/**/*.{ts,tsx}'
+---
 
-**Don't put in `AGENTS.md`:**
+# React rules
 
-- Rules already covered by ESLint or Prettier — the agent will respect them through the tools, no need to double up
-- Stylistic preferences (indentation, quotes) — that's Prettier's job
-- Task-specific instructions ("for this PR, use this message") — ephemeral information doesn't belong here
-- Functional documentation about the project
+- Prefer semantic HTML before adding ARIA roles
+- Test visible state changes with React Testing Library
+```
 
-## Capitalise on real mistakes
+One caveat is easy to miss: on GitHub.com, that kind of path-specific rule helps Copilot cloud agent and Copilot code review, not regular Copilot Chat.
 
-This is the point people forget most often, and it's the most important one.
+## Turn repeated pain into a rule
 
-Every time the agent does something you have to correct, ask yourself: was this rule missing from `AGENTS.md`? If yes, add it in the same session. Not later. Now.
+GitHub's general Copilot guidance is still the boring, correct answer: give better context, check the output, and iterate ([GitHub Copilot best practices](https://docs.github.com/en/copilot/using-github-copilot/best-practices-for-using-github-copilot)). So when the same mistake shows up twice, do not add a motivational slogan. Add the smallest rule that would have prevented the mistake and the easiest way to verify it.
 
-A well-maintained `AGENTS.md` isn't built by trying to anticipate every possible case upfront. It's built by observing real behaviour and codifying what was missing. Three months of working with Copilot produces a far more useful `AGENTS.md` than two hours of speculative planning.
+If I had to set one threshold, it would be this: put something in `AGENTS.md` only when the mistake is expensive, repeatable, and not already enforced by your tools.

@@ -3,38 +3,41 @@ id: copilot-intro
 order: 1
 difficulty: beginner
 tags: [copilot, ai-agents, github]
+publishedAt: 2026-12-31
+updatedAt: 2026-12-31
 ---
 
-You're working on a project. You know exactly what you want to build, but half the time goes to looking up syntax, writing tests for logic you've already worked out in your head, copying boilerplate you know by heart. GitHub Copilot exists to absorb exactly that part of the work.
+Copilot gets weird fast when it uses `npm` in a `pnpm` project, invents a test command, or edits the wrong file with total confidence. In most cases, the problem is not the model. The problem is that you asked a general tool to act inside a very specific project.
 
-But "Copilot" actually covers several fairly different tools, and understanding which does what is the first thing to sort out.
+That is why I prefer to think about GitHub Copilot as three different jobs, not one fuzzy magic assistant.
 
-## Three tools under one name
+## Three jobs, one brand
 
-**Inline suggestions** are what most people picture when they hear "Copilot". You start typing, Copilot proposes a completion. It looks at the open file, your imports, your function names, and tries to guess what you're about to write. It's useful for anything repetitive: a function similar to another one, a pattern you've used before, standard boilerplate.
+[Code suggestions](https://docs.github.com/en/copilot/concepts/completions/code-suggestions) are the inline proposals that appear while you type. In some IDEs, that includes classic ghost text and next edit suggestions. I use this mode when I already know the shape of the code and just want my hands to stop doing factory work.
 
-**Chat** is a text conversation with the model, built into your editor or terminal. The difference from inline suggestions: you control the context explicitly. Instead of Copilot guessing what you want, you explain it. You can ask it to understand a piece of code, propose a refactor, explain why a test is failing. This is where the tool starts to feel like a collaborator rather than a completer.
+[Copilot Chat](https://docs.github.com/en/copilot/concepts/about-github-copilot-chat) is the conversational layer. It is available in GitHub, several IDEs, GitHub Mobile, and Copilot CLI. This is the right tool when you want an explanation, a refactor draft, or a first pass on tests that you will still review yourself. Useful, yes. Magical, no. You still have to read what it produced.
 
-**Agent mode** goes a step further. Copilot can read files, run commands, modify code, create tests, and chain several actions autonomously. You describe a task; it does it. That's powerful, and it's also where context becomes critical: an agent without clear instructions about the project makes decisions that can be completely off.
+When the task is bigger than a reply, [Copilot cloud agent](https://docs.github.com/en/copilot/concepts/agents/cloud-agent/about-cloud-agent) can research a repository, create an implementation plan, make code changes on a branch, run tests and linters in its own environment, and prepare a pull request for review. That is where Copilot stops feeling like autocomplete and starts feeling like a junior teammate who works very fast and occasionally needs a reality check.
 
-## What Copilot won't do well without help
+## Why context stops being optional
 
-Copilot has no memory between sessions. Every conversation starts from scratch. It doesn't know your project uses `pnpm` instead of `npm`, that you never want automatic commits, that accessibility is mandatory on every component.
+Once you move from suggestions to chat or agent work, vague prompts get expensive. GitHub Copilot CLI supports [custom instructions](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions), including repository-wide instructions, path-specific instructions, and agent instructions such as `AGENTS.md`. In practice, I prefer written instructions over repeating the same prompt twenty times and pretending that counts as a system.
 
-Tell it once, it remembers for the conversation. Don't tell it, and it makes its own choices — often very reasonable defaults for an unknown project, which means potentially very wrong for yours.
+A tiny `AGENTS.md` file is often enough to stop the dumb mistakes, so here is the kind of baseline I like to start with:
 
-That's the problem `AGENTS.md` solves: a configuration file that Copilot agents read at startup and that gives them persistent context about the project. This guide and the ones that follow explain how to build it.
+```md
+# AGENTS.md
 
-## The most common misuse
+- Use pnpm, never npm.
+- Run lint and build before proposing completion.
+- Do not edit generated files by hand.
+- Prefer accessible HTML and visible focus states.
+```
 
-The natural temptation is to only use Copilot to speed up things you already know how to do. That's a fine start, but it undersells the tool.
+## What memory changes, and what it does not
 
-The real gain comes from delegating tasks you _could_ do but that have no intellectual interest: writing tests for logic you've already designed, scaffolding a new component, documenting an API, converting types. These tasks take time, require attention, and add nothing to the thinking. Copilot handles them well.
-
-That freed-up time goes elsewhere: to architecture, difficult decisions, the parts of the project that genuinely deserve careful thought.
+[Copilot Memory](https://docs.github.com/en/copilot/concepts/agents/copilot-memory) is in public preview. It can store repository-level facts and, for Copilot Pro, Pro+, or Max users, user-level preferences that help Copilot cloud agent, code review, and Copilot CLI in later work. I like the feature, but I would not use it as my first line of defense. Unused entries are automatically deleted after 28 days. A versioned instruction file is boring, explicit, and visible in code review, which is exactly why I trust it more.
 
 ## Where to start
 
-If you're new to the tool, begin with inline suggestions in your usual editor. Watch how local context influences the proposals. Try chat to ask questions about an existing piece of code.
-
-When you start noticing recurring mistakes (Copilot making choices that don't match your project), that's the signal it's time to set up `AGENTS.md`. The next guide covers exactly that.
+If Copilot mostly helps you finish lines you were already about to write, start with code suggestions and stop there. If you want it to explain code or draft tests, use chat. If you want it to touch multiple files or run commands, add instructions to the repository first. That is my threshold: no repo instructions, no agent for anything bigger than a trivial cleanup.

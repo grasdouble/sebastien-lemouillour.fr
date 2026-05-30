@@ -3,61 +3,101 @@ id: copilot-agents-md-setup
 order: 2
 difficulty: beginner
 tags: [copilot, agents-md, configuration]
+publishedAt: 2026-12-31
+updatedAt: 2026-12-31
 ---
 
-You've started using Copilot. The suggestions are useful, the chat responds well. And then you notice something annoying: every new session, it starts from scratch. It uses `npm` when your project runs on `pnpm`. It tries to commit code even though you told it not to last week. It ignores the accessibility conventions you'd already explained.
+You have probably seen this already: Copilot gets one task right, then opens the next file and acts like it has never met your project before. It forgets the test command, invents a naming convention, and edits the wrong layer with suspicious confidence.
 
-That's not a bug. Copilot has no memory between sessions. `AGENTS.md` is the fix.
+Repository instructions fix that. GitHub currently splits them into three buckets: `.github/copilot-instructions.md` for repository-wide guidance, `.instructions.md` files for path-specific rules, and agent instruction files such as `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md` [GitHub Docs][gh-response]. For agent-driven work, I prefer `AGENTS.md` because GitHub's cloud agent and Copilot CLI both recognize that filename [GitHub support matrix][gh-support].
 
-## What this file does
+## What `AGENTS.md` actually does
 
-`AGENTS.md` is a text file at the root of your project that Copilot agents read automatically at the start of a session. Whatever you put there becomes permanent context: the agent knows it without you having to repeat it.
+`AGENTS.md` gives an agent the boring but essential context before you type a prompt: how to test, what to avoid, and which conventions are real. VS Code also makes one limitation explicit: custom instructions influence chat and agent flows, not inline completions in the editor [VS Code Docs][vscode-custom].
 
-Think of the difference between briefing a contractor at every single meeting versus having an onboarding document they read once. Same content, but you stop having to think about it.
+That changes the conversation. Instead of retyping "run the documented test command" or "ask before adding a dependency," you store the rule once and stop babysitting the prompt.
 
-## The symlink to copilot-instructions.md
+## Start with one root file
 
-GitHub Copilot in VS Code reads its instructions from `.github/copilot-instructions.md`. That's the official file the editor recognises.
+The safest default is a single `AGENTS.md` at the repository root. GitHub says Copilot agents can use `AGENTS.md` files anywhere in a repository and choose the nearest one, but the same setup guide points out that subfolder `AGENTS.md` support in VS Code is still off by default today [GitHub setup guide][gh-setup].
 
-The problem: other agents (Claude Code, OpenCode, some MCP-based tools) prefer to read `AGENTS.md` at the project root. Maintain two separate files and you'll inevitably let them drift apart.
+So I would not get fancy on day one. One root file gives you most of the value, and you can split it later if one part of the project genuinely needs different rules.
 
-The fix: a **symlink**. One source file, two access paths.
+## Making the file portable
 
-```bash
-# From the project root
-ln -s ../AGENTS.md .github/copilot-instructions.md
-```
+This is where the topic gets a little annoying. Codex reads `AGENTS.md` files directly and merges broader guidance with closer overrides [OpenAI Docs][openai-agents]. Claude Code does not read `AGENTS.md` by itself. Its docs recommend a `CLAUDE.md` that imports `AGENTS.md`, or a symlink if you do not need Claude-specific notes [Claude Code Docs][claude-memory].
 
-After that, you maintain exactly one file (`AGENTS.md`), and every tool reading either path gets the same instructions. The symlink itself is tracked by git, which is enough for VS Code to pick it up.
+I prefer the import. It is less clever than a symlink, and "less clever" ages beautifully.
 
-## Basic structure
-
-A good `AGENTS.md` is short and readable. Each rule follows the same pattern: a title, one explanatory sentence, concrete examples.
+This is the smallest `AGENTS.md` I would actually ship.
 
 ```markdown
 # AGENTS.md
 
-## Package Manager — Always use pnpm
+## Working rules
 
-Never use npm or yarn.
-
-- ✅ pnpm install, pnpm add <pkg>
-- ❌ npm install, yarn add
-
-## Git — No commits, no staging
-
-Never create commits. Leave all git operations to the user.
-
-- ✅ git diff, git status, git log
-- ❌ git add, git commit
+- Run the documented test command before you finish a change.
+- Ask before adding a new runtime dependency.
+- Update docs when public behavior changes.
 ```
 
-This format works because it's readable to a human and unambiguous to an agent. A descriptive title gives the gist, the text clarifies, the examples handle the remaining edge cases.
+If you also use Claude Code, add a tiny compatibility file so both tools read the same source of truth.
 
-## Where to put it and how to version it
+```markdown
+# CLAUDE.md
 
-The file goes at the **root of the git repository**. In a monorepo, that means the root of the whole repo, not the root of an individual package.
+@AGENTS.md
 
-Commit it to git like any other configuration file. It's a project artefact shared by the whole team, not a personal preference. Changes to the file go through code review, just like everything else.
+## Claude Code
 
-Once it's in place, the next guide explains what to put in it and how to phrase rules that actually change the agent's behaviour.
+- Use plan mode for larger refactors.
+```
+
+## What to write in it
+
+Anthropic recommends keeping `CLAUDE.md` concise and human-readable, and that advice carries over nicely here too [Anthropic guide][anthropic-claude-md]. A good `AGENTS.md` should read like instructions a senior teammate would leave for future-you, not like a corporate wall poster.
+
+This template is generic on purpose, so you can steal the shape without inheriting somebody else's baggage.
+
+```markdown
+# AGENTS.md
+
+## Project map
+
+- The application code lives in `packages/my-app`.
+- Shared utilities live in `packages/my-shared`.
+
+## Coding rules
+
+- Prefer imports from `@my/shared` over copying helpers.
+- Keep functions focused and name them after what they return or change.
+
+## Workflow
+
+- Run `pnpm --filter my-app test` after changing behavior in `packages/my-app`.
+- Ask before introducing a new runtime dependency.
+
+## Definition of done
+
+- Update tests when behavior changes.
+- Update docs when setup or public behavior changes.
+```
+
+If a rule only matters for one slice of the repository, that is your cue to use a path-scoped instructions file or a nested `AGENTS.md`, not to turn the root file into a junk drawer.
+
+## Resources
+
+- [GitHub Docs on Copilot response customization][gh-response]
+- [GitHub Docs on repository custom instructions and support matrices][gh-support]
+- [VS Code Docs on custom instructions][vscode-custom]
+- [OpenAI Docs on `AGENTS.md` in Codex][openai-agents]
+- [Claude Code Docs on memory and `CLAUDE.md`][claude-memory]
+- [Anthropic's guide to `CLAUDE.md`][anthropic-claude-md]
+
+[gh-response]: https://docs.github.com/en/copilot/concepts/about-customizing-github-copilot-chat-responses
+[gh-support]: https://docs.github.com/en/copilot/reference/custom-instructions-support
+[vscode-custom]: https://code.visualstudio.com/docs/copilot/customization/custom-instructions
+[gh-setup]: https://docs.github.com/en/copilot/how-tos/configure-custom-instructions-in-your-ide/add-repository-instructions-in-your-ide?tool=vscode
+[openai-agents]: https://developers.openai.com/codex/guides/agents-md
+[claude-memory]: https://code.claude.com/docs/en/memory
+[anthropic-claude-md]: https://claude.com/blog/using-claude-md-files
