@@ -3,6 +3,8 @@ id: vite-tooling
 order: 1
 difficulty: beginner
 tags: [tooling, Vite, build]
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Tu es en plein sprint. Tu ouvres ton terminal, tu lances `npm start`, et tu attends. Tu vas te faire un café. Quarante secondes plus tard, Webpack a fini d'analyser le graphe de dépendances et tu peux enfin voir l'appli. Tu modifies un composant, tu sauvegardes, et tu attends encore (cinq secondes cette fois, ce qui paraît raisonnable jusqu'à ce que tu le fasses cent fois dans la journée).

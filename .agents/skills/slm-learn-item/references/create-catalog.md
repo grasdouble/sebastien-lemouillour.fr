@@ -5,6 +5,11 @@ description: Capability for creating a new catalog — i18n keys in both locale 
 
 # Create Catalog
 
+## Language
+
+- Communicate with the user in French (or match `{communication_language}`)
+- Write EN i18n strings in English; write FR i18n strings in French
+
 ## Outcome
 
 A new catalog is registered by creating its folder under `content/{categoryKey}/{catalogId}/` and adding i18n keys (title + description) to both `en.json` and `fr.json`. The catalog is auto-discovered by `learn.ts` as soon as at least one guide file exists in the folder.
@@ -47,7 +52,7 @@ Mirror the same structure with French translations.
 
 The catalog folder `content/{categoryKey}/{catalogId}/` is created implicitly when guide files are placed in it.
 
-- If assigning existing guides: use `git mv` to move their `.en.md` and `.fr.md` files into the new folder.
+- If assigning existing guides: move **both** `.en.md` and `.fr.md` files into the new folder using your file tools (read old file, create at new path, delete old file). Do **not** use `git mv` — it stages files automatically, which conflicts with the no-staging rule. Git state management (staging, committing) is the user's responsibility.
 - If this catalog is being created ahead of any guide: create a `.gitkeep` file to hold the folder, and note that the catalog won't appear in the UI until at least one guide is added.
 
 ### 4. Create changeset
@@ -72,6 +77,8 @@ Summarize what was created:
 - Changeset created
 
 Remind the user to run `pnpm build` from the `learn` package to validate.
+
+If `{workflow.on_complete}` is non-empty, execute it after confirming.
 
 ## Constraints
 

@@ -3,6 +3,8 @@ id: intro-ia-generative
 order: 1
 difficulty: beginner
 tags: [IA, LLM]
+publishedAt: 2026-05-29
+updatedAt: 2026-05-29
 ---
 
 You copy-paste a customer complaint into ChatGPT and get a polished support reply in five seconds. Your designer friend types a vibe into Midjourney and gets something better than what took three hours in Figma last month. Different tools, different outputs, but the same disorienting feeling: software that creates, rather than software that obeys.

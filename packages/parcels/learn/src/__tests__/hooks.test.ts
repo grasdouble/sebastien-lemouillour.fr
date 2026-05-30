@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ALL_TAGS, CATEGORY_KEYS, DIFFICULTIES, RAW_CATALOGS, RAW_LEARN_ITEMS } from '../data/learn';
+import { CATEGORY_KEYS, DIFFICULTIES, isPublished, RAW_CATALOGS, RAW_LEARN_ITEMS } from '../data/learn';
 import { useCatalogs } from '../hooks/useCatalogs';
 import { useLearn } from '../hooks/useLearn';
 
@@ -54,10 +54,12 @@ describe('learn hooks', () => {
 
     const { result } = renderHook(() => useLearn());
 
-    expect(result.current.tutorials).toHaveLength(RAW_LEARN_ITEMS.length);
-    expect(result.current.tutorials[0]?.content).toBe(RAW_LEARN_ITEMS[0]?.content.en);
+    const publishedItems = RAW_LEARN_ITEMS.filter((item) => isPublished(item.publishedAt));
+    const expectedTags = [...new Set(publishedItems.flatMap((item) => item.tags))].sort();
+    expect(result.current.tutorials).toHaveLength(publishedItems.length);
+    expect(result.current.tutorials[0]?.content).toBe(publishedItems[0]?.content.en);
     expect(result.current.categoryOrder).toEqual(CATEGORY_KEYS.map((key) => `translated:categories.${key}`));
-    expect(result.current.allTags).toEqual(ALL_TAGS);
+    expect(result.current.allTags).toEqual(expectedTags);
     expect(result.current.allDifficulties).toEqual(DIFFICULTIES);
   });
 
@@ -68,5 +70,44 @@ describe('learn hooks', () => {
     const { result } = renderHook(() => useLearn());
 
     expect(result.current.tutorials[0]?.content).toBe(RAW_LEARN_ITEMS[0]?.content.fr);
+  });
+});
+
+describe('useLearn — publishing filter', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    sessionStorage.clear();
+    i18nState.language = 'fr';
+    i18nState.resolvedLanguage = 'fr';
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    sessionStorage.clear();
+  });
+
+  it('hides guides with a future publishedAt', () => {
+    vi.setSystemTime(new Date('2000-01-01'));
+
+    const { result } = renderHook(() => useLearn());
+
+    expect(result.current.tutorials).toHaveLength(0);
+  });
+
+  it('shows all guides when sessionStorage learn.showUnpublished is true', () => {
+    vi.setSystemTime(new Date('2000-01-01'));
+    sessionStorage.setItem('learn.showUnpublished', 'true');
+
+    const { result } = renderHook(() => useLearn());
+
+    expect(result.current.tutorials).toHaveLength(RAW_LEARN_ITEMS.length);
+  });
+
+  it('allTags reflects only visible tutorials', () => {
+    vi.setSystemTime(new Date('2000-01-01'));
+
+    const { result } = renderHook(() => useLearn());
+
+    expect(result.current.allTags).toHaveLength(0);
   });
 });

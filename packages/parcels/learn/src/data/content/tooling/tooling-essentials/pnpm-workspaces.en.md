@@ -3,6 +3,8 @@ id: pnpm-workspaces
 order: 2
 difficulty: intermediate
 tags: [tooling, monorepo, pnpm]
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 You copy a validation utility from project A to project B because it's faster than setting up a shared package. Six months later, there's a bug in the validator. You fix it in A. You forget to fix it in B because you've forgotten it's there. A user in B finds the bug three weeks later.

@@ -3,6 +3,8 @@ id: rag-fundamentals
 order: 2
 difficulty: intermediate
 tags: [IA, LLM, RAG, embeddings]
+publishedAt: 2026-05-29
+updatedAt: 2026-05-29
 ---
 
 ## The model that can't answer your own questions

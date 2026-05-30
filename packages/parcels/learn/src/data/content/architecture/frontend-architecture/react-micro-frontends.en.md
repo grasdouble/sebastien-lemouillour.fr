@@ -3,6 +3,8 @@ id: react-micro-frontends
 order: 1
 difficulty: advanced
 tags: [React, architecture, micro-frontend]
+publishedAt: 2026-05-29
+updatedAt: 2026-05-29
 ---
 
 You're in a meeting where three teams are arguing about whether the deploy is safe to go out. Each team touched a different section of the app. One found a bug at the last minute in their slice. Nobody wants to delay everybody, but nobody wants to ship broken code either. So everyone waits. Again.

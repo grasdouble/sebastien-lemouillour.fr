@@ -3,6 +3,8 @@ id: prompt-engineering
 order: 2
 difficulty: intermediate
 tags: [IA, LLM, prompt]
+publishedAt: 2026-05-25
+updatedAt: 2026-05-29
 ---
 
 You've tried the model. The results are bad. Not broken-bad: just vague, off-topic, weirdly formatted, or confidently wrong about something obvious. Your first instinct is to blame the model. I had that instinct too. Usually, the model is fine: the instruction is the problem.

@@ -3,6 +3,8 @@ id: llm-api-patterns
 order: 1
 difficulty: intermediate
 tags: [IA, LLM, API]
+publishedAt: 2026-05-29
+updatedAt: 2026-05-29
 ---
 
 Votre premier appel à l'API OpenAI a marché du premier coup. Vous avez collé la clé dans le code, envoyé un message, reçu une réponse (cinq minutes). En local, tout fonctionne.

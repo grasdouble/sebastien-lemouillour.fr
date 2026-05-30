@@ -27,6 +27,8 @@ export type Tutorial = {
   difficulty: Difficulty;
   tags: string[];
   order?: number;
+  publishedAt: string;
+  updatedAt: string;
   content: string;
 };
 
@@ -37,6 +39,8 @@ export type RawLearnItem = {
   difficulty: Difficulty;
   tags: string[];
   order?: number;
+  publishedAt: string;
+  updatedAt: string;
   content: { fr: string; en: string };
 };
 
@@ -77,11 +81,13 @@ type GuideFrontmatter = {
   difficulty: Difficulty;
   tags: string[];
   order?: number;
+  publishedAt: string;
+  updatedAt: string;
 };
 
 /**
  * Parses YAML frontmatter delimited by `---` at the top of a markdown file.
- * Extracts `id` (string), `difficulty` (string), `tags` (inline array) and optional `order` (number).
+ * Extracts `id`, `difficulty`, `tags`, optional `order`, `publishedAt`, and `updatedAt` (UTC ISO 8601 dates).
  */
 function parseFrontmatter(raw: string, path: string): { meta: GuideFrontmatter; body: string } {
   const parts = raw.split(/^---$/m);
@@ -90,6 +96,7 @@ function parseFrontmatter(raw: string, path: string): { meta: GuideFrontmatter; 
   }
 
   const meta: Partial<GuideFrontmatter> = {};
+  const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
   for (const line of parts[1].split('\n')) {
     const colonIdx = line.indexOf(':');
@@ -113,11 +120,23 @@ function parseFrontmatter(raw: string, path: string): { meta: GuideFrontmatter; 
     } else if (key === 'order') {
       const parsed = parseInt(value, 10);
       if (!isNaN(parsed)) meta.order = parsed;
+    } else if (key === 'publishedAt') {
+      if (!ISO_DATE_RE.test(value)) {
+        throw new Error(`[learn] Invalid publishedAt "${value}" in ${path}. Expected YYYY-MM-DD (UTC).`);
+      }
+      meta.publishedAt = value;
+    } else if (key === 'updatedAt') {
+      if (!ISO_DATE_RE.test(value)) {
+        throw new Error(`[learn] Invalid updatedAt "${value}" in ${path}. Expected YYYY-MM-DD (UTC).`);
+      }
+      meta.updatedAt = value;
     }
   }
 
-  if (!meta.id || !meta.difficulty || !meta.tags) {
-    throw new Error(`[learn] Incomplete frontmatter in ${path}: missing "id", "difficulty" or "tags"`);
+  if (!meta.id || !meta.difficulty || !meta.tags || !meta.publishedAt || !meta.updatedAt) {
+    throw new Error(
+      `[learn] Incomplete frontmatter in ${path}: missing "id", "difficulty", "tags", "publishedAt" or "updatedAt"`
+    );
   }
 
   return { meta: meta as GuideFrontmatter, body: parts.slice(2).join('---').trimStart() };
@@ -146,6 +165,8 @@ type GuideAccumulator = {
   difficulty: Difficulty;
   tags: string[];
   order?: number;
+  publishedAt: string;
+  updatedAt: string;
   content: Partial<Record<'fr' | 'en', string>>;
 };
 
@@ -175,6 +196,8 @@ for (const [path, raw] of Object.entries(_rawModules)) {
       difficulty: meta.difficulty,
       tags: meta.tags,
       order: meta.order,
+      publishedAt: meta.publishedAt,
+      updatedAt: meta.updatedAt,
       content: {},
     });
   }
@@ -196,6 +219,8 @@ export const RAW_LEARN_ITEMS: readonly RawLearnItem[] = [..._guideMap.entries()]
   difficulty: acc.difficulty,
   tags: acc.tags,
   order: acc.order,
+  publishedAt: acc.publishedAt,
+  updatedAt: acc.updatedAt,
   content: acc.content as { fr: string; en: string },
 }));
 
@@ -210,6 +235,12 @@ export const RAW_CATALOGS: readonly RawCatalog[] = [..._catalogMap.entries()].ma
 });
 
 export const ALL_TAGS: readonly string[] = [...new Set(RAW_LEARN_ITEMS.flatMap((t) => t.tags))].sort();
+
+export function isPublished(publishedAt: string): boolean {
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  return publishedAt <= todayStr;
+}
 
 if (import.meta.env.DEV) {
   const validCategoryKeys = new Set(CATEGORY_KEYS);

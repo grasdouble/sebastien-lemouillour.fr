@@ -3,6 +3,8 @@ id: prompt-engineering
 order: 2
 difficulty: intermediate
 tags: [IA, LLM, prompt]
+publishedAt: 2026-05-25
+updatedAt: 2026-05-29
 ---
 
 Vous avez essayé le modèle. Les résultats sont décevants. Pas cassés: juste vagues, hors sujet, mal formatés, ou d'une confiance absurde face à quelque chose d'évident. Le réflexe, c'est de blâmer le modèle. Je l'ai eu aussi. En général, le modèle va bien : c'est l'instruction qui pose problème.

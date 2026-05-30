@@ -3,6 +3,8 @@ id: llm-production
 order: 4
 difficulty: advanced
 tags: [IA, LLM, production, security, observability]
+publishedAt: 2026-05-29
+updatedAt: 2026-05-29
 ---
 
 Votre MVP fonctionne. Plutôt bien, en fait : vous l'avez montré à l'équipe, l'ambiance est bonne, et maintenant il faut passer en production. C'est là que vous découvrez qu'un appel LLM n'est pas juste un appel de fonction. C'est un point de concentration de latences qui piquent, de coûts imprévisibles, de surface d'attaque sécuritaire, et d'échecs silencieux qui ne lancent pas d'exceptions. Le code qui marchait impeccablement sur votre laptop demande maintenant un niveau de soin radicalement différent.

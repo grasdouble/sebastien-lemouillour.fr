@@ -16,7 +16,9 @@
   },
   "detail": {
     "close": "Close",
-    "backToList": "Back to list"
+    "backToList": "Back to list",
+    "publishedAt": "Published on",
+    "updatedAt": "Updated on"
   },
   "difficulty": {
     "beginner": "Beginner",
@@ -108,6 +110,10 @@
     "guideCount": "{{count}} guide",
     "guideCount_plural": "{{count}} guides",
     "back": "Back to list",
+    "comingSoon": {
+      "title": "Coming soon",
+      "subtitle": "Guides for this catalogue are being prepared."
+    },
     "items": {
       "ia-llm-fundamentals": {
         "title": "AI & LLM Fundamentals",

@@ -3,5 +3,38 @@ code = "learn-item"
 name = "Learn Item Author"
 title = "Learn Item Author"
 icon = "📝"
-description = "Creates and updates learn guides (markdown EN+FR, i18n keys, data entry) for sebastien-lemouillour.fr."
+description = "Creates, updates, or reviews learn guides (markdown EN+FR, i18n keys, frontmatter) and creates or updates catalogs for sebastien-lemouillour.fr."
 agent_type = "stateless"
+
+[workflow]
+
+# --- Configurable below. Overrides merge per BMad structural rules: ---
+#   scalars: override wins • arrays: append
+
+# Steps to run before the standard activation (config load, greet).
+activation_steps_prepend = []
+
+# Steps to run after greet but before the workflow begins.
+activation_steps_append = []
+
+# Persistent facts the workflow keeps in mind for the whole run
+# (repo constraints, naming conventions, stylistic guardrails).
+# Each entry is either a literal sentence or a `file:`-prefixed path/glob
+# whose contents are loaded as facts.
+persistent_facts = [
+  "file:{project-root}/**/project-context.md",
+]
+
+# Executed after a capability confirms completion to the user.
+# Override in team/user TOML to add post-completion tails
+# (e.g. notify a reviewer, open a draft PR, trigger a build).
+# Accepts a string scalar (single instruction) or an array of instructions.
+on_complete = ""
+
+# Reference files for each capability route. Override in team/user TOML
+# to swap in a custom workflow for a specific capability.
+ref_create_guide   = "references/create-guide.md"
+ref_update_guide   = "references/update-guide.md"
+ref_review_guide   = "references/review-guide.md"
+ref_create_catalog = "references/create-catalog.md"
+ref_update_catalog = "references/update-catalog.md"

@@ -3,6 +3,8 @@ id: vite-tooling
 order: 1
 difficulty: beginner
 tags: [tooling, Vite, build]
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 You're mid-sprint. You open your terminal, run `npm start`, and then you wait. You go refill your coffee. Forty seconds later, Webpack has finished analyzing the dependency graph and you can finally see the app. You change one component, hit save, and wait again (five seconds this time, which sounds fine until you do it a hundred times a day).

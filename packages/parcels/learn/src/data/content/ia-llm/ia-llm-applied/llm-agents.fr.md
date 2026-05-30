@@ -3,6 +3,8 @@ id: llm-agents
 order: 3
 difficulty: advanced
 tags: [IA, LLM, agents, function-calling]
+publishedAt: 2026-05-29
+updatedAt: 2026-05-29
 ---
 
 ## Quand un seul appel API ne suffit plus

@@ -3,6 +3,8 @@ id: pnpm-workspaces
 order: 2
 difficulty: intermediate
 tags: [tooling, monorepo, pnpm]
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Tu copies un utilitaire de validation du projet A vers le projet B parce que c'est plus rapide que de configurer un package partagé. Six mois plus tard, il y a un bug dans le validateur. Tu le corriges dans A. Tu ne le corriges pas dans B parce que tu as oublié qu'il y est. Un utilisateur de B trouve le bug trois semaines plus tard.

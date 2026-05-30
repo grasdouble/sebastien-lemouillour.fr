@@ -16,7 +16,9 @@
   },
   "detail": {
     "close": "Fermer",
-    "backToList": "Retour à la liste"
+    "backToList": "Retour à la liste",
+    "publishedAt": "Publié le",
+    "updatedAt": "Mis à jour le"
   },
   "difficulty": {
     "beginner": "Débutant",
@@ -108,6 +110,10 @@
     "guideCount": "{{count}} guide",
     "guideCount_plural": "{{count}} guides",
     "back": "Retour à la liste",
+    "comingSoon": {
+      "title": "Bientôt disponible",
+      "subtitle": "Les guides de ce catalogue sont en cours de préparation."
+    },
     "items": {
       "ia-llm-fundamentals": {
         "title": "Fondamentaux IA & LLM",

@@ -50,7 +50,7 @@
     ]
   },
   "dependencies": {
-    "@grasdouble/lufa_design-system": "^3.3.1",
+    "@grasdouble/lufa_design-system": "^3.4.0",
     "@grasdouble/slm_shared": "workspace:*",
     "clsx": "^2.1.1",
     "i18next": "^26.3.0",

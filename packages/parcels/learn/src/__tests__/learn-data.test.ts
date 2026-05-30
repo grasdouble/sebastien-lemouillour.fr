@@ -45,6 +45,14 @@ describe('learn data', () => {
       expect(Array.isArray(item.tags)).toBe(true);
       expect(typeof item.content.fr).toBe('string');
       expect(typeof item.content.en).toBe('string');
+      expect(item.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(item.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+  });
+
+  it('ensures updatedAt is never older than publishedAt', () => {
+    for (const item of RAW_LEARN_ITEMS) {
+      expect(item.updatedAt >= item.publishedAt).toBe(true);
     }
   });
 
