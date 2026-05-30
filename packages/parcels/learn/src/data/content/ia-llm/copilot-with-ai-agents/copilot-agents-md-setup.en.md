@@ -3,33 +3,25 @@ id: copilot-agents-md-setup
 order: 2
 difficulty: beginner
 tags: [copilot, agents-md, configuration]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-15
+updatedAt: 2026-05-30
 ---
 
-You have probably seen this already: Copilot gets one task right, then opens the next file and acts like it has never met your project before. It forgets the test command, invents a naming convention, and edits the wrong layer with suspicious confidence.
+You have probably seen this already: Copilot solves one task, opens the next file, and suddenly acts like your project has no history. It forgets the test command, invents a naming rule, and edits the wrong layer with cheerful confidence.
 
-Repository instructions fix that. GitHub currently splits them into three buckets: `.github/copilot-instructions.md` for repository-wide guidance, `.instructions.md` files for path-specific rules, and agent instruction files such as `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md` [GitHub Docs][gh-response]. For agent-driven work, I prefer `AGENTS.md` because GitHub's cloud agent and Copilot CLI both recognize that filename [GitHub support matrix][gh-support].
+GitHub calls these files custom instructions: repository-wide `.github/copilot-instructions.md`, path-specific `.instructions.md`, and agent instruction files such as `AGENTS.md` [GitHub Docs](https://docs.github.com/en/copilot/concepts/about-customizing-github-copilot-chat-responses). If you are setting up agent workflows, I would start with `AGENTS.md`. The [support matrix](https://docs.github.com/en/copilot/reference/custom-instructions-support) shows that GitHub's cloud agent and Copilot CLI both read that filename, which makes it the safest single file when you want one place for agent-facing rules.
 
-## What `AGENTS.md` actually does
+## What `AGENTS.md` solves
 
-`AGENTS.md` gives an agent the boring but essential context before you type a prompt: how to test, what to avoid, and which conventions are real. VS Code also makes one limitation explicit: custom instructions influence chat and agent flows, not inline completions in the editor [VS Code Docs][vscode-custom].
+`AGENTS.md` is just a Markdown file that tells an agent the boring context you do not want to repeat: how to test, what not to change, and which conventions are real. In VS Code, that context affects chat and agent mode, not inline suggestions as you type [VS Code Docs](https://code.visualstudio.com/docs/copilot/customization/custom-instructions). That limitation surprises beginners, so it helps to know it early.
 
-That changes the conversation. Instead of retyping "run the documented test command" or "ask before adding a dependency," you store the rule once and stop babysitting the prompt.
+Once the file exists, you stop stuffing every prompt with the same reminders. The file carries the project rules, and your prompt can focus on the task.
 
 ## Start with one root file
 
-The safest default is a single `AGENTS.md` at the repository root. GitHub says Copilot agents can use `AGENTS.md` files anywhere in a repository and choose the nearest one, but the same setup guide points out that subfolder `AGENTS.md` support in VS Code is still off by default today [GitHub setup guide][gh-setup].
+GitHub says Copilot agents can use `AGENTS.md` files throughout a repository and pick the nearest one, but the VS Code setup guide also says subfolder `AGENTS.md` support is still off by default there today [setup guide](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions-in-your-ide/add-repository-instructions-in-your-ide?tool=vscode). That is why I would keep day one boring: put one `AGENTS.md` at the repository root, see whether it removes the repeated mistakes, and split later only if one folder truly needs different rules.
 
-So I would not get fancy on day one. One root file gives you most of the value, and you can split it later if one part of the project genuinely needs different rules.
-
-## Making the file portable
-
-This is where the topic gets a little annoying. Codex reads `AGENTS.md` files directly and merges broader guidance with closer overrides [OpenAI Docs][openai-agents]. Claude Code does not read `AGENTS.md` by itself. Its docs recommend a `CLAUDE.md` that imports `AGENTS.md`, or a symlink if you do not need Claude-specific notes [Claude Code Docs][claude-memory].
-
-I prefer the import. It is less clever than a symlink, and "less clever" ages beautifully.
-
-This is the smallest `AGENTS.md` I would actually ship.
+This is the smallest version I would actually ship first.
 
 ```markdown
 # AGENTS.md
@@ -41,23 +33,27 @@ This is the smallest `AGENTS.md` I would actually ship.
 - Update docs when public behavior changes.
 ```
 
-If you also use Claude Code, add a tiny compatibility file so both tools read the same source of truth.
+## If you also use Claude Code
+
+Portability gets messy fast. [OpenAI Docs](https://developers.openai.com/codex/guides/agents-md) say Codex reads `AGENTS.md` directly and layers broader instructions with nearer ones. [Claude docs](https://code.claude.com/docs/en/memory) say Claude Code uses `CLAUDE.md` files for project instructions. Because of that mismatch, I would mirror only the few rules that matter most instead of trying to build a clever setup on day one.
+
+This tiny companion file is enough when you want both tools to start from the same habits.
 
 ```markdown
 # CLAUDE.md
 
-@AGENTS.md
+## Working rules
 
-## Claude Code
-
-- Use plan mode for larger refactors.
+- Run the documented test command before you finish a change.
+- Ask before adding a new runtime dependency.
+- Update docs when public behavior changes.
 ```
 
-## What to write in it
+## What to put in it
 
-Anthropic recommends keeping `CLAUDE.md` concise and human-readable, and that advice carries over nicely here too [Anthropic guide][anthropic-claude-md]. A good `AGENTS.md` should read like instructions a senior teammate would leave for future-you, not like a corporate wall poster.
+Keep the file short, specific, and a little opinionated. A good `AGENTS.md` reads like notes from a careful teammate, not like a policy poster. Name the important folders, list the real test command, and write down the two or three mistakes you never want repeated.
 
-This template is generic on purpose, so you can steal the shape without inheriting somebody else's baggage.
+This template is generic on purpose, so you can copy the shape without copying someone else's project.
 
 ```markdown
 # AGENTS.md
@@ -83,21 +79,4 @@ This template is generic on purpose, so you can steal the shape without inheriti
 - Update docs when setup or public behavior changes.
 ```
 
-If a rule only matters for one slice of the repository, that is your cue to use a path-scoped instructions file or a nested `AGENTS.md`, not to turn the root file into a junk drawer.
-
-## Resources
-
-- [GitHub Docs on Copilot response customization][gh-response]
-- [GitHub Docs on repository custom instructions and support matrices][gh-support]
-- [VS Code Docs on custom instructions][vscode-custom]
-- [OpenAI Docs on `AGENTS.md` in Codex][openai-agents]
-- [Claude Code Docs on memory and `CLAUDE.md`][claude-memory]
-- [Anthropic's guide to `CLAUDE.md`][anthropic-claude-md]
-
-[gh-response]: https://docs.github.com/en/copilot/concepts/about-customizing-github-copilot-chat-responses
-[gh-support]: https://docs.github.com/en/copilot/reference/custom-instructions-support
-[vscode-custom]: https://code.visualstudio.com/docs/copilot/customization/custom-instructions
-[gh-setup]: https://docs.github.com/en/copilot/how-tos/configure-custom-instructions-in-your-ide/add-repository-instructions-in-your-ide?tool=vscode
-[openai-agents]: https://developers.openai.com/codex/guides/agents-md
-[claude-memory]: https://code.claude.com/docs/en/memory
-[anthropic-claude-md]: https://claude.com/blog/using-claude-md-files
+If one root file already stops the repeated mistakes, stop there. Add path-specific instructions only when a folder needs rules that would confuse the rest of the repository. Next, read the guide on `.instructions.md` files so you know when to split.

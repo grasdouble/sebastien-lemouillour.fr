@@ -3,8 +3,8 @@ id: copilot-skills
 order: 4
 difficulty: intermediate
 tags: [copilot, skills, ai-agents]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-15
+updatedAt: 2026-05-30
 ---
 
 Tu connais le moment : tu as tapé trois fois le même prompt de revue cette semaine, Copilot a encore oublié une étape, et tu te demandes si la solution consiste à grossir `AGENTS.md`. J'ai appris ça à la dure. Transformer un raccourci de deux minutes en règle toujours active, c'est une très bonne façon d'agacer mon moi du futur.
@@ -70,7 +70,7 @@ disable-model-invocation: false
 
 ## Les custom agents règlent un autre problème
 
-Parfois, le vrai souci n'est pas la répétition. Parfois, tu veux que Copilot se comporte comme un planificateur, un relecteur ou un débogueur avec une boîte à outils précise. C'est le rôle des [custom agents VS Code](https://code.visualstudio.com/docs/copilot/customization/custom-agents). Ils utilisent des fichiers `.agent.md`, peuvent limiter les outils, choisir un modèle ou une liste de modèles, et définir des handoffs. Je n'irais pas vers ça juste pour éviter de retaper un prompt. J'y vais quand le rôle lui-même doit rester stable.
+Parfois, le vrai souci n'est pas la répétition. Parfois, tu veux que Copilot se comporte comme un planificateur, un relecteur ou un débogueur avec une boîte à outils précise. C'est le rôle des [custom agents VS Code](https://code.visualstudio.com/docs/copilot/customization/custom-agents). Ils utilisent des fichiers `.agent.md`, peuvent limiter les outils, choisir un modèle ou une liste de modèles, et définir des handoffs. Je n'irais pas vers ça juste pour éviter de retaper un prompt. J'y vais quand le rôle lui-même doit rester stable, ou quand je veux que l'étape de planification reste en lecture seule pour éviter que Copilot ne « rende service » en modifiant des fichiers trop tôt.
 
 ## Choisir le bon fichier sans en faire un drame
 

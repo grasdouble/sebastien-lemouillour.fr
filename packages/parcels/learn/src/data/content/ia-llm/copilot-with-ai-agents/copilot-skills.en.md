@@ -3,8 +3,8 @@ id: copilot-skills
 order: 4
 difficulty: intermediate
 tags: [copilot, skills, ai-agents]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-15
+updatedAt: 2026-05-30
 ---
 
 You know the moment: you have typed the same review prompt three times this week, Copilot still forgot one step, and now you are wondering whether the fix is another giant `AGENTS.md` file. I learned this the stubborn way. Turning a two-minute shortcut into an always-on rule is a great way to annoy Future Me.
@@ -70,7 +70,7 @@ This is the point where I stop calling the thing a “saved prompt.” If Copilo
 
 ## Custom agents solve a different headache
 
-Sometimes the pain is not repetition. Sometimes the pain is that you want Copilot to behave like a planner, reviewer, or debugger with a specific tool belt. That is where [VS Code custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents) come in. They use `.agent.md` files, can restrict tools, choose a model or model list, and define handoffs. I would not reach for one just to save a prompt. I would reach for one when the role itself needs to be stable.
+Sometimes the pain is not repetition. Sometimes the pain is that you want Copilot to behave like a planner, reviewer, or debugger with a specific tool belt. That is where [VS Code custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents) come in. They use `.agent.md` files, can restrict tools, choose a model or model list, and define handoffs. I would not reach for one just to save a prompt. I would reach for one when the role itself needs to be stable, or when I want the planning step to stay read-only so Copilot cannot "help" by editing files too early.
 
 ## Picking the right file without overthinking it
 

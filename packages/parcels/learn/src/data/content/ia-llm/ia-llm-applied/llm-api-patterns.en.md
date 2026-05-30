@@ -3,158 +3,98 @@ id: llm-api-patterns
 order: 1
 difficulty: intermediate
 tags: [IA, LLM, API]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-12
+updatedAt: 2026-05-30
 ---
 
-Your first OpenAI API call worked on the first try. You pasted the key into the code, sent a message, got a response (five minutes). On your laptop, everything works.
+The demo lies to you. One prompt, one answer, everybody is happy. Then the real traffic shows up: users stare at a blank screen, a 429 lands in the middle of checkout, one giant attachment blows the token budget, and the monthly bill suddenly becomes somebody's problem.
 
-In production, reality is different: networks are unreliable, rate limits exist, prompts sometimes exceed the context window, and bills can explode if nobody watches. This guide walks through the patterns that make an LLM integration robust, not just functional.
+If you're starting today, I would build on the [Responses API](https://developers.openai.com/api/reference/responses/overview) instead of starting a new integration on older request shapes. One interface for text generation, tool calls, and usage data is less to babysit.
 
-## Streaming responses
+## Stream the first token
 
-The first problem you hit as soon as a UX is involved: the wait. With a standard call, the user stares at a spinner for 5–15 seconds before seeing the response all at once. Streaming fixes this by displaying tokens as they are generated, exactly what ChatGPT does.
+The first UX bug is silence. If the model needs a few seconds, people assume the button failed. OpenAI documents HTTP streaming in the [Streaming guide](https://developers.openai.com/api/docs/guides/streaming-responses), but the operational shortcut is simpler: stream from your server, never from a browser with a raw provider key.
 
-To make that work, you send `stream: true` and read Server-Sent Events from the `ReadableStream` returned by `fetch`. Keep the API key server-side: the browser calls your backend, which calls the provider. This protects secrets and centralizes logging and quotas.
+Reuse this client in the next snippets.
 
 ```typescript
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+import OpenAI from 'openai';
 
-if (!OPENAI_API_KEY) {
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+if (!process.env.OPENAI_API_KEY) {
   throw new Error('Missing OPENAI_API_KEY');
 }
 
-async function streamChatCompletion(prompt: string): Promise<string> {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      stream: true,
-      temperature: 0.2,
-      messages: [
-        { role: 'system', content: 'You are a concise technical assistant.' },
-        { role: 'user', content: prompt },
-      ],
-    }),
+async function streamAnswer(prompt: string): Promise<string> {
+  const stream = await client.responses.create({
+    model: 'gpt-5-mini', // cheap default for chat-like UX
+    input: prompt, // same shape you can reuse for logs and tests
+    stream: true, // emit events instead of waiting for the full body
   });
 
-  if (!response.ok || !response.body) {
-    throw new Error(`Streaming request failed with status ${response.status}`);
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
   let fullText = '';
 
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
+  for await (const event of stream) {
+    if (event.type === 'response.output_text.delta') {
+      process.stdout.write(event.delta);
+      fullText += event.delta;
+    }
 
-    buffer += decoder.decode(value, { stream: true });
-    const events = buffer.split('\n\n');
-    buffer = events.pop() ?? '';
-
-    for (const event of events) {
-      for (const line of event.split('\n')) {
-        if (!line.startsWith('data: ')) continue;
-
-        const payload = line.slice(6).trim();
-        if (payload === '[DONE]') {
-          return fullText;
-        }
-
-        const json = JSON.parse(payload) as {
-          choices?: Array<{ delta?: { content?: string } }>;
-        };
-
-        const token = json.choices?.[0]?.delta?.content ?? '';
-        if (token) {
-          process.stdout.write(token);
-          fullText += token;
-        }
-      }
+    if (event.type === 'error') {
+      throw new Error(event.error?.message ?? 'Streaming failed');
     }
   }
 
   return fullText;
 }
 
-await streamChatCompletion('Explain SSE streaming for LLM APIs in 3 bullet points.');
+await streamAnswer('Explain SSE streaming for LLM APIs in 3 bullet points.');
 ```
 
-Key parameters: `model` controls quality and cost, `stream: true` enables incremental delivery, and `temperature` stabilizes the response. Always handle the case where the stream ends early or returns malformed chunks.
+I turn streaming on for any route where a user is waiting. Fancy token animation is optional; visible progress is not.
 
-## Error handling
+## Retry only the failures that deserve it
 
-An LLM call that fails on your laptop has no consequences. In production, an unhandled failure means a broken feature for the user. The causes are predictable: unstable network, temporary 429 rate limit, or prompt too large for the context window. A robust client distinguishes them and doesn't treat transient errors the same as permanent ones.
+Once the UX feels alive, the next trap is pretending every failure is temporary. OpenAI publishes both [Rate limits](https://developers.openai.com/api/docs/guides/rate-limits) and the main [Error codes](https://developers.openai.com/api/docs/guides/error-codes). My rule is boring on purpose: retry timeouts, 429s, and 5xx; fail fast on 400, 401, and 403.
 
-That is why the example below combines a timeout, explicit retry rules, and early failure for requests that will never succeed as-is.
+Before you wire this into a route, make the policy explicit.
 
 ```typescript
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
-if (!OPENAI_API_KEY) {
-  throw new Error('Missing OPENAI_API_KEY');
-}
-
-type ChatCompletion = {
-  choices: Array<{ message: { content: string } }>;
-  error?: { message?: string };
-};
-
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function createCompletionWithRetry(userPrompt: string): Promise<string> {
+function isRetriableStatus(status?: number): boolean {
+  return status === 429 || (status !== undefined && status >= 500);
+}
+
+function backoffMs(attempt: number): number {
+  const base = 500 * 2 ** attempt;
+  const jitter = Math.floor(Math.random() * 250);
+  return base + jitter;
+}
+
+async function createAnswer(prompt: string): Promise<string> {
   const maxRetries = 4;
 
   for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        signal: AbortSignal.timeout(20_000),
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          max_tokens: 300,
-          messages: [{ role: 'user', content: userPrompt }],
-        }),
+      const response = await client.responses.create({
+        model: 'gpt-5-mini',
+        input: prompt,
+        max_output_tokens: 300, // keep retries bounded
       });
 
-      const data = (await response.json()) as ChatCompletion;
-
-      if (response.ok) {
-        return data.choices[0]?.message.content ?? '';
-      }
-
-      if (response.status === 400 && /token|context length/i.test(data.error?.message ?? '')) {
-        throw new Error('Prompt too large for the selected model. Trim context or choose a larger context window.');
-      }
-
-      if (response.status === 429) {
-        const retryAfterHeader = response.headers.get('retry-after');
-        const retryAfterMs = retryAfterHeader ? Number(retryAfterHeader) * 1_000 : 0;
-        const backoffMs = Math.max(retryAfterMs, 500 * 2 ** attempt);
-        await sleep(backoffMs);
-        continue;
-      }
-
-      if (response.status >= 500 && attempt < maxRetries) {
-        await sleep(500 * 2 ** attempt);
-        continue;
-      }
-
-      throw new Error(data.error?.message ?? `Request failed with status ${response.status}`);
+      return response.output_text;
     } catch (error) {
-      if (error instanceof DOMException && error.name === 'TimeoutError' && attempt < maxRetries) {
-        await sleep(500 * 2 ** attempt);
+      const status =
+        typeof error === 'object' && error !== null && 'status' in error
+          ? Number((error as { status?: number }).status)
+          : undefined;
+
+      if (attempt < maxRetries && isRetriableStatus(status)) {
+        await sleep(backoffMs(attempt));
         continue;
       }
 
@@ -165,129 +105,79 @@ async function createCompletionWithRetry(userPrompt: string): Promise<string> {
   throw new Error('Retries exhausted');
 }
 
-const answer = await createCompletionWithRetry('Summarize HTTP caching in 5 lines.');
-console.log(answer);
+console.log(await createAnswer('Summarize HTTP caching in 5 lines.'));
 ```
 
-Log status codes, retry count, and model name, but never log raw secrets or private prompts unless your policy explicitly allows it. If a request repeatedly hits token limits, fix the payload instead of hiding the problem behind more retries.
+If a request keeps failing because the prompt is too big, retries are theater. Trim the payload, summarize old context, or route the job to a model with a larger window.
 
-## Cost management
+## Put budgets in code, not in a spreadsheet
 
-The LLM bill can be surprising. A prototype with a few manual calls costs a few cents. A product that makes LLM calls on every user action can cost thousands of dollars a month if nobody is watching. The two main levers: estimate cost before sending, and cap output with `max_tokens`.
+The next pain is cost drift. Character counts and gut feeling are bad proxies once tools, images, or long histories enter the request. For exact preflight counts, use [Token counting](https://developers.openai.com/api/docs/guides/token-counting). For current per-token prices, check the provider pricing page and keep the numbers in config, not in the handler. I keep both limits in code so a hot path cannot silently get more expensive.
 
-The example below shows the basic discipline: reject expensive requests early, then bound generation before the provider does it for you.
+Use the same payload for counting and generation, otherwise your estimate lies.
 
 ```typescript
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
-if (!OPENAI_API_KEY) {
-  throw new Error('Missing OPENAI_API_KEY');
-}
-
-const pricing = {
-  inputPerMillion: 0.15,
-  outputPerMillion: 0.6,
+type RouteBudget = {
+  maxInputTokens: number;
+  maxOutputTokens: number;
 };
 
-function estimateTokens(text: string): number {
-  return Math.ceil(text.length / 4);
-}
+const summaryBudget: RouteBudget = {
+  maxInputTokens: 2_000,
+  maxOutputTokens: 250,
+};
 
-function estimateCost(inputText: string, maxOutputTokens: number): number {
-  const inputTokens = estimateTokens(inputText);
-  return (inputTokens / 1_000_000) * pricing.inputPerMillion + (maxOutputTokens / 1_000_000) * pricing.outputPerMillion;
-}
-
-async function createBudgetedCompletion(prompt: string): Promise<void> {
-  const maxTokens = 250;
-  const estimatedCost = estimateCost(prompt, maxTokens);
-
-  if (estimatedCost > 0.02) {
-    throw new Error(`Estimated request cost too high: $${estimatedCost.toFixed(4)}`);
-  }
-
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      max_tokens: maxTokens,
-      messages: [{ role: 'user', content: prompt }],
-    }),
+async function createBudgetedSummary(prompt: string): Promise<string> {
+  const inputCount = await client.responses.inputTokens.count({
+    model: 'gpt-5-mini',
+    input: prompt,
   });
 
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`);
+  if (inputCount.input_tokens > summaryBudget.maxInputTokens) {
+    throw new Error(`Prompt too large: ${inputCount.input_tokens} input tokens.`);
   }
 
-  const data = (await response.json()) as {
-    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
-    choices: Array<{ message: { content: string } }>;
-  };
+  const response = await client.responses.create({
+    model: 'gpt-5-mini',
+    input: prompt,
+    max_output_tokens: summaryBudget.maxOutputTokens,
+  });
 
-  console.log(data.choices[0]?.message.content ?? '');
-  console.log('Usage:', data.usage);
+  console.log(response.usage);
+
+  return response.output_text;
 }
 
-await createBudgetedCompletion('Write a concise release note for a caching feature.');
+console.log(await createBudgetedSummary('Write a concise release note for a caching feature.'));
 ```
 
-In real systems, store per-feature budgets, track usage by user or workspace, and prefer shorter prompts over higher `max_tokens`. If you can summarize context before reuse, you usually save more money than by chasing tiny parameter tweaks.
+Do not wait for finance to tell you which route is expensive. Log `usage`, aggregate it per feature, and page yourself before the monthly bill does.
 
-## Parallel requests
+## Parallelize carefully
 
-Some tasks don't need to wait: classifying a batch of tickets, enriching a product list, extracting entities from multiple documents. Sending these calls in parallel reduces total latency, but uncontrolled fan-out quickly hits rate limits. A fixed-concurrency queue is the right trade-off: you keep several calls in-flight simultaneously without overwhelming the provider.
+Once single calls are stable, batch work is the next temptation. Classification, enrichment, and extraction parallelize well, but uncontrolled fan-out is how you discover the rate limit page the hard way. Start small, then raise concurrency only when your telemetry stays calm.
 
-That is why the example starts with direct parallelism, then adds a queue once control matters more than raw speed.
+This queue is dull, which is exactly why I like it.
 
 ```typescript
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
-if (!OPENAI_API_KEY) {
-  throw new Error('Missing OPENAI_API_KEY');
-}
-
-async function classifyPrompt(prompt: string): Promise<string> {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      max_tokens: 50,
-      temperature: 0,
-      messages: [
-        { role: 'system', content: 'Return one label: bug, feature, billing, or other.' },
-        { role: 'user', content: prompt },
-      ],
-    }),
+async function classifyTicket(text: string): Promise<string> {
+  const response = await client.responses.create({
+    model: 'gpt-5-mini',
+    input: [
+      {
+        role: 'developer',
+        content: 'Return one label: bug, feature, billing, or other.',
+      },
+      {
+        role: 'user',
+        content: text,
+      },
+    ],
+    max_output_tokens: 20, // labels do not need essays
   });
 
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`);
-  }
-
-  const data = (await response.json()) as {
-    choices: Array<{ message: { content: string } }>;
-  };
-
-  return data.choices[0]?.message.content.trim() ?? 'other';
+  return response.output_text.trim().toLowerCase();
 }
-
-const prompts = [
-  'The API returns 500 when uploading a PDF.',
-  'Can you add SSO for enterprise customers?',
-  'My invoice is missing last month charges.',
-  'Where can I change my avatar?',
-];
-
-const directResults = await Promise.all(prompts.map((prompt) => classifyPrompt(prompt)));
-console.log('Direct:', directResults);
 
 async function runWithConcurrency<T, R>(
   items: T[],
@@ -309,23 +199,20 @@ async function runWithConcurrency<T, R>(
   return results;
 }
 
-const queuedResults = await runWithConcurrency(prompts, 2, classifyPrompt);
-console.log('Queued:', queuedResults);
+const tickets = [
+  'The API returns 500 when uploading a PDF.',
+  'Can you add SSO for enterprise customers?',
+  'My invoice is missing last month charges.',
+  'Where can I change my avatar?',
+];
+
+console.log(await runWithConcurrency(tickets, 2, classifyTicket));
 ```
 
-This pattern is simple, predictable, and provider-agnostic. Start with low concurrency, watch 429 rates, then increase only when your telemetry says it is safe.
+If you do not know your safe concurrency yet, pick 2, ship it, and let real 429 data argue for 4 later.
 
-## Choosing the right model
+## Pick the smallest model that survives contact with reality
 
-Model choice is an engineering trade-off, not a brand decision. You make it based on three variables: latency target, quality requirement, and budget. Small models (GPT-4o mini, Claude Haiku) work great for high-volume helpers: classification, rewriting, extraction. Larger models are better for multi-step reasoning, ambiguous instructions, or outputs where the cost of failure is high.
+Model choice is where teams burn money to feel safe. The current [OpenAI models](https://platform.openai.com/docs/models) page pushes you toward flagship models for complex reasoning, while the [Claude models](https://docs.anthropic.com/en/docs/about-claude/models/overview) page makes the same trade-off clear with Haiku, Sonnet, and Opus. I still start from the cheap, fast side and promote only the routes that fail evals or human review.
 
-Benchmark with your own prompts, because the “best” model depends on the route you are optimizing, not on a leaderboard headline.
-
-| Model         | Best for                                                    | Typical latency | Cost profile   |
-| ------------- | ----------------------------------------------------------- | --------------- | -------------- |
-| GPT-4o mini   | Classification, rewriting, extraction, chat UX              | Very low        | Low            |
-| GPT-4o        | Production assistants, multimodal flows, stronger reasoning | Low to medium   | Medium         |
-| Claude Haiku  | Fast summaries, routing, lightweight enterprise tasks       | Very low        | Low            |
-| Claude Sonnet | Deeper analysis, long-form drafting, complex code help      | Medium          | Medium to high |
-
-Start with the cheapest model that clears the bar, then upgrade only the routes where better reasoning earns its cost.
+If a route breaks when downgraded to the smaller model, pay for the bigger one. If it passes with the smaller one, keep the cheaper default and spend the budget somewhere users can actually feel.

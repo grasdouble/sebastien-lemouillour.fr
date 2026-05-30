@@ -3,23 +3,23 @@ id: llm-agents
 order: 3
 difficulty: advanced
 tags: [IA, LLM, agents, function-calling]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-12
+updatedAt: 2026-05-30
 ---
 
 ## When a single API call stops being enough
 
-You've built a support workflow. It starts with a user complaint, and for a while, one LLM call does the job: read the message, generate a response. Then a request comes in that needs account data. Fine, you add a lookup. Then another that requires checking payment history. Then cross-referencing an incident log. Suddenly you're writing branching code to handle every combination, and the workflow is longer than it is smart.
+You start with one prompt and one response. Then the workflow needs account data, a billing check, a log lookup, maybe a web search. Now the branch logic is bigger than the business problem, and every new edge case lands in application code nobody wants to own.
 
-An agent is the answer to this kind of combinatorial growth, but not in the way it's usually sold. The magic isn't autonomy. The value is a control loop: observe the current state, choose an action, execute it, see what you get, then decide whether you're done or need another step. That loop is what lets the system adapt to what it discovers, instead of requiring you to code every possible path in advance.
+That is the moment to think about an agent. Not because “autonomy” is impressive, but because a control loop is cheaper than hand-coding every runtime branch. The useful definition is still the boring one: a model observes state, chooses a tool, receives the result, and decides whether to stop or continue. OpenAI documents the same tool-calling loop in its [function calling](https://platform.openai.com/docs/guides/function-calling) guide, and Anthropic describes the same pattern with `tool_use` and `tool_result` blocks in its [Anthropic docs](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview).
 
-The tradeoff is real, though. An agent is harder to test, more expensive to run, and significantly harder to debug than a deterministic function. If your workflow has a predictable shape (even a complex one), explicit code is usually the right answer. I reach for agents when the environment is genuinely unknown at runtime, and the next action depends on what the previous one returned.
+The tradeoff is brutal. Agents are harder to test, harder to bound, and much harder to explain during an incident. If the workflow has a known shape, write explicit code. I reach for an agent only when the next step depends on data I cannot know before execution starts.
 
-## Function calling / Tool use
+## Tool schemas are where reliability starts
 
-The first thing that makes an agent possible is giving the model a way to act on the world. Not by executing code itself: the model returns a structured decision (a tool name and arguments), and your application validates and runs the actual call. The result gets injected back into the conversation, and the model keeps going.
+Most teams waste time on prompts and underinvest in schemas. That is backwards. `required` removes ambiguity, `enum` blocks invented values, `additionalProperties: false` cuts off garbage, and strict schema enforcement moves failure to the tool boundary instead of production state.
 
-The tool schema is where most teams underinvest. It's not boilerplate: it's a contract. `properties` defines what the model can request. `required` removes ambiguity. `enum` prevents it from inventing values. Descriptions act as routing hints. A tight schema dramatically narrows the space of things the model can do wrong before it even takes a step.
+This is the smallest loop worth shipping to a staging environment.
 
 ```typescript
 import OpenAI from 'openai';
@@ -39,147 +39,138 @@ async function main() {
   const tools = [
     {
       type: 'function' as const,
-      function: {
-        name: 'lookup_weather',
-        description: 'Get the current weather for a city.',
-        parameters: {
-          type: 'object',
-          properties: {
-            city: {
-              type: 'string',
-              description: 'City name, for example Paris or Tokyo.',
-            },
-            unit: {
-              type: 'string',
-              enum: ['celsius', 'fahrenheit'],
-              description: 'Temperature unit expected by the user.',
-            },
+      name: 'lookup_weather',
+      description: 'Get the current weather for a city.',
+      strict: true,
+      parameters: {
+        type: 'object',
+        properties: {
+          city: {
+            type: 'string',
+            description: 'City name, for example Paris or Tokyo.',
           },
-          required: ['city', 'unit'],
-          additionalProperties: false,
+          unit: {
+            type: 'string',
+            enum: ['celsius', 'fahrenheit'],
+            description: 'Temperature unit expected by the user.',
+          },
         },
+        required: ['city', 'unit'],
+        additionalProperties: false,
       },
     },
   ];
 
-  const messages = [
-    { role: 'system' as const, content: 'You may use tools when needed. Be precise.' },
-    { role: 'user' as const, content: 'What is the weather in Paris in celsius?' },
-  ];
+  const input: any[] = [{ role: 'user', content: 'What is the weather in Paris in celsius?' }];
 
-  const first = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages,
+  const first = await client.responses.create({
+    model: 'gpt-5',
     tools,
+    input,
   });
 
-  const message = first.choices[0]?.message;
-  const toolCall = message?.tool_calls?.[0];
+  input.push(...first.output);
 
-  if (!toolCall || toolCall.function.name !== 'lookup_weather') {
-    throw new Error('Model did not call the expected tool.');
+  for (const item of first.output) {
+    if (item.type !== 'function_call' || item.name !== 'lookup_weather') {
+      continue;
+    }
+
+    const args = JSON.parse(item.arguments) as {
+      city: string;
+      unit: 'celsius' | 'fahrenheit';
+    };
+
+    input.push({
+      type: 'function_call_output',
+      call_id: item.call_id,
+      output: await lookupWeather(args.city, args.unit),
+    });
   }
 
-  const args = JSON.parse(toolCall.function.arguments) as {
-    city: string;
-    unit: 'celsius' | 'fahrenheit';
-  };
-
-  const toolResult = await lookupWeather(args.city, args.unit);
-
-  const final = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [
-      ...messages,
-      message,
-      {
-        role: 'tool' as const,
-        tool_call_id: toolCall.id,
-        content: toolResult,
-      },
-    ],
+  const final = await client.responses.create({
+    model: 'gpt-5',
     tools,
+    input,
   });
 
-  console.log(final.choices[0]?.message?.content);
+  console.log(final.output_text);
 }
 
 main().catch(console.error);
 ```
 
-A single tool call is already useful on its own: structured retrieval, deterministic dispatch, typed results. The loop comes next.
+A single tool call is already useful: deterministic dispatch, typed inputs, observable failure. The agentic part starts only when you let the loop continue.
 
-## The ReAct pattern
+## ReAct is useful, but hidden reasoning is not your interface
 
-A tool call gives the model one action. ReAct (Reason + Act) gives it a reasoning loop: the model breaks the task into a sequence of thought → action → observation steps, adjusting its plan based on what each step returns.
+The ReAct idea still matters because it gives you an operational shape: inspect state, take one action, inspect the result, then choose again. LangChain uses almost that exact definition for agents in its [LangChain agents](https://docs.langchain.com/oss/javascript/langchain/agents) docs. What does not belong in your architecture is any dependency on seeing the model’s private chain-of-thought. Some providers expose reasoning items, some redact them, and none of that is a contract you should build policy around.
 
-The value isn't "smarter AI": it's explicitness. You can look at the trace and see why the agent checked deployments before metrics, what observation changed the plan, and where it got stuck. That's genuinely useful for debugging, and for building trust that the system is doing what you think it's doing.
+Treat the next trace as a teaching device, not as something your production system must persist verbatim.
 
 ```text
 User: Find why checkout latency increased after the last deployment.
-Thought: I need to compare recent deploys with current service health and latency signals.
+Plan: Compare the latest deploy with current latency and error signals.
 Action: get_recent_deployments(service="checkout", limit=3)
-Observation: v2025.09.14 was deployed 42 minutes ago.
-Thought: I should verify whether the latency regression started after that deployment.
+Observation: v2026.05.30 was deployed 42 minutes ago.
+Decision: Check whether the latency jump starts after that deploy.
 Action: query_metrics(metric="checkout_p95_latency", window="2h")
 Observation: p95 jumped from 420ms to 1.8s 35 minutes ago.
-Thought: The timing aligns. I need an error signal to distinguish load from a bad release.
+Decision: Separate load from a bad release.
 Action: query_metrics(metric="checkout_error_rate", window="2h")
 Observation: error rate is flat.
-Thought: Errors are flat, so this looks like a performance regression rather than an outage.
+Decision: Likely performance regression, not a broad outage.
 Action: summarize_findings()
-Observation: likely regression introduced by v2025.09.14; rollback or profile DB calls.
+Observation: probable regression introduced by v2026.05.30; rollback or profile database calls.
 ```
 
-The cost is real: more tokens per request, and the risk of the loop spending cycles reasoning instead of converging. A fixed plan (where you know the steps in advance) is almost always cheaper and safer. ReAct earns its place when the plan itself can't be written ahead of time.
+If you already know the full plan before the first call, skip ReAct and encode the graph yourself. The loop earns its keep only when observations change the next action.
 
-## Building a minimal agent loop
+## Build the loop as a bounded state machine
 
-The loop is just a bounded state machine. What matters in production isn't elegance: it's the guardrails: an explicit iteration cap, strict tool dispatch, structured error propagation, and a log at every step. Without those, debugging an agent failure becomes guesswork.
+Production agents fail less because the model is smarter and more because the runtime is stricter: cap the number of steps, log every step, reject unknown tools, validate arguments, and return structured errors the model can recover from.
 
-The example below parses tool arguments directly from JSON. In production, validate them against your schema before dispatch: the model will eventually send arguments that fail your business rules, and you want to surface that as a tool error, not a silent bug.
+This is what that loop looks like when you stop pretending the model is deterministic.
 
 ```typescript
 import OpenAI from 'openai';
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const MAX_ITERATIONS = 8;
+const MAX_STEPS = 8;
 
 const tools = [
   {
     type: 'function' as const,
-    function: {
-      name: 'search_docs',
-      description: 'Search internal documentation for a technical topic.',
-      parameters: {
-        type: 'object',
-        properties: {
-          query: { type: 'string', description: 'Precise search query.' },
-        },
-        required: ['query'],
-        additionalProperties: false,
+    name: 'search_runbooks',
+    description: 'Search runbooks for a technical issue.',
+    strict: true,
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Precise search query.' },
       },
+      required: ['query'],
+      additionalProperties: false,
     },
   },
   {
     type: 'function' as const,
-    function: {
-      name: 'get_service_status',
-      description: 'Fetch the current status of a production service.',
-      parameters: {
-        type: 'object',
-        properties: {
-          service: { type: 'string', description: 'Service identifier.' },
-        },
-        required: ['service'],
-        additionalProperties: false,
+    name: 'get_service_status',
+    description: 'Fetch current latency and availability for a service.',
+    strict: true,
+    parameters: {
+      type: 'object',
+      properties: {
+        service: { type: 'string', description: 'Service identifier.' },
       },
+      required: ['service'],
+      additionalProperties: false,
     },
   },
 ];
 
 const handlers: Record<string, (args: Record<string, unknown>) => Promise<string>> = {
-  async search_docs(args) {
+  async search_runbooks(args) {
     return JSON.stringify({
       query: args.query,
       hits: ['Runbook: Checkout latency', 'Playbook: Database pool saturation'],
@@ -195,65 +186,61 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<string
 };
 
 async function runAgent(userRequest: string) {
-  const messages = [
+  const input: any[] = [
     {
-      role: 'system' as const,
+      role: 'system',
       content:
-        'You are an ops investigation agent. Use tools when needed, cite evidence, and stop when you can answer confidently.',
+        'You investigate service issues. Use tools when needed, cite evidence, and stop as soon as the answer is defensible.',
     },
-    { role: 'user' as const, content: userRequest },
+    { role: 'user', content: userRequest },
   ];
 
-  for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration += 1) {
-    const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages,
+  for (let step = 1; step <= MAX_STEPS; step += 1) {
+    const response = await client.responses.create({
+      model: 'gpt-5',
       tools,
-      temperature: 0,
+      input,
     });
 
-    const choice = response.choices[0];
-    const message = choice?.message;
+    input.push(...response.output);
 
-    if (!message) {
-      throw new Error('Missing assistant message.');
+    const toolCalls = response.output.filter(
+      (item): item is Extract<(typeof response.output)[number], { type: 'function_call' }> =>
+        item.type === 'function_call'
+    );
+
+    console.log(`[agent] step=${step} tool_calls=${toolCalls.length}`);
+
+    if (toolCalls.length === 0) {
+      return response.output_text;
     }
-
-    console.log(`[agent] iteration=${iteration} finish_reason=${choice.finish_reason}`);
-    messages.push(message);
-
-    if (choice.finish_reason === 'stop') {
-      return message.content ?? '';
-    }
-
-    const toolCalls = message.tool_calls ?? [];
 
     for (const toolCall of toolCalls) {
-      const handler = handlers[toolCall.function.name];
+      const handler = handlers[toolCall.name];
 
       if (!handler) {
-        messages.push({
-          role: 'tool' as const,
-          tool_call_id: toolCall.id,
-          content: JSON.stringify({ error: `Unknown tool: ${toolCall.function.name}` }),
+        input.push({
+          type: 'function_call_output',
+          call_id: toolCall.call_id,
+          output: JSON.stringify({ error: `Unknown tool: ${toolCall.name}` }),
         });
         continue;
       }
 
       try {
-        const args = JSON.parse(toolCall.function.arguments) as Record<string, unknown>;
+        const args = JSON.parse(toolCall.arguments) as Record<string, unknown>;
         const result = await handler(args);
 
-        messages.push({
-          role: 'tool' as const,
-          tool_call_id: toolCall.id,
-          content: result,
+        input.push({
+          type: 'function_call_output',
+          call_id: toolCall.call_id,
+          output: result,
         });
       } catch (error) {
-        messages.push({
-          role: 'tool' as const,
-          tool_call_id: toolCall.id,
-          content: JSON.stringify({
+        input.push({
+          type: 'function_call_output',
+          call_id: toolCall.call_id,
+          output: JSON.stringify({
             error: error instanceof Error ? error.message : 'Tool execution failed',
           }),
         });
@@ -261,7 +248,7 @@ async function runAgent(userRequest: string) {
     }
   }
 
-  throw new Error(`Agent stopped after reaching max iterations (${MAX_ITERATIONS}).`);
+  throw new Error(`Agent stopped after reaching max steps (${MAX_STEPS}).`);
 }
 
 runAgent('Investigate whether checkout is degraded and explain why.')
@@ -269,12 +256,12 @@ runAgent('Investigate whether checkout is degraded and explain why.')
   .catch((error) => console.error(error));
 ```
 
-## Tradeoffs and failure modes
+Once that loop is stable, decide whether you even need a framework. OpenAI already exposes hosted capabilities and remote MCP servers through the `tools` parameter in its [built-in tools](https://platform.openai.com/docs/guides/tools) guide. MCP itself is now a public interoperability layer, not a vendor rumor, and the official [MCP](https://modelcontextprotocol.io/docs/getting-started/intro) docs are the place to check what “standardized tool access” actually means before you buy into any framework story.
 
-`max_iterations` is the first guardrail everyone adds and the first one everyone underestimates. An agent can stay within its cap while still producing zero useful information: calling the same tool with slightly rephrased arguments, getting the same result, and continuing anyway. Loop-level telemetry, duplicate-action detection, and escalating stop conditions all matter as much as the cap itself.
+## Failure modes that matter in production
 
-Tool argument hallucination is the other failure mode nobody warns you about until they hit it. The model invents unsupported enum values, omits required fields, or sends semantically invalid combinations. The fix isn't prompt engineering: it's validation at the tool boundary. Validate before execution, return a structured error the model can read, and the loop often recovers on its own.
+`MAX_STEPS` is the obvious guardrail, and it is not enough. Agents can stay under the cap while doing useless work: same tool, same result, slightly different wording. Track duplicate actions, repeated observations, latency per step, and cost per successful outcome. If you cannot explain why one request took seven steps and the previous one took two, you do not have an agent system yet. You have a slot machine with logs.
 
-Cost in multi-turn agents compounds fast. Every iteration replays the full message history (prior reasoning, tool calls, observations), so the bill scales with depth, not just count. Budget accordingly, and log enough to explain why an agent ran twelve iterations instead of three when it inevitably does.
+Tool argument hallucination is the other chronic failure. The model invents enum values, omits required fields, or sends combinations your business logic cannot accept. The fix is not more prompt poetry. The fix is validation at the tool boundary and error payloads that let the model retry with better arguments.
 
-My honest recommendation: if the workflow can be expressed as deterministic code, express it as deterministic code. Agents are genuinely powerful for tasks that are open-ended, require conditional branching based on real-time data, and where you can't enumerate the branches in advance. For anything else, the operational overhead isn't worth it.
+Cost also compounds faster than most teams expect. Each step adds more state, more tool outputs, and more surface area for retries. If the workflow can be drawn as a finite graph before you write code, build the graph and skip the agent. Keep the agent for cases where the graph only appears after the first tool result.

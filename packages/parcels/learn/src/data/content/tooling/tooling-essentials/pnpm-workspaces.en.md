@@ -7,17 +7,15 @@ publishedAt: 2026-05-22
 updatedAt: 2026-05-30
 ---
 
-You split one repo into a few packages to stop copying code around, and then the first annoying question hits: how do you run one install, target one package, and keep local dependencies honest without inventing shell scripts all weekend?
+You split a repo into packages to stop copy-pasting code, then your first week disappears into three boring chores: install everything once, run one script in one package, and make sure internal deps do not quietly come from the registry.
 
-I've burned time on that exact setup. I'd start with [pnpm workspaces](https://pnpm.io/workspaces) every time unless the packages truly have nothing to share, because one lockfile and local package linking solve the pain earlier than people expect.
+I've lost enough time to that setup that I have a bias now: start with pnpm workspaces unless the packages truly never meet. The win is not "monorepo architecture". The win is getting back to one lockfile and one install flow before the repo turns noisy.
 
-## The monorepo only helps if the workflow stays boring
+## Keep the workspace shape small on purpose
 
-Each workspace package still keeps its own `package.json`, but the root workspace gives pnpm one place to coordinate installs. That is the part I actually care about: you stop repeating dependency setup in every package, and you can work on local packages without publishing them first.
+The root [pnpm-workspace.yaml](https://pnpm.io/pnpm-workspace_yaml) file is where pnpm decides which folders belong to the workspace. I start with the narrowest glob that matches the layout, because broad patterns feel clever right until they pull in folders you never meant to treat as packages.
 
-## Configuring pnpm-workspace.yaml
-
-The root [pnpm-workspace.yaml](https://pnpm.io/pnpm-workspace_yaml) file decides which folders belong to the workspace. I prefer starting with the smallest glob that matches your package layout, then adding exclusions only when your repo shape really needs them.
+Before the first config block, this is the shape I'd pick for a plain `packages/*` layout:
 
 ```yaml
 packages:
@@ -25,37 +23,41 @@ packages:
   - '!**/test/**'
 ```
 
-That pattern is intentionally boring. It matches the common case where packages live one level down, and it avoids teaching a catch-all glob before you need one.
+That example stays boring on purpose. It teaches the common case first, and the pnpm docs also note that the root package is still included even when you customize the `packages` globs.
 
-## The two commands you'll keep using
+## One install, then one target
 
-The [recursive CLI](https://pnpm.io/cli/recursive) and [filtering](https://pnpm.io/filtering) docs are the two pages I'd bookmark first, because most day-to-day workspace work is some combination of "run this everywhere" and "run this only here."
+Inside a workspace, [pnpm install](https://pnpm.io/cli/install) installs dependencies in all projects by default. After that, most day-to-day work is either "run this everywhere" or "run this here", so I keep [recursive commands](https://pnpm.io/cli/recursive) and [filtering](https://pnpm.io/filtering) in muscle memory.
+
+Before you copy commands into your shell, I'd make one tweak that saves surprise: use `--if-present` when you do not control every package script.
 
 ```bash
-# Install all workspace dependencies
+# Install dependencies for every workspace project
 pnpm install
 
-# Build all packages that expose a build script
-pnpm -r run build
+# Build packages that actually expose a build script
+pnpm -r --if-present run build
 
-# Run a script in a specific package
-pnpm --filter @my/package dev
+# Run one script in one package
+pnpm --filter @my/package run dev
 
-# Add a dependency to a specific package
-pnpm add -D typescript --filter @my/package
+# Add a dev dependency to one package
+pnpm --filter @my/package add -D typescript
 
-# Add a workspace package as a dependency
-pnpm add @my/shared --filter @my/app --workspace
+# Add a local workspace package and fail if it is not in the workspace
+pnpm --filter @my/app add @my/shared --workspace
 
-# Run lint in all packages that have a lint script
-pnpm -r --parallel run lint
+# Run lint everywhere without exploding on packages that skip lint
+pnpm -r --parallel --if-present run lint
 ```
 
-I lean on `--filter` constantly. Without it, a monorepo turns into a loud open office where every command interrupts every package.
+I reach for `--filter` constantly. Without it, a monorepo starts sounding like an open office where every command interrupts every package.
 
-## Internal packages without guesswork
+## Use `workspace:` when you mean "local or fail"
 
-This is where the [workspace protocol](https://pnpm.io/workspaces#workspace-protocol-workspace) earns its keep. If you want a dependency to resolve only from the local workspace, declare that intention instead of hoping a matching semver range does the right thing.
+The [workspace protocol](https://pnpm.io/workspaces#workspace-protocol-workspace) exists for the exact moment when "it probably links locally" stops feeling good enough. If a dependency must come from the current workspace, say it directly and let pnpm fail loudly when that package or version is missing.
+
+Before the next snippet, the rule is simple: if the package is internal on purpose, I would rather be explicit than rely on matching ranges.
 
 ```json
 {
@@ -66,34 +68,29 @@ This is where the [workspace protocol](https://pnpm.io/workspaces#workspace-prot
 }
 ```
 
-pnpm can link local packages when versions match even without `workspace:`, but I'd still use the protocol for internal packages I mean to keep local. It removes the "did this come from the registry?" doubt, and pnpm rewrites those ranges to normal semver when you pack or publish.
+Without `workspace:`, pnpm only links matching local packages when `linkWorkspacePackages` is enabled. With `workspace:`, it refuses to fall back to the registry, and pnpm rewrites those specs to normal semver when you pack or publish.
 
-## Versioning is a separate problem
+## Workspaces solve installs, not releases
 
-Once several packages are published, installs stop being the hard part. Releases do. The [Changesets CLI](https://github.com/changesets/changesets/blob/main/packages/cli/README.md) is the path I'd pick with pnpm because pnpm itself does not try to solve workspace versioning for you.
+Once a few packages are published, installs stop being the annoying part. Releases do. pnpm's [release workflow](https://pnpm.io/workspaces#release-workflow) is explicit about that: workspace versioning has no built-in pnpm solution, so you should pick a dedicated tool. If I want the least surprising path, I follow pnpm's [Changesets guide](https://pnpm.io/using-changesets).
+
+Before you wire it into CI, the local flow looks like this:
 
 ```bash
-# Add a changeset (interactive)
+# Install the Changesets CLI in the workspace root
+pnpm add -Dw @changesets/cli
+
+# Create the config once
+pnpm changeset init
+
+# Record the release intent for a change
 pnpm changeset
 
-# Bump versions from pending changesets
+# Apply pending version bumps
 pnpm changeset version
 
-# Publish packages whose versions are ready to ship
-pnpm changeset publish
+# Publish versioned packages in the workspace
+pnpm publish -r
 ```
 
-A changeset file looks like this:
-
-```md
----
-'@my/ui': minor
-'@my/app': patch
----
-
-feat: add Button variant "ghost"
-```
-
-The useful part is not the file format. It's that release intent is reviewed with the code instead of reconstructed from commit history at the worst possible moment.
-
-If you have two or three packages and they ship together, a workspace usually pays for itself quickly. If you already need strict build orchestration, release trains, and dependency graphs across dozens of packages, treat plain workspaces as the starting point, not the whole monorepo strategy.
+If your repo has two or three packages that mostly move together, plain workspaces are usually enough. Once you need strict release coordination across dozens of packages, keep pnpm workspaces for dependency management and let a release tool own the rest.

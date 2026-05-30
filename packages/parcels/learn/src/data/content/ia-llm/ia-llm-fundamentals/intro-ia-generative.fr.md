@@ -7,9 +7,9 @@ publishedAt: 2026-05-20
 updatedAt: 2026-05-30
 ---
 
-Vous collez un message client agacé dans ChatGPT et en cinq secondes vous avez une réponse support présentable. Votre collègue designer tape une description dans Midjourney et obtient quelque chose de mieux que ce qu'il aurait produit en trois heures sous Figma. Des outils différents, des résultats différents, mais le même sentiment un peu déstabilisant : un logiciel qui crée, plutôt qu'un logiciel qui obéit.
+Vous collez un message client agacé dans ChatGPT et, cinq secondes plus tard, vous avez déjà une réponse support présentable. Votre collègue designer tape une idée dans un générateur d'images et obtient quelque chose d'utilisable avant même que vous ayez fini votre café. Des outils différents, des résultats différents, mais le même léger vertige : un logiciel qui crée, plutôt qu'un logiciel qui obéit.
 
-C'est précisément pour ça que l'IA générative mérite votre attention. Si vous développez, vous n'avez pas besoin de maîtriser les maths dès le premier jour, mais vous gagnez beaucoup à comprendre le type de machine que vous utilisez avant de construire dessus.
+C'est précisément pour ça que l'IA générative mérite votre attention. Si vous développez, vous n'avez pas besoin des maths dès le premier jour, mais vous avez besoin d'un modèle mental fiable avant de construire quoi que ce soit de sérieux avec elle.
 
 ## Pas des règles, des patterns
 
@@ -19,57 +19,55 @@ L'analogie du musicien de jazz m'aide encore ici. Après des années d'écoute e
 
 ## Un LLM, concrètement
 
-Un **LLM** (Large Language Model) est le moteur derrière [ChatGPT](https://openai.com/chatgpt/overview/), [Claude](https://docs.anthropic.com/en/docs/intro-to-claude), [Gemini](https://ai.google.dev/gemini-api/docs/models), et la plupart de ce avec quoi vous allez réellement travailler. Il a été entraîné sur un énorme corpus de texte et a appris une tâche trompeusement simple : étant donné du texte, quel est le morceau suivant le plus probable ?
+Un **LLM** (Large Language Model) est la partie qui génère du texte dans des outils comme ChatGPT, Claude ou Gemini. En langage simple, il prédit en permanence quel texte devrait venir ensuite.
 
-Si ça vous paraît encore un peu abstrait, pas d'inquiétude. En général, tout devient plus clair quand on voit les quelques éléments qui façonnent chaque réponse.
+Si ça vous paraît encore abstrait, pas d'inquiétude. En général, tout devient plus clair quand on voit les quelques éléments qui façonnent chaque réponse.
 
-Quatre concepts expliquent l'essentiel de ce que vous allez observer en pratique :
+Quatre concepts expliquent l'essentiel de ce que vous allez remarquer en pratique :
 
-- **Token** : les modèles ne traitent pas des caractères ou des mots entiers, ils traitent des morceaux appelés tokens. Le [tokenizer OpenAI](https://platform.openai.com/tokenizer) permet de le voir concrètement. Tout a un coût en tokens, c'est pourquoi les prompts longs deviennent vite onéreux.
-- **Fenêtre de contexte** : c'est la quantité de texte que le modèle peut « voir » dans une requête. C'est sa mémoire de travail pour cet appel. La page [modèles OpenAI](https://platform.openai.com/docs/models) indique que GPT-4o dispose d'une fenêtre de 128K tokens, soit un ordre de grandeur de quelques centaines de pages de texte brut. Ça paraît énorme jusqu'au jour où vous essayez d'y faire rentrer toute une codebase.
-- **Temperature** : c'est le curseur de créativité. À 0, le modèle reste plus près du token suivant le plus probable. Des valeurs plus hautes rendent la sortie plus variée. Pour des tâches factuelles ou structurées, je la garde généralement basse.
+- **Token** : les modèles traitent le texte par morceaux appelés [tokens](https://developers.openai.com/api/docs/concepts). Les prompts longs coûtent plus cher parce que votre entrée et la sortie du modèle sont toutes les deux comptées.
+- **Fenêtre de contexte** : c'est la quantité de texte que le modèle peut « voir » dans une requête. C'est sa mémoire de travail pour cet appel. Sur la page actuelle de [GPT-4o](https://developers.openai.com/api/docs/models/gpt-4o), OpenAI indique une fenêtre de contexte de 128K tokens.
+- **Temperature** : le réglage [temperature](https://developers.openai.com/api/docs/api-reference/responses/create) contrôle le niveau d'aléa. Des valeurs basses rendent la sortie plus régulière. Des valeurs plus hautes la rendent plus variée. Pour du travail factuel ou structuré, je la garde basse.
 - **Prompt** : c'est l'instruction que vous envoyez. Ça compte beaucoup plus que la plupart des débutants l'imaginent. Le même modèle avec un prompt différent peut se comporter très différemment, donc bien formuler sa demande est une vraie compétence.
 
 ## À quoi ressemble un appel API
 
-La façon la plus rapide de rendre tout ça concret, c'est d'appeler un modèle vous-même au lieu de rester dans une interface de chat. La [Chat Completions API](https://platform.openai.com/docs/api-reference/chat/create) suffit pour voir la structure : vous envoyez des messages structurés, vous récupérez du texte.
+Le plus simple pour rendre tout ça concret, c'est d'envoyer vous-même une requête. OpenAI recommande maintenant la [Responses API](https://developers.openai.com/api/docs/guides/text-generation) pour les nouvelles applications de génération de texte, donc c'est la forme que j'apprendrais en premier.
 
 ```typescript
-const response = await fetch('https://api.openai.com/v1/chat/completions', {
-  method: 'POST',
-  headers: {
-    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    model: 'gpt-4o',
-    messages: [
-      { role: 'system', content: 'You are a concise technical assistant.' },
-      { role: 'user', content: 'Explain LLMs in 3 sentences.' },
-    ],
-    temperature: 0.3,
-  }),
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
-const data = await response.json();
-console.log(data.choices[0].message.content);
+
+const response = await client.responses.create({
+  model: 'gpt-4o',
+  instructions: 'You are a concise technical assistant.',
+  input: 'Explain LLMs in 3 sentences.',
+  temperature: 0.3,
+});
+
+console.log(response.output_text);
 ```
 
-Trois éléments comptent tout de suite ici :
+Quatre éléments comptent tout de suite ici :
 
 - **`model`** : vous choisissez quel modèle traite la requête. Capacités, latence et prix varient beaucoup, donc je n'utiliserais pas le plus gros modèle pour tous les cas.
-- **`messages`** : la conversation est une liste. Le message `system` fixe le comportement. Le message `user` contient ce que quelqu'un, ou votre code, demande.
+- **`instructions`** : c'est là que vous fixez le comportement de l'assistant.
+- **`input`** : c'est la tâche ou la question réelle à traiter.
 - **`temperature`** : 0,3 est un bon point de départ quand vous voulez des réponses stables. Pour du brainstorming, je la monterais davantage.
 
 ## Les points qui piègent le plus souvent
 
 Ce sont les limites qu'on m'aurait fait gagner du temps à comprendre plus tôt.
 
-**Pas de mémoire intégrée entre des appels API simples.** Chaque requête repart de ce que vous lui envoyez dans cette requête. Si vous construisez un chatbot, vous devez généralement renvoyer l'historique vous-même. Ça coûte de plus en plus cher à mesure que la conversation s'allonge.
+**Pas de mémoire automatique sauf si vous la demandez.** Une requête simple repart sans mémoire. Si vous voulez de la continuité, vous devez soit renvoyer les tours précédents, soit utiliser [conversation state](https://developers.openai.com/api/docs/guides/conversation-state).
 
-**La fraîcheur de l'info est votre problème.** Le modèle ne peut pas connaître votre dernier changement produit, la panne d'hier, ou un document privé si cette information n'est ni dans ses données d'entraînement ni dans le contexte que vous lui fournissez via prompt, couche de retrieval ou outil.
+**La fraîcheur de l'info reste votre problème.** Le modèle ne va pas connaître magiquement votre dernier déploiement, la panne d'hier ou un document privé. Si vous avez besoin de faits récents ou privés, vous devez les fournir, souvent via [file search](https://developers.openai.com/api/docs/guides/tools-file-search) ou votre propre couche de retrieval, c'est-à-dire une étape qui va chercher les documents utiles pour le modèle.
 
-**Les hallucinations sont normales, pas un cas bizarre.** Le [rapport technique GPT-4](https://cdn.openai.com/papers/gpt-4.pdf) rappelle bien que ces systèmes peuvent produire des réponses confiantes mais fausses. Je traite les réponses du modèle comme un premier jet tant que je n'ai pas vérifié ce qui compte.
+**Les hallucinations sont normales, pas un cas bizarre.** Le [GPT-4 report](https://cdn.openai.com/papers/gpt-4.pdf) reste un très bon rappel : ces systèmes peuvent avoir l'air sûrs d'eux et pourtant se tromper. Je traite la sortie du modèle comme un brouillon tant que je n'ai pas vérifié ce qui compte.
 
 ## Là où j'irais ensuite
 
-Si je commençais aujourd'hui, j'apprendrais d'abord le prompting parce que c'est le levier le moins coûteux. J'ajouterais du RAG dès que la fraîcheur des informations devient importante, et je ne passerais aux agents qu'au moment où un prompt simple plus de la retrieval ne suffit plus. Ma règle est simple : si le coût d'une erreur est élevé, je vérifie avant de faire confiance.
+Si je commençais aujourd'hui, j'apprendrais d'abord le prompting parce que c'est le levier le moins coûteux. J'ajouterais de la retrieval dès que la fraîcheur des informations devient importante, et je ne passerais aux agents qu'au moment où un prompt simple plus de la retrieval ne suffit plus. Ma règle est simple : si le coût d'une erreur est élevé, je vérifie avant de faire confiance. Si tout ça commence à cliquer, le guide que je lirais ensuite est celui sur le prompting.

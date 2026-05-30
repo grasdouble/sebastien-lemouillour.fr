@@ -3,8 +3,8 @@ id: copilot-custom-agents
 order: 6
 difficulty: advanced
 tags: [copilot, custom-agents, ai-agents]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-15
+updatedAt: 2026-05-30
 ---
 
 You know the feeling: you ask Copilot to think like an architect, code like a teammate, and nitpick like a reviewer, all in one prompt, then you get an answer that is a bit of all three and convincing at none of them.
@@ -13,7 +13,7 @@ Custom agents exist for exactly that mess. They let you turn a recurring role in
 
 ## An agent file is just a contract
 
-In local tools such as the CLI and VS Code, a custom agent is a Markdown file with the `.agent.md` extension, YAML frontmatter, and a Markdown body. [VS Code custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents) also document editor-specific extras such as `agents`, `handoffs`, and preview `hooks`, which matters when you want a workflow instead of a single persona.
+In VS Code, custom agents are Markdown agent profiles with YAML frontmatter and a Markdown body. The [VS Code custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents) guide also documents editor-specific extras such as `agents`, `handoffs`, and preview `hooks`, which matters when you want a workflow instead of a single persona.
 
 The [configuration reference](https://docs.github.com/en/copilot/reference/custom-agents-configuration) is the part I keep open in another tab because the sharp edges live there: `name` is optional, `description` is the field Copilot uses to understand the role, omitting `tools` or using `tools: ["*"]` enables all available tools, `tools: []` disables them all, `infer` is deprecated, and fields such as `model`, `target`, `mcp-servers`, `user-invocable`, and `disable-model-invocation` change where the agent runs and who can invoke it.
 
@@ -40,7 +40,7 @@ If you already feel tempted to add ten tools and three pages of instructions, th
 
 ## Storage follows ownership
 
-The CLI rule is simple: use `.github/agents` when the agent belongs to the project, use `~/.copilot/agents` when it belongs to you, and remember that a user-level file with the same filename overrides the project one, as the [CLI custom agents guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli) explains.
+The CLI rule is simple: custom agents are `.agent.md` files, use `.github/agents` when the agent belongs to the project, use `~/.copilot/agents` when it belongs to you, and remember that a user-level file with the same filename overrides the project one, as the [CLI custom agents guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli) explains.
 
 When you want the same idea to live on GitHub.com, the [cloud agent guide](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/create-custom-agents) says the official flow creates repository agents in `.github/agents`, and organization or enterprise agents in an `agents/` directory at the root of the `.github-private` repository.
 

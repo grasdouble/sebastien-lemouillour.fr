@@ -3,23 +3,25 @@ id: react-micro-frontends
 order: 1
 difficulty: advanced
 tags: [React, architecture, micro-frontend]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-10
+updatedAt: 2026-05-30
 ---
 
-Tu es dans une réunion où trois équipes débattent pour savoir si le déploiement est safe. Chacune a touché une section différente de l'appli. L'une d'elles a trouvé un bug au dernier moment dans son bout. Personne ne veut bloquer tout le monde, mais personne ne veut non plus livrer quelque chose de cassé. Alors tout le monde attend. Encore.
+Tu es en réunion de release parce que trois équipes ont touché le même frontend, l'une a trouvé un bug tard, et maintenant personne ne sait s'il faut livrer ou geler. Tout le monde attend. Encore.
 
-C'est le mode d'échec concret que les micro-frontends sont conçus pour prévenir, pas comme une abstraction, mais comme une vraie frontière de déploiement.
+C'est le mode d'échec que les micro-frontends sont censés résoudre : transformer un frontend fragile en frontières de déploiement.
 
 ## Le vrai pari
 
-Le pari des micro-frontends, c'est que le déploiement indépendant vaut plus qu'une codebase unifiée. Chaque équipe possède son bout d'interface du premier commit à la production. Elle déploie quand elle est prête. Un bug dans Checkout ne bloque pas Account. Le prix à payer est réel : un problème de dépendances partagées à résoudre explicitement, une nouvelle surface de coordination aux frontières, et une expérience de débogage objectivement plus complexe que dans un monolithe.
+Les micro-frontends sont une stratégie de déploiement, pas un pattern de composants. Avec [single-spa](https://single-spa.js.org/docs/configuration/), le shell enregistre des applications nommées et les active selon l'URL. Tu y gagnes des déploiements indépendants. Tu y gagnes aussi un débogage plus dur, une discipline de version plus stricte et une couche plateforme que quelqu'un doit vraiment posséder.
 
-Je ne recommanderais pas ça à une seule équipe. Pour plusieurs équipes autonomes qui déploient sur la même interface, c'est souvent la seule structure qui passe vraiment à l'échelle.
+Je ne ferais pas ça pour une seule équipe. Je commence à l'envisager quand plusieurs équipes autonomes livrent sur la même surface et que la coordination de release est déjà le goulot.
 
-## single-spa : l'orchestrateur
+## Le shell reste bête
 
-Le container (parfois appelé shell) doit savoir quelle portion d'UI charger en fonction de l'URL courante, et comment échanger les morceaux sans rechargement de page. single-spa s'occupe exactement de ça. On enregistre chaque micro-frontend avec un nom et une règle d'activation ; single-spa appelle mount et unmount au bon moment.
+Un shell doit décider quoi monter, pas contenir de logique produit. Les [lifecycles single-spa](https://single-spa.js.org/docs/building-applications/) sont volontairement petits : `bootstrap` tourne une seule fois, `mount` et `unmount` tournent quand la route change, et ces fonctions de cycle de vie doivent retourner des promesses ou être `async`.
+
+La root config doit rester ennuyeuse exprès :
 
 ```typescript
 import { registerApplication, start } from 'single-spa';
@@ -39,11 +41,13 @@ registerApplication({
 start();
 ```
 
-Du point de vue du container, chaque micro-frontend n'est qu'une application nommée avec une règle d'activation. Il ne se préoccupe pas de ce qu'il y a dedans.
+Du point de vue du shell, chaque micro-frontend n'est qu'un nom, un loader et une règle d'activation.
 
-## Import maps : résolution des modules
+## La résolution de modules est la couche de déploiement
 
-Les imports dynamiques dans le container (`import('@my/parcel-home')`) sont des spécificateurs de modules nus : pas de chemin, pas d'URL. Le navigateur a besoin d'un moyen de les résoudre. Les import maps règlent ça :
+Les [import maps](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap) existent parce que `import('@my/parcel-home')` est un spécificateur nu et que le navigateur a besoin d'une URL. C'est cette table de correspondance qui rend le déploiement indépendant réel : tu changes une URL, tu déploies un frontend, tu laisses les autres tranquilles.
+
+La table elle-même doit être aussi banale que possible :
 
 ```json
 {
@@ -54,11 +58,13 @@ Les imports dynamiques dans le container (`import('@my/parcel-home')`) sont des 
 }
 ```
 
-C'est là que le déploiement indépendant devient concret. L'équipe Home livre une nouvelle version, met à jour l'URL dans l'import map, c'est terminé. Pas de rebuild du container, pas de coordination avec l'équipe About. L'import map est l'artefact de déploiement de chaque micro-frontend, et je trouve ça franchement élégant une fois qu'on s'y est habitué.
+Si ton process de déploiement ne sait pas mettre à jour cette map proprement, tu n'as pas des déploiements indépendants. Tu as de l'espoir distribué.
 
-## Cycle de vie d'un parcel
+## Le montage React est l'endroit où les équipes créent de la dette
 
-Chaque micro-frontend doit exporter trois fonctions que single-spa appelle au bon moment. Bien faire ça avec React 18, c'est la partie qui m'a piégé la première fois : il faut garder la référence `createRoot` vivante entre les cycles mount/unmount, sinon React lance des avertissements sur la création d'une racine sur un container qui en a déjà une.
+Avec React 18+, [createRoot](https://react.dev/reference/react-dom/client/createRoot) doit être créé une fois par container puis réutilisé via `render`. Recréer une root sur le même nœud DOM, c'est la manière la plus rapide de fabriquer des warnings et des unmounts instables.
+
+Le point d'entrée React est l'endroit où les équipes deviennent négligentes :
 
 ```typescript
 import { createRoot } from 'react-dom/client';
@@ -66,32 +72,35 @@ import App from './App';
 
 let root: ReturnType<typeof createRoot> | null = null;
 
-export const bootstrap = () => Promise.resolve();
+export async function bootstrap() {}
 
-export const mount = () => new Promise((resolve, reject) => {
+export async function mount() {
   const container = document.getElementById('app-container');
-  if (!container) return reject(new Error('Container not found'));
+  if (!container) throw new Error('Container not found');
+
   root ??= createRoot(container);
   root.render(<App />);
-  resolve(void 0);
-});
+}
 
-export const unmount = () => new Promise((resolve) => {
+export async function unmount() {
   root?.unmount();
   root = null;
-  resolve(void 0);
-});
+}
 ```
 
-## Dépendances partagées
+Si tu veux moins de plomberie faite à la main, utilise un helper comme `single-spa-react`. La contrainte ne change pas : la propriété de la root doit rester explicite.
 
-Si chaque micro-frontend bundle sa propre copie de React, les utilisateurs téléchargent React plusieurs fois. Sur un produit avec dix équipes, c'est facilement un mégaoctet de code de bibliothèque dupliqué. La solution : charger React une seule fois via l'import map et le marquer comme externe dans la config de build de chaque parcel :
+## Les dépendances partagées ne sont pas optionnelles
+
+Pour les grosses bibliothèques partagées, je les externaliserais et je laisserais le navigateur charger une seule copie. [Rollup external](https://rollupjs.org/configuration-options/#external) est le contrat côté build, et l'import map est le contrat à l'exécution.
+
+Garde ce contrat explicite aux deux endroits :
 
 ```json
 {
   "imports": {
-    "react": "https://esm.sh/react@18.3.1",
-    "react-dom": "https://esm.sh/react-dom@18.3.1"
+    "react": "https://cdn.example.com/shared/react.js",
+    "react-dom": "https://cdn.example.com/shared/react-dom.js"
   }
 }
 ```
@@ -106,4 +115,6 @@ export default defineConfig({
 });
 ```
 
-Le piège : tous les parcels doivent utiliser la même version de React. Si une équipe passe à React 19 avant les autres, c'est un problème : React ne peut pas coexister en deux versions sur la même page sans que les hooks ne lâchent. Les dépendances partagées nécessitent une coordination inter-équipes, ce qui est exactement ce que les micro-frontends étaient censés réduire. Prévois ça explicitement avant de t'engager dans cette architecture.
+Le warning React [invalid hook call](https://react.dev/warnings/invalid-hook-call-warning) est plus précis que la version cargo-cult de ce conseil : plusieurs copies de React sur une même page ne sont pas automatiquement fatales, mais les hooks cassent quand tes composants et `react-dom` ne résolvent pas vers le même module React. En pratique, je traite quand même React partagé comme obligatoire, parce que laisser chaque micro-frontend choisir sa copie transforme une simple politique de version en dette de débogage permanente.
+
+Si tu n'as pas au moins trois équipes frontend qui déploient indépendamment et quelqu'un prêt à posséder le shell, l'import map et la politique de dépendances, reste sur un monolithe modulaire.

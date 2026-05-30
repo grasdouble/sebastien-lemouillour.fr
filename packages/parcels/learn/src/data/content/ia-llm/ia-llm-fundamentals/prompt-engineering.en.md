@@ -7,13 +7,15 @@ publishedAt: 2026-05-20
 updatedAt: 2026-05-30
 ---
 
-You've tried the model. The results are bad. Not broken-bad: just vague, off-topic, weirdly formatted, or confidently wrong about something obvious. Your first instinct is to blame the model. I had that instinct too. Usually, the model is fine: the instruction is the problem.
+You've asked the model the same thing three times and got three different answers. One is vague, one is overconfident, one is almost usable but impossible to parse. The trap is to keep piling on adjectives. I did that too. The faster fix is usually simpler: start with one clear instruction, then add structure only where the output fails.
 
-Prompt engineering is just the discipline of writing better instructions. No magic. No jailbreaks. Just patterns that reliably move output from "almost useful" to "actually useful", and a few traps to avoid along the way. The [prompt engineering guide](https://developers.openai.com/api/docs/guides/prompt-engineering) is useful, but the shortcut that actually changed my results was simpler: start boring, then add structure only where the prompt really fails.
+[OpenAI](https://developers.openai.com/api/docs/guides/prompt-engineering), [Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices), and [Google](https://ai.google.dev/gemini-api/docs/prompting-strategies) all keep pushing the same basics: be explicit, show examples when the task is ambiguous, and constrain the output when another system depends on it. My stance is blunt: do the boring version first. Fancy prompts are often just expensive confusion.
 
-## Zero-shot: the default that works less often than you'd think
+## Zero-shot: use it as the baseline, not the finish line
 
-The simplest approach: describe the task and ask for the output, no examples. The model is supposed to infer what "good" looks like from the instruction alone.
+Zero-shot is still the cheapest way to probe a task. If the task is common and the success criteria are obvious, it may already be enough.
+
+Before you add anything else, try the smallest prompt that can possibly work.
 
 ```text
 Classify the sentiment of this review as Positive, Neutral, or Negative:
@@ -21,11 +23,13 @@ Classify the sentiment of this review as Positive, Neutral, or Negative:
 "The battery life is disappointing, but the screen quality is excellent."
 ```
 
-This works well for common tasks the model has seen a thousand times. For anything specialized, ambiguous, or where your definition of "correct" differs from the training data's average, it breaks down fast. Zero-shot is where I start, not where I stay.
+When that output drifts, the next question is simple: did the model misunderstand the task, or did it misunderstand your definition of good?
 
-## Few-shot: stop explaining, start showing
+## Few-shot: spend examples where the output drifts
 
-Instead of writing a longer description of what you want, show examples of input and expected output. Two or three examples beat a paragraph of explanation almost every time.
+When the task is ambiguous, examples beat longer prose because they show format, edge cases, and taste. Anthropic's [consistency guide](https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency) says the same thing more directly: constrain with examples when you need reliable output. I still start with only two or three. Every extra example burns tokens, and most prompt problems do not need a six-shot ceremony.
+
+Before you write another paragraph, show the pattern you want once or twice.
 
 ```text
 Translate from English to French:
@@ -40,37 +44,49 @@ English: "I would like to book a table for two."
 French:
 ```
 
-The examples do two things: they show the format you expect, and they calibrate the model's judgment about what "good" means for your specific use case. If I can demonstrate the target output in two or three cases instead of describing it in prose, I pick demonstration almost every time.
+If one example fixes the output, stop there. If three examples still do not fix it, I stop tuning the prompt and change something bigger: the model, the workflow, or the context I provide.
 
-## Chain-of-thought: don't let the model skip steps
+## Intermediate steps: ask for checkpoints you can inspect
 
-For anything involving multi-step reasoning, asking for the final answer directly is a good way to get confident nonsense. The [chain-of-thought paper](https://arxiv.org/abs/2201.11903) by Wei et al. showed measurable gains when models were prompted with intermediate reasoning steps on complex tasks. That nuance matters. The paper is not proof that one magic sentence fixes every hard problem.
+For brittle multi-step tasks, asking only for the final answer hides the failure. I get better results when I ask for a small set of visible checkpoints instead of a wall of reasoning. That gives me something I can verify without turning the response into a novel.
+
+Before you trust the answer, make the model expose the part you need to check.
 
 ```text
-Solve this problem step by step:
+Solve this problem step by step and show the checkpoints:
 
 If a train departs at 9:00 AM travelling at 75 mph, and another train departs
 from the same station at 10:00 AM in the same direction at 90 mph, at what time
 will the second train catch the first?
 
-Reasoning:
+Return:
+1. Head start distance
+2. Relative speed
+3. Catch-up time
+4. Final answer
 ```
 
-"Think step by step" is still a useful shortcut, and I do try it. I just don't treat it like a spell. If the task is brittle, I would rather show the reasoning shape I want than hope the model invents the right steps on its own.
+I do not ask for verbose reasoning by default. I ask for the minimum intermediate structure that lets me catch a bad jump.
 
-## Role prompting: context shapes output more than you expect
+## Role prompting: pick the judgment you want
 
-Telling the model it's a cybersecurity auditor versus a product manager changes not just the vocabulary, but the level of detail, what it decides to emphasize, and what it omits. This isn't decorative: I've seen the same question produce genuinely different useful outputs depending on the role.
+Role prompting is useful when the task depends on what the model should prioritize, not just what it should say. Google's guide treats system instructions as a real steering tool, and that matches my experience: "be helpful" is weak, but "review this as a senior security auditor and only flag material risks" changes what the model notices.
 
-- "You are a cybersecurity expert with 20 years of experience..."
-- "You are a mathematics teacher explaining to high school students..."
-- "You are a senior code reviewer looking for critical bugs..."
+Before the task starts, tell the model what kind of judgment it is supposed to apply.
 
-Pick the role that matches the kind of judgment you actually need. If you want code review feedback that would catch real security issues, a sharply chosen role does more for you than another paragraph of generic instructions.
+```text
+You are a senior security reviewer.
+Focus on authentication, authorization, and data exposure.
+Review this API design and list only issues that would matter in production.
+```
 
-## High-level instructions: set the rules once, don't repeat yourself
+Pick the role that matches the decision you need to make. If you need concise classification, skip the theatrical persona. If you need expert trade-offs, a precise role helps.
 
-Older examples call this a system prompt. In OpenAI's current docs, the same job is usually handled with `instructions` or a `developer` message, and the [Responses API reference](https://developers.openai.com/api/docs/api-reference/responses/create) shows that contract directly in the request shape. In production, I treat that layer as the agreement between my app and the model: tone, constraints, output rules, and refusal boundaries all live there.
+## High-level instructions: put durable rules above the user request
+
+In the current OpenAI API, this layer lives in [`instructions`](https://developers.openai.com/api/docs/guides/text) or `developer` messages, with developer instructions taking priority over user messages. That is where I put tone, refusal boundaries, and output constraints, because repeating those rules inside every user prompt is how drift sneaks back in.
+
+Before you stack more user text on top, move the durable rules into the request itself.
 
 ```typescript
 import OpenAI from 'openai';
@@ -78,19 +94,21 @@ import OpenAI from 'openai';
 const client = new OpenAI();
 
 const response = await client.responses.create({
-  model: 'gpt-5.5',
-  instructions: `You are a JSON-only API. Always respond with valid JSON.
-Never include explanatory text outside the JSON object.
-Schema: { "answer": string, "confidence": number }`,
-  input: 'What is the capital of Japan?',
+  model: 'gpt-5.5', // Good default for prompt iteration
+  instructions: `You are a JSON-only API.
+Return valid JSON and nothing else.
+Schema: { "answer": string, "confidence": number }`, // Rules that should outlive one user message
+  input: 'What is the capital of Japan?', // Actual task for this call
 });
 ```
 
-Getting that layer right reduces output variance a lot more than most people expect.
+One caveat matters in production: if you want those rules on the next call too, send them again. They are request-level instructions, not shared memory.
 
-## Structured output: enforce what you can't rely on
+## Structured outputs: use schema enforcement when code is waiting
 
-Asking for JSON in the prompt is a reasonable first step, but it is still just a request. The [Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs) makes the current split explicit: JSON mode gives you valid JSON, while `json_schema` is the stricter option that enforces a schema. If another system has to parse the response, I pick schema enforcement first and fall back to JSON mode only when model compatibility forces it.
+If another service has to consume the answer, "please return JSON" is not a reliability plan. The [Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs) is explicit: JSON mode guarantees valid JSON, while `json_schema` is the stricter option that enforces the schema. I use plain prompt formatting for humans and schema enforcement for machines. Hard line.
+
+Before you wire the response into code, make the contract explicit.
 
 ```typescript
 import OpenAI from 'openai';
@@ -98,18 +116,14 @@ import OpenAI from 'openai';
 const client = new OpenAI();
 
 const response = await client.responses.create({
-  model: 'gpt-4o-2024-08-06',
-  input: [
-    {
-      role: 'system',
-      content: 'Classify the article and return structured data.',
-    },
-    { role: 'user', content: 'Classify this article about React hooks.' },
-  ],
+  model: 'gpt-4o-2024-08-06', // Snapshot with structured outputs support
+  instructions: 'Classify the article and return structured data.', // Durable task rules
+  input: 'Classify this article about React hooks.', // Actual content to analyze
   text: {
     format: {
       type: 'json_schema',
       name: 'article_classification',
+      strict: true, // Enforce the schema instead of hoping
       schema: {
         type: 'object',
         properties: {
@@ -126,10 +140,9 @@ const response = await client.responses.create({
         required: ['title', 'tags', 'difficulty'],
         additionalProperties: false,
       },
-      strict: true,
     },
   },
 });
 ```
 
-These techniques stack. A prompt that works reliably usually combines a clear role, a few examples, step-by-step guidance when the task needs it, and structure where a parser depends on it. My rule is still the same, though: start with zero-shot, watch where it breaks, and add only the next piece that fixes the failure. Anything extra is noise.
+My rule is simple: if the answer is vague, tighten the task; if the format keeps drifting, add examples; if code has to parse the result, use schema enforcement; if you are still tweaking the same prompt after three serious tries, stop prompt-tuning and change the workflow.

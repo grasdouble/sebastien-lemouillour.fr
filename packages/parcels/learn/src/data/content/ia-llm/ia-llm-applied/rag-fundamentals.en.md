@@ -3,27 +3,27 @@ id: rag-fundamentals
 order: 2
 difficulty: intermediate
 tags: [IA, LLM, RAG, embeddings]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-30
+updatedAt: 2026-05-30
 ---
 
-## The model that can't answer your own questions
+## The answer is in the doc, but the model still misses it
 
-You've connected an LLM to your product. Impressive in demos. Then someone asks "What's our refund policy for enterprise accounts?" and the model answers confidently (and completely wrong). Not because the model is bad. Because it genuinely has no idea. Its knowledge stopped at training time. Your refund policy, your internal wiki, the PDF your team uploaded yesterday: none of that exists for it.
+You've connected an LLM to your product. It looks great in a demo. Then someone asks "What's our refund policy for enterprise accounts?" and the model answers confidently, with the wrong paragraph or no paragraph at all. Not because the model is bad. Because your policy changed last month, and the model cannot magically read the file you updated yesterday.
 
-That's the gap **Retrieval-Augmented Generation (RAG)** fills. Before the model answers, you fetch the relevant passages from your own data and inject them into the prompt. The model isn't smarter: it's just finally reading the right document.
+That's the gap **Retrieval-Augmented Generation (RAG)** fills. Before the model answers, you fetch the passages that actually matter from your own data and pass them in as context. The model is not smarter. It's just finally reading the right page.
 
-I'd reach for RAG over fine-tuning whenever the knowledge changes. Fine-tuning bakes behavior into the weights, which means re-training every time your documentation evolves. RAG is just a query at runtime. If your data updates weekly, that alone should settle the debate.
+I'd reach for RAG over fine-tuning whenever the knowledge changes. Fine-tuning is for behavior. RAG is for fresh facts. If your documentation moves every week, RAG is usually the cheaper and safer default.
 
 ## Embeddings: comparing meaning without keywords
 
-The problem with retrieval is that people don't search the way documents are written. A user asks "holiday policy"; your handbook says "paid vacation rules." Exact keyword search fails here.
+The first retrieval problem is boring and painful: users do not search with the same words your documents use. Someone types "holiday policy" while the handbook says "paid vacation rules." Exact keyword search misses that match.
 
-Embeddings solve this. An embedding is a vector (a list of numbers) that encodes the meaning of a piece of text rather than its literal words. Think of GPS coordinates for semantics: two pieces of text that mean similar things end up close in vector space, the same way two buildings in the same neighborhood are close on a map.
+OpenAI's [Embeddings guide](https://developers.openai.com/api/docs/guides/embeddings) is the reference that matters here: `text-embedding-3-small` returns 1536 dimensions by default, `text-embedding-3-large` returns 3072, and the v3 models let you reduce vector size with `dimensions` when storage starts to hurt.
 
-**Cosine similarity** measures that closeness: whether two vectors point in the same semantic direction. You don't need the math. What matters is that a high score means "these texts probably talk about the same thing," even when they share no words.
+Every chunk you embed is billed per token, so remove obvious duplicates before you index them. And do not send secrets or raw PII to an embedding API just because the code path is convenient.
 
-Here's what an embedding call looks like:
+A bare request looks like this:
 
 ```typescript
 const response = await fetch('https://api.openai.com/v1/embeddings', {
@@ -33,40 +33,40 @@ const response = await fetch('https://api.openai.com/v1/embeddings', {
     'Content-Type': 'application/json',
   },
   body: JSON.stringify({
-    model: 'text-embedding-3-small',
+    model: 'text-embedding-3-small', // good default when cost matters
     input: 'Our invoices are archived for 7 years.',
+    encoding_format: 'float', // easy to inspect and store
+    dimensions: 512, // optional: smaller vectors, lower storage cost
   }),
 });
+
+if (!response.ok) {
+  throw new Error(`Embedding request failed: ${response.status}`);
+}
 
 const data = await response.json();
 const vector = data.data[0].embedding;
 console.log(vector.length);
 ```
 
-You store that vector next to the original text chunk. That's the bridge between your documents and semantic search.
+You store that vector next to the source text. That's the bridge between documents and semantic search.
 
 ## The RAG pipeline
 
-A minimal RAG flow looks like this:
+A minimal RAG flow still looks like this:
 
 ```text
 Document -> Chunk -> Embed -> Store
 Query -> Embed -> Search -> Top-K -> LLM -> Answer
 ```
 
-Two different tempos hiding behind that diagram. Indexing is offline, upstream work: you chunk your documents, embed each piece, and store the results before anyone asks a question. This is the expensive part (and you only do it once per document update).
+Indexing is the offline part: split documents, embed each chunk, store the vectors, and pay that cost once per content update. Retrieval and generation happen at request time: embed the question with the same model, rank the closest chunks, and send only the best evidence to the LLM.
 
-At request time, retrieval and generation take over. The user's question gets embedded using the same model, compared against everything you indexed, and the closest matches get forwarded to the LLM. The model doesn't see your entire knowledge base: just the three or five passages most likely to contain the answer.
-
-- **Document / Chunk / Embed / Store**: build the knowledge base once, ahead of time.
-- **Query / Embed / Search / Top-K**: narrow it down to what's relevant for this specific question.
-- **LLM / Answer**: turn retrieved evidence into a usable response.
+If you want OpenAI to host the retrieval layer, [file search](https://developers.openai.com/api/docs/guides/tools-file-search) can search uploaded files inside vector stores. That's convenient, but it also means your documents live in a managed service, so treat it like any other security and compliance decision.
 
 ## Chunking strategies
 
-Why not embed whole documents and be done with it? Two reasons. First, a long document dilutes the embedding: it's representing everything at once, which makes it harder to match against a specific question. Second, context windows have limits, and dumping a whole document into the prompt is wasteful when only one paragraph actually answers the question.
-
-Chunking creates smaller, more focused units. Overlap matters here: if one idea spans the boundary between two chunks, a small overlap preserves that continuity.
+Why not embed whole documents and call it a day? Because one long document blurs too many topics into one vector, and context windows are still finite. Sending ten pages when one paragraph answers the question is the kind of waste that makes a prototype look fine and production feel expensive.
 
 | Strategy       | How it works                                | Strengths               | Weaknesses                       | Good default for                  |
 | -------------- | ------------------------------------------- | ----------------------- | -------------------------------- | --------------------------------- |
@@ -74,11 +74,13 @@ Chunking creates smaller, more focused units. Overlap matters here: if one idea 
 | Sentence-based | Group complete sentences until a size limit | More readable chunks    | Sentence lengths vary a lot      | FAQs, articles, guides            |
 | Semantic       | Split on topic changes or headings          | Best coherence          | Harder to implement              | Large, structured knowledge bases |
 
-My default: sentence-based chunking with 15% overlap. Fixed-size is fine for prototyping but has a bad habit of slicing sentences mid-thought, which hurts both readability and retrieval. Semantic chunking gives the best results but takes more effort; I'd add it once the system is working, not as a starting point.
+My default is sentence-based chunking with 15% overlap. Fixed-size is fine for a first pass, but it loves cutting a sentence exactly where the meaning turns. Semantic chunking usually wins later, once you've proved the rest of the pipeline is worth the effort.
 
 ## Implementing RAG in TypeScript
 
-The example below runs entirely in memory (no vector database needed). That's intentional. Getting the three phases right in a self-contained environment is more valuable than adding infrastructure complexity before you understand the fundamentals.
+The example below runs entirely in memory. That's intentional. Before you add a vector database, you want to know whether chunking, ranking, and prompt construction are doing their job.
+
+For new integrations, I'd start with the [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses) instead of Chat Completions. Chat Completions still works, but OpenAI recommends Responses for new projects.
 
 ```typescript
 type IndexedChunk = {
@@ -89,6 +91,7 @@ type IndexedChunk = {
 };
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_BASE_URL = 'https://api.openai.com';
 
 if (!OPENAI_API_KEY) {
   throw new Error('Missing OPENAI_API_KEY');
@@ -121,7 +124,7 @@ function chunkText(text: string, size = 120, overlap = 30): string[] {
 }
 
 async function embed(text: string): Promise<number[]> {
-  const response = await fetch('https://api.openai.com/v1/embeddings', {
+  const response = await fetch(`${OPENAI_API_BASE_URL}/v1/embeddings`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
@@ -130,6 +133,7 @@ async function embed(text: string): Promise<number[]> {
     body: JSON.stringify({
       model: 'text-embedding-3-small',
       input: text,
+      encoding_format: 'float',
     }),
   });
 
@@ -188,37 +192,35 @@ async function retrieve(query: string, index: IndexedChunk[], topK = 3): Promise
 }
 
 async function generateAnswer(question: string, matches: IndexedChunk[]): Promise<string> {
-  const context = matches.map((match, index) => `Source ${index + 1} (${match.source}): ${match.text}`).join('\n');
+  const context = matches.map((match, index) => `Source ${index + 1} (${match.source}): ${match.text}`).join('\\n');
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetch(`${OPENAI_API_BASE_URL}/v1/responses`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      temperature: 0.2,
-      messages: [
-        {
-          role: 'system',
-          content:
-            'Answer only from the provided context. If the answer is missing, say that the context does not contain it.',
-        },
-        {
-          role: 'user',
-          content: `Question: ${question}\n\nContext:\n${context}`,
-        },
-      ],
+      model: 'gpt-4.1-mini',
+      instructions:
+        'Answer only from the provided context. If the answer is missing, say that the context does not contain it.',
+      input: `Question: ${question}\n\nContext:\n${context}`,
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Chat request failed: ${response.status}`);
+    throw new Error(`Response request failed: ${response.status}`);
   }
 
   const data = await response.json();
-  return data.choices[0].message.content as string;
+  const message = data.output.find((item: { type: string }) => item.type === 'message');
+  const text = message?.content.find((item: { type: string }) => item.type === 'output_text')?.text;
+
+  if (!text) {
+    throw new Error('No answer text returned');
+  }
+
+  return text as string;
 }
 
 async function main(): Promise<void> {
@@ -234,25 +236,19 @@ async function main(): Promise<void> {
 main().catch(console.error);
 ```
 
-The three phases are intentionally separate, and that separation matters more than it looks:
-
-1. **Indexing**: the expensive upfront work. Do it once per document update.
-2. **Retrieval**: fast, happens at request time. The quality of this step determines everything downstream.
-3. **Generation**: the model answers from evidence, not from memory. That's what prevents confident hallucinations.
-
-If retrieval brings back the wrong chunks, generation will still sound confident and still be wrong. The weak link is almost always chunking and retrieval, not the model.
+Keep the phases separate. Indexing is the expensive part you redo on document updates. Retrieval is the part that decides whether the model even sees the right evidence. Generation turns that evidence into language, but it cannot rescue bad retrieval.
 
 ## Choosing a vector database
 
-An in-memory array is good enough to understand the fundamentals and prototype on real data. Once you need persistence, or your index grows beyond what comfortably lives in process memory, you need something that persists between restarts.
+An in-memory array is enough to learn the mechanics and debug ranking. Once the index needs persistence, filtering, or faster search than one process can comfortably handle, move to a real store.
 
-| Option   | Best for                                     | Hosting                         | Cost profile     |
-| -------- | -------------------------------------------- | ------------------------------- | ---------------- |
-| pgvector | Teams already using Postgres                 | Self-hosted or managed Postgres | Low to moderate  |
-| Pinecone | Fast managed vector search with minimal ops  | Fully managed SaaS              | Moderate to high |
-| Weaviate | Hybrid search and richer knowledge features  | Self-hosted or managed cloud    | Moderate         |
-| Chroma   | Local development and lightweight prototypes | Local or self-hosted            | Low              |
+| Option                                           | Best for                                     | Hosting                         | Cost profile     |
+| ------------------------------------------------ | -------------------------------------------- | ------------------------------- | ---------------- |
+| [pgvector](https://github.com/pgvector/pgvector) | Teams already using Postgres                 | Self-hosted or managed Postgres | Low to moderate  |
+| [Pinecone docs](https://docs.pinecone.io/)       | Fast managed vector search with minimal ops  | Fully managed SaaS              | Moderate to high |
+| [Weaviate docs](https://docs.weaviate.io/)       | Hybrid search and richer knowledge features  | Self-hosted or managed cloud    | Moderate         |
+| [Chroma docs](https://docs.trychroma.com/)       | Local development and lightweight prototypes | Local or self-hosted            | Low              |
 
-My honest decision path: if you're already on Postgres, start with pgvector (it's one extension, no new infra). If operational overhead is a real concern and budget allows, Pinecone is genuinely low-friction. I'd only add Weaviate if you need hybrid search or more advanced knowledge graph features. Chroma is my go-to for local experiments.
+My rule of thumb is boring on purpose: if you're already on Postgres, start with pgvector. Add Pinecone when you want less operational work and can pay for it. Reach for Weaviate when hybrid search is a real requirement, not because the feature list looks impressive. Keep Chroma for local experiments and small internal tools.
 
-One last thing worth saying plainly: retrieval quality degrades gracefully, but it degrades. If your chunks are too large, too small, or poorly overlapped, the model will receive mediocre context and return mediocre answers. Spend real time evaluating retrieval with actual user questions before assuming the problem is the model.
+If your retrieval benchmark misses more than about 1 obvious question out of 10, don't touch the model yet. Fix chunking, overlap, metadata, or ranking first.

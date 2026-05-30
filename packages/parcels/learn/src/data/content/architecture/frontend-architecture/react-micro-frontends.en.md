@@ -3,23 +3,25 @@ id: react-micro-frontends
 order: 1
 difficulty: advanced
 tags: [React, architecture, micro-frontend]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-10
+updatedAt: 2026-05-30
 ---
 
-You're in a meeting where three teams are arguing about whether the deploy is safe to go out. Each team touched a different section of the app. One found a bug at the last minute in their slice. Nobody wants to delay everybody, but nobody wants to ship broken code either. So everyone waits. Again.
+You're in a release meeting because three teams touched the same frontend, one found a bug late, and now nobody knows whether to ship or freeze. Everybody waits. Again.
 
-This is the concrete failure mode that micro-frontends are designed to prevent, not as an abstraction, but as a real deployment boundary.
+That is the failure mode micro-frontends are supposed to solve: turning one fragile frontend into deployable boundaries.
 
-## The actual premise
+## The actual bet
 
-The bet with micro-frontends is that independent deployment is worth more than a single unified codebase. Each team owns its piece of the UI from first commit to production. They deploy when they're ready. A bug in Checkout doesn't hold up Account. The price you pay is real: a shared dependency problem you have to solve explicitly, a new coordination surface at the boundaries, and a debugging experience that is genuinely harder than in a monolith.
+Micro-frontends are a deployment strategy, not a component pattern. With [single-spa](https://single-spa.js.org/docs/configuration/), the shell registers named applications and activates them from the URL. That buys independent deploys. It also buys you harder debugging, stricter version discipline, and a platform layer somebody has to own.
 
-I wouldn't recommend this for a single team. For multiple autonomous teams deploying on the same interface, it's often the only structure that actually scales.
+I would not do this for one team. I start considering it when several autonomous teams ship on the same surface and release coordination is already the bottleneck.
 
-## single-spa: the orchestrator
+## The shell stays dumb
 
-The container (sometimes called the shell) needs to know which UI piece to load based on the current URL, and how to swap pieces without a full page reload. single-spa handles exactly that. You register each micro-frontend with a name and an activation rule; single-spa calls mount and unmount at the right moments.
+A shell should decide what to mount, not contain product logic. [single-spa lifecycles](https://single-spa.js.org/docs/building-applications/) are intentionally small: `bootstrap` runs once, `mount` and `unmount` run as routes change, and those lifecycle functions must return promises or be `async`.
+
+The root config should stay boring on purpose:
 
 ```typescript
 import { registerApplication, start } from 'single-spa';
@@ -39,11 +41,13 @@ registerApplication({
 start();
 ```
 
-From the container's perspective, each micro-frontend is a named application with an activation rule. It doesn't care about the internals.
+From the shell's perspective, each micro-frontend is just a name, a loader, and an activation rule.
 
-## Import maps: module resolution
+## Module resolution is the deployment layer
 
-The dynamic imports in the container code (`import('@my/parcel-home')`) are bare module specifiers: no path, no URL. The browser needs a way to resolve them. Import maps solve this:
+Browser [import maps](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap) exist because `import('@my/parcel-home')` is a bare specifier and the browser needs a URL. That mapping is where independent deployment becomes real: update one URL, roll out one frontend, leave the others alone.
+
+The mapping itself should look as dull as possible:
 
 ```json
 {
@@ -54,11 +58,13 @@ The dynamic imports in the container code (`import('@my/parcel-home')`) are bare
 }
 ```
 
-This is where independent deployment actually happens. The Home team ships a new version, updates the URL in the import map, and that's it: no container rebuild, no coordination with the About team. The import map is the deployment artifact for every micro-frontend, and I think it's genuinely elegant once you get used to it.
+If your deployment process cannot update that map safely, you do not have independent deploys. You have distributed hope.
 
-## Parcel lifecycle
+## React mounting is where people create debt
 
-Each micro-frontend must export three functions that single-spa calls at the right moment. Getting this right with React 18 is the part that tripped me up the first time: you need to keep the `createRoot` reference alive between mount/unmount cycles, otherwise React will warn you about creating a root on a container that already has one.
+With React 18+, [createRoot](https://react.dev/reference/react-dom/client/createRoot) should be created once per container and reused through `render` calls. Recreating a root on the same DOM node is how teams manufacture warnings and flaky unmount behavior.
+
+The React entry point is where most teams get sloppy:
 
 ```typescript
 import { createRoot } from 'react-dom/client';
@@ -66,32 +72,35 @@ import App from './App';
 
 let root: ReturnType<typeof createRoot> | null = null;
 
-export const bootstrap = () => Promise.resolve();
+export async function bootstrap() {}
 
-export const mount = () => new Promise((resolve, reject) => {
+export async function mount() {
   const container = document.getElementById('app-container');
-  if (!container) return reject(new Error('Container not found'));
+  if (!container) throw new Error('Container not found');
+
   root ??= createRoot(container);
   root.render(<App />);
-  resolve(void 0);
-});
+}
 
-export const unmount = () => new Promise((resolve) => {
+export async function unmount() {
   root?.unmount();
   root = null;
-  resolve(void 0);
-});
+}
 ```
 
-## Shared dependencies
+If you want less hand-rolled ceremony, use a helper such as `single-spa-react`. The constraint does not change: root ownership must stay explicit.
 
-If each micro-frontend bundles its own copy of React, users download React multiple times. On a product with ten teams, that's easily a megabyte of duplicated library code. The fix is to load React once through the import map and mark it as external in every parcel's build config:
+## Shared dependencies are not optional
+
+For large shared libraries, I would externalize them and let the browser load one copy. [Rollup external](https://rollupjs.org/configuration-options/#external) is the relevant build-time contract, and the import map is the runtime contract.
+
+Keep the shared dependency contract explicit in both places:
 
 ```json
 {
   "imports": {
-    "react": "https://esm.sh/react@18.3.1",
-    "react-dom": "https://esm.sh/react-dom@18.3.1"
+    "react": "https://cdn.example.com/shared/react.js",
+    "react-dom": "https://cdn.example.com/shared/react-dom.js"
   }
 }
 ```
@@ -106,4 +115,6 @@ export default defineConfig({
 });
 ```
 
-The catch: all parcels must use the same React version. If one team upgrades to React 19 before the others, you have a problem: React can't coexist in two versions on the same page without hooks breaking. Shared dependencies require cross-team coordination, which is exactly the thing micro-frontends were supposed to reduce. Plan for this explicitly before you commit to the architecture.
+React's own [invalid hook call](https://react.dev/warnings/invalid-hook-call-warning) warning is more precise than the usual cargo-cult version of this advice: multiple React copies on one page are not automatically fatal, but hooks break when your components and `react-dom` resolve different React modules. In practice, I still treat shared React as mandatory because letting each micro-frontend pick its own copy turns one version policy into permanent debugging debt.
+
+If you do not have at least three independently deployed frontend teams and someone willing to own the shell, the import map, and dependency policy, stay with a modular monolith.

@@ -3,19 +3,19 @@ id: llm-production
 order: 4
 difficulty: advanced
 tags: [IA, LLM, production, security, observability]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-12
+updatedAt: 2026-05-30
 ---
 
-Your MVP works. Beautifully, in fact: you've shown it to the team, they're impressed, and now it needs to go to production. That's when you discover that an LLM call isn't just a function call. It's a concentrated point of latency spikes, unpredictable costs, security attack surface, and quiet failures that don't throw exceptions. The code that ran fine on your laptop now needs a completely different level of care.
+Your MVP works. Then the first real users arrive, latency jumps, the bill stops being cute, and one silent model failure burns half a day of incident response. An LLM call in production is not a function call. It is a failure domain with cost, security, and SLO consequences.
 
 ## Observability
 
-The first production incident with an LLM tends to follow a pattern: something is wrong, you don't know if it's the model, the prompt, the infrastructure, or your code, and you have no logs that would tell you which one. That's when you realize you've been running blind.
+The first production incident with an LLM always feels the same: something is wrong, and you cannot tell whether the break came from the model, the prompt, the network, the tool layer, or your own adapter. That is what running blind looks like.
 
-You need to log the full execution envelope, not just "the response." What actually helps during an incident: which prompt was sent, to which provider, with which model, how many tokens went in and came out, how long the call took, how much it cost, how it terminated (`finish_reason`), whether there were retries, what request ID came back, and whether tools or retrieval were involved. For sensitive payloads, keep the raw prompt in restricted storage and send only a redacted preview plus a stable hash to general logs.
+Log the full execution envelope, not just the text output. What matters during an incident is the [response object](https://developers.openai.com/api/docs/api-reference/chat/object) or its equivalent after normalization: provider, model, token usage, latency, response ID, request ID, stop reason, retries, and whether tools or retrieval were involved. For sensitive payloads, keep raw prompts in restricted storage and send only a redacted preview plus a stable hash to general logs. Correlate that with [OpenTelemetry](https://opentelemetry.io/docs/concepts/signals/traces/) traces, or you are still guessing.
 
-The middleware below is the minimum viable starting point: one structured event on success, one on failure, both correlated with application traces.
+Normalize that once at the adapter boundary, then emit one event on success and one on failure.
 
 ```typescript
 import { createHash } from 'node:crypto';
@@ -25,31 +25,33 @@ type ChatMessage = {
   content: string;
 };
 
-type LlmResponse = {
-  id: string;
+type NormalizedLlmResponse = {
+  responseId: string;
   model: string;
   outputText: string;
   usage: {
     inputTokens: number;
     outputTokens: number;
   };
-  finishReason: string;
-  raw: unknown;
+  stopReason: string | null;
+  requestId?: string;
 };
 
-type ProviderCall = (messages: ChatMessage[]) => Promise<LlmResponse>;
+type Pricing = {
+  inputUsdPer1kTokens: number;
+  outputUsdPer1kTokens: number;
+};
+
+type ProviderCall = (messages: ChatMessage[]) => Promise<NormalizedLlmResponse>;
 type Logger = (event: Record<string, unknown>) => void;
 
-const pricingUsdPer1kTokens: Record<string, { input: number; output: number }> = {
-  'gpt-4o-mini': { input: 0.00015, output: 0.0006 },
-  'claude-3-5-haiku-latest': { input: 0.0008, output: 0.004 },
-};
-
-const estimateCostUsd = (model: string, usage: LlmResponse['usage']) => {
-  const pricing = pricingUsdPer1kTokens[model];
-  if (!pricing) return null;
-
-  return Number(((usage.inputTokens / 1000) * pricing.input + (usage.outputTokens / 1000) * pricing.output).toFixed(6));
+const estimateCostUsd = (pricing: Pricing, usage: NormalizedLlmResponse['usage']) => {
+  return Number(
+    (
+      (usage.inputTokens / 1000) * pricing.inputUsdPer1kTokens +
+      (usage.outputTokens / 1000) * pricing.outputUsdPer1kTokens
+    ).toFixed(6)
+  );
 };
 
 const promptFingerprint = (messages: ChatMessage[]) =>
@@ -61,6 +63,7 @@ const promptPreview = (messages: ChatMessage[]) =>
 export const withObservability = (
   provider: string,
   model: string,
+  pricing: Pricing,
   call: ProviderCall,
   logger: Logger
 ): ProviderCall => {
@@ -69,21 +72,21 @@ export const withObservability = (
 
     try {
       const response = await call(messages);
-      const latencyMs = Date.now() - startedAt;
 
       logger({
         type: 'llm_call',
         status: 'success',
         provider,
         model,
-        prompt_input: promptPreview(messages),
+        prompt_preview: promptPreview(messages),
         prompt_hash: promptFingerprint(messages),
         tokens_input: response.usage.inputTokens,
         tokens_output: response.usage.outputTokens,
-        latency_ms: latencyMs,
-        cost_usd: estimateCostUsd(model, response.usage),
-        finish_reason: response.finishReason,
-        response_id: response.id,
+        latency_ms: Date.now() - startedAt,
+        cost_usd: estimateCostUsd(pricing, response.usage),
+        stop_reason: response.stopReason,
+        response_id: response.responseId,
+        request_id: response.requestId,
       });
 
       return response;
@@ -93,7 +96,7 @@ export const withObservability = (
         status: 'error',
         provider,
         model,
-        prompt_input: promptPreview(messages),
+        prompt_preview: promptPreview(messages),
         prompt_hash: promptFingerprint(messages),
         latency_ms: Date.now() - startedAt,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -105,21 +108,21 @@ export const withObservability = (
 };
 ```
 
-From there, LangSmith and Helicone give you more LLM-native inspection. OpenTelemetry keeps everything in your existing pipeline. The brand of tooling matters less than having enough evidence to explain what happened (after the fact, without having to reproduce it).
+LangSmith or Helicone can sit on top if you want more LLM-native inspection. The brand matters less than having enough evidence to explain the failure without replaying production traffic.
 
 ## Security: prompt injection
 
-Prompt injection is the attack vector that trips up nearly every team the first time. It's not a buffer overflow or an auth bypass: it's a manipulation of the instruction layer. A user pastes crafted text, a partner PDF contains a hidden instruction, a RAG chunk pulled from a web page tells the model to ignore the system policy and exfiltrate data. The model, having no way to distinguish "instructions from the developer" from "instructions embedded in retrieved content," may comply.
+Prompt injection is still the trap most teams underestimate. It is not a classic parser exploit. It is an instruction-layer exploit, and [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html) is explicit about the ugly part: direct injection is only half the problem. Indirect injection arrives through the documents, web pages, tickets, or emails your system fetches and stuffs into context.
 
-Direct injection is obvious once you know to look for it. Indirect injection (arriving through external data your system fetches and injects into the prompt) is nastier. The main defense is separation: treat retrieved content as untrusted data, never as execution policy. Keep system instructions structurally distinct from user content. Validate inputs before they reach tools. Sandbox agent tools with allowlists, short-lived credentials, and restricted network access. And assume some injections will land. Design for a small blast radius when they do, not for perfect prevention.
+The right default is separation. Treat retrieved content as untrusted data, never as policy. Keep system instructions structurally distinct from user and retrieved content. Validate inputs before they reach tools. Sandbox tools with allowlists, short-lived credentials, and narrow network permissions. Assume some injections will land anyway. Production design is about blast radius, not purity.
 
 ## Cost optimization
 
-The bill looks fine during development. Then traffic grows, and something that seemed cheap at prototype scale compounds into a real expense. The issue is rarely a single bloated prompt: it's usually an accumulation: conversation histories that grow without bounds, retrieval that returns more than needed, wrong model for the task, no caching.
+The bill looks harmless during development. Then traffic grows, conversation history keeps expanding, retrieval gets noisy, and a feature that looked cheap at prototype scale turns into a margin leak.
 
-Start with caching. Exact-match cache on normalized prompts is cheap to implement and eliminates redundant calls on frequently asked questions. Semantic caching reuses responses for equivalent questions even when phrased differently, but needs embeddings: it's a second step, not the first.
+Provider-side [prompt caching](https://developers.openai.com/api/docs/guides/prompt-caching) is real money on repeated prefixes, but it is not a substitute for your own cache. Provider caches are prefix-sensitive and provider-specific. Start with an application cache on normalized prompts. Then summarize history instead of appending forever, route classification and extraction to smaller models, reserve expensive reasoning for the calls that need it, batch offline work where latency allows it, and cap the output token budget explicitly.
 
-Then tackle the structural levers: remove duplicated instructions, summarize history instead of appending it forever, route classification and extraction to small models and reserve the expensive ones for synthesis or hard reasoning, batch offline work where latency permits, and cap `max_tokens` so the model doesn't quietly pad every response.
+Build that first, then decide if semantic caching is worth the extra operational drag.
 
 ```typescript
 import { createHash } from 'node:crypto';
@@ -166,22 +169,39 @@ export async function cachedCompletion(
 
 ## Resilience and multi-provider
 
-Single-provider architectures have a hidden property: they're fine until the day they're not. An outage, a quota limit, a regional degradation, a policy change: any of these can take down an LLM-dependent feature with no warning. The solution is to build a provider-agnostic interface over your actual adapters, then define your fallback policy explicitly rather than discovering it during an incident.
+Single-provider architectures look fine right until one quota event, regional degradation, or policy change takes out a revenue path. If the feature matters, write down the fallback policy before the incident writes it for you.
 
-My preferred policy: aggressive timeout (2–3 seconds), one retry on transient errors, then switch to a secondary provider. Circuit breakers prevent retry storms from turning one provider's problem into your SLO's problem.
+My default for interactive workloads is blunt: 2-3 second timeout, one retry on transient failures, then fail over. Batch workloads can wait longer. User-facing flows usually should not. Circuit breakers matter because retry storms are how you turn one provider outage into your own outage.
 
-The fallback is not free. Providers differ on JSON mode, tool calling, context window limits, and safety filters. Don't normalize everything: only normalize the capabilities you actually need. Keep prompts portable across providers, maintain golden test cases that run on both, and measure quality drift during failover rather than assuming the outputs will be equivalent.
+Write that policy in code so the on-call team is not improvising at 3 a.m.
 
 ```typescript
 type ProviderResult = {
   provider: string;
   text: string;
-  finishReason: string;
+  stopReason: string | null;
 };
 
 type Provider = {
   name: string;
   generate: (prompt: string, signal: AbortSignal) => Promise<ProviderResult>;
+};
+
+type ProviderError = Error & {
+  status?: number;
+  code?: string;
+};
+
+const isTransientError = (error: unknown) => {
+  if (!(error instanceof Error)) return false;
+
+  const providerError = error as ProviderError;
+
+  return (
+    error.name === 'AbortError' ||
+    providerError.status === 429 ||
+    (typeof providerError.status === 'number' && providerError.status >= 500)
+  );
 };
 
 async function withTimeout<T>(timeoutMs: number, operation: (signal: AbortSignal) => Promise<T>): Promise<T> {
@@ -210,6 +230,10 @@ export async function generateWithFallback(
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';
         errors.push(`${provider.name} attempt ${attempt + 1}: ${message}`);
+
+        if (!isTransientError(error) || attempt === retries) {
+          break;
+        }
       }
     }
   }
@@ -218,15 +242,17 @@ export async function generateWithFallback(
 }
 ```
 
+The fallback is not free. Providers differ on tool calling, structured output guarantees, context limits, and safety behavior. Do not normalize everything. Normalize only the capabilities you truly need, keep prompts portable, run the same golden cases against both providers, and measure quality drift during failover instead of assuming equivalence.
+
 ## Model selection framework
 
-Model selection is an engineering decision, not a brand preference. The right model for a task is the one that meets your constraint budget (latency, quality, cost, data residency), not the most impressive one in a benchmark. I'd pick the cheapest model that can reliably do the job, and upgrade only when I have evidence that quality is the bottleneck.
+Model selection is an engineering decision, not a brand preference. I would start with the cheapest model that passes evals for the task and only move up when quality is the proven bottleneck.
 
-| Constraint           | Recommended default      | Why                                                      | Main tradeoff                        |
-| -------------------- | ------------------------ | -------------------------------------------------------- | ------------------------------------ |
-| Latency < 500 ms     | Haiku / GPT-4o mini      | Best chance of hitting interactive UX budgets            | Lower reasoning depth                |
-| Maximum quality      | GPT-4o / Claude Sonnet   | Better synthesis, tool use, and long-context reliability | Higher cost and latency              |
-| Cost < $0.01/request | Small models             | Scales better under heavy traffic                        | More routing and QA work             |
-| Sensitive data       | Ollama / vLLM on-premise | Stronger data control and residency guarantees           | You own uptime, GPU cost, and tuning |
+| Constraint           | Recommended default                                                                                  | Why                                           | Main tradeoff                      |
+| -------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------- | ---------------------------------- |
+| Latency < 500 ms     | Smallest model that passes evals                                                                     | Best chance of protecting interactive budgets | Less reasoning headroom            |
+| Maximum quality      | Flagship model                                                                                       | Better synthesis and tool reliability         | Higher cost and latency            |
+| Cost pressure        | Tiered routing                                                                                       | Keeps expensive calls rare                    | More routing logic and QA work     |
+| Strict data boundary | Self-hosted stack with [Ollama](https://docs.ollama.com/) or [vLLM](https://docs.vllm.ai/en/stable/) | Keeps inference inside your infra boundary    | You own uptime, GPUs, and capacity |
 
-Beyond the matrix: factor in SLAs, regional availability, quota behavior, eval results on your actual domain, and contract terms around data retention and training. The "best" model in production is the one that satisfies your error budget, your privacy boundary, and your unit economics, simultaneously, not in isolation.
+Factor in SLAs, regional availability, quota behavior, eval results on your domain, and contractual data-retention terms. My rule is simple: if the feature cannot hit latency, quality, and unit-cost targets with one documented fallback path, it is not production-ready yet.

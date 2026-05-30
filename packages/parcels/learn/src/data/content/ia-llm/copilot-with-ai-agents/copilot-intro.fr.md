@@ -3,41 +3,41 @@ id: copilot-intro
 order: 1
 difficulty: beginner
 tags: [copilot, ai-agents, github]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-15
+updatedAt: 2026-05-30
 ---
 
-Copilot devient vite étrange quand il utilise `npm` dans un projet `pnpm`, invente une commande de test, ou modifie le mauvais fichier avec un aplomb presque insultant. Dans la plupart des cas, le problème ne vient pas du modèle. Le problème, c'est qu'on demande à un outil généraliste d'agir dans un projet très spécifique.
+Copilot devient vite bizarre quand il utilise `npm` dans un projet `pnpm`, invente une commande de test, ou modifie le mauvais fichier avec un aplomb total. La plupart du temps, le vrai problème ne vient pas du modèle. Le vrai problème, c'est qu'on demande à un outil généraliste de bien se comporter dans un projet très spécifique.
 
-C'est pour ça que je préfère voir GitHub Copilot comme trois métiers différents, pas comme un assistant magique un peu flou.
+C'est pour ça que je vois GitHub Copilot comme trois métiers différents, pas comme un assistant magique un peu flou. Dès que j'ai fait cette séparation dans ma tête, son comportement est devenu beaucoup plus lisible.
 
 ## Trois métiers sous la même marque
 
-Les [suggestions de code](https://docs.github.com/en/copilot/concepts/completions/code-suggestions) sont les propositions inline qui apparaissent pendant que tu tapes. Dans certains IDE, ça inclut le ghost text classique et les next edit suggestions. J'utilise ce mode quand je connais déjà la forme du code et que j'ai juste envie d'arrêter de faire du travail à la chaîne avec mes doigts.
+Les [suggestions de code](https://docs.github.com/en/copilot/concepts/completions/code-suggestions) sont les propositions qui apparaissent directement dans l'éditeur pendant que tu tapes. Dans certains IDE, ça inclut le ghost text, c'est-à-dire du texte affiché en grisé avant ton curseur, et les next edit suggestions, qui proposent une modification plus large juste après. J'utilise ça quand je sais déjà ce que je veux écrire et que j'ai juste envie de taper moins.
 
-[Copilot Chat](https://docs.github.com/en/copilot/concepts/about-github-copilot-chat), c'est la couche conversationnelle. Il est disponible dans GitHub, plusieurs IDE, GitHub Mobile et Copilot CLI. C'est le bon outil quand tu veux une explication, une première version de refactor, ou un brouillon de tests que tu vas quand même relire toi-même. Utile, oui. Magique, non. Il faut toujours lire ce qu'il a produit.
+[Copilot Chat](https://docs.github.com/en/copilot/concepts/about-github-copilot-chat), c'est la version conversationnelle. Tu poses une question en langage naturel, et Copilot répond dans une fenêtre de chat sur GitHub, dans plusieurs IDE, sur GitHub Mobile ou dans Copilot CLI. C'est le bon outil quand tu veux une explication, un brouillon de refactor, ou une première ébauche de tests que tu vas quand même relire toi-même. Utile, oui. Magique, non.
 
-Quand la tâche dépasse une simple réponse, [Copilot cloud agent](https://docs.github.com/en/copilot/concepts/agents/cloud-agent/about-cloud-agent) peut analyser un dépôt, préparer un plan d'implémentation, modifier du code sur une branche, exécuter des tests et des linters dans son propre environnement, puis préparer une pull request pour relecture. C'est là que Copilot cesse de ressembler à de l'autocomplétion et commence à ressembler à un collègue junior très rapide qui a parfois besoin qu'on lui rappelle le monde réel.
+Quand la tâche dépasse une seule réponse, [Copilot cloud agent](https://docs.github.com/en/copilot/concepts/agents/cloud-agent/about-cloud-agent) peut analyser un dépôt, préparer un plan, modifier du code sur une branche, c'est-à-dire une ligne de travail séparée dans Git, et exécuter des tests ou des vérifications de lint, donc des contrôles automatiques de qualité, dans son propre environnement temporaire avant que tu décides d'ouvrir ou non une pull request. C'est le moment où Copilot ressemble moins à de l'autocomplétion et davantage à un collègue junior très rapide qui a encore besoin de supervision.
 
 ## Pourquoi le contexte cesse d'être optionnel
 
-Dès qu'on passe des suggestions au chat ou au travail en mode agent, les prompts vagues deviennent chers. Copilot CLI prend en charge les [instructions personnalisées](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions), y compris les instructions globales au dépôt, les instructions par chemin, et les instructions d'agent comme `AGENTS.md`. En pratique, je préfère écrire ces règles une bonne fois plutôt que répéter le même prompt vingt fois et faire semblant que c'est une méthode.
+Dès qu'on passe des suggestions au chat ou au mode agent, les prompts vagues deviennent chers. Copilot CLI prend en charge les [instructions personnalisées](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions), y compris les instructions globales au dépôt, les instructions par chemin, et les instructions d'agent comme `AGENTS.md`. Moi, je choisirais des instructions écrites bien avant d'essayer un mega-prompt malin, parce que des fichiers sont visibles, répétables, et beaucoup plus simples à relire.
 
-Un petit fichier `AGENTS.md` suffit souvent à éviter les bêtises les plus prévisibles, donc voilà le genre de base que j'aime poser dès le début :
+Un petit fichier `AGENTS.md` suffit souvent à éviter les erreurs les plus prévisibles, donc voilà le genre de base avec laquelle je commencerais :
 
 ```md
 # AGENTS.md
 
 - Use pnpm, never npm.
-- Run lint and build before proposing completion.
+- Run tests and lint checks before saying the work is done.
 - Do not edit generated files by hand.
 - Prefer accessible HTML and visible focus states.
 ```
 
 ## Ce que la mémoire change, et ce qu'elle ne change pas
 
-[Copilot Memory](https://docs.github.com/en/copilot/concepts/agents/copilot-memory) est en préversion publique. Elle peut stocker des faits au niveau du dépôt et, pour les utilisateurs Copilot Pro, Pro+ ou Max, des préférences utilisateur qui aideront plus tard Copilot cloud agent, la revue de code et Copilot CLI. J'aime bien cette fonctionnalité, mais je n'en ferais pas ma première ligne de défense. Les entrées inutilisées sont supprimées automatiquement après 28 jours. Un fichier d'instructions versionné est banal, explicite, et visible en revue de code, ce qui est précisément la raison pour laquelle je lui fais plus confiance.
+[Copilot Memory](https://docs.github.com/en/copilot/concepts/agents/copilot-memory) est en préversion publique. Elle peut stocker des faits sur le dépôt et, pour les utilisateurs Copilot Pro, Pro+ ou Max, des préférences personnelles pour les travaux suivants. J'aime bien cette fonctionnalité, mais je n'en ferais pas mon point de départ. Les mémoires inutilisées sont supprimées après 28 jours, donc je la traite comme une aide, et les fichiers d'instructions versionnés comme la vraie source de vérité.
 
-## Par où commencer
+## Par où je commencerais
 
-Si Copilot t'aide surtout à terminer des lignes que tu allais déjà écrire, commence par les suggestions de code et arrête-toi là. Si tu veux qu'il explique du code ou prépare des tests, utilise le chat. Si tu veux qu'il touche à plusieurs fichiers ou lance des commandes, ajoute d'abord des instructions au dépôt. C'est ma règle perso : pas d'instructions dans le dépôt, pas d'agent sur autre chose qu'un nettoyage trivial.
+Si Copilot t'aide surtout à terminer du code que tu comprends déjà, commence par les suggestions de code. Si tu veux des explications ou des brouillons, utilise le chat. Si tu veux qu'il modifie plusieurs fichiers ou lance des commandes, écris d'abord des instructions de dépôt. Si cette frontière te paraît encore floue, lis le guide suivant sur les instructions personnalisées avant d'essayer les agents. Ma règle est simple : pas d'instructions dans le dépôt, pas d'agent pour autre chose qu'un tout petit nettoyage.
