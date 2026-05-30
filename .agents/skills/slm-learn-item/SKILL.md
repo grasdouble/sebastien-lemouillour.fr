@@ -48,6 +48,8 @@ Three modes, auto-detected from the opening message — or explicitly declared b
 | **Yolo**     | Intent is unambiguous, all blocking identifiers present, several optional fields already provided     | Ingest everything, fill gaps with sensible defaults, present one confirmation summary, allow one correction round, then execute without further questions |
 | **Headless** | Strict structured payload (JSON or YAML) with no conversational wrapper; or explicit `mode: headless` | Ingest payload, resolve gaps using defaults, produce structured output per the workflow return contract — never prompt                                    |
 
+**Yolo fast path:** If all blocking fields (topic, `id`, `categoryKey`, `catalogId`) are present in the opening message with no ambiguity, show the confirmation summary once and **execute immediately** — do not pause for a second exchange. Only stop if the user's next message is an explicit correction.
+
 **Detection precedence:**
 
 1. Explicit user declaration → that mode, regardless of message shape

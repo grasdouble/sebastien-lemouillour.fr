@@ -2,7 +2,8 @@
 # /// script
 # requires-python = ">=3.9"
 # ///
-"""Structural validation — deterministic checks on all guides: frontmatter parity, date validity, duplicate URLs, banned phrases.
+"""Structural validation — deterministic checks on all guides: frontmatter parity, date validity,
+duplicate URLs, banned phrases, external link count, Resources section links, anchor text length.
 Run from the project root: python3 {skill-root}/scripts/structural-validation.py
 
 Exit codes:
@@ -26,6 +27,15 @@ BANNED = [
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 FM_FIELDS = ["id", "order", "difficulty", "publishedAt", "updatedAt"]
 URL_RE = re.compile(r"https?://[^\s)\]\"']+")
+# Matches [anchor text](https://...) — captures anchor text in group 1
+LINK_RE = re.compile(r"\[([^\]]+)\]\(https?://[^\)]+\)")
+# Matches a ## Resources heading and everything until the next ## heading or end of file
+RESOURCES_RE = re.compile(r"##\s+Resources\s*\n(.*?)(?=\n##\s|\Z)", re.DOTALL)
+
+LINK_COUNT_MIN = 3
+LINK_COUNT_OVER = 7
+LINK_COUNT_MAX = 10
+ANCHOR_WORD_LIMIT = 5
 
 
 def parse_fm_and_body(path: str) -> tuple[dict, str]:
@@ -116,6 +126,28 @@ def main() -> None:
                 for phrase in BANNED:
                     if phrase in en_body:
                         issues.append({"id": gid, "type": "banned_phrase", "phrase": phrase})
+
+                # External link count
+                links = LINK_RE.findall(en_body)
+                link_count = len(links)
+                if link_count > LINK_COUNT_MAX:
+                    issues.append({"id": gid, "type": "too_many_links", "count": link_count})
+                elif link_count > LINK_COUNT_OVER:
+                    issues.append({"id": gid, "type": "over_linked", "count": link_count})
+                elif link_count < LINK_COUNT_MIN:
+                    issues.append({"id": gid, "type": "under_linked", "count": link_count})
+
+                # Resources section must contain at least one clickable link
+                resources_match = RESOURCES_RE.search(en_body)
+                if resources_match:
+                    resources_block = resources_match.group(1)
+                    if not LINK_RE.search(resources_block):
+                        issues.append({"id": gid, "type": "resources_no_links"})
+
+                # Anchor text length — flag anchors longer than ANCHOR_WORD_LIMIT words
+                for anchor in links:
+                    if len(anchor.split()) > ANCHOR_WORD_LIMIT:
+                        issues.append({"id": gid, "type": "long_anchor_text", "anchor": anchor[:80]})
 
     print(json.dumps({"structural_issues": issues}, indent=2))
 

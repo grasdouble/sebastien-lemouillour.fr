@@ -145,3 +145,30 @@ If `{workflow.on_complete}` is non-empty, execute it after confirming.
 - After any guide moves, always reindex `order` values in every affected catalog to keep them contiguous
 - Catalog `id` derives from the folder name — renaming requires updating the folder, `CATALOG_ORDER`, and i18n keys in both locales
 - A renamed catalog must keep its entry in `CATALOG_ORDER` up to date — never leave a stale id in the array
+
+## Mode
+
+Catalog workflows operate in **Guided mode only** — Yolo and Headless detection do not apply here.
+
+All writes require explicit user confirmation at the Scope Summary before proceeding. The user must confirm or correct the summary before any file is touched.
+
+## Archiving a Catalog
+
+When a catalog and all its guides need to be removed from the site:
+
+1. **Reassign or delete guides** — a guide must always belong to exactly one catalog. Either move each guide to another catalog (using the guide membership steps above) or delete both `.en.md` and `.fr.md` files.
+2. **Remove the catalog folder** — once empty, delete `content/{categoryKey}/{catalogId}/`.
+3. **Remove from `CATALOG_ORDER`** in `packages/parcels/learn/src/data/learn.ts` — delete the `'{catalogId}'` entry.
+4. **Remove i18n keys** from both `en.json` and `fr.json` — delete the `"{catalogId}"` block under `"catalogs"."items"`.
+5. **If the category is now empty** (no remaining catalogs under `{categoryKey}`): also remove the `categoryKey` from `CATEGORY_KEYS` in `learn.ts` and delete the corresponding entry from `"categories"` in both locale files.
+6. **Create a changeset**:
+
+   ```md
+   ---
+   '@grasdouble/slm_parcel_learn': patch
+   ---
+
+   fix: remove "{title}" catalog — {brief reason}.
+   ```
+
+7. **Confirm** — summarize every file touched and remind the user to run `pnpm build` from the `learn` package.

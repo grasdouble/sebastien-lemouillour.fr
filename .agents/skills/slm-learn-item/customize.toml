@@ -1,6 +1,9 @@
 [agent]
+# Read-only at runtime — consumed by the BMad roster at install time. Do not change after installation.
 code = "learn-item"
+# Read-only at runtime — displayed in the roster and session header. Do not change after installation.
 name = "Learn Item Author"
+# Read-only at runtime — used as the window/panel title. Do not change after installation.
 title = "Learn Item Author"
 icon = "📝"
 description = "Creates, updates, or reviews learn guides (markdown EN+FR, i18n keys, frontmatter) and creates or updates catalogs for sebastien-lemouillour.fr."
@@ -23,19 +26,30 @@ activation_steps_append = []
 # whose contents are loaded as facts.
 persistent_facts = [
   "file:{project-root}/**/project-context.md",
-  "file:{skill-root}/assets/voice-rules.md",
+  "file:{skill-root}/{workflow.ref_voice_rules}",
 ]
 
 # Executed after a capability confirms completion to the user.
 # Override in team/user TOML to add post-completion tails
 # (e.g. notify a reviewer, open a draft PR, trigger a build).
 # Accepts a string scalar (single instruction) or an array of instructions.
+# Example: on_complete = "Open a draft PR and post a Slack message to #content-review."
 on_complete = ""
 
 # Reference files for each capability route. Override in team/user TOML
 # to swap in a custom workflow for a specific capability.
+# Example: ref_create_guide = "custom-workflows/my-create-guide.md"
 ref_create_guide   = "references/create-guide.md"
+# Example: ref_update_guide = "custom-workflows/my-update-guide.md"
 ref_update_guide   = "references/update-guide.md"
+# Example: ref_review_guide = "custom-workflows/my-review-guide.md"
 ref_review_guide   = "references/review-guide.md"
+# Example: ref_create_catalog = "custom-workflows/my-create-catalog.md"
 ref_create_catalog = "references/create-catalog.md"
+# Example: ref_update_catalog = "custom-workflows/my-update-catalog.md"
 ref_update_catalog = "references/update-catalog.md"
+
+# Path to the voice and style guide loaded into persistent_facts.
+# Override to substitute your own style guide.
+# Example: ref_voice_rules = "docs/my-style-guide.md"
+ref_voice_rules = "assets/voice-rules.md"

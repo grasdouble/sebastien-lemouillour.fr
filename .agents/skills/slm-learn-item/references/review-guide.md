@@ -94,14 +94,19 @@ python3 {skill-root}/scripts/structural-validation.py
 
 **Interpreting the output and acting on it:**
 
-| `type`                     | Action                                                                             |
-| -------------------------- | ---------------------------------------------------------------------------------- |
-| `missing_fr_file`          | Create the FR file before reviewing; if not in scope, flag as error                |
-| `fm_mismatch`              | Sync the FR frontmatter field to match EN (EN is authoritative)                    |
-| `invalid_date`             | Correct the date to `YYYY-MM-DD` format                                            |
-| `updated_before_published` | Set `updatedAt` ≥ `publishedAt`                                                    |
-| `duplicate_urls`           | Keep only the first occurrence of each URL; replace subsequent ones with name only |
-| `banned_phrase`            | Rewrite the affected sentence                                                      |
+| `type`                     | Action                                                                                                         |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `missing_fr_file`          | Create the FR file before reviewing; if not in scope, flag as error                                            |
+| `fm_mismatch`              | Sync the FR frontmatter field to match EN (EN is authoritative)                                                |
+| `invalid_date`             | Correct the date to `YYYY-MM-DD` format                                                                        |
+| `updated_before_published` | Set `updatedAt` ≥ `publishedAt`                                                                                |
+| `duplicate_urls`           | Keep only the first occurrence of each URL; replace subsequent ones with name only                             |
+| `banned_phrase`            | Rewrite the affected sentence                                                                                  |
+| `under_linked`             | Add external links to official documentation sources until total reaches 3+                                    |
+| `over_linked`              | Remove redundant links; keep the most relevant ones (target: 3–7)                                              |
+| `too_many_links`           | Remove links until total ≤ 10; then re-evaluate against `over_linked` threshold                                |
+| `resources_no_links`       | Replace prose source descriptions with real `[Name](url)` links, or remove the `## Resources` section entirely |
+| `long_anchor_text`         | Shorten anchor text to ≤5 words; keep the cited claim as readable prose outside the link                       |
 
 **Scope rule:** Fix only issues for guides in the current review scope. Report issues found in other guides as a warning in the final summary — they are backlog, not blockers for the current task.
 

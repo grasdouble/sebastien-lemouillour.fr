@@ -162,3 +162,9 @@ If `{workflow.on_complete}` is non-empty, execute it after confirming.
 - The catalog must belong to a `categoryKey` listed in `CATEGORY_KEYS`
 - Every new catalog must be added to `CATALOG_ORDER` — never skip this step
 - A catalog with no guide files is valid but won't render in the UI
+
+## Mode
+
+Catalog workflows operate in **Guided mode only** — Yolo and Headless detection do not apply here.
+
+All writes require explicit user confirmation at the Soft Checkpoint before proceeding. The user must confirm or correct the summary before any file is touched.

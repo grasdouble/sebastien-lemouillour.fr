@@ -60,8 +60,13 @@ class TestStructuralValidation(unittest.TestCase):
         return json.loads(buf.getvalue())
 
     def test_clean_guide_has_no_issues(self) -> None:
-        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "en", "my-guide")
-        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "fr", "my-guide")
+        clean_body = (
+            "Use [tool one](https://example.com/one) for setup. "
+            "Configure [tool two](https://example.com/two) next. "
+            "See [official docs](https://example.com/docs) for details."
+        )
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "en", "my-guide", body=clean_body)
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "fr", "my-guide", body=clean_body)
         result = self._run()
         self.assertEqual(result["structural_issues"], [])
 
@@ -124,6 +129,72 @@ class TestStructuralValidation(unittest.TestCase):
             self.assertIn("missing_fr_file", [i["type"] for i in result["structural_issues"]])
         except SystemExit as e:
             self.fail(f"Unexpected SystemExit({e.code}) on findings")
+
+    def test_under_linked_detected(self) -> None:
+        body = "A guide with no external links at all."
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "en", "my-guide", body=body)
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "fr", "my-guide", body=body)
+        result = self._run()
+        types = [i["type"] for i in result["structural_issues"]]
+        self.assertIn("under_linked", types)
+
+    def test_over_linked_detected(self) -> None:
+        links = " ".join(f"[tool{i}](https://example.com/{i})" for i in range(8))
+        body = f"This guide has many links: {links}."
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "en", "my-guide", body=body)
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "fr", "my-guide", body=body)
+        result = self._run()
+        types = [i["type"] for i in result["structural_issues"]]
+        self.assertIn("over_linked", types)
+
+    def test_too_many_links_detected(self) -> None:
+        links = " ".join(f"[tool{i}](https://example.com/{i})" for i in range(11))
+        body = f"Excessive links: {links}."
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "en", "my-guide", body=body)
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "fr", "my-guide", body=body)
+        result = self._run()
+        types = [i["type"] for i in result["structural_issues"]]
+        self.assertIn("too_many_links", types)
+
+    def test_resources_no_links_detected(self) -> None:
+        three_links = "[a](https://a.com) [b](https://b.com) [c](https://c.com)"
+        body = f"Intro with {three_links}.\n\n## Resources\n\nSee the official documentation for more info."
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "en", "my-guide", body=body)
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "fr", "my-guide", body=body)
+        result = self._run()
+        types = [i["type"] for i in result["structural_issues"]]
+        self.assertIn("resources_no_links", types)
+
+    def test_resources_with_links_is_clean(self) -> None:
+        body = (
+            "[a](https://a.com) [b](https://b.com) [c](https://c.com).\n\n"
+            "## Resources\n\n- [Official docs](https://docs.example.com)"
+        )
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "en", "my-guide", body=body)
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "fr", "my-guide", body=body)
+        result = self._run()
+        types = [i["type"] for i in result["structural_issues"]]
+        self.assertNotIn("resources_no_links", types)
+
+    def test_long_anchor_text_detected(self) -> None:
+        three_links = "[a](https://a.com) [b](https://b.com) [c](https://c.com)"
+        body = (
+            f"Read {three_links} and also "
+            "[OpenAI recommends evals to track behavior as prompts and models change](https://example.com)."
+        )
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "en", "my-guide", body=body)
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "fr", "my-guide", body=body)
+        result = self._run()
+        types = [i["type"] for i in result["structural_issues"]]
+        self.assertIn("long_anchor_text", types)
+
+    def test_short_anchor_text_is_clean(self) -> None:
+        body = "[a](https://a.com) [b](https://b.com) [tool docs](https://c.com)."
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "en", "my-guide", body=body)
+        write_guide(self._tmp, "ia-llm", "ia-llm-fundamentals", "fr", "my-guide", body=body)
+        result = self._run()
+        types = [i["type"] for i in result["structural_issues"]]
+        self.assertNotIn("long_anchor_text", types)
 
 
 if __name__ == "__main__":
