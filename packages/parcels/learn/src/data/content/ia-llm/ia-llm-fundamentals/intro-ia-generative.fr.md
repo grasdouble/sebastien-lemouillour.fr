@@ -3,36 +3,36 @@ id: intro-ia-generative
 order: 1
 difficulty: beginner
 tags: [IA, LLM]
-publishedAt: 2026-12-31
-updatedAt: 2026-12-31
+publishedAt: 2026-05-20
+updatedAt: 2026-05-30
 ---
 
 Vous collez un message client agacé dans ChatGPT et en cinq secondes vous avez une réponse support présentable. Votre collègue designer tape une description dans Midjourney et obtient quelque chose de mieux que ce qu'il aurait produit en trois heures sous Figma. Des outils différents, des résultats différents, mais le même sentiment un peu déstabilisant : un logiciel qui crée, plutôt qu'un logiciel qui obéit.
 
-C'est ça, l'IA générative. Et si vous développez, ça vaut la peine de comprendre ce qui se passe vraiment avant de commencer à construire dessus.
+C'est précisément pour ça que l'IA générative mérite votre attention. Si vous développez, vous n'avez pas besoin de maîtriser les maths dès le premier jour, mais vous gagnez beaucoup à comprendre le type de machine que vous utilisez avant de construire dessus.
 
-## Un programme qui apprend
+## Pas des règles, des patterns
 
-Un programme classique fait exactement ce qu'on lui dit de faire. Une fonction qui valide un email ne « comprend » pas les emails : elle fait correspondre une regex. L'IA générative fonctionne différemment : au lieu d'encoder des règles, on entraîne un modèle sur des quantités massives d'exemples jusqu'à ce qu'il apprenne des patterns suffisamment bien pour en produire de nouveaux.
+Un programme classique fait exactement ce qu'on lui dit de faire. Une fonction qui valide un email ne « comprend » pas les emails : elle applique une regex. L'IA générative fonctionne autrement. Au lieu d'écrire les règles à la main, on entraîne un modèle sur d'énormes volumes d'exemples jusqu'à ce qu'il apprenne des patterns assez bien pour en produire de nouveaux.
 
-L'analogie classique, c'est le musicien de jazz. Après des années d'écoute et de pratique, il n'improvise pas au hasard : il puise dans des milliers de patterns absorbés et crée quelque chose de nouveau à partir d'eux. Les modèles génératifs font la même chose, avec des tokens plutôt que des notes, à une échelle qui rend l'analogie presque naïve.
+L'analogie du musicien de jazz m'aide encore ici. Après des années d'écoute et de pratique, il n'improvise pas au hasard. Il s'appuie sur des patterns absorbés et assemble quelque chose de nouveau. Les modèles génératifs font quelque chose d'approchant avec du texte, des images, de l'audio ou du code.
 
 ## Un LLM, concrètement
 
-Un **LLM** (Large Language Model) est le moteur derrière ChatGPT, Claude, Gemini, et la plupart de ce avec quoi vous allez réellement travailler. Il a été entraîné sur un corpus énorme : livres, articles, code source, pages web, et a appris une seule chose : étant donné du texte, qu'est-ce qui vient ensuite ?
+Un **LLM** (Large Language Model) est le moteur derrière [ChatGPT](https://openai.com/chatgpt/overview/), [Claude](https://docs.anthropic.com/en/docs/intro-to-claude), [Gemini](https://ai.google.dev/gemini-api/docs/models), et la plupart de ce avec quoi vous allez réellement travailler. Il a été entraîné sur un énorme corpus de texte et a appris une tâche trompeusement simple : étant donné du texte, quel est le morceau suivant le plus probable ?
 
-Ça semble trompeusement simple. Ce ne l'est pas.
+Si ça vous paraît encore un peu abstrait, pas d'inquiétude. En général, tout devient plus clair quand on voit les quelques éléments qui façonnent chaque réponse.
 
-Quatre concepts expliquent 80% de ce qu'on observe quand on travaille avec ces modèles :
+Quatre concepts expliquent l'essentiel de ce que vous allez observer en pratique :
 
-- **Token**: les modèles ne traitent pas des caractères ou des mots, ils traitent des tokens (environ un mot, parfois une syllabe, parfois de la ponctuation). Tout a un coût en tokens, c'est pourquoi les prompts longs deviennent vite onéreux.
-- **Fenêtre de contexte**: la quantité de texte que le modèle peut « voir » en une seule requête. C'est sa mémoire de travail. Dépassez la limite et le contenu ancien disparaît. GPT-4o peut traiter environ 300 pages à la fois, ce qui semble beaucoup jusqu'au moment où vous essayez de lui donner toute une codebase.
-- **Temperature**: le curseur de créativité. À 0, le modèle choisit à chaque fois le token le plus probable (prévisible, légèrement ennuyeux). À 1, il prend plus de risques (intéressant, parfois faux). Pour tout ce qui est factuel ou structuré, je reste en dessous de 0,5.
-- **Prompt**: l'instruction que vous envoyez. Celui-là compte plus que les gens ne l'imaginent. Le même modèle avec un prompt différent produit des résultats radicalement différents, c'est pourquoi il existe toute une discipline dédiée à ça.
+- **Token** : les modèles ne traitent pas des caractères ou des mots entiers, ils traitent des morceaux appelés tokens. Le [tokenizer OpenAI](https://platform.openai.com/tokenizer) permet de le voir concrètement. Tout a un coût en tokens, c'est pourquoi les prompts longs deviennent vite onéreux.
+- **Fenêtre de contexte** : c'est la quantité de texte que le modèle peut « voir » dans une requête. C'est sa mémoire de travail pour cet appel. La page [modèles OpenAI](https://platform.openai.com/docs/models) indique que GPT-4o dispose d'une fenêtre de 128K tokens, soit un ordre de grandeur de quelques centaines de pages de texte brut. Ça paraît énorme jusqu'au jour où vous essayez d'y faire rentrer toute une codebase.
+- **Temperature** : c'est le curseur de créativité. À 0, le modèle reste plus près du token suivant le plus probable. Des valeurs plus hautes rendent la sortie plus variée. Pour des tâches factuelles ou structurées, je la garde généralement basse.
+- **Prompt** : c'est l'instruction que vous envoyez. Ça compte beaucoup plus que la plupart des débutants l'imaginent. Le même modèle avec un prompt différent peut se comporter très différemment, donc bien formuler sa demande est une vraie compétence.
 
 ## À quoi ressemble un appel API
 
-La meilleure façon de comprendre les LLMs, c'est d'en appeler un directement plutôt que de passer par une interface de chat. Vous envoyez un message structuré, vous recevez une réponse texte. Voici la version minimale :
+La façon la plus rapide de rendre tout ça concret, c'est d'appeler un modèle vous-même au lieu de rester dans une interface de chat. La [Chat Completions API](https://platform.openai.com/docs/api-reference/chat/create) suffit pour voir la structure : vous envoyez des messages structurés, vous récupérez du texte.
 
 ```typescript
 const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -54,26 +54,22 @@ const data = await response.json();
 console.log(data.choices[0].message.content);
 ```
 
-Trois choses à remarquer ici :
+Trois éléments comptent tout de suite ici :
 
-- **`model`**: vous choisissez quel modèle traite la requête. Les capacités et le prix varient significativement entre les modèles ; n'utilisez pas le plus puissant par défaut pour tout.
-- **`messages`**: la conversation est une liste. Le message `system` est votre instruction permanente ; le message `user` est ce que quelqu'un (ou votre code) demande.
-- **`temperature`**: 0,3 ici parce que je veux des réponses factuelles et cohérentes. Pour des tâches créatives, je monterais plus haut.
+- **`model`** : vous choisissez quel modèle traite la requête. Capacités, latence et prix varient beaucoup, donc je n'utiliserais pas le plus gros modèle pour tous les cas.
+- **`messages`** : la conversation est une liste. Le message `system` fixe le comportement. Le message `user` contient ce que quelqu'un, ou votre code, demande.
+- **`temperature`** : 0,3 est un bon point de départ quand vous voulez des réponses stables. Pour du brainstorming, je la monterais davantage.
 
-## Ce qui va vous surprendre
+## Les points qui piègent le plus souvent
 
-C'est la section que j'aurais aimé lire avant de livrer ma première feature LLM.
+Ce sont les limites qu'on m'aurait fait gagner du temps à comprendre plus tôt.
 
-**Pas de mémoire entre les appels.** Chaque appel API repart de zéro. Si vous construisez un chatbot, vous devez renvoyer tout l'historique de la conversation à chaque requête. Le modèle ne se souvient pas du dernier message : il ne peut littéralement pas, par conception. Ça devient coûteux et demande une gestion soigneuse à mesure que les conversations s'allongent.
+**Pas de mémoire intégrée entre des appels API simples.** Chaque requête repart de ce que vous lui envoyez dans cette requête. Si vous construisez un chatbot, vous devez généralement renvoyer l'historique vous-même. Ça coûte de plus en plus cher à mesure que la conversation s'allonge.
 
-**Des données d'entraînement gelées.** Le modèle ne sait rien après sa date de coupure d'entraînement. Il ne peut pas vous parler de votre dernière mise à jour produit, de la panne d'hier, ni de quoi que ce soit qui s'est passé après son entraînement. Si votre cas d'usage a besoin d'informations actuelles, vous devrez les injecter (c'est pour ça que le RAG existe).
+**La fraîcheur de l'info est votre problème.** Le modèle ne peut pas connaître votre dernier changement produit, la panne d'hier, ou un document privé si cette information n'est ni dans ses données d'entraînement ni dans le contexte que vous lui fournissez via prompt, couche de retrieval ou outil.
 
-**Les hallucinations sont réelles et dangereuses.** Le modèle génère la suite la plus plausible de votre prompt. « Plausible » et « vrai » ne sont pas la même chose. Une réponse confiante et bien formatée peut quand même être complètement fausse. Ce n'est pas un bug qu'on va corriger : c'est une propriété fondamentale de fonctionnement de ces modèles. Concevez votre système en conséquence.
+**Les hallucinations sont normales, pas un cas bizarre.** Le [rapport technique GPT-4](https://cdn.openai.com/papers/gpt-4.pdf) rappelle bien que ces systèmes peuvent produire des réponses confiantes mais fausses. Je traite les réponses du modèle comme un premier jet tant que je n'ai pas vérifié ce qui compte.
 
-## La suite
+## Là où j'irais ensuite
 
-Les guides qui suivent s'appuient sur ces bases :
-
-- **Prompt engineering**: la plus grande partie de la variance en qualité de sortie vient de comment vous formulez l'instruction. Celui-là vaut votre temps.
-- **RAG**: comment connecter un LLM à vos propres données pour que la date de coupure gelée cesse d'être un bloquant.
-- **Agents**: comment donner des outils à un LLM et lui permettre d'agir, pas seulement de produire du texte.
+Si je commençais aujourd'hui, j'apprendrais d'abord le prompting parce que c'est le levier le moins coûteux. J'ajouterais du RAG dès que la fraîcheur des informations devient importante, et je ne passerais aux agents qu'au moment où un prompt simple plus de la retrieval ne suffit plus. Ma règle est simple : si le coût d'une erreur est élevé, je vérifie avant de faire confiance.
