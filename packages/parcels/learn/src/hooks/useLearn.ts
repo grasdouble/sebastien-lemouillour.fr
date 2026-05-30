@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Difficulty, Tutorial } from '../data/learn';
 import { CATEGORY_KEYS, DIFFICULTIES, isPublished, RAW_LEARN_ITEMS } from '../data/learn';
+import { useShowUnpublished } from './useShowUnpublished';
 
 type UseLearnResult = {
   tutorials: Tutorial[];
@@ -13,7 +14,7 @@ type UseLearnResult = {
 
 export function useLearn(): UseLearnResult {
   const { t, i18n } = useTranslation('learn');
-  const showUnpublished = sessionStorage.getItem('learn.showUnpublished') === 'true';
+  const showUnpublished = useShowUnpublished();
 
   const tutorials = useMemo<Tutorial[]>(
     () =>

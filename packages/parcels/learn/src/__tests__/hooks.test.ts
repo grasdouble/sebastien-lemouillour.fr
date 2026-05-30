@@ -27,8 +27,16 @@ vi.mock('react-i18next', () => ({
 
 describe('learn hooks', () => {
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2030-01-01'));
+    sessionStorage.clear();
     i18nState.language = 'fr';
     i18nState.resolvedLanguage = 'fr';
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    sessionStorage.clear();
   });
 
   it('maps catalogs and groups them by translated category', () => {
@@ -73,6 +81,37 @@ describe('learn hooks', () => {
   });
 });
 
+describe('useCatalogs — publishing filter', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    sessionStorage.clear();
+    i18nState.language = 'fr';
+    i18nState.resolvedLanguage = 'fr';
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    sessionStorage.clear();
+  });
+
+  it('hides catalogs whose first guide has a future publishedAt', () => {
+    vi.setSystemTime(new Date('2000-01-01'));
+
+    const { result } = renderHook(() => useCatalogs());
+
+    expect(result.current.catalogs).toHaveLength(0);
+  });
+
+  it('shows all catalogs when sessionStorage learn.showUnpublished is true', () => {
+    vi.setSystemTime(new Date('2000-01-01'));
+    sessionStorage.setItem('learn.showUnpublished', 'true');
+
+    const { result } = renderHook(() => useCatalogs());
+
+    expect(result.current.catalogs).toHaveLength(RAW_CATALOGS.length);
+  });
+});
+
 describe('useLearn — publishing filter', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -109,5 +148,64 @@ describe('useLearn — publishing filter', () => {
     const { result } = renderHook(() => useLearn());
 
     expect(result.current.allTags).toHaveLength(0);
+  });
+});
+
+describe('useShowUnpublished — URL query param', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2000-01-01'));
+    sessionStorage.clear();
+    i18nState.language = 'fr';
+    i18nState.resolvedLanguage = 'fr';
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    sessionStorage.clear();
+    window.history.pushState({}, '', window.location.pathname);
+  });
+
+  it('sets sessionStorage and shows all tutorials when ?showUnpublished=true', () => {
+    window.history.pushState({}, '', '?showUnpublished=true');
+
+    const { result } = renderHook(() => useLearn());
+
+    expect(sessionStorage.getItem('learn.showUnpublished')).toBe('true');
+    expect(result.current.tutorials).toHaveLength(RAW_LEARN_ITEMS.length);
+  });
+
+  it('activates when ?showUnpublished has no value', () => {
+    window.history.pushState({}, '', '?showUnpublished');
+
+    const { result } = renderHook(() => useLearn());
+
+    expect(sessionStorage.getItem('learn.showUnpublished')).toBe('true');
+    expect(result.current.tutorials).toHaveLength(RAW_LEARN_ITEMS.length);
+  });
+
+  it('deactivates and clears sessionStorage when ?showUnpublished=false', () => {
+    sessionStorage.setItem('learn.showUnpublished', 'true');
+    window.history.pushState({}, '', '?showUnpublished=false');
+
+    const { result } = renderHook(() => useLearn());
+
+    expect(sessionStorage.getItem('learn.showUnpublished')).toBeNull();
+    expect(result.current.tutorials).toHaveLength(0);
+  });
+
+  it('shows all catalogs when ?showUnpublished=true', () => {
+    window.history.pushState({}, '', '?showUnpublished=true');
+
+    const { result } = renderHook(() => useCatalogs());
+
+    expect(result.current.catalogs).toHaveLength(RAW_CATALOGS.length);
+  });
+
+  it('does not set sessionStorage when param is absent', () => {
+    const { result } = renderHook(() => useLearn());
+
+    expect(sessionStorage.getItem('learn.showUnpublished')).toBeNull();
+    expect(result.current.tutorials).toHaveLength(0);
   });
 });
