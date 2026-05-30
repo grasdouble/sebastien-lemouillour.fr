@@ -4,35 +4,31 @@ order: 28
 difficulty: advanced
 tags: [LLM, évaluation]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-If you only read ten outputs by hand, regressions will ship. If you trust one aggregate score from an automated judge, regressions will also ship. That is the uncomfortable truth. Automated evaluation is necessary once volume grows, but it is dangerously easy to automate the wrong taste and then call it rigor.
+If you only spot-check ten outputs, regressions ship. If you replace that with one judge score and call it science, regressions still ship. Automated eval only starts paying rent when volume is high and release speed matters. Used badly, it just industrializes false confidence.
 
-## What automation is good at
+## Start with hard checks
 
-Automation is excellent at regression detection, coverage expansion, and repeatability. If you know the failure you care about, a machine can check it more consistently and more often than a human review ritual ever will. That is why I like a layered setup: exact-match or schema checks for hard requirements, task-specific heuristics for partial structure, and model-based judges only for the fuzzy residue.
+For anything tied to a release gate, I would start with deterministic checks. [OpenAI Evals](https://platform.openai.com/docs/guides/evals) is built around replayable datasets and repeatable runs, and [OpenAI graders](https://platform.openai.com/docs/guides/graders) make the split explicit between exact checks, similarity checks, and score-model graders. That is the right order. Use string, schema, and tool-call checks for hard requirements first. Reach for a judge model only after the cheap objective failures are already filtered out.
 
-This is also the philosophy behind [OpenAI Evals](https://github.com/openai/evals): define test cases, run them repeatedly, and compare models or prompts under a harness you can version. The value is not the framework itself. The value is that evaluation becomes part of the product loop instead of a last-minute screenshot exercise.
+## Judge models need rubrics, not vibes
 
-## LLM-as-judge is powerful and slippery
+The reason teams keep using LLM-as-judge is simple: usefulness, instruction-following, and comparative quality are hard to score with plain rules. [G-Eval](https://arxiv.org/abs/2303.16634) is still the cleanest evidence that structured criteria improve alignment with human ratings. The lesson is not that the judge is smart. The lesson is that the rubric is doing real work. If you cannot write a rubric another reviewer could follow, do not automate that judgment yet.
 
-The LLM-as-judge pattern became popular because many quality criteria are hard to score mechanically. Tone, completeness, faithfulness to instructions, and comparative usefulness all benefit from model-based judging. But judge models are not neutral referees. The [G-Eval paper](https://arxiv.org/abs/2303.16634) showed that structured criteria and chain-of-thought style judging can improve correlation with humans, which is useful. It did not magically remove bias.
+## Pairwise beats absolute scores
 
-That caveat matters. The [MT-Bench paper](https://arxiv.org/abs/2306.05685) showed how strong LLM judges can be for pairwise comparison, but also exposed position bias, verbosity bias, and self-preference effects. So my default is pairwise judging with explicit rubrics whenever possible. Absolute 1-to-5 scoring looks neat in dashboards and turns messy very quickly in practice.
+Once you use a judge, I would choose pairwise comparison over 1-to-5 scoring almost every time. [MT-Bench](https://arxiv.org/abs/2306.05685) showed strong judge models can track human preference reasonably well, while also exposing position bias, verbosity bias, and self-enhancement bias. That is exactly why pairwise setups with swapped answer order are safer than neat-looking scalar dashboards. A tie plus a written reason is more useful than a fake-precise 4.2.
 
-## RAG needs its own metrics
+## RAG is where lazy evals lie
 
-Retrieval-augmented systems are where weak automation gets especially misleading. A final answer can look polished while being grounded in the wrong chunks, or a retrieval stage can be solid while the answer synthesis fails. Those are different failures and should not be merged into one score.
+RAG systems break in two places: retrieval and answer generation. If you collapse those into one score, you learn almost nothing. [Ragas metrics](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/) separate answer relevance, context precision, context recall, and faithfulness because those failure modes are different and operationally useful. I would track retrieval metrics and answer metrics side by side, then inspect disagreements instead of averaging them into one executive-friendly number.
 
-That is why tools inspired by [RAGAS paper](https://arxiv.org/abs/2309.15217) matter. They separate dimensions such as answer relevance, context precision, context recall, and faithfulness. I would still validate those metrics against human judgment before trusting them, but they are far better than pretending a single correctness score captures the pipeline.
+## Production is where the suite rots
 
-## The production trap
-
-Automation drifts. Prompts change, judge models change, datasets get stale, and teams quietly optimize for the metric because the metric is visible. Once that happens, your eval suite stops measuring user value and starts measuring compliance with yesterday's test set.
-
-The fix is not less automation. The fix is adversarial automation plus periodic human calibration. Keep a small reviewed set, refresh edge cases, inspect disagreements, and treat large score jumps with suspicion until you can explain them.
+The eval itself drifts. Prompts change, judge models get upgraded, the dataset goes stale, and the team quietly learns how to please the metric. So keep one frozen adjudicated set for trend lines, one rotating set from fresh failures, and basic observability on pass rate by task, judge disagreement rate, and score shifts after every model or prompt change. If you are not watching those three signals, the dashboard is decoration.
 
 ## Decision rule
 
-Automate everything that can be stated clearly and repeated cheaply. Use LLM judges only where rubrics exist and human spot checks keep them honest. If an automated score cannot tell you why a model won, it is not ready to be a release gate.
+Automate anything you can replay cheaply and explain clearly. Use LLM judges only when a written rubric exists, answer order is randomized, and humans still audit a slice of results. If you cannot say which failure mode moved and why, the eval is not ready to protect an SLA.

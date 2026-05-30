@@ -3,30 +3,28 @@ id: tokenization
 order: 9
 difficulty: beginner
 tags: [LLM, tokenisation]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
-Vous changez un emoji, vous ajoutez un saut de ligne, et le nombre de tokens grimpe d’un coup. Tant qu’on ne voit pas ce qui se passe avant la lecture par le modèle, ça paraît injuste. Cette étape s’appelle la **tokenisation** : c’est le processus qui découpe le texte brut en tokens. Beaucoup de débutants l’ignorent parce que ça sonne très technique, mais je pense que c’est une notion à comprendre tôt. Quand un prompt réagit bizarrement, la tokenisation est souvent la cause invisible.
+Vous remplacez un emoji, vous ajoutez un saut de ligne, et le nombre de tokens grimpe sans raison visible. La première fois, ça donne surtout l’impression que le modèle triche. Le point agaçant, c’est qu’il ne lit pas votre texte comme vous. Il commence par une étape de conversion appelée **tokenisation**, qui découpe le texte en petits morceaux avant tout le reste.
 
-## Ce que fait vraiment la tokenisation
+## Ce que le modèle voit en premier
 
-Un modèle ne lit pas directement des phrases comme nous. Il commence par transformer le texte en petites unités appelées tokens, puis en nombres qu’il peut manipuler. La partie qui découpe le texte, c’est la tokenisation. Le [tokenizer summary](https://huggingface.co/docs/transformers/tokenizer_summary) de Hugging Face explique pourquoi les modèles modernes utilisent souvent des **sous-mots**, c’est-à-dire des morceaux situés entre le mot entier et le caractère isolé.
+Un modèle ne travaille pas directement sur des phrases telles que nous les lisons. Il transforme d’abord le texte en **tokens**, puis en identifiants numériques, comme l’explique [Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/ai/conceptual/understanding-tokens). Un token peut être un mot entier, un morceau de mot, un signe de ponctuation, ou même un espace collé au mot suivant.
 
-Pourquoi ne pas couper simplement sur les espaces ? Parce que la langue est désordonnée. Les noms propres, les fautes de frappe, les mots rares, la ponctuation, les URL, les emoji et le code feraient exploser la taille du dictionnaire. Un **vocabulaire**, ici, c’est la liste fixe des morceaux qu’un modèle sait représenter. Les méthodes par sous-mots gardent cette liste à une taille raisonnable tout en permettant de reconstruire des mots inconnus à partir de morceaux connus.
+Cette idée répond à un vrai problème. Si un modèle stockait chaque mot possible tel quel, le **vocabulaire**, c’est-à-dire la liste fixe des morceaux qu’il connaît, deviendrait immense et fragile. Les tokenizers modernes utilisent donc souvent des **sous-mots**, des morceaux plus petits qu’un mot entier mais plus grands qu’un caractère isolé. Dans le [papier BPE](https://aclanthology.org/P16-1162/), les morceaux fréquents sont fusionnés progressivement pour garder les formes courantes compactes tout en permettant de reconstruire les mots rares à partir de parties plus petites.
 
-Deux approches reviennent souvent. **Byte Pair Encoding**, ou BPE, fusionne progressivement les morceaux fréquents, tandis que [SentencePiece](https://github.com/google/sentencepiece) peut entraîner un tokenizer sans dépendre des espaces. La bibliothèque [tiktoken](https://github.com/openai/tiktoken) d’OpenAI donne aussi un exemple concret de la façon dont ces tokenizers existent dans des modèles réels.
+Une autre famille, [SentencePiece](https://github.com/google/sentencepiece), peut s’entraîner directement à partir de phrases brutes au lieu de dépendre d’abord des espaces. C’est utile parce que certaines langues ne séparent pas les mots comme l’anglais, et même en français, un texte collé depuis un PDF peut embarquer des espaces bizarres que l’œil remarque à peine.
 
-## Pourquoi une même phrase peut être découpée autrement
+## Pourquoi de minuscules changements font bouger le compteur
 
-C’est souvent la surprise du début : la tokenisation n’est pas universelle. Des modèles différents utilisent des vocabulaires différents et des règles différentes. Une même phrase peut être peu coûteuse pour un modèle et plus chère pour un autre.
+C’est le point que j’apprendrais tôt : la tokenisation dépend du modèle. Je choisirais toujours les outils de comptage propres au modèle plutôt que des estimations au nombre de caractères. Le guide [token counting](https://developers.openai.com/api/docs/guides/token-counting) d’OpenAI précise que le compte exact dépend du contenu réellement envoyé au modèle et que les raccourcis locaux ratent des détails comme les fichiers, les images, les outils et certains comportements propres au modèle.
 
-Les espaces comptent aussi. Dans beaucoup de tokenizers, un espace placé avant un mot fait partie du token. Cela veut dire que « bonjour » et « bonjour » précédé d’un espace ne correspondent pas forcément à la même unité interne. La ponctuation compte. Les accents aussi. Les chemins de fichiers et les symboles répétés également.
+Voilà pourquoi une même phrase peut être bon marché pour un modèle et plus coûteuse pour un autre. Un espace en tête, un retour à la ligne, des guillemets copiés depuis un PDF, ou une ponctuation répétée peuvent produire d’autres morceaux en interne. Pour vous, le texte semble presque identique. Pour le tokenizer, le motif a changé.
 
-C’est pour ça qu’un copier-coller depuis un PDF, une messagerie ou un éditeur de code peut changer le nombre de tokens sans modifier beaucoup le sens visible. Pour vous, le texte paraît presque identique. Pour le tokenizer, le motif interne a changé.
+## Ce que je ferais vraiment
 
-## Pourquoi je pense que ça vaut le détour
+Je n’essaierais pas d’apprendre par cœur les tables de fusion sauf si je construisais des outils autour des tokenizers. Pour débuter, une seule habitude suffit : inspecter les tokens dès que le coût, les limites, ou un comportement étrange commencent à compter. Une **fenêtre de contexte**, c’est le nombre maximal de tokens qu’un modèle peut traiter dans une seule requête, et la tokenisation explique souvent pourquoi cette limite arrive plus vite que prévu.
 
-Vous n’avez pas besoin de devenir spécialiste des tokenizers. Je ne passerais pas des heures à étudier leurs tables internes sauf si vous construisez des outils autour des LLMs. En revanche, j’adopterais tôt une habitude simple : inspecter la tokenisation dès que les limites, le coût ou un comportement étrange deviennent importants.
-
-Si un prompt coûte plus cher que prévu, si une langue prend plus de place qu’une autre, ou si un modèle se comporte mal face à une mise en forme bizarre, la tokenisation est un très bon suspect. Votre prochaine étape peut rester très concrète : ouvrez un visualiseur de tokens avec un prompt que vous utilisez souvent, puis testez trois micro-changements, par exemple supprimer des espaces inutiles, nettoyer la ponctuation, ou remplacer un copier-coller issu d’un PDF. Vous verrez vite quels détails de forme méritent vraiment votre attention.
+Il faut garder une limite en tête. La tokenisation vous dit comment le texte est découpé et compté, pas si votre prompt est clair ou utile. Si vous voulez une suite concrète, collez un vrai prompt dans un visualiseur de tokens et testez trois retouches : supprimer les sauts de ligne décoratifs, remplacer une ponctuation étrange issue d’un copier-coller, et raccourcir le texte de remplissage. Si le prompt reste petit et peu coûteux, passez à autre chose. S’il approche de la limite du modèle ou que le compteur réagit de façon surprenante, inspectez la tokenisation avant de réécrire tout le prompt.

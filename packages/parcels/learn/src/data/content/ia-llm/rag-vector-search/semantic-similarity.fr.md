@@ -4,19 +4,43 @@ order: 4
 difficulty: beginner
 tags: [RAG, LLM, embeddings, similarity]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Un utilisateur écrit « comment arrêter de payer ? » alors que votre centre d'aide contient un article intitulé « résilier mon abonnement ». Une recherche par mots-clés peut rater ce lien, alors qu'un humain comprend immédiatement que l'idée est presque la même. La similarité sémantique sert précisément à combler cet écart.
+Votre barre de recherche fonctionne, et pourtant les utilisateurs ratent encore des réponses évidentes. Quelqu'un écrit « comment arrêter de payer ? » alors que votre contenu dit « résilier mon abonnement ». Une recherche par mots-clés peut hausser les épaules devant cette paire, alors qu'un humain voit tout de suite qu'il s'agit de la même intention. La similarité sémantique est l'outil que je choisis quand la formulation change mais pas le sens.
 
-**Sémantique** renvoie au sens. **Similarité** renvoie à la proximité. La similarité sémantique, c'est donc une manière d'estimer si deux textes expriment des idées voisines, même s'ils n'utilisent pas les mêmes mots. Pour un système de retrieval, c'est beaucoup plus important qu'on ne le croit au début, parce que les vrais utilisateurs ne formulent presque jamais leurs questions comme l'équipe qui rédige la documentation.
+Le premier correctif consiste à transformer le texte en [embedding](https://platform.openai.com/docs/guides/embeddings). Un embedding est une représentation numérique d'un texte, et OpenAI décrit ces embeddings comme des vecteurs dont la distance reflète le degré de parenté. Le mot « vecteur » impressionne souvent au début, mais l'idée utile est simple : c'est une coordonnée qui place chaque phrase sur une carte du sens. Si deux phrases atterrissent près l'une de l'autre sur cette carte, elles parlent probablement de la même chose.
 
-L'astuce la plus courante consiste à transformer les phrases en vecteurs grâce au [embeddings guide](https://platform.openai.com/docs/guides/embeddings). Un vecteur, ici, n'est qu'une liste de nombres. Dit comme ça, cela paraît abstrait, et c'est normal. Ce qui compte, c'est le rôle de ces nombres : ils placent chaque phrase dans un espace mathématique où les sens proches se retrouvent près les uns des autres. Des bibliothèques et familles de modèles comme [Sentence Transformers](https://www.sbert.net/) ont justement été conçues pour rendre exploitable ce niveau de sens à l'échelle de la phrase.
+Une fois que vous avez ces vecteurs, il faut une manière de les comparer. La [cosine similarity](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.cosine_similarity.html) mesure à quel point deux vecteurs pointent dans la même direction. Pas besoin de tomber amoureux de la formule. Pour un débutant, le bon réflexe mental est plus simple : un score de cosinus plus élevé signifie souvent un sens plus proche, même si les mots changent.
 
-Une fois les textes représentés sous forme de vecteurs, on peut les comparer avec une mesure comme la [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity). Les formules ont l'air impressionnantes au premier regard, mais l'intuition est plutôt douce : si deux vecteurs pointent presque dans la même direction, les textes sous-jacents parlent probablement d'un sujet voisin. Vous n'avez pas besoin d'aimer l'algèbre linéaire pour comprendre l'idée. Chez moi, le déclic est venu quand j'ai cessé de regarder les nombres pour penser à des couples comme « remboursement » et « argent rendu », ou « congés payés » et « vacation policy ».
+Un minuscule exemple rend tout cela beaucoup moins brumeux avant même de toucher à une base de données :
 
-Un bon [Pinecone guide](https://www.pinecone.io/learn/vector-search/) montre bien la conséquence pratique : la recherche sémantique se soucie moins de la formulation exacte que de la proximité conceptuelle. C'est pour cela qu'elle fonctionne si bien dans un système RAG. L'utilisateur formule sa question d'une manière, la documentation emploie d'autres mots, et le système a quand même une chance réaliste de retrouver les bons passages.
+```python
+from openai import OpenAI
+from sklearn.metrics.pairwise import cosine_similarity
 
-La difficulté, que beaucoup de tutoriels évitent poliment, c'est que la similarité sémantique n'est pas de la télépathie. Des mots proches peuvent porter des intentions différentes, et le vocabulaire métier change tout. Dans une application médicale, « positif » peut être une bonne nouvelle ou une très mauvaise. Dans la facturation, « charge » peut désigner des frais ou une accusation. C'est pour cela que je préfère toujours tester la retrieval avec dix vraies requêtes un peu sales d'utilisateurs plutôt qu'avec dix exemples impeccables écrits par l'équipe.
+client = OpenAI()
 
-Mon conseil par défaut tient en une phrase : si les utilisateurs et les documents décrivent la même idée avec des formulations différentes, la similarité sémantique mérite d'être comprise tôt. Si votre contenu dépend d'identifiants exacts, de codes produit ou de formulations juridiques strictes, combinez-la avec une recherche par mots-clés au lieu d'en faire une religion. Le guide suivant transforme cette idée de proximité en mécanisme concret : la recherche vectorielle.
+def embed(text: str):
+    return client.embeddings.create(
+        model="text-embedding-3-small",
+        input=text,
+    ).data[0].embedding
+
+documents = [
+    "Cancel your subscription",
+    "Update your payment method",
+]
+query = "How do I stop paying?"
+
+doc_vectors = [embed(text) for text in documents]
+query_vector = embed(query)
+
+scores = cosine_similarity([query_vector], doc_vectors)[0]
+best_match = documents[scores.argmax()]
+print(best_match)
+```
+
+J'aime cet exemple parce qu'il montre le vrai travail : attribuer un score à plusieurs textes candidats, puis garder le plus proche. Quand vous dépassez le stade de la petite liste en mémoire, des outils comme [pgvector](https://github.com/pgvector/pgvector) peuvent stocker les vecteurs et trier les lignes par distance, et des systèmes comme [Pinecone semantic search](https://docs.pinecone.io/guides/search/semantic-search) peuvent renvoyer les enregistrements les plus proches d'une requête. « Plus proche voisin » signifie simplement : le texte stocké dont le vecteur est le plus proche de celui de votre requête.
+
+Voilà le piège, et je préfère le dire tôt aux débutants : la similarité sémantique aide beaucoup, mais elle ne lit pas dans les pensées. Elle peut confondre des textes qui partagent du vocabulaire sans partager la même intention, et elle peut rater des identifiants exacts comme des numéros de facture, des codes produit ou des clauses juridiques. Ma règle est simple : si 2 ou 3 requêtes sur un petit lot de 10 sont des paraphrases que la recherche par mots-clés manque, la similarité sémantique commence déjà à mériter sa place. Si la formulation exacte fait foi, gardez la recherche par mots-clés dans la boucle, puis passez au guide suivant sur la recherche vectorielle pour voir comment récupérer ces voisins efficacement.

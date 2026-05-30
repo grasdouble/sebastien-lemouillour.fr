@@ -4,18 +4,18 @@ order: 21
 difficulty: advanced
 tags: [LLM, architecture, evaluation, observability]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Le prototype marche le vendredi. Le lundi, la récupération est périmée, le prompt a grossi de 40 %, la latence a doublé, et personne ne sait si le gain de qualité vient du changement de modèle ou du tweak sur le ranking. C'est exactement la frontière entre bricoler des prompts et faire de l'ingénierie IA.
+La démo passe le vendredi. Le lundi, la récupération est périmée, la latence a doublé, et personne n'est capable de prouver si le gain vient du prompt, du ranker ou du changement de modèle. C'est à ce moment-là que le jouet devient un problème d'ingénierie.
 
-Je vois l'ingénierie IA comme du design d'interfaces sous incertitude. Le modèle est la dépendance la moins stable de la pile, donc le code produit ne doit pas lui être marié. Les [patterns d'architecture de Martin Fowler](https://martinfowler.com/articles/building-with-genai.html) le montrent bien : séparer l'orchestration de la logique métier, et isoler tout ce qui parle au modèle. Chip Huyen's book on ML systems design pousse vers la même discipline, surtout après quelques expériences qui ont fui en production.
+Mon réflexe est de découper le système en quatre coutures : récupération, passerelle, evals et décisions métier. La récupération va chercher le contexte. La passerelle absorbe les sémantiques de requête et d'outils propres à chaque fournisseur. Les evals décident si un changement mérite la production. Le code métier décide ce que l'utilisateur a réellement le droit de faire. Il suffit de comparer l'[API Responses](https://platform.openai.com/docs/guides/responses-vs-chat-completions) d'OpenAI et le [tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) d'Anthropic une fois pour comprendre que la passerelle n'a rien d'un luxe.
 
-Mon biais est simple : rendre explicites quatre frontières, récupération, passerelle de modèles, évaluation, décision métier. La récupération apporte des documents. La passerelle choisit et appelle les modèles. L'évaluation mesure si un changement est acceptable. Le code métier décide ce que l'utilisateur peut réellement faire. Si tout se mélange, chaque expérimentation devient un refactor.
+Cette séparation ne sert à rien si vous êtes incapables de bloquer une régression avant que les utilisateurs la trouvent. J'ajouterais des evals avant d'ajouter un autre fournisseur, parce que [OpenAI Evals](https://platform.openai.com/docs/guides/evals) rappelle la règle de production qui compte : tester les sorties contre des critères que vous contrôlez, puis comparer les changements au lieu de débattre au feeling.
 
-Il faut aussi une abstraction honnête sur la variabilité. Les fournisseurs n'exposent pas les mêmes comportements sur les outils, les limites de contexte ou les modes d'échec. Une passerelle comme [LiteLLM](https://docs.litellm.ai/) est utile parce qu'elle centralise le routage, les retries et la visibilité sur la dépense. Des piles de serving auto-hébergées comme [vLLM](https://docs.vllm.ai/) deviennent pertinentes quand le débit ou la localisation des données deviennent des sujets d'architecture, pas parce que l'auto-hébergement serait à la mode.
+Une passerelle a quand même besoin d'une implémentation ennuyeuse. [LiteLLM](https://docs.litellm.ai/) devient utile quand il faut du routage, des retries et du contrôle de dépense entre fournisseurs. Je n'auto-hébergerais rien pour me donner un air malin. [vLLM](https://docs.vllm.ai/) devient rationnel quand le débit, la latence ou la localisation des données justifient la facture opérationnelle.
 
-Voilà le genre de contrat que je veux voir dans le code avant même que l'équipe ajoute un deuxième modèle.
+Avant que le deuxième modèle n'arrive, verrouillez le contrat sur quelque chose que les équipes produit ne peuvent pas contourner par accident.
 
 ```ts
 type AiRequest = { task: 'support' | 'search'; input: string; tenantId: string };
@@ -29,6 +29,6 @@ export async function runAiTask(req: AiRequest): Promise<AiResult> {
 }
 ```
 
-Ce contrat a l'air banal, et c'est précisément l'objectif. Des contrats banals permettent de changer les prompts, la stratégie de ranking ou le vendor sans apprendre à chaque équipe produit comment fonctionne l'inférence.
+L'autre chose que je refuse de sacrifier, c'est le traçage. Si une réponse ne peut pas être rattachée à une [trace](https://opentelemetry.io/docs/concepts/signals/traces/), à une version de prompt, aux documents récupérés et à un résultat d'eval, vous ne corrigerez jamais un incident assez vite pour tenir un SLA.
 
-Le pattern d'échec que je vois le plus souvent, c'est des équipes qui optimisent les prompts avant de stabiliser les interfaces. Les prompts changent toutes les semaines. Les contrats doivent tenir le trimestre. Si changer de fournisseur vous oblige à retoucher les écrans produit, les workers de queue et la logique de permissions, vous n'avez pas encore de l'ingénierie IA, vous avez du câblage de prompts avec une facture en plus.
+Ma règle est simple : restez sur un seul modèle hébergé tant que les changements de fournisseur n'arrivent pas plus d'une fois par trimestre ou qu'une contrainte dure de latence ou de localisation des données ne vous y force pas. Si vous ne savez pas comparer des variantes avec des traces et des evals, ajouter un deuxième modèle est juste une façon plus lente de perdre vos week-ends.

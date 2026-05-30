@@ -4,33 +4,44 @@ order: 14
 difficulty: intermediate
 tags: [RAG, retrieval, BM25, Pinecone]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Semantic search feels great until a user types `ERR-8492`, a product SKU, or the exact wording of a policy clause. Then your expensive embedding pipeline loses to old-school keyword search. Hybrid search exists for that moment, not because combining two retrieval systems looks sophisticated.
+Semantic search feels smart until a user pastes `ERR-8492`, a contract clause, or an internal SKU. Then the dense retriever that looked great in demos misses the only chunk that matters, and plain keyword search suddenly looks like the adult in the room.
 
-What most teams skip is diagnosis. If vector search fails because your chunking is bad or your metadata is missing, hybrid search will just hide the real problem under more infrastructure. I only add it when I can point to a clear class of misses: identifiers, rare acronyms, or wording where exact term frequency matters. That is exactly what [BM25](https://www.elastic.co/blog/practical-bm25-part-2-the-bm25-algorithm-and-its-variables) is good at, while dense vectors still win on paraphrases and fuzzy intent.
+I would not reach for hybrid search on day one. First I check whether chunking, metadata, or missing aliases already explain the misses. I add hybrid only when the failures are clearly exact-match problems: identifiers, rare acronyms, and wording where [BM25](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-similarity.html) should dominate while dense retrieval still handles paraphrases.
 
-Providers such as [Pinecone hybrid search](https://docs.pinecone.io/guides/search/hybrid-search) or [Weaviate hybrid search](https://weaviate.io/developers/weaviate/search/hybrid) make the mechanics easier, but the real decision is how you fuse results. Weighted score merging looks appealing, yet it assumes the two score ranges are comparable. They usually are not. I prefer rank-based fusion first, often a simple [RRF](https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf), because rank positions stay stable even when the underlying scoring scales drift.
+Once that pattern is real, I want a backend that already exposes both signals. [Pinecone hybrid](https://docs.pinecone.io/guides/search/hybrid-search) combines dense and lexical search, and [Weaviate hybrid](https://docs.weaviate.io/weaviate/search/hybrid) combines vector search with BM25F. I still avoid weighted score merging as my default, because score ranges drift across systems and Pinecone explicitly warns that dense and sparse values are not normalized in the same range. My first choice is [RRF](https://www.elastic.co/guide/en/elasticsearch/reference/current/rrf.html), because it merges rank positions without pretending the raw scores are comparable.
 
-The retrieval step I trust in production is boring on purpose:
+This is the shape I would ship first, before adding rerankers or more knobs:
 
 ```ts
-async function hybridSearch(query: string) {
+type HybridSearchArgs = {
+  query: string;
+  tenantId: string;
+  limit?: number;
+};
+
+async function hybridSearch({ query, tenantId, limit = 8 }: HybridSearchArgs) {
+  const candidateCount = 20; // small pool keeps latency and rerank cost under control
+
   const [denseHits, sparseHits] = await Promise.all([
-    vectorIndex.search(query, { topK: 20 }),
-    bm25Index.search(query, { topK: 20 }),
+    vectorStore.search(query, {
+      topK: candidateCount, // semantic recall for paraphrases
+      filter: { tenantId }, // enforce access scope before fusion
+    }),
+    keywordStore.search(query, {
+      topK: candidateCount, // exact-match recall for codes and acronyms
+      filter: { tenantId }, // apply the same boundary on both retrievers
+    }),
   ]);
 
-  const ranked = reciprocalRankFusion([
-    { weight: 1.0, hits: denseHits },
-    { weight: 0.8, hits: sparseHits },
-  ]);
+  const merged = reciprocalRankFusion([{ hits: denseHits }, { hits: sparseHits }], { rankConstant: 60 });
 
-  return ranked.slice(0, 8);
+  return merged.slice(0, limit);
 }
 ```
 
-That small `topK` is deliberate. If you retrieve 100 dense hits and 100 sparse hits, you are creating work for the reranker and noise for the generator. Start narrow, inspect failures, then widen. The trap is thinking hybrid means “retrieve everything and let the model sort it out.” That turns retrieval into an expensive dumping ground.
+Keep the candidate pool tight. The moment you push both retrievers to `topK=100`, you pay for it in latency, reranker spend, and debugging time. I also treat query-time filtering as non-negotiable: [Pinecone filters](https://docs.pinecone.io/guides/search/filter-by-metadata) and [Weaviate filters](https://docs.weaviate.io/weaviate/search/filters) both let you enforce tenant or access boundaries before results are fused, which is safer than filtering after the fact.
 
-I would not ship hybrid search without evaluation buckets. Split your test queries into categories like exact identifiers, domain jargon, and natural-language questions. If BM25 only helps one bucket, that is fine, but know it. My rule is simple: start with vectors only, add hybrid when you can prove a repeatable exact-match gap, and keep the fusion logic easy to explain. If you need five knobs to make hybrid look good, your retrieval stack is telling you something.
+My rule is blunt: stay vector-only until exact-match misses show up repeatedly in eval logs, then add hybrid with RRF and a small candidate pool. If hybrid only looks good after lots of weighting tricks, your retrieval stack is asking for better chunking, metadata, or synonym handling instead.

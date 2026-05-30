@@ -4,18 +4,18 @@ order: 14
 difficulty: intermediate
 tags: [LLM, OpenAI, function-calling, schema]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2099-12-31
 ---
 
-The embarrassing version of function calling is when the model says “I booked the meeting” and nothing actually happened.
+You know the annoying version of AI features: the model proudly says “done,” and your app did absolutely nothing.
 
-Function calling exists to stop that nonsense. With [function calling](https://platform.openai.com/docs/guides/function-calling), the model does not perform the action itself. It returns a structured request saying which function it wants and which arguments it thinks are needed. Your code still owns execution, permissions, retries, and error handling. That split is the whole point.
+Function calling exists to kill that lie. Across [OpenAI](https://platform.openai.com/docs/guides/function-calling), [Anthropic](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview), and [Gemini](https://ai.google.dev/gemini-api/docs/function-calling), the core loop is the same: the model returns a structured tool request, your application executes it, and you can send the result back for a final answer. I like this pattern because the dangerous part, real side effects, stays in normal code where auth, retries, and audit logs belong.
 
-What most tutorials underdesign is the schema. If your tool takes `query: string`, `options: object`, and `metadata: any`, you did not define a function, you handed the model a footgun. Treat the schema like an API contract. The simpler and tighter it is, the fewer weird calls you will debug later. The rules from [JSON Schema](https://json-schema.org/understanding-json-schema/) are useful here, because they force you to be explicit about enums, required fields, and nested objects. If you want the model to stay inside those rails, pair the tool definition with [strict schemas](https://platform.openai.com/docs/guides/structured-outputs).
+What most tutorials get wrong is the schema. If your tool takes `query: string`, `options: object`, and `metadata: any`, you did not define a function, you gave the model a flamethrower. Treat the schema like an API contract. The boring parts from [JSON Schema](https://json-schema.org/understanding-json-schema/) matter more than the prompt because enums, required fields, and `additionalProperties: false` are what save you from weird calls at 2 a.m. If you are using OpenAI, I would also turn on [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) with strict schemas instead of hoping the model magically respects your format.
 
-Before the code, here is the trap I fell into: function calling makes demos feel magical, so people let the model choose too much. In production, I want the model to choose between a few safe operations, not invent a mini query language for my backend.
+Here is the trap I fell into: function calling makes demos look smarter than the product really is, so people let the model choose too much. In production, I want a tiny menu of safe actions, not a backend-shaped playground.
 
-This is the kind of tool definition I trust:
+In OpenAI-style syntax, this is the kind of definition I trust:
 
 ```ts
 const tools = [
@@ -45,6 +45,6 @@ const tools = [
 ];
 ```
 
-A few rules make this reliable. Never let tool arguments flow straight into SQL, shell commands, or third-party APIs without another validation pass. Attach auth and tenancy checks outside the model loop, because the model has no idea who is allowed to do what. Expect extra latency too: every tool call usually means another model roundtrip, so budget for it and surface loading states in the UI.
+Then keep the guardrails on. Re-validate tool arguments before they touch SQL, shell commands, or third-party APIs. Keep auth and tenancy checks outside the model loop, because the model has no clue who is allowed to do what. Also budget for latency: the standard tool flow is multi-step, so one tool call can easily mean another model turn before the user gets a final answer.
 
-I use function calling when the model needs to pick from a small menu of actions. If you find yourself adding twenty vaguely similar functions, stop. That is usually the moment where the tool surface is hiding a product design problem.
+My rule is simple: use function calling when the model only needs to choose from a handful of well-named operations. If you keep adding near-duplicate tools to patch product ambiguity, stop and redesign the workflow first.

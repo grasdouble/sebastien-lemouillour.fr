@@ -3,30 +3,50 @@ id: reasoning-in-llms
 order: 19
 difficulty: intermediate
 tags: [LLM, raisonnement]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
 The most annoying LLM failure mode is not nonsense. It is a polished, step-by-step answer that feels convincing and is still wrong. That is why I do not treat “reasoning” as a vibe or a marketing badge. I treat it as a capability you have to buy, prompt, and verify carefully.
 
-## Reasoning is not one switch
+## Reasoning is budget, not magic
 
-A model reasons well when three things line up: the base model has the latent capability, the prompt exposes the task structure, and the runtime budget lets the model explore enough intermediate steps. The original [chain-of-thought](https://arxiv.org/abs/2201.11903) paper showed that large models can improve on multi-step tasks when prompted to produce intermediate reasoning. That result mattered, but it also created a bad habit: people started asking every model to “think step by step” whether the task needed it or not.
+A model reasons well when three things line up: the base model has the latent capability, the prompt exposes the task structure, and the runtime budget leaves enough room for intermediate steps. The original [Chain-of-Thought](https://arxiv.org/abs/2201.11903) paper showed that large models can improve on multi-step tasks when prompted to produce intermediate reasoning. That result mattered, but it also trained people into a bad reflex: asking every model to “think step by step” even when the task is trivial.
 
-I would not do that by default. Long visible reasoning increases token usage, latency, and review cost. On APIs that meter output tokens aggressively, that cost is immediate. On sensitive workflows, it can also expose intermediate thoughts you did not actually want to store or show.
+I would not do that by default. OpenAI’s [reasoning guide](https://platform.openai.com/docs/guides/reasoning) says higher reasoning effort trades speed and token usage for quality, and Anthropic’s [extended thinking](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking) docs describe the same tradeoff with thinking depth and token budgets. If the task is short or easy to verify, extra thinking is often just a slower invoice.
 
-## What prompting actually buys you
+## When I would pay for it
 
-Prompting helps most when the task is decomposable and the answer can be checked. The [self-consistency](https://arxiv.org/abs/2203.11171) result is a good example: sample multiple reasoning paths, then pick the consensus answer. Expensive? Yes. Useful for math, symbolic tasks, and structured decision problems? Also yes.
+Prompting starts to earn its keep when the task is genuinely multi-step and the final answer can be checked. The [self-consistency](https://arxiv.org/abs/2203.11171) paper is the clearest version of that idea: sample multiple reasoning paths, then keep the consensus answer. I would reserve that for math, symbolic tasks, or expensive decisions because you are literally buying several attempts to get one answer.
 
-When the task needs external evidence or action, I prefer the [ReAct](https://arxiv.org/abs/2210.03629) pattern over pure internal reasoning. Make the model reason a bit, call a tool, inspect the result, then continue. That is usually more reliable than paying for a longer monologue detached from reality.
+That still leaves the harder problem: what if the model is missing facts, not deliberation? In that case I would stop asking it to think harder and switch to tools. The [ReAct](https://arxiv.org/abs/2210.03629) paper got this right: reason a little, fetch evidence, continue. That pattern is usually more reliable than a long monologue trying to infer data it does not have.
 
-Provider behavior matters too. OpenAI’s [reasoning guide](https://platform.openai.com/docs/guides/reasoning) and Anthropic’s [extended thinking](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking) both make the tradeoff explicit: more reasoning budget can improve quality, but it also increases latency and cost. That matches real usage. You feel the tax quickly on high-volume workloads.
+## A practical default
 
-## What I would choose in practice
+I start with low or medium reasoning, require citations or tool output, and only raise the budget after I see failures that look like missing deliberation rather than missing data. This is also where throughput gets ugly: OpenAI’s [rate limits](https://platform.openai.com/docs/guides/rate-limits) are tracked on both requests and tokens, so a “safer” prompt can still kill capacity if it expands the response too much.
 
-For production flows, I prefer short visible answers plus either hidden reasoning support from the provider or explicit tool use that I can audit. I only ask for long natural-language reasoning when the reasoning itself is part of the deliverable, like tutoring or worked examples.
+Here is the kind of baseline I would actually ship before paying for more thinking:
 
-I also do not confuse reasoning with knowledge. A model cannot reason its way to a missing fact. If the answer depends on a current price, a policy change, or a database row, the right fix is retrieval or tool access, not a fancier “think harder” prompt.
+```python
+from openai import OpenAI
 
-My rule: pay for extra reasoning only on tasks that are genuinely multi-step and externally checkable. Otherwise you are often buying longer guesses, not better decisions.
+client = OpenAI()
+
+response = client.responses.create(
+    model="gpt-5.5",  # reasoning-capable model
+    reasoning={"effort": "low"},  # start cheap, raise only after evals fail
+    input=[
+        {
+            "role": "user",
+            "content": "Compute the VAT due on €420 at 20%. Return only the number.",
+        }
+    ],
+    max_output_tokens=80,  # cap cost and keep the answer terse
+)
+
+print(response.output_text)
+```
+
+If prompts can contain secrets, customer data, or internal policy text, I would not expose raw reasoning to end users just because the provider can return it. Anthropic exposes thinking as separate content blocks, which is exactly why I treat it as something to gate, log carefully, or omit.
+
+My rule is simple: pay for extra reasoning only when the task is multi-step, externally checkable, and costly enough that a slower answer is still cheaper than a wrong one.

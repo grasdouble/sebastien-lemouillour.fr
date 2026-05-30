@@ -4,16 +4,16 @@ order: 19
 difficulty: advanced
 tags: [LLM, security, guardrails, OWASP]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Your AI feature works. Users love it. Then one user figures out how to make it ignore the system prompt, expose internal instructions, and call a tool with garbage arguments. Guardrails are the work nobody wants to fund until after the incident. The mistake is treating them like a moderation checkbox glued on top. In production, guardrails are control points around the whole request lifecycle.
+Your AI feature ships fast and looks smart in demos. Then one user lands a prompt injection, pulls internal instructions, and makes a tool call with junk arguments. Guardrails are the work teams postpone until the first ugly incident. That is backwards. In production, guardrails are control points wrapped around the full request lifecycle, not a moderation checkbox stapled to the front.
 
-The [OWASP LLM Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/) is a better starting point than most architecture diagrams because it names the failures that actually hurt you: prompt injection, sensitive data disclosure, insecure output handling. That list should change your design. I do not trust a single classifier sitting before the model. I want three rails: input validation before inference, tool constraints during execution, and output validation before the answer leaves the system.
+The [OWASP Top 10](https://genai.owasp.org/llm-top-10/) is where I start because it names the failures that matter in prod: prompt injection, insecure output handling, and sensitive information disclosure. That list should change the design, not sit in a slide deck. I do not trust one classifier in front of the model. I want three rails that fail independently: input validation before inference, execution constraints around tools, and output validation before anything reaches the user.
 
-That is why I like [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) and [Guardrails AI](https://www.guardrailsai.com/docs). They are not magic, and they will not save a bad product decision, but they force you to make policies explicit. Explicit beats implicit every time. If a model can search, send email, or hit an internal API, the rail should live next to that capability, not inside a polite paragraph in the system prompt.
+That is why I reach for [NeMo Guardrails docs](https://docs.nvidia.com/nemo/guardrails/latest/index.html) or [Guardrails AI docs](https://www.guardrailsai.com/docs). Not because a framework makes the problem easy, but because explicit policy beats vibes. If a model can search, send mail, or hit an internal API, the rail belongs next to that capability. Hiding the rule inside the system prompt is lazy engineering.
 
-A minimal production flow looks more like a gateway than a chat wrapper. Put the contract in code, then let the model operate inside it.
+A minimal production flow should look more like a gateway than a chat wrapper. Put the contract in code, then let the model operate inside it.
 
 ```python
 policy = {
@@ -32,8 +32,8 @@ if validated.escalate:
 return validated.answer
 ```
 
-Notice what is missing: keyword blacklists pretending to solve abuse. Real guardrails are contextual. They know which tools are available, which data classes are present, and what failure mode deserves escalation instead of silent refusal. They also need product alignment with provider rules such as [OpenAI's usage policies](https://openai.com/policies/usage-policies), because your internal policy and your vendor policy are two separate gates.
+The part people get wrong is the fallback. Keyword blacklists are cheap to ship and expensive to trust. Real guardrails are contextual: they know which tools are exposed, which data classes are in play, and which failures must escalate instead of being silently refused. They also need to align with provider rules in docs such as the [OpenAI safety guide](https://platform.openai.com/docs/guides/safety-best-practices). Your policy and your vendor's policy are separate gates. Treat them that way.
 
-The operational part matters more than the framework choice. Log every blocked action, every override, every schema failure. Review false positives weekly. If users can trigger a rail but nobody can explain why it fired, you built theatre, not safety.
+I care more about observability than framework branding. Log every blocked action, every override, every schema failure. Review false positives every week, because guardrails that nobody can explain will get bypassed by the on-call team at 2 a.m.
 
-Here is the threshold I use: if the model can take action on behalf of a user, guardrails are mandatory. If it can touch money, private data, or production systems, deterministic approval steps beat clever prompting every time.
+My rule is simple: if the model acts on behalf of a user, guardrails are mandatory. If it can touch money, private data, or production systems, put a deterministic approval step in the path. If that extra hop feels too expensive, the feature is probably too risky to automate.

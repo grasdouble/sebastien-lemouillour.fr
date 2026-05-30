@@ -7,52 +7,72 @@ publishedAt: 2099-12-31
 updatedAt: 2026-05-30
 ---
 
-If you send every task to your most expensive model, you are not being safe. You are refusing to measure. Classification, extraction, moderation, long-form synthesis, and code review do not need the same model profile, so pretending they do is how token bills get stupid.
+When your cheap path silently punts half the traffic to a bigger model, you do not have routing. You have a billing bug with nice branding. Classification, extraction, moderation, and long-form synthesis do not deserve the same model profile, and pretending otherwise is how teams blow the budget before they even hit scale.
 
-The job of routing is to send each task to the cheapest model that still clears your quality bar. The [OpenAI models guide](https://platform.openai.com/docs/models) makes it obvious that capability, latency, and price vary meaningfully across the lineup. That should push you toward task classes, not one default model.
+The job is to send each task class to the cheapest model that still clears the SLA. The [OpenAI models guide](https://platform.openai.com/docs/models) is blunt about the tradeoff: bigger models buy capability, smaller ones buy latency and cost. So I would classify tasks first and route second. One default model for everything is lazy architecture.
 
-I like a routing table with four fields per task class: quality floor, latency ceiling, cost ceiling, and fallback target. The task comes in already classified, then the router picks the cheapest viable model. Do not let the model choose itself. That is the kind of autonomy that quietly turns into spend.
+I want each route to declare five things: primary alias, fallback alias, quality floor, latency budget, and cost ceiling. The route should be chosen before the model call starts. Do not ask the model to decide whether it is the right model. That is fake cleverness.
 
-This is the minimum policy I want captured in code:
+Write the policy first so the argument happens in code review instead of during an incident.
 
 ```python
 from dataclasses import dataclass
-from typing import Optional
 
-@dataclass
-class ModelSpec:
-    name: str
+@dataclass(frozen=True)
+class RoutePolicy:
+    primary_alias: str
+    fallback_alias: str | None
     quality_floor: float
-    latency_ceiling_ms: int
-    cost_ceiling_per_1k: float
-    fallback: Optional[str] = None
+    latency_budget_ms: int
+    max_input_cost_per_million: float
 
 ROUTES = {
-    "classification": ModelSpec("gpt-4o-mini", 0.88, 500, 0.005, fallback="gpt-4o"),
-    "extraction":     ModelSpec("gpt-4o-mini", 0.90, 700, 0.005, fallback="gpt-4o"),
-    "synthesis":      ModelSpec("gpt-4o", 0.92, 4000, 0.040, fallback=None),
+    "classification": RoutePolicy("fast-classifier", "deep-generalist", 0.88, 500, 0.40),
+    "extraction": RoutePolicy("fast-extractor", "deep-generalist", 0.90, 800, 0.60),
+    "synthesis": RoutePolicy("deep-generalist", None, 0.94, 4000, 8.00),
 }
 ```
 
-Once you have policy, you need transport. [LiteLLM](https://docs.litellm.ai/) is useful because it normalizes provider APIs and gives you fallback and load-balancing primitives without forcing your routing logic into the SDK. Keep routing above the transport layer. The abstraction should make swapping providers easier, not hide the economics from you.
+Once the policy exists, keep transport on a leash. LiteLLM already documents ordered fallbacks in its [reliability guide](https://docs.litellm.ai/docs/proxy/reliability) and deployment-level routing in its [load balancing guide](https://docs.litellm.ai/docs/proxy/load_balancing). Good. Let the transport layer execute the policy, but do not let it invent the policy.
 
-This is the handoff point I usually implement next:
+This is the split I would actually ship.
 
 ```python
-import litellm
+from litellm import Router
 
-def call_route(task_class: str, messages: list[dict]) -> str:
+router = Router(
+    model_list=[
+        {
+            "model_name": "fast-classifier",
+            "litellm_params": {"model": "provider/small-instruct", "rpm": 600},
+        },
+        {
+            "model_name": "fast-extractor",
+            "litellm_params": {"model": "provider/medium-instruct", "rpm": 300},
+        },
+        {
+            "model_name": "deep-generalist",
+            "litellm_params": {"model": "provider/large-reasoner", "rpm": 60},
+        },
+    ],
+    fallbacks=[
+        {"fast-classifier": ["deep-generalist"]},
+        {"fast-extractor": ["deep-generalist"]},
+    ],
+)
+
+
+def run_route(task_class: str, messages: list[dict]) -> str:
     spec = ROUTES[task_class]
-    try:
-        response = litellm.completion(model=spec.name, messages=messages)
-        return response.choices[0].message.content
-    except litellm.exceptions.APIError:
-        if not spec.fallback:
-            raise
-        response = litellm.completion(model=spec.fallback, messages=messages)
-        return response.choices[0].message.content
+    response = router.completion(model=spec.primary_alias, messages=messages)
+    return response.choices[0].message.content
 ```
 
-Routing is never finished. Providers update models, quality shifts, and yesterday's premium route becomes today's waste. That is why I want weekly evals feeding the routing table, not tribal knowledge. The orchestration lesson from [Semantic Kernel](https://learn.microsoft.com/en-us/semantic-kernel/overview/) still applies here: abstractions help, but only if your policies stay explicit and testable.
+Routing rots faster than people admit. The [OpenAI evals guide](https://developers.openai.com/api/docs/guides/evals) explicitly calls evals essential when upgrading or trying new models, which is exactly why I want route-level evals on a schedule instead of relying on somebody's gut feeling in Slack. If a vendor refresh changes quality or latency, the table should move the same week.
 
-One threshold tells you the table is wrong: if more than 30% of production traffic lands on the fallback model for a route, your primary route is misconfigured. Fix the policy. The fallback is insurance, not the real path.
+My cutoff is boring on purpose: if a route sends more than 30% of production traffic to fallback for seven straight days, the primary route is dead. Reclassify the task, widen the latency budget, or buy the bigger model. The fallback is insurance, not your real architecture.
+
+## Resources
+
+- [OpenAI graders](https://platform.openai.com/docs/guides/graders)
+- [Semantic Kernel](https://learn.microsoft.com/en-us/semantic-kernel/overview/)

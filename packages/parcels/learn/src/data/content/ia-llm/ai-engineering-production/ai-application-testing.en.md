@@ -4,22 +4,22 @@ order: 18
 difficulty: advanced
 tags: [LLM, testing, Promptfoo, DeepEval, Playwright]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Your unit tests are green, the deploy went out, and the assistant still booked the wrong meeting, exposed the wrong document, or skipped the confirmation step before a destructive tool call. That is the moment you realize you were testing code paths, not the AI application.
+Your tests pass, the release ships, and the assistant still deletes the wrong record or cites data from the wrong customer workspace. That is the failure that forces a grown-up test strategy: your bug is no longer bad text, it is an unsafe product action.
 
-This only matters once your product has real workflows, real permissions, and real side effects. If the system is still a prompt in a notebook, classic testing advice is enough. Once an LLM can trigger tools, read retrieval results, and change UI state, you need a testing strategy that treats the model as one component inside a larger product surface.
+This only matters once the system has real permissions and side effects. If you are not shipping tools, retrieval, or state changes, keep the stack simple. Once those pieces land, I would start with contracts around tool permissions, [JSON Schema](https://json-schema.org/overview/what-is-jsonschema) validation, and business invariants, because a fluent answer that triggers the wrong action is still a production defect.
 
-My bias is strong here: I care more about side effects than eloquence. A beautifully phrased wrong action is still a production bug. That is why the test stack should start with contracts around tool permissions, schema validity, and business invariants. Then you add prompt and model regression suites with [Promptfoo](https://promptfoo.dev/docs/intro) or [DeepEval](https://docs.confident-ai.com/). Finally, you keep a thin layer of browser tests with [Playwright](https://playwright.dev/docs/intro) for the flows where UI, auth, and orchestration all interact.
+The next problem is attribution. When a run goes wrong, you need to know whether the failure came from prompting, retrieval, orchestration, or the UI. I would instrument those paths with [OpenTelemetry](https://opentelemetry.io/docs/specs/semconv/gen-ai/) before adding more tests, because a red build without usable traces is just theater.
 
-The common mistake is trying to make browser tests judge prose quality. Do not do that. Browser tests should assert things the app owns: the right button becomes disabled, the confirmation modal appears, the tool log shows zero destructive calls, the retrieved source list matches the tenant, the final state is persisted. Text quality belongs in eval suites such as [OpenAI Evals](https://github.com/openai/evals) or model-graded checks, not in brittle end-to-end selectors.
+After that, split the suite by ownership. Prompt and model regressions belong in [Promptfoo](https://promptfoo.dev/docs/intro) or [DeepEval](https://docs.confident-ai.com/), where you can compare outputs and score behavior across fixtures. Product guarantees belong in [Playwright](https://playwright.dev/docs/intro), which is good at asserting what your app actually owns: a button is disabled, a confirmation modal appears, the tool log stays empty, the retrieved source list matches the authorized workspace, the final state is persisted.
 
-I also want deterministic failure reproduction. That means fixtures for retrieval, recorded tool responses, and model stubs for critical flows. If a bug can only be reproduced by asking the live model five times until it misbehaves, you do not have a test, you have a ritual.
+Do not ask browser tests to judge prose quality. That job belongs in eval systems such as [OpenAI Evals](https://platform.openai.com/docs/guides/evals), or whatever model-graded checks you already trust in CI. Browser selectors should decide whether the product enforced policy and preserved invariants. If you let end-to-end tests grade wording, you will burn time on flaky failures and still miss the destructive call that mattered.
 
-The strongest AI test suites mix layers on purpose: unit tests for adapters, contract tests for tool schemas, evals for behavior quality, and end-to-end tests for product guarantees. What I do not want is a giant pile of "ask the chatbot and snapshot the answer" tests. Those fail noisily and teach you almost nothing.
+The other non-negotiable is deterministic replay. Use retrieval fixtures, recorded tool responses, and model stubs for critical flows. If you need five live runs before the model slips, you do not have a test suite yet; you have a superstition.
 
-For browser coverage, this kind of test is much closer to reality than text snapshots.
+For browser coverage, I would rather ship a test like this than another snapshot of assistant prose.
 
 ```typescript
 import { expect, test } from '@playwright/test';
@@ -43,4 +43,4 @@ test('requires confirmation before deleting meetings', async ({ page }) => {
 });
 ```
 
-My rule: if a failing AI test cannot block a deploy, or a critical production bug cannot be reproduced with fixtures and stubs, the suite is giving you comfort, not protection.
+My cutoff is simple: if a failing AI test cannot stop a deploy, or a Sev-1 bug cannot be replayed from fixtures and traces, the suite is too soft for production.

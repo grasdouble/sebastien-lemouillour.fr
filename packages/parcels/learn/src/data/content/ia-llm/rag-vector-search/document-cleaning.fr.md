@@ -4,45 +4,56 @@ order: 13
 difficulty: intermediate
 tags: [RAG, preprocessing, OCR]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Ton pipeline RAG a l'air propre sur du Markdown nickel. Puis quelqu'un balance un PDF scanné avec un pied de page sur chaque page, une table des matières collée dans le corps et des ligatures qui transforment le texte en bouillie. Le nettoyage de documents, c'est l'étape que tout le monde remet à plus tard jusqu'au moment où la recherche devient médiocre.
+Ton pipeline RAG a l'air solide sur du Markdown propre, puis un seul PDF scanné empoisonne l'index : pied de page sur chaque page, table des matières collée dans le corps, ligatures qui massacrent les mots, texte OCR dupliqué. Je traite le nettoyage de documents comme de la prévention pour la recherche, pas comme une retouche de mise en forme.
 
-L'erreur que j'ai faite au début, c'était de traiter l'extraction comme un problème déjà réglé. Ce n'est pas le cas. Si tu embarques le texte brut dans l'index, le bruit devient une donnée à part entière. Les en-têtes répétés remontent comme du vrai contenu. Les tokens d'OCR cassés polluent les voisins sémantiques. Quand tu t'en rends compte, tu débogues la recherche alors que le problème vient de l'ingestion.
+Je l'ai appris à mes dépens. Le texte brut extrait n'est pas neutre. Si tu l'indexes tel quel, le bruit devient lui aussi récupérable. Les en-têtes répétés remontent comme des réponses. Les déchets d'OCR contaminent les voisins sémantiques. Quelques semaines plus tard, tu accuses les embeddings alors que le vrai bug s'est produit à l'ingestion.
 
-Je nettoie avant le chunking, systématiquement. Des outils comme [Unstructured](https://docs.unstructured.io/open-source/core-functionality/partitioning) sont utiles parce qu'ils gardent la structure du document au lieu d'écraser tout en une seule chaîne. Quand les PDF partent en vrille, [PyMuPDF](https://pymupdf.readthedocs.io/en/latest/recipes-text.html) donne accès aux blocs et aux coordonnées, ce qui permet de supprimer le chrome de navigation sans deviner à partir du texte. Et si la source est scannée, il faut faire l'OCR proprement avec un outil comme [OCRmyPDF](https://ocrmypdf.readthedocs.io/en/latest/introduction.html), parce qu'une mauvaise extraction ne se rattrape pas ensuite avec un meilleur modèle d'embeddings.
+Je nettoie avant le chunking, systématiquement. [Unstructured partitioning](https://docs.unstructured.io/open-source/core-functionality/partitioning) est mon point de départ parce qu'il extrait des éléments typés au lieu d'écraser tout le document en une seule chaîne. Quand le vrai problème est la mise en page, [PyMuPDF blocks](https://pymupdf.readthedocs.io/en/latest/recipes-text.html) me donne les coordonnées et le texte par bloc pour retirer le chrome de navigation de façon déterministe. Et quand le fichier est en réalité un scan, je lance [OCRmyPDF intro](https://ocrmypdf.readthedocs.io/en/latest/introduction.html) d'abord, parce qu'une couche de texte exploitable est un prérequis, pas une finition optionnelle.
 
-Ce que je nettoie vraiment est assez banal, et c'est précisément pour ça que ça marche :
+Le piège suivant, c'est de mélanger nettoyage et découpe dans la même étape floue. Je les sépare. D'abord je nettoie, ensuite je découpe avec un splitter sensible à la structure comme [LangChain splitters](https://python.langchain.com/docs/concepts/text_splitters/). Je garde aussi les métadonnées source sur chaque chunk, parce que le filtrage et la citation deviennent pénibles dès que les numéros de page disparaissent, et [Pinecone metadata](https://www.pinecone.io/learn/retrieval-augmented-generation/) rappelle bien que la qualité de la recherche ne dépend pas uniquement des embeddings.
 
-- les en-têtes et pieds de page répétés
-- les numéros de page et le boilerplate juridique
-- les retours à la ligne cassés et les espaces absurdes
-- le texte dupliqué à cause des couches OCR
-- les tableaux transformés en soupe de texte
-
-Le contrat que j'aime à l'indexation ressemble à ça :
+La version que je mettrais en prod pour la plupart des équipes, c'est un nettoyage déterministe avec des seuils explicites, pas une réécriture par LLM.
 
 ```python
-from unstructured.partition.pdf import partition_pdf
+import re
+from pathlib import Path
+
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from unstructured.cleaners.core import clean_extra_whitespace
+from unstructured.partition.pdf import partition_pdf
+
+HEADER_FOOTER_PATTERNS = [
+    re.compile(r"^page \d+ of \d+$", re.IGNORECASE),
+    re.compile(r"^confidential$", re.IGNORECASE),
+]
 
 
-def normalize_document(path: str) -> list[str]:
+def clean_and_chunk_pdf(path: str) -> list[dict]:
     elements = partition_pdf(
         filename=path,
-        strategy="hi_res",
-        infer_table_structure=True,
+        strategy="hi_res",  # garde une extraction sensible à la mise en page
+        infer_table_structure=True,  # évite d'écraser les tableaux en soupe de texte
+    )
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=800,  # taille prudente pour la plupart des pipelines d'embeddings
+        chunk_overlap=120,  # garde du contexte entre les frontières de chunks
     )
 
-    cleaned_chunks = []
     seen = set()
+    chunks = []
 
     for element in elements:
-        text = clean_extra_whitespace(str(element))
-        text = text.replace("Page 1 of 12", "")
-        text = text.replace("Confidential", "")
-        text = text.strip()
+        lines = clean_extra_whitespace(str(element)).splitlines()
+        kept_lines = [
+            line.strip()
+            for line in lines
+            if line.strip()
+            and not any(pattern.match(line.strip()) for pattern in HEADER_FOOTER_PATTERNS)
+        ]
+        text = re.sub(r"\s+", " ", " ".join(kept_lines)).strip()
 
         if len(text) < 40:
             continue
@@ -50,11 +61,23 @@ def normalize_document(path: str) -> list[str]:
             continue
 
         seen.add(text)
-        cleaned_chunks.append(text)
+        page_number = getattr(element.metadata, "page_number", None)
 
-    return cleaned_chunks
+        for chunk in splitter.split_text(text):
+            chunks.append(
+                {
+                    "text": chunk,
+                    "metadata": {
+                        "source": Path(path).name,
+                        "page": page_number,
+                        "element_type": type(element).__name__,
+                    },
+                }
+            )
+
+    return chunks
 ```
 
-C'est volontairement simple. Beaucoup d'équipes passent trop vite au nettoyage par LLM. Je ne le fais que pour des classes de documents sales et vraiment importantes, par exemple des factures avec des mises en page spécifiques à chaque fournisseur. Les heuristiques coûtent moins cher, restent déterministes et se testent beaucoup mieux.
+Je ne paie pour un nettoyage par LLM que lorsqu'une famille de documents est à la fois critique et trop irrégulière pour des regex plus des règles de mise en page, par exemple des factures fournisseurs aux gabarits très différents. Sinon, le coût API, la latence et la pression sur les rate limits font un mauvais échange. Un nettoyage déterministe coûte moins cher, se teste mieux et s'explique mieux quand une équipe juridique ou support demande pourquoi un chunk a disparu.
 
-Le point que la plupart des tutoriels sautent, c'est la mesure. Il faut suivre la quantité de texte supprimée, le nombre de chunks éliminés et les motifs retirés. Si un nettoyage enlève 30% d'un corpus de contrats, je veux inspecter des échantillons avant de lui faire confiance. Ma règle est simple : si le même bruit apparaît sur plus de quelques pourcents des documents, nettoie-le hors ligne avant l'indexation. Si c'est rare, ne construis pas un pipeline fragile à cause d'un seul PDF mal fichu.
+Ma règle est directe : si le nettoyage retire plus ou moins 20% des caractères, ou si la forme des tableaux change, je relis des échantillons avant d'indexer. Si le même bruit apparaît dans plus ou moins 5% des fichiers, j'automatise le nettoyage. Si c'est plus rare, je corrige ces documents à la main et je garde un pipeline ennuyeux.

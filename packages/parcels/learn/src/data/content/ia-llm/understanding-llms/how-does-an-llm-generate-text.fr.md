@@ -3,30 +3,26 @@ id: how-does-an-llm-generate-text
 order: 5
 difficulty: beginner
 tags: [LLM, tokens]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Quand vous posez une question à un chatbot et qu'il répond phrase après phrase, cela ressemble presque à quelqu'un qui réfléchit en temps réel. C'est précisément là que beaucoup de débutants se perdent. On imagine un esprit caché qui "sait" quoi dire, puis le déroule. En réalité, le mécanisme est plus simple et, à mes yeux, plus intéressant : un LLM génère du texte en choisissant un **token** après l'autre.
+Un chatbot vous répond en quelques secondes, donc l'idée qui vient naturellement est simple : il a compris votre question, puis il a rédigé sa réponse. Si vous débutez avec les LLM, je vous conseille d'abandonner cette image assez vite, parce qu'elle crée l'essentiel de la confusion. Le modèle mental le plus sûr est plus simple : un LLM est une machine de prédiction qui devine sans cesse le morceau de texte suivant.
 
-### Tout commence par les tokens
+### Tout commence par un découpage du texte
 
-Un token est une petite unité de texte manipulée par le modèle. Ce n'est pas toujours un mot entier. Selon le **tokenizer**, l'outil qui découpe le texte pour le modèle, un token peut être un mot, une partie de mot, un signe de ponctuation ou même un espace. OpenAI montre ce principe avec son [Tokenizer](https://platform.openai.com/tokenizer), et les [Transformers docs](https://huggingface.co/docs/transformers/tokenizer_summary) expliquent pourquoi cette découpe est nécessaire.
+Cela pose un premier problème. Un modèle ne travaille pas directement sur des phrases brutes, donc il transforme d'abord votre prompt en **tokens**, de petits morceaux de texte créés par un **tokenizer**, l'outil qui découpe le texte en éléments comme des mots entiers, des morceaux de mots ou de la ponctuation. Les [docs tokenizer](https://huggingface.co/docs/transformers/tokenizer_summary) expliquent pourquoi ce découpage en sous-morceaux est utile, et les [docs GPT-2](https://huggingface.co/docs/transformers/model_doc/gpt2) décrivent les modèles de type GPT comme des systèmes qui prédisent le mot suivant à partir des mots précédents.
 
-Quand vous écrivez un prompt, le système le convertit d'abord en tokens. Le modèle regarde cette séquence et calcule quelle suite a le plus de chances de suivre. Il ne rédige pas un paragraphe complet dans sa tête avant de l'afficher : il fait un choix, ajoute ce token au contexte, puis recommence.
+### Puis il fait une supposition, pas un brouillon complet
 
-### Prédire le prochain token
+Une fois que vous voyez ce découpage en tokens, la réponse qui arrive mot après mot paraît déjà moins magique. Un modèle de langage **causal**, c'est-à-dire un modèle qui ne peut regarder que les tokens précédents pendant la génération, lit les tokens déjà présents, estime quel token devrait venir ensuite, ajoute ce choix, puis recommence. Le [papier Transformer](https://arxiv.org/abs/1706.03762) d'origine décrit le mécanisme de masquage qui force chaque position à dépendre seulement des positions précédentes.
 
-La meilleure façon de se représenter cela est l'autocomplétion, mais une autocomplétion extrêmement puissante. À chaque étape, le modèle attribue une probabilité à de nombreux tokens possibles. Il peut choisir le plus probable, ou **échantillonner** parmi plusieurs candidats selon des réglages comme la **température** : une valeur faible rend la sortie plus prévisible, une valeur élevée la rend plus diverse, parfois au prix de la fiabilité. Ce fonctionnement découle directement de l'architecture [Transformer](https://arxiv.org/abs/1706.03762).
+### Pourquoi il peut sembler sûr de lui et se tromper quand même
 
-Le mot **probabilité** compte beaucoup ici. Le modèle ne sait pas qu'une réponse est vraie ; il estime qu'une suite est plausible compte tenu du contexte et de ce qu'il a appris pendant l'entraînement.
+C'est le point que je ferais retenir en premier à un débutant : le modèle optimise une suite plausible, pas la vérité. C'est pour cela qu'une réponse très propre peut quand même être fausse, un échec qu'OpenAI détaille dans son [papier OpenAI](https://openai.com/index/why-language-models-hallucinate/). Si vous gardez en tête « token probable suivant » au lieu de « expert caché », beaucoup de comportements étranges deviennent soudain plus logiques.
 
-### Pourquoi la réponse peut sembler cohérente
+### D'où vient la part de hasard
 
-Si cette mécanique semble trop simple pour produire de bons résultats, c'est une réaction normale. Le point décisif est l'échelle. Avec énormément de données, de paramètres et de calcul, prédire le prochain token force le modèle à apprendre des structures grammaticales, du style, des associations de faits et même certaines étapes de raisonnement. C'est ce qui rend les modèles modernes si utiles, comme l'expliquent les [Claude docs](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview).
+Vous pouvez encore vous demander pourquoi le même prompt peut produire des formulations différentes. Pendant la génération, le système peut prendre le token le plus probable ou échantillonner parmi plusieurs candidats, et le [guide de génération](https://huggingface.co/docs/transformers/main/en/generation_strategies) montre ces choix en pratique. Un réglage important est la **température**, c'est-à-dire le paramètre qui rend cet échantillonnage plus prudent ou plus audacieux : une température basse est plus stable, une température haute est plus risquée. Pour un usage débutant, je choisirais une température basse dès que l'exactitude compte plus que le style.
 
-Mais cette cohérence apparente peut tromper. Une phrase fluide n'est pas une preuve d'exactitude. Le modèle peut continuer un motif de manière élégante tout en se trompant sur le fond, et c'est l'un des pièges les plus courants pour les débutants.
-
-### Le réflexe utile à garder
-
-Gardez une idée simple : un LLM ne "parle" pas comme un humain, il **complète** comme un système statistique très entraîné. Cette image vous aide à mieux écrire vos prompts, à comprendre pourquoi l'ordre des mots change la réponse, et à rester prudent face aux erreurs convaincantes. Si vous voulez aller plus loin, regardez ensuite les différents types de modèles IA, cela aide à comprendre pourquoi tous les modèles ne génèrent pas du texte de la même façon.
+Si vous voulez une suite utile, lisez ensuite le guide sur la température. Ma règle est simple : quand une question devrait avoir une seule bonne réponse, traitez le modèle comme une machine à brouillon et vérifiez l'affirmation vous-même.

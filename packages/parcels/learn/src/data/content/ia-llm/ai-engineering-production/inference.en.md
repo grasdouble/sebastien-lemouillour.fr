@@ -4,35 +4,52 @@ order: 10
 difficulty: intermediate
 tags: [LLM, inference, vLLM, latency]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-A model that feels great in a notebook can feel terrible the moment two real users hit it at once. The first response arrives late, throughput collapses, GPU memory spikes, and suddenly the “model quality” problem is really an inference problem.
+A model that feels fast in a notebook can feel broken the minute two real users hit it at once. The first token shows up late, throughput falls off a cliff, GPU memory jumps, and suddenly the expensive part is not training anymore. It is serving.
 
-This is the part many teams underestimate. Inference is not just “run the model after training”. It is where latency, batching, context length, and memory behavior turn into product experience. The mistake I see all the time is buying a larger model before measuring where time is actually spent. Very often the pain comes from long prompts, poor batching, or a runtime that wastes the hardware you already paid for.
+The trap I fell into was blaming the model too early. [NVIDIA's TTFT docs](https://docs.nvidia.com/nim/benchmarking/llm/latest/metrics.html) spell it out: longer prompts increase prefill time, and that pushes time to first token up before you even look at decode speed. So when the product feels sluggish, I check prompt length and queueing before I ask for another GPU.
 
-If I need high-throughput GPU serving, I start by reading the [vLLM docs](https://docs.vllm.ai/) because continuous batching and efficient KV-cache handling change the economics quickly. If I need a lightweight local or edge setup, [llama.cpp](https://github.com/ggerganov/llama.cpp) and GGUF are often the more practical route. And if the box is small enough that every gigabyte matters, [bitsandbytes](https://huggingface.co/docs/bitsandbytes/) is one of the first places I look for lower-precision loading. None of that replaces hardware basics, which is why [NVIDIA](https://developer.nvidia.com/deep-learning) still matters when you are trying to understand the gap between theoretical and real throughput.
+If overlap between requests is the real problem, I would start with [vLLM optimization docs](https://docs.vllm.ai/en/stable/configuration/optimization/) because the scheduler, continuous batching, and KV-cache limits are the knobs that usually move p95 latency. If the target is a laptop or a small edge box, I would rather ship [llama.cpp with GGUF](https://huggingface.co/docs/hub/gguf-llamacpp) than drag in a heavier serving stack. And when memory is the bottleneck, [bitsandbytes quantization](https://huggingface.co/docs/transformers/main/en/quantization/bitsandbytes) is the quickest way to test 8-bit or 4-bit loading before you spend more on hardware.
 
-The mental model I keep is simple: prefill is expensive, decode is repetitive, and concurrency punishes sloppy cache management. That is why a 32k context demo can be impressive in isolation and disappointing in production.
+That is the mental model I keep: long prompts hurt first-token latency, overlapping requests punish weak batching, and VRAM limits turn into cost fast. I treat those as separate failure modes because the fix is different for each one.
 
-Before choosing a runtime, I like to force the trade-off into code.
+Before picking an engine, I like to force the trade-off into code.
 
 ```ts
-type Target = 'prod-api' | 'edge-box' | 'developer-laptop';
+type DeploymentTarget = 'shared-gpu-api' | 'edge-device' | 'team-laptop';
 
-export function chooseInferenceEngine(target: Target, concurrentUsers: number) {
-  if (target === 'prod-api' && concurrentUsers > 8) {
-    return { engine: 'vLLM', reason: 'continuous batching helps under load' };
+type InferenceInputs = {
+  target: DeploymentTarget;
+  concurrentRequests: number; // Expected overlapping requests at p95.
+  promptTokensP95: number; // Long prompts usually hurt first-token latency first.
+  gpuMemoryGb: number; // Real usable VRAM, not the marketing number.
+};
+
+export function chooseInferencePlan({ target, concurrentRequests, promptTokensP95, gpuMemoryGb }: InferenceInputs) {
+  if (target === 'shared-gpu-api' && concurrentRequests >= 8) {
+    return {
+      engine: 'vLLM',
+      firstFix: promptTokensP95 > 4000 ? 'trim prompts' : 'tune batching',
+      reason: 'continuous batching usually pays off once requests overlap',
+    };
   }
 
-  if (target === 'edge-box') {
-    return { engine: 'llama.cpp', reason: 'GGUF is easier to fit on smaller machines' };
+  if (target === 'edge-device' || gpuMemoryGb <= 16) {
+    return {
+      engine: 'llama.cpp',
+      firstFix: 'use a GGUF model that fits with headroom',
+      reason: 'smaller boxes punish oversized runtimes before they punish the model',
+    };
   }
 
-  return { engine: 'local quantized model', reason: 'optimize for cheap iteration first' };
+  return {
+    engine: 'quantized baseline',
+    firstFix: 'load in 8-bit or 4-bit and measure again',
+    reason: 'cheap iteration beats premature hardware spend',
+  };
 }
 ```
 
-That looks simplistic, and that is the point. Most inference mistakes come from skipping the obvious constraints: concurrent users, prompt length, output length, and memory budget. Measure tokens per second, time to first token, and p95 latency before you touch model choice. Otherwise you are tuning the wrong layer.
-
-My rule is practical: if your users complain about waiting for the first token, shorten prompts and reduce context before shopping for more GPU. If they complain under concurrency, fix batching and serving strategy before you assume the model itself is too slow.
+I like this kind of sketch because it forces a choice. If first-token latency is the complaint, cut prompt size and cache useless context before shopping for more GPU. If the system only falls apart under concurrency, fix batching first. I would only pay for a larger box after those two checks fail, because inference bills get silly faster than most teams expect.

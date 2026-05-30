@@ -4,16 +4,16 @@ order: 22
 difficulty: advanced
 tags: [LLM, architecture, orchestration, systems]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Every AI architecture diagram shows the happy path: user message, retrieval, model, answer. Nobody talks about what happens when the context window fills up mid-conversation, one tool call hangs, and 10,000 concurrent users hit the same retrieval cluster. That is where architecture starts being real.
+Your first outage will not come from the model. It will come from the moment retrieval slows down, one tool runner stalls, and 10,000 concurrent users pile onto the same path. That is the point where architecture stops being a slide and starts being an SLA.
 
-The mistake is building the system as if the model were the application. It is not. The application is the coordination layer around state, tools, policies, and fallbacks. [Martin Fowler's GenAI patterns](https://martinfowler.com/articles/building-with-genai.html) are useful here because they separate UI, orchestration, and domain capabilities. I would go one step further: keep conversation state outside the orchestrator. Stateless workers scale better, fail cleaner, and are much easier to reason about during incidents.
+Treat the model as one dependency, not the application. Microsoft's [agent architecture](https://learn.microsoft.com/en-us/agents/architecture/components-of-agent-architecture) separates client, storage, orchestrator, model, and tools for a reason. I would still keep conversation state outside the orchestrator. Stateless workers autoscale better, fail cleaner, and are far less annoying to debug at 3 a.m.
 
-There are four components I want to see drawn separately. First, an ingress layer that authenticates, rate-limits, and tags requests. Second, an orchestration layer that builds context and decides which capabilities may run. Third, isolated tool executors with timeouts and idempotency. Fourth, a model access layer, often through [LiteLLM](https://docs.litellm.ai/) or a provider gateway, so model routing is not hardcoded into product flows. If you self-host, [vLLM](https://docs.vllm.ai/) belongs in that serving layer, not mixed into orchestration code.
+There are four boxes I want to see drawn separately. First, an ingress layer that authenticates, rate-limits, and tags requests. Second, an orchestration layer that builds context and decides which capabilities may run. Third, isolated tool runners with deadlines and idempotency. Anthropic's [tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) makes that boundary explicit: the application executes client tools, not the model. Fourth, a model access layer, often through [LiteLLM](https://docs.litellm.ai/) or another gateway, so routing and failover are not hardcoded into product flows. If you self-host, [vLLM](https://docs.vllm.ai/) belongs in the serving layer, not in orchestration code.
 
-Before the architecture doc turns into fiction, force the latency budget into the design. This is the minimum shape I trust.
+Before this turns into architecture fan fiction, force a latency budget into the design. This is the minimum shape I trust.
 
 ```yaml
 request_budget_ms: 4000
@@ -27,8 +27,8 @@ stages:
 fallback: cached-answer-or-human
 ```
 
-That budget matters because every additional tool or retrieval hop steals time from inference and increases failure fan-out. Security boundaries also belong in the architecture, not in a later checklist. If the model can influence tool parameters or consume untrusted documents, the risks described by the [OWASP LLM Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/) should shape interface boundaries from day one.
+That budget matters because every extra hop steals time from inference and increases failure fan-out. If you really need multi-minute work, queue it and poll status; [background mode](https://platform.openai.com/docs/guides/background) exists for exactly that shape. Security boundaries also belong in the diagram, not in a cleanup ticket. If the model can influence tool parameters or consume untrusted documents, the [OWASP LLM Top 10](https://genai.owasp.org/llm-top-10/) should shape interface boundaries from day one.
 
-I prefer architectures that degrade in layers. Lose a retrieval backend, return a narrower answer. Lose a premium model, route to a cheaper fallback for low-risk tasks. Lose a tool, keep the chat useful and explicit about the limitation. If one dependency outage takes the whole feature down, you built a chain, not a system.
+I prefer architectures that degrade in layers. Lose retrieval, return a narrower answer. Lose a premium model, route low-risk traffic to a cheaper fallback. Lose a tool, keep the chat useful and explicit about the limitation. If one dependency outage takes the whole feature down, you built a chain, not a system.
 
-My threshold is simple: once a single user request can fan out to more than two external systems, add deadlines, circuit breakers, and fallback paths before you add another capability.
+My rule is blunt: once one request can fan out to more than two external systems, add deadlines, circuit breakers, and fallback paths before you ship another capability.

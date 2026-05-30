@@ -4,29 +4,23 @@ order: 2
 difficulty: beginner
 tags: [LLM, cost, tokens, OpenAI, Anthropic]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Vous avez construit votre première fonctionnalité LLM. Puis quelqu'un pose la question qui fâche : combien ça va coûter par mois ? Vous n'en savez rien. C'est normal, parce que la tarification des LLM reste abstraite tant qu'on ne la ramène pas à une requête, un utilisateur, un mois.
+Vous mettez en ligne une petite fonctionnalité LLM, quelques personnes la testent, et la question gênante tombe tout de suite : on parle de monnaie de poche ou du budget café du mois prochain ? Ne vous inquiétez pas si ça vous paraît encore abstrait, moi aussi j'ai vraiment compris le sujet le jour où j'ai arrêté de chiffrer « l'IA » en bloc pour chiffrer une vraie requête.
 
-La plupart des fournisseurs facturent au token. Un token, c'est un petit morceau de texte, pas un mot complet. "Bonjour tout le monde" représente quelques tokens, une longue conversation de support en représente beaucoup plus. Si vous voulez voir comment le texte est découpé, le [OpenAI tokenizer](https://platform.openai.com/tokenizer) rend cette idée très concrète.
+C'est le réflexe que je recommande presque à chaque fois. Une facture mensuelle, c'est juste un coût par requête répété encore et encore, avec quelques surprises agaçantes qui s'ajoutent au passage.
 
-Ensuite, le fournisseur facture deux choses : les tokens d'entrée, donc le texte que vous envoyez, et les tokens de sortie, donc le texte généré par le modèle. Regardez les tarifs actuels sur [OpenAI pricing](https://openai.com/api/pricing/) et [Anthropic pricing](https://www.anthropic.com/pricing/). Les chiffres changent avec le temps, mais l'habitude à prendre ne change pas : il faut estimer avant de lancer.
+Pour chiffrer une requête, il vous faut un mot nouveau : token. Un token, c'est un petit morceau de texte, pas un mot entier, et le guide Anthropic sur le [comptage des tokens](https://docs.anthropic.com/en/docs/build-with-claude/token-counting) montre bien comment les fournisseurs les comptent. Si vous voulez que l'idée arrête de ressembler à de la magie, le [tokenizer OpenAI](https://platform.openai.com/tokenizer) vous laisse coller du texte et voir immédiatement comment il est découpé.
 
-Ma règle préférée est très simple : le coût est un choix produit, pas un exercice pour la compta. Un chat qui garde tout l'historique, ajoute un énorme prompt système, récupère cinq longs documents, puis demande une réponse de 1 500 mots, dit au modèle d'être cher. La facture suit le design.
+Une fois les tokens compris, la surprise suivante arrive avec la facturation. La plupart des API distinguent les tokens d'entrée, le texte que vous envoyez, et les tokens de sortie, le texte généré en retour, et la [tarification OpenAI](https://developers.openai.com/api/docs/pricing) comme la [tarification Anthropic](https://docs.anthropic.com/en/docs/about-claude/pricing) montrent vite pourquoi c'est souvent la sortie qui pique en premier. C'est pour ça que je raccourcirais les réponses avant de toucher à autre chose.
 
-Un modèle mental aide beaucoup :
+Le modèle mental que j'utilise tient en trois phrases. Le coût par requête, c'est le coût d'entrée plus le coût de sortie. La base mensuelle, c'est ce coût multiplié par le nombre de requêtes. Le vrai coût mensuel, c'est cette base plus les nouvelles tentatives automatiques, les essais ratés et le pic de trafic que personne n'avait mentionné pendant le cadrage.
 
-- Coût par requête = tokens d'entrée + tokens de sortie
-- Coût mensuel = coût par requête × nombre de requêtes
-- Coût réel = coût mensuel + retries + erreurs + expérimentations + logs
+Les débutants sous-estiment presque toujours cette troisième ligne. Un prompt qui échoue puis repart n'est pas « juste un nouvel essai », c'est un appel payant de plus. Un énorme prompt système renvoyé à chaque requête n'est pas de la plomberie invisible, c'est une dépense répétée. Les deux pages de tarification montrent aussi des tarifs réduits pour certains tokens d'entrée mis en cache, ce qui veut dire que des préfixes de prompt réutilisés peuvent coûter moins cher, mais je ne compterais pas là-dessus pour sauver un design brouillon. Des prompts plus courts et des réponses plus petites restent des habitudes bien plus fiables.
 
-La dernière ligne est celle que les débutants oublient. Chaque fois qu'un prompt échoue et que vous recommencez, vous repayez. Chaque fois que vous envoyez du contexte inutile, vous repayez. Chaque fois que vous choisissez un plus gros modèle juste au cas où, vous repayez.
+Alors, par où commencer ? Moi, je partirais d'un budget par utilisateur actif, pas d'un modèle favori. Si un utilisateur actif ne peut coûter que quelques centimes par jour, il faudra sans doute des prompts plus courts, moins de documents récupérés ou un modèle plus petit. Si une réponse fait gagner un vrai temps de travail ou protège un vrai revenu, vous pouvez vous permettre un modèle plus capable et une réponse plus longue.
 
-C'est pour ça que je préfère partir d'un budget, pas d'un modèle. Décidez ce qu'un utilisateur peut coûter par jour. Ensuite, remontez le calcul. Si vous ne pouvez dépenser que quelques centimes par utilisateur actif, il faudra probablement des prompts plus courts, moins de documents récupérés, des modèles plus petits, ou des limites de sortie plus serrées. Si chaque requête crée beaucoup de valeur, vous pouvez vous permettre davantage.
+Une première estimation simple suffit largement. Prenez un prompt court, un prompt moyen et un pire cas franchement moche de votre application. Comptez les tokens d'entrée, estimez une longueur de réponse réaliste, appliquez les tarifs du fournisseur, puis multipliez par le trafic quotidien attendu. Ajoutez ensuite une marge de sécurité légèrement frustrante. Si le chiffre reste confortable après ça, vous êtes probablement dans la bonne zone.
 
-Un bon premier exercice consiste à mesurer trois prompts réels de votre application : court, moyen, pire cas. Comptez les tokens, estimez la longueur de la réponse, multipliez par votre trafic quotidien attendu, puis ajoutez une marge de sécurité. Le résultat restera approximatif, mais il sera déjà bien plus utile qu'un simple ressenti.
-
-Le piège, c'est de regarder uniquement le prix du modèle et d'ignorer la forme de l'usage. Un modèle peu cher avec des prompts mal maîtrisés peut coûter plus qu'un meilleur modèle avec des entrées disciplinées.
-
-Et ensuite ? Quand vous savez estimer le coût d'une requête sur un coin de table, passez au choix du modèle. Le prix n'a de sens qu'une fois la qualité et la latence clarifiées.
+Ma mise en garde tient en une idée. Ne comparez pas les modèles avant d'avoir comparé la manière réelle dont la fonctionnalité est utilisée. Un modèle moins cher avec des prompts gonflés peut perdre face à un meilleur modèle utilisé avec discipline. Si votre estimation grossière dépasse déjà la valeur de l'action utilisateur, coupez d'abord le contexte ou la longueur de sortie, puis passez au guide suivant sur le choix du modèle.

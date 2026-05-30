@@ -4,21 +4,21 @@ order: 18
 difficulty: advanced
 tags: [LLM, OpenAI, LangChain, memory, agents]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2099-12-31
 ---
 
-Without memory, the agent feels amnesiac. With bad memory, it turns into a compliance incident that answers in complete sentences.
+You finally get the agent to behave, then the next session forgets the user’s preferences and asks the same question again. Bolt on the wrong memory layer and you do not get a smarter product. You get a compliance incident with a cheerful tone.
 
-Memory only earns its keep when it changes future decisions. Everything else is just prompt stuffing with a database attached. I split it into three buckets. Working memory belongs to the current run. Episodic memory stores what happened. Semantic memory stores stable facts that should survive sessions. [OpenAI Agents](https://platform.openai.com/docs/guides/agents) treats conversation state as a first-class concern, [LangGraph memory](https://langchain-ai.github.io/langgraph/concepts/memory/) formalizes short-term and long-term memory, and I still validate persisted records with [Pydantic](https://docs.pydantic.dev/) because corrupted memory is worse than no memory.
+Memory only earns its keep when it changes future decisions. Everything else is prompt stuffing with storage glued on the back. I split it into three buckets: working memory for the current run, episodic memory for what happened, and semantic memory for stable facts worth surviving across sessions. [LangGraph memory](https://docs.langchain.com/oss/python/concepts/memory) draws the short-term versus long-term boundary clearly, [OpenAI results and state](https://platform.openai.com/docs/guides/agents/results) makes state a runtime surface instead of a footnote, and I still validate persisted records with [Pydantic fields](https://docs.pydantic.dev/latest/concepts/fields/) because corrupted memory is worse than no memory.
 
-Most tutorials skip the hard part: write policy. Who is allowed to create a memory? What evidence is required? How long does it live? How is it deleted? If you cannot answer those four questions, do not ship memory. The product problem is not storing more facts. It is deciding which facts are worth carrying forward without poisoning future runs.
+Most tutorials dodge the part that actually hurts in production: write policy. Who is allowed to create a memory? What evidence is required? How long does it live? How is it deleted? If you cannot answer those four questions, do not ship memory. The real product problem is not storing more facts. It is deciding which facts are worth carrying forward without poisoning future runs.
 
-Before the code, here is the production lesson people learn late: memory needs provenance. “User likes short replies” is not enough. You need to know where that came from, when it was observed, and how confident you are.
+Before the code, here is the lesson teams learn late: memory needs provenance. “User likes short replies” is not enough. You need to know where that came from, when it was observed, and how confident you are.
 
-This is the kind of record I want in storage:
+And yes, the timestamps should be timezone-aware because Python is explicit about the difference between naive and aware datetimes in the [datetime docs](https://docs.python.org/3/library/datetime.html#aware-and-naive-objects).
 
 ```py
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, Field
 from typing import Literal
 
@@ -31,17 +31,19 @@ class MemoryRecord(BaseModel):
     created_at: datetime
     expires_at: datetime | None = None
 
+now = datetime.now(timezone.utc)
+
 memory = MemoryRecord(
     user_id='u_123',
     kind='preference',
     fact='Prefers concise release summaries',
     confidence=0.92,
     source='chat:turn-84',
-    created_at=datetime.utcnow(),
-    expires_at=datetime.utcnow() + timedelta(days=180),
+    created_at=now,
+    expires_at=now + timedelta(days=180),
 )
 ```
 
-What I actually watch in production is memory quality, not memory volume. Bad writes create drift, and drift is subtle. The agent sounds confident while carrying stale preferences, outdated permissions, or tool outputs that were never meant to become long-term facts. Add TTLs, deletion paths, and a way to inspect every memory used in a response. Also keep memory writes behind a stricter gate than reads, because prompt injection loves any system that stores first and questions later.
+What I actually watch in production is memory quality, not memory volume. Bad writes create drift, and drift is sneaky. The agent sounds confident while carrying stale preferences, outdated permissions, or tool outputs that never deserved promotion into long-term facts. Add TTLs, deletion paths, and a way to inspect every memory used in a response. Also keep memory writes behind a stricter gate than reads, because [OWASP prompt injection](https://owasp.org/www-community/attacks/PromptInjection) is exactly the kind of mess that loves systems which store first and ask questions later.
 
-Use memory when repeated tasks genuinely benefit from continuity, for example user preferences or durable account context. If you cannot explain the retention policy to legal, support, and the user in one sentence each, keep memory off.
+Turn memory on when repeated tasks genuinely benefit from continuity, like user preferences or durable account context. If you cannot explain the retention policy to legal, support, and the user in one sentence each, keep memory off.

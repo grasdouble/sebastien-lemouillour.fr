@@ -3,32 +3,93 @@ id: pre-training
 order: 18
 difficulty: intermediate
 tags: [LLM, entraînement]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Beaucoup d’équipes foncent d’abord vers le fine-tuning parce que c’est visible. On a des exemples, on lance un job, on s’attend à voir le comportement s’améliorer. Puis le modèle continue à rater des faits évidents du domaine, invente du vocabulaire, ou adopte un ton qui ne sonne jamais vraiment juste. C’est généralement là qu’on réalise que la partie coûteuse a été décidée bien plus tôt, pendant le pré-entraînement.
+Vous faites un fine-tuning propre, l’éval a l’air correcte, et pourtant le modèle cale encore sur le vocabulaire que votre métier utilise tous les jours. J’ai déjà vu des équipes accuser le prompting à ce stade, mais le piège est plus tôt: si le modèle de base n’a jamais absorbé vos formes de langage pendant le pré-entraînement, vous demandez aux étapes suivantes de compenser un manque d’exposition.
 
-## C’est là que se construisent les priors
+## Le pré-entraînement achète les réflexes du modèle
 
-Le pré-entraînement est la phase où le modèle apprend la structure générale du langage et du savoir à partir de corpus bruts. L’objectif peut sembler presque banal, comme la prédiction du token suivant dans [GPT-3](https://arxiv.org/abs/2005.14165), mais l’effet est énorme: familiarité avec le vocabulaire, couverture des styles, connaissances latentes sur le monde, équilibre multilingue et robustesse face au texte bruité se décident ici.
+Le pré-entraînement est la phase où le modèle apprend la structure statistique générale du texte à partir de corpus bruts. L’objectif peut sembler presque banal, comme la prédiction du token suivant dans [GPT-3](https://arxiv.org/abs/2005.14165), mais c’est là que se jouent la familiarité avec le vocabulaire, l’amplitude de style, l’équilibre multilingue et une bonne partie des connaissances latentes sur le monde.
 
-C’est pour ça que je vois le pré-entraînement comme l’endroit où l’on achète des priors, pas comme un simple polissage. Si le modèle de base a de mauvais priors pour votre domaine, aucun prompt bien formulé ne compensera totalement. On peut orienter le modèle ensuite, mais on oriente quelque chose qui a déjà été appris.
+C’est pour ça que je vois le pré-entraînement comme l’endroit où l’on achète des réflexes, pas comme un simple polissage. Si le modèle de base a de mauvais priors pour votre domaine, aucun prompt bien tourné ne le sauvera complètement. On peut orienter ensuite, mais on oriente toujours ce que le modèle a déjà appris à remarquer.
 
-## La qualité des données bat l’obsession du “toujours plus”
+## Des données plus propres battent de plus gros titres
 
-L’erreur facile consiste à imaginer le pré-entraînement comme une simple course au volume. Le résultat [Chinchilla](https://arxiv.org/abs/2203.15556) est la correction à laquelle je reviens sans cesse: à budget de calcul fixé, beaucoup de grands modèles étaient sous-entraînés, et de meilleures performances venaient d’un entraînement sur davantage de données plutôt que d’une simple augmentation du nombre de paramètres. La quantité compte, mais l’entraînement optimal en calcul et la curation comptent davantage que le prestige du plus gros chiffre.
+L’erreur facile consiste à imaginer le pré-entraînement comme une simple course au volume. Le résultat [Chinchilla](https://arxiv.org/abs/2203.15556) est la correction à laquelle je reviens sans cesse: à budget de calcul fixé, beaucoup de grands modèles étaient surtout sous-entraînés, et de meilleures performances venaient d’un meilleur équilibre entre taille du modèle et volume de données, pas d’une inflation des paramètres.
 
-Si je devais choisir entre un modèle un peu plus petit entraîné sur un corpus plus propre, plus diversifié et dédupliqué, et un modèle plus gros entraîné sur une boue de web non filtrée, je prendrais presque toujours le corpus propre. Les échecs en aval sont meilleurs. On obtient moins de répétitions absurdes, moins de transfert fragile vers un domaine spécialisé, et moins de mémorisation accidentelle.
+Si je devais choisir entre un modèle un peu plus petit entraîné sur un corpus plus propre, plus diversifié et dédupliqué, et un modèle plus gros entraîné sur une boue de web non filtrée, je prendrais presque toujours le corpus propre. On obtient en général moins de répétitions absurdes, moins de transfert fragile et moins de mémorisation accidentelle.
 
-C’est aussi pour cette raison que le pré-entraînement de domaine peut très bien fonctionner. [BloombergGPT](https://arxiv.org/abs/2303.17564) est un bon exemple: quand le domaine cible possède son propre vocabulaire, ses propres structures de documents et son propre style, un pré-entraînement continu peut apporter bien plus qu’une simple couche d’instruction.
+C’est aussi pour cette raison que le pré-entraînement de domaine peut payer. [BloombergGPT](https://arxiv.org/abs/2303.17564) est un bon exemple: mélanger un gros corpus généraliste avec un vrai corpus métier a amélioré les tâches financières sans casser les performances générales. Ma préférence est claire ici: si l’écart vient du vocabulaire métier, donnez d’abord au modèle un meilleur texte avant de lui demander de mieux obéir.
 
-## Quand le pré-entraînement continu vaut le coût
+## Commencez par un pré-entraînement continu, pas par un projet lunaire
 
-Je ne paierais la facture du pré-entraînement que si l’écart vient réellement d’un manque d’exposition au langage ou aux connaissances du domaine. Pensez jargon spécialisé, style juridique, syntaxe biomédicale, ou formats documentaires internes qui ne ressemblent pas du tout au web ouvert. Dans ces cas-là, poursuivre l’entraînement causal, comme le montrent les [docs Hugging Face](https://huggingface.co/docs/transformers/en/tasks/language_modeling), peut être le bon levier.
+Un pré-entraînement complet coûte à l’échelle d’une entreprise. Le pré-entraînement continu est le premier mouvement pratique quand l’écart vient vraiment d’un manque d’exposition au langage: style juridique, syntaxe biomédicale, logs de support, ou formats documentaires de niche qu’on croise à peine sur le web ouvert. Les [docs Transformers](https://huggingface.co/docs/transformers/en/tasks/language_modeling) montrent le même geste de base que pour un modèle causal classique: on change le corpus, pas l’objectif.
 
-Quand l’écart est surtout comportemental, le pré-entraînement est généralement excessif. Si vous voulez surtout un meilleur format de sortie, un usage d’outils plus fiable, des réponses plus courtes ou un style de refus plus sûr, l’instruction tuning ou la récupération augmentée sont moins chers et plus rapides.
+Si vous voulez tester cette hypothèse sans brûler le budget, commencez par un tout petit run et regardez si la perplexité et les évaluations métier progressent ensemble.
 
-La sécurité compte aussi ici. Des corpus bruts peuvent faire fuiter des données privées ou protégées dans les paramètres du modèle, et la mémorisation n’est pas théorique. Le travail d’extraction de [Carlini et al.](https://arxiv.org/abs/2012.07805) est le papier que je cite dès que quelqu’un propose de “tout aspirer”. Si vous n’êtes pas capable d’expliquer clairement la provenance des données, la déduplication, le filtrage et la rétention, vous n’êtes pas prêt pour le pré-entraînement.
+Voici le plus petit essai que je lancerais avant d’approuver un budget plus large.
 
-Ma règle: utilisez le pré-entraînement continu quand l’écart concerne l’exposition au langage ou la connaissance du domaine; utilisez le prompting, le RAG ou l’instruction tuning quand l’écart est surtout comportemental.
+```python
+from datasets import load_dataset
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    DataCollatorForLanguageModeling,
+    Trainer,
+    TrainingArguments,
+)
+
+model_name = "distilgpt2"
+dataset = load_dataset("text", data_files={"train": "domain-corpus.txt"})
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer.pad_token = tokenizer.eos_token
+
+
+def tokenize(batch):
+    return tokenizer(
+        batch["text"],
+        truncation=True,
+        max_length=512,  # garde l’essai peu coûteux et comparable
+    )
+
+
+train_dataset = dataset["train"].map(
+    tokenize,
+    batched=True,
+    remove_columns=["text"],
+)
+
+model = AutoModelForCausalLM.from_pretrained(model_name)
+collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+
+args = TrainingArguments(
+    output_dir="artifacts/pretraining-check",
+    per_device_train_batch_size=4,  # démarre petit pour estimer le coût mémoire
+    gradient_accumulation_steps=8,  # augmente le batch effectif à moindre coût
+    learning_rate=2e-5,  # taux prudent pour du pré-entraînement continu
+    num_train_epochs=1,  # suffisant pour détecter un signal avant de surpayer
+    logging_steps=20,
+    save_strategy="no",  # évite de remplir le disque pendant ce run test
+    report_to="none",
+)
+
+trainer = Trainer(
+    model=model,
+    args=args,
+    train_dataset=train_dataset,
+    data_collator=collator,
+)
+
+trainer.train()
+```
+
+## N’utilisez pas le pré-entraînement pour corriger un problème de comportement
+
+Quand l’écart est surtout comportemental, le pré-entraînement est souvent le mauvais luxe. Si vous avez surtout besoin d’un meilleur format de réponse, d’un meilleur suivi des instructions ou de faits plus frais avec leur provenance, [InstructGPT](https://arxiv.org/abs/2203.02155) et [RAG](https://arxiv.org/abs/2005.11401) pointent vers des leviers moins chers: on ajuste le comportement, ou on récupère la connaissance au moment de la génération, au lieu d’essayer de tout cuire dans les poids.
+
+C’est sur le coût et la sécurité que les équipes deviennent imprudentes. [Carlini et al.](https://arxiv.org/abs/2012.07805) ont montré que de grands modèles de langage peuvent faire ressortir des exemples mémorisés, y compris des données personnelles. Donc avant même de parler GPU, j’exigerais une histoire écrite sur la licence, le consentement, la déduplication, la rétention et l’évaluation. Si cette histoire est floue, je ne validerais pas le run.
+
+Règle de décision: payez un pré-entraînement continu seulement si les évaluations montrent un manque de connaissances métier ou d’exposition au langage que le prompting, l’instruction tuning ou le RAG n’arrivent pas à combler pour moins cher.

@@ -3,40 +3,58 @@ id: transformers
 order: 16
 difficulty: intermediate
 tags: [Transformer, LLM]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-La première fois qu’on balance un long document à un ancien modèle séquentiel, l’échec est presque vexant. La réponse démarre bien, puis oublie le contexte, mélange les références et perd le fil trois paragraphes plus loin. C’est précisément le problème que les transformers ont assez bien résolu pour que presque tous les LLM modernes héritent désormais du design du [papier fondateur](https://arxiv.org/abs/1706.03762).
+Balancez un long brief à un ancien modèle séquentiel et vous retrouvez le même échec agaçant: la réponse démarre avec assurance, puis oublie qui a fait quoi, perd les références et part ailleurs juste avant la partie utile. Les transformers ont réglé ce problème assez bien pour que les LLM modernes héritent encore de l’idée centrale du [papier](https://arxiv.org/abs/1706.03762).
 
 ## Pourquoi la récurrence a plafonné
 
-Avant les transformers, les modèles récurrents lisaient le texte token par token. Sur le papier, ça semble naturel. En pratique, c’est lent à entraîner, fragile sur les dépendances longues, et la distance entre deux tokens éloignés augmente avec la longueur de la séquence. Le papier des transformers a posé le bon échange: remplacer la récurrence par l’auto-attention pour que chaque token puisse regarder tous les autres dans une même couche, en parallèle, sur du matériel accéléré.
+Les modèles récurrents lisent un token après l’autre. L’intuition semble propre jusqu’au moment où il faut entraîner ou servir ça à l’échelle. Le chemin entre deux tokens éloignés s’allonge, les dépendances longues deviennent fragiles, et le matériel accéléré passe trop de temps à attendre un traitement séquentiel. Le papier des transformers a pris le choix le plus direct: utiliser l’auto-attention pour que chaque token puisse regarder les autres dans la même couche, en parallèle.
 
-C’est cette parallélisation qui a fait gagner les transformers. Pas juste l’élégance mathématique. C’est ce qui a permis à l’entraînement de passer à l’échelle sur GPU et TPU au lieu de buter sur un traitement purement séquentiel. Ensuite, les familles de modèles se sont clarifiées: les modèles encodeur seul comme [BERT](https://arxiv.org/abs/1810.04805) pour les tâches de compréhension, les modèles décodeur seul comme [GPT-3](https://arxiv.org/abs/2005.14165) pour la génération auto-régressive, et les modèles encodeur-décodeur comme [T5](https://arxiv.org/abs/1910.10683) quand on veut une vraie transformation entrée-sortie.
+Ça a réglé le goulot d’étranglement à l’entraînement, mais ça a créé la vraie question pratique: quel type de transformer avez-vous en main ? La famille s’est découpée en formes vraiment utiles: les modèles encodeur seul comme [BERT](https://arxiv.org/abs/1810.04805) pour le travail de représentation, les modèles décodeur seul comme [GPT-3](https://arxiv.org/abs/2005.14165) pour la génération du prochain token, et les modèles encodeur-décodeur comme [T5](https://arxiv.org/abs/1910.10683) quand le problème se formule mieux comme une transformation entrée-sortie.
 
-## Ce que ça change en pratique
+## Ce que je vérifie avant de croire l’étiquette
 
-Le calcul central reste compact:
+Cette taxonomie aide, mais “c’est un transformer” reste trop vague pour prendre une décision produit. J’en vérifie quatre.
 
-```txt
-Attention(Q, K, V) = softmax(QKᵀ / √d_k) V
+D’abord, je veux le variant. Si le travail consiste à générer du texte libre, je pars sur du décodeur seul parce que l’outillage et le chemin de serving sont plus mûrs. Si le travail consiste à classer, faire du ranking ou de la recherche, je préfère démarrer avec un encodeur plutôt que forcer un modèle de chat à jouer au modèle de scoring.
+
+Ensuite, je veux savoir comment le modèle reste rapide pendant la génération. En décodage auto-régressif, réutiliser les clés et valeurs passées n’est pas une micro-optimisation. La doc [HF cache](https://huggingface.co/docs/transformers/en/cache_explanation) montre pourquoi le cache KV coupe le travail d’attention répété à l’inférence. Si le serving désactive ce cache ou le gère mal, le streaming paraît cassé bien avant que la qualité devienne le vrai problème.
+
+Troisième vérification, le budget prompt, parce que le storytelling d’architecture ne paie pas la facture. Le papier original montre déjà où ça coince: l’auto-attention devient chère quand le contexte grossit. Les API hébergées limitent aussi les tokens, et certaines exposent des plafonds séparés pour les requêtes long contexte, comme l’explique [OpenAI](https://platform.openai.com/docs/guides/rate-limits).
+
+Quatrième vérification, la frontière de confiance. Un transformer donne un contexte partagé, pas une isolation des instructions. Si vous versez des pages web, des e-mails ou des PDF récupérés dans le même prompt, le modèle peut quand même suivre du texte malveillant caché dedans tant que votre application n’ajoute pas de garde-fous et de validation. C’est exactement l’alerte prompt injection décrite par [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html).
+
+Voici le test de bon sens le plus rapide que j’utilise avant de faire confiance à un checkpoint:
+
+```python
+from transformers import AutoConfig, AutoTokenizer, AutoModelForCausalLM
+import torch
+
+model_id = "gpt2"  # petit checkpoint décodeur seul pour des essais locaux
+prompt = "Alice gave Bob the key because"
+
+config = AutoConfig.from_pretrained(model_id)
+print("model_type:", config.model_type)
+print("max_position_embeddings:", getattr(config, "max_position_embeddings", "unknown"))
+print("use_cache:", getattr(config, "use_cache", "unknown"))
+
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForCausalLM.from_pretrained(model_id)
+
+inputs = tokenizer(prompt, return_tensors="pt")
+
+with torch.inference_mode():
+    output_ids = model.generate(
+        **inputs,
+        max_new_tokens=40,  # borne la latence et le coût en tokens
+        do_sample=False,    # run déterministe pour déboguer
+        use_cache=True,     # réutilise les clés et valeurs passées au décodage
+    )
+
+print(tokenizer.decode(output_ids[0], skip_special_tokens=True))
 ```
 
-Chaque token produit des requêtes, des clés et des valeurs. Au lieu de pousser un unique état caché au fil du temps, le modèle apprend quels autres tokens méritent l’attention maintenant. L’ordre revient via l’information positionnelle, parce qu’une attention pure ne sait pas ce que signifient avant, après ou suivant. La [documentation Hugging Face](https://huggingface.co/docs/transformers/en/model_summary) est utile ici, car elle montre à quel point le même squelette réapparaît sous des noms différents.
-
-Pour un utilisateur de LLM, l’important n’est pas la formule en elle-même. L’important, c’est le comportement qu’elle débloque: meilleur suivi des références, meilleure exploitation des prompts longs, et séparation nette entre parallélisme à l’entraînement et génération à l’inférence.
-
-## Ce que je vérifie avant de faire confiance à un modèle
-
-Quand quelqu’un me dit qu’un modèle est “un transformer”, je pose trois questions derrière.
-
-D’abord: décodeur seul, encodeur seul, ou encodeur-décodeur ? Ça dit immédiatement si le modèle est optimisé pour générer, représenter, ou transformer proprement une entrée en sortie.
-
-Ensuite: que se passe-t-il quand le contexte s’allonge ? L’auto-attention classique grossit à peu près quadratiquement avec la longueur de séquence d’après le [papier](https://arxiv.org/abs/1706.03762), donc une grande fenêtre de contexte n’est jamais gratuite. La latence monte, la pression mémoire monte, et la facture du prompt monte aussi.
-
-Enfin: le service utilise-t-il un [cache KV](https://huggingface.co/docs/transformers/en/cache_explanation) ? En génération auto-régressive, mettre en cache les clés et valeurs passées change tout entre un streaming acceptable et un modèle qui semble avancer dans du ciment.
-
-Pour les assistants et la génération de contenu, je choisirais encore en premier un bon transformer décodeur seul parce que l’outillage, les habitudes d’évaluation et l’infrastructure de serving sont bien meilleurs. Pour le ranking, la recherche et la classification, je trouve les transformers encodeurs encore sous-estimés, parce que des représentations stables comptent plus qu’une prose élégante.
-
-Ma règle: quand vous comparez des LLM, demandez le type de transformer, le comportement sur long contexte et la stratégie de cache avant de regarder le nombre de paramètres.
+Si `use_cache` vaut false, ou si la limite de contexte du checkpoint est plus petite que vos vrais documents, je traite ça comme un avertissement de déploiement, pas comme une note de bas de page. Et si la tâche relève de la classification ou de la recherche, je change de famille de modèles au lieu d’étirer un décodeur seul vers un travail qu’il n’avait jamais envie de faire.

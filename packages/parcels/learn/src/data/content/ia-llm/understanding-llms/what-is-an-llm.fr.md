@@ -3,30 +3,34 @@ id: what-is-an-llm
 order: 4
 difficulty: beginner
 tags: [LLM]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Quand quelqu'un dit « j'utilise l'IA pour écrire mes emails », ce qu'il veut presque toujours dire, c'est « j'utilise un grand modèle de langage ». L'abréviation **LLM** apparaît partout, dans les articles, les descriptions de produits, les offres d'emploi, généralement sans explication. L'objectif ici est de la rendre enfin concrète.
+Vous ouvrez un chatbot parce que la page blanche est en train de gagner. Il vous rend un email correct en dix secondes, puis arrive la partie agaçante : tout le monde appelle cette magie « un LLM » et passe à autre chose. Si cet acronyme vous semble flou, tant mieux. Il cache souvent la seule idée qui compte vraiment.
 
-### Les trois mots de "Large Language Model"
+### Un LLM est d'abord une machine à texte
 
-Commencez par **modèle** : un système mathématique entraîné à produire ou compléter du texte. **Langage** signifie qu'il travaille sur des mots, ou plus précisément sur des unités de texte appelées **tokens**, que nous verrons au guide suivant. **Large** signifie qu'il a été entraîné sur d'énormes volumes de texte et qu'il contient un très grand nombre de **paramètres**, des valeurs numériques ajustées pendant l'entraînement. OpenAI présente cette famille dans ses [text generation docs](https://platform.openai.com/docs/guides/text), et Anthropic dans sa [documentation Claude](https://docs.anthropic.com/en/docs/intro-to-claude).
+Voici la définition que je choisirais : un **LLM** est un **modèle**, c'est-à-dire un système mathématique dont le comportement vient de **paramètres** appris, des valeurs numériques ajustables ; il travaille sur le **langage**, donc sur du texte ; et il est **large** parce que ce système peut contenir des milliards de paramètres. L'article sur [GPT-3](https://arxiv.org/abs/2005.14165) donne un ordre de grandeur concret : GPT-3 avait 175 milliards de paramètres.
 
-Je préfère cette définition : un LLM est un modèle entraîné à prédire la suite la plus probable d'un texte, assez grand pour capturer beaucoup de régularités du langage humain. Cette simple capacité, poussée à grande échelle, permet de répondre à des questions, reformuler, résumer, traduire et raisonner sur du texte.
+Cette définition reste abstraite, donc la bonne question suivante est simple : qu'est-ce qu'une aussi grosse machine à texte apprend vraiment à faire ? Pas à « tout savoir ». Sa tâche centrale est bien plus étroite.
 
-### Pourquoi cela donne l'impression qu'il "comprend"
+### Il apprend en devinant la suite du texte
 
-Le mot important ici est **prédire**. Pendant l'entraînement, le modèle voit d'immenses quantités de texte et apprend quelles séquences ont tendance à aller ensemble. L'article original [Transformer](https://arxiv.org/abs/1706.03762), qui a lancé l'architecture moderne des LLM, a montré comment faire cela très efficacement à grande échelle.
+Pendant l'entraînement, un LLM apprend à prédire le morceau de texte suivant à partir du contexte précédent, le principe de base décrit dans [Attention Is All You Need](https://arxiv.org/abs/1706.03762). L'unité qu'il prédit s'appelle un **token**, un petit morceau de texte qui peut être un mot entier, un fragment de mot ou un signe de ponctuation. Le [Tokenizer](https://platform.openai.com/tokenizer) d'OpenAI permet de le voir en quelques secondes.
 
-Quand vous écrivez un **prompt**, votre consigne, le LLM ne cherche pas une phrase pré-enregistrée dans une base secrète. Il calcule, token après token, quelle suite est la plus plausible compte tenu du contexte. Comme il a appris beaucoup de structures linguistiques et de faits présents dans ses données, le résultat peut donner une impression de compréhension. Mais cette impression mérite d'être maniée avec prudence : un LLM n'a ni intention, ni expérience vécue, ni garantie de vérité.
+C'est le point que les débutants sous-estiment souvent. En devenant très bon à la prédiction du token suivant sur d'immenses corpus, le modèle apprend la grammaire, le style, des faits fréquents et beaucoup de régularités du langage. C'est pour cela que le même outil peut rédiger un email, réécrire un paragraphe ou expliquer une notion plus simplement sans changer de cerveau.
 
-### Ce qu'un LLM fait bien, et ses limites
+### Pourquoi cela donne une impression d'intelligence
 
-Les LLM sont particulièrement utiles pour les tâches où le langage compte plus que l'exactitude absolue : reformuler un texte, résumer un document, classer des retours clients, extraire des informations, produire un premier brouillon. Ils peuvent aussi suivre des instructions complexes, surtout quand ils ont été affinés après entraînement par des techniques d'**alignement**, méthodes visant à rendre le modèle plus utile et moins nuisible, comme le décrit [InstructGPT](https://arxiv.org/abs/2203.02155).
+L'architecture Transformer compte parce qu'elle aide le modèle à utiliser le contexte au lieu de traiter chaque mot séparément. Le modèle mental que je préfère n'est ni « une petite personne dans une boîte » ni « un moteur de recherche avec des opinions ». C'est « une autocomplétion extrêmement puissante ». Cette comparaison est utile parce qu'elle explique à la fois la partie impressionnante et la partie risquée.
 
-Leur faiblesse principale est simple : ils peuvent produire des réponses convaincantes et fausses. Je les considère comme d'excellents assistants de formulation, mais de mauvais arbitres de vérité quand l'enjeu est élevé.
+### Pourquoi il peut avoir l'air sûr de lui et se tromper
 
-### La bonne question à poser
+Une fois cette idée d'autocomplétion en tête, le problème suivant devient plus clair. Le modèle est entraîné à produire une suite plausible, pas à s'arrêter pour vérifier une affirmation dans le monde réel. La plupart des systèmes de chat sont aussi ajustés après le pré-entraînement pour mieux suivre les consignes, souvent avec des méthodes de retour humain comme celle décrite dans [InstructGPT](https://arxiv.org/abs/2203.02155). Cela les rend plus utiles, mais pas plus proches d'une machine à vérité.
 
-Quand vous voyez "LLM" sur un outil, ne demandez pas d'abord « est-ce intelligent ? ». Demandez : **travaille-t-il sur du langage, sous quelle forme, et avec quel niveau de fiabilité attendu ?** Si votre problème est centré sur le texte, le résumé, la rédaction ou l'analyse d'instructions, un LLM est souvent un bon point de départ. Si vous voulez comprendre pourquoi il répond mot par mot plutôt que tout d'un coup, la prochaine étape logique est la génération token par token.
+C'est pour cela que j'utiliserais un LLM avec confiance pour rédiger, résumer, traduire ou réorganiser du texte, et avec prudence pour la médecine, le droit, la finance ou tout sujet qui dépend de faits récents. La fluidité est une vraie compétence. Ce n'est pas une preuve.
+
+### La règle que j'utiliserais
+
+Si votre tâche consiste surtout à façonner du langage, commencez par un LLM. Si elle repose surtout sur des faits vérifiés, des événements récents ou des décisions à fort enjeu, traitez le LLM comme un premier brouillon et allez chercher une source fiable avant d'y croire. Ensuite, lisez le guide suivant sur la génération token par token, parce que c'est à ce moment-là que ces systèmes cessent d'avoir l'air mystiques et deviennent plus prévisibles.

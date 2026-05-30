@@ -4,16 +4,16 @@ order: 18
 difficulty: advanced
 tags: [RAG, architecture, graph, GraphRAG]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Flat retrieval breaks in a very specific way: the answer exists, but only if you can traverse relationships across documents. “Which suppliers depend on the same region as the component that failed last quarter?” is not a chunk similarity problem. It is a graph problem. That is why Graph RAG exists, and also why it is overused in slides.
+Flat retrieval fails in a way architects hate: the answer is in the corpus, but it sits behind two or three relationships your retriever never walks. “Which supplier shares a region with the component that failed last quarter, and which contracts mention that dependency?” is not a chunk-ranking miss. It is a relationship miss.
 
-I would not touch it until semantic search, metadata filters, and multi-step retrieval have already failed on documented multi-hop questions. [Microsoft GraphRAG](https://microsoft.github.io/graphrag/) is a serious attempt at this space, with entity extraction, community detection, and graph-based summaries. The important lesson is not that graphs are magical. It is that you need structure before a graph is worth maintaining.
+I would not reach for Graph RAG until semantic search, metadata filters, and a second retrieval pass are already losing on a real eval set. [Microsoft GraphRAG](https://microsoft.github.io/graphrag/) is built around extracting entities and relationships, clustering them into communities, and using those structures at query time. That only pays off when your failures are genuinely multi-hop. Otherwise you are building a graph to compensate for weak retrieval hygiene.
 
-The maintenance burden is the part tutorials soften. You need entity extraction quality, relation quality, stable IDs, a graph store, and a way to explain why a traversal returned what it did. Graph databases such as [Neo4j](https://neo4j.com/developer/generative-ai/) are good at the storage and traversal side. Frameworks like [LlamaIndex knowledge graphs](https://docs.llamaindex.ai/en/stable/examples/index_structs/knowledge_graph/KnowledgeGraphDemo/) can help wire ingestion to retrieval. None of that changes the core constraint: if your corpus is mostly messy prose without durable entities and edges, you are manufacturing complexity.
+The ugly part is ingestion, not prompting. If you cannot keep entity IDs stable, constrain relation extraction, and re-index without turning one customer into three near-duplicates, the graph will rot faster than the documents it came from. [PropertyGraphIndex](https://docs.llamaindex.ai/en/stable/module_guides/indexing/lpg_index_guide/) is useful because it exposes `kg_extractors`, strict schema validation, and multiple retrievers instead of pretending extraction is solved. For the storage and retrieval layer, I would rather use a first-party graph stack than invent one from scratch, and [Neo4j GraphRAG](https://neo4j.com/docs/neo4j-graphrag-python/current/) is explicit about its RAG and knowledge-graph builder components.
 
-The architecture I trust keeps graph retrieval observable and separate from generation:
+When I do ship it, the runtime path stays boring and measurable:
 
 ```ts
 async function answerWithGraph(question: string) {
@@ -29,8 +29,6 @@ async function answerWithGraph(question: string) {
 }
 ```
 
-That `maxDepth: 2` is the kind of boring guardrail that saves real systems. Unbounded traversal looks clever in demos and turns into latency spikes plus irrelevant evidence in production. I also log node count, edge count, traversal depth, and how many final citations came from the graph versus plain document retrieval. If the graph path never contributes decisive evidence, it should not stay in the hot path.
+That `maxDepth: 2` is not stylistic. It is an SLA control. Microsoft's own [query modes](https://microsoft.github.io/graphrag/query/overview/) keep graph search next to a plain Basic Search path because some questions should stay cheap. In production I log traversal depth, node count, edge count, retrieved fact count, and whether the final answer used graph evidence at all. If graph traversal is not changing answer quality, take it out of the hot path.
 
-One pattern does deserve respect: graphs can help you answer questions that need entity neighborhoods, not just local passages. That is why they fit org charts, supply chains, citation networks, and compliance mappings better than generic support docs. Libraries such as [LangChain graph QA](https://python.langchain.com/docs/integrations/graphs/) show the interface, but the hard part is still data quality.
-
-My rule is harsh because the operational cost is harsh. Build Graph RAG only when your evaluation set contains repeated multi-hop failures that cannot be fixed with better chunking, better filters, or a second retrieval pass. If you cannot point to the missing edge or missing entity that caused the failure, you are probably not ready for a graph. You are ready for better retrieval hygiene.
+I only approve Graph RAG when at least roughly 10% of production-like eval failures are clearly relational: missing edge, wrong hop, or orphaned entity. Below that, fix chunking, filters, reranking, or add one more retrieval pass. Graphs are for repeated relationship failures, not for making a basic RAG demo look expensive.

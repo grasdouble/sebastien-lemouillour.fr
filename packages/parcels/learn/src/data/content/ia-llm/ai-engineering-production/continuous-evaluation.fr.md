@@ -4,20 +4,20 @@ order: 17
 difficulty: advanced
 tags: [LLM, evaluation, CI, Braintrust, DeepEval]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Ton chatbot marchait bien vendredi. Lundi, après un ajustement de prompt, un changement de version modèle et une modif de config retrieval, il répond maintenant faux sur la politique de remboursement. Personne ne l'a vu avant l'arrivée des tickets support. C'est exactement pour ça que l'évaluation continue existe.
+Ton chatbot marchait bien vendredi. Lundi, après un ajustement de prompt, un changement de modèle et une modif de config retrieval, il répond faux sur la politique de remboursement. Personne ne l'a vu avant les tickets support. C'est le moment où l'évaluation continue arrête de faire la maligne et commence à payer son loyer.
 
-Ça n'a de sens que si tu livres de l'IA à de vrais utilisateurs. Si tu es encore en prototype, reviens plus tard. L'évaluation a un coût d'entretien, et il faut le payer seulement quand les changements de prompt, de modèle et de retrieval arrivent assez souvent pour créer un vrai risque de régression.
+Ça n'a de sens que si tu livres de l'IA à de vrais utilisateurs. Si tu es encore en prototype, ignore ça pour l'instant. L'évaluation est une charge opérationnelle, et il faut payer cette facture seulement quand les changements de prompt, de modèle et de retrieval arrivent assez souvent pour créer un vrai risque de régression.
 
-Ce qui m'intéresse avant tout, c'est de transformer la qualité floue en porte de release. "En staging ça avait l'air mieux" n'est pas un process. Une suite d'evals vivante, reliée aux pannes de production, c'est un process. Concrètement, chaque incident important devrait créer un nouveau cas de test ou renforcer un cas existant. Si ton jeu d'evals est déconnecté des incidents, il finira en benchmark décoratif.
+Je veux transformer la qualité floue en porte de release. [OpenAI Evals](https://platform.openai.com/docs/guides/evals) dit clairement à quoi ça sert : tester des sorties contre des critères nommés, surtout quand tu modifies des prompts ou que tu changes de modèle. Traite chaque incident de production comme du carburant pour cette suite. Si un incident ne devient pas un cas, tu choisis simplement de le réapprendre en prod.
 
-Je ne veux pas d'un score géant unique. Je veux des coupes : factualité, respect des politiques, validité des sorties structurées, choix d'outil, comportement multilingue, et budgets de latence ou de coût. [OpenAI Evals](https://github.com/openai/evals) est utile pour comprendre la structure d'un benchmark. [Braintrust](https://www.braintrust.dev/docs) est excellent quand tu veux du suivi d'expériences et du versioning de datasets autour de ces benchmarks. [DeepEval](https://docs.confident-ai.com/) est ce que je prends quand je veux des assertions pilotées par le code dans la CI. [Promptfoo](https://promptfoo.dev/docs/intro) est très bon quand il faut comparer des matrices prompt/modèle sans construire une plateforme maison.
+Je ne veux pas d'un score géant unique. Je veux des coupes : factualité, respect des politiques, validité des sorties structurées, choix d'outil, comportement multilingue, et budgets de latence ou de coût. Pour le workflow, je choisis [workflow Braintrust](https://www.braintrust.dev/docs/workflow) quand l'équipe a besoin de traces, d'annotation humaine, de datasets et d'evals dans une seule boucle. Je choisis [DeepEval](https://docs.confident-ai.com/) quand l'équipe veut des assertions pytest-native dans la CI. Je choisis [Promptfoo CI](https://promptfoo.dev/docs/integrations/github-action/) quand le boulot consiste à comparer un avant/après de prompts en pull request, et rien de plus.
 
-Le piège, c'est de sur-automatiser trop tôt les jugements subjectifs. Utilise des evals notées par modèle quand elles sont peu coûteuses et assez stables, mais garde un jeu réduit revu par des humains pour les flux à fort impact comme le pricing, le juridique ou les frontières d'autorisation. Un auto-grader bruité reste utile s'il détecte une dérive sur la même dimension tous les jours. Il devient inutile dès que l'équipe le traite comme une vérité absolue.
+Le vrai point dur, c'est le grading. Les evals notées par modèle sont utiles quand le signal reste stable et que l'échec coûte peu. Je garde quand même un petit jeu relu par des humains pour le pricing, le juridique ou les frontières d'autorisation, parce que c'est là qu'une réponse fausse mais sûre d'elle devient un incident, pas juste un point rouge dans un tableau. Si tu automatises entièrement ces flux dès le premier jour, tu ne vas pas plus vite. Tu caches une dette de review sous un dashboard.
 
-Je sépare aussi les evals rapides des evals lentes. Les rapides tournent sur chaque pull request. Les suites plus lentes et plus riches tournent avant release ou après un gros changement provider. Si tout prend 45 minutes, les ingénieurs finiront par contourner la porte au lieu de lui faire confiance.
+Je sépare aussi les evals rapides des evals lentes. Les rapides tournent sur chaque pull request. Les suites plus lentes et plus riches tournent avant release ou après un gros changement de modèle, de provider ou de retrieval. Si chaque porte prend 45 minutes, les ingénieurs arrêtent d'y croire et commencent à la contourner.
 
 Voici le contrat de release que j'aime rendre explicite.
 
@@ -40,4 +40,4 @@ evaluation-gates:
       threshold: 0.35
 ```
 
-Ma règle : si un changement de prompt ou de modèle ne peut pas nommer la tranche d'eval qu'il est censé améliorer, ainsi que le seuil de rollback s'il dégrade le résultat, alors il n'est pas prêt pour du trafic de production.
+Ma règle est simple : si un changement de prompt ou de modèle ne peut pas nommer la coupe d'eval qu'il doit améliorer, le seuil de rollback s'il régresse, et la personne qui regardera les échecs, alors il n'est pas prêt pour du trafic de production. En dessous de quelques centaines d'appels par jour, garde ça léger. Au-dessus, arrête de discuter et mets la porte en place.

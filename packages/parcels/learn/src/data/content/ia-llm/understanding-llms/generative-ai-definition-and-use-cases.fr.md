@@ -4,29 +4,25 @@ order: 3
 difficulty: beginner
 tags: [IA, LLM]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Vous ouvrez un outil, vous écrivez une phrase, et il vous rend un texte, une image ou une voix qui n'existait pas quelques secondes plus tôt. C'est souvent là que la fascination commence, mais aussi la confusion. Beaucoup de débutants pensent que "générative" veut dire "intelligente" ou "créative" au sens humain. Je ne le formulerais pas comme ça : une IA générative est une machine conçue pour produire un nouveau contenu à partir de motifs appris sur de grandes quantités de données.
+Vous demandez à un outil de rédiger un email poli, de résumer un texte ou de produire une belle image, et il vous rend quelque chose d'utilisable en quelques secondes. Puis le doute arrive : est-ce une vraie intelligence, une autocomplétion très musclée, ou juste du marketing ? À mon avis, les débutants progressent mieux avec une définition franche qu'avec le brouillard habituel.
 
-### Ce que "générative" veut dire
+### Ce que veut dire « générative »
 
-Le mot **générative** indique que le système produit quelque chose de nouveau : un paragraphe, une image, un extrait audio, du code. Ce n'est pas un copier-coller d'une base cachée, c'est une génération statistique fondée sur les régularités apprises pendant l'**entraînement**, c'est-à-dire la phase où l'on ajuste le **modèle**, système mathématique entraîné sur des exemples, pour qu'il apprenne les structures des données. Les [Google AI docs](https://developers.google.com/machine-learning/resources/glossary#generative_ai) définissent l'IA générative comme une classe de modèles qui créent du contenu nouveau, tandis qu'[OpenAI](https://openai.com/research) décrit des systèmes capables de générer du langage, des images et d'autres modalités.
+Dans le [glossaire Google](https://developers.google.com/machine-learning/glossary/generative), l'IA générative désigne des systèmes capables de produire du contenu nouveau, comme du texte, des images, de l'audio ou des données synthétiques. Le mot **générative** compte vraiment, parce que l'outil ne se contente pas de choisir entre des étiquettes fixes comme spam ou non-spam. Il fabrique une nouvelle sortie à partir de motifs appris pendant l'**entraînement**, la phase où un **modèle**, c'est-à-dire un système mathématique ajusté sur beaucoup d'exemples, apprend à reconnaître ces motifs.
 
-Une IA générative ne "comprend" pas son sujet comme un humain : elle apprend des **corrélations**, des relations statistiques entre des éléments. Garder cela en tête change la façon dont on l'utilise.
+### Pourquoi les outils texte paraissent si convaincants
 
-### Les grands usages aujourd'hui
+Pour le texte, le moteur que vous rencontrez le plus souvent est un **transformer**, une architecture de modèle introduite dans le [papier Transformer](https://arxiv.org/abs/1706.03762). En langage simple, un transformer observe les relations entre des **tokens**, de petits morceaux de texte, pour continuer une phrase d'une manière qui paraît cohérente. C'est pour cela que ces outils peuvent rédiger un email, réécrire un paragraphe ou expliquer du code avec un ton très sûr de lui. Mon conseil est de les imaginer d'abord comme des machines à compléter des motifs à très grande vitesse, pas comme des penseurs.
 
-Le cas d'usage le plus visible est la génération de texte avec les grands modèles de langage. On leur demande de reformuler un email, résumer un document, proposer un plan ou répondre à une question. Les modèles d'image produisent des illustrations à partir d'une consigne, comme le montrent les [Google DeepMind docs](https://deepmind.google/technologies/) et de nombreux outils construits sur des modèles de diffusion. Les systèmes audio transcrivent, synthétisent ou transforment la voix.
+### Pourquoi les outils d'image fonctionnent autrement
 
-Là où je serais prudent, c'est sur le mot "usage". Un bon cas d'usage n'est pas "faire de l'IA parce que c'est tendance". C'est résoudre une tâche où produire rapidement un premier brouillon a de la valeur : écrire une base de texte, générer des variantes visuelles, extraire une structure d'un contenu long, assister un support client. La [Commission européenne](https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence) rappelle que la valeur d'un système dépend aussi de son contexte, de ses risques et de son encadrement.
+Pour l'image, beaucoup de systèmes modernes reposent sur des **modèles de diffusion**, présentés dans le [papier Diffusion](https://arxiv.org/abs/2006.11239). Un modèle de diffusion apprend à transformer du bruit, c'est-à-dire des pixels aléatoires, en image structurée étape par étape. S'il a vu assez d'exemples pendant l'entraînement, il peut générer une illustration, un portrait ou une maquette crédible même si cette image précise n'a jamais existé. J'utiliserais cette force pour explorer et itérer, pas pour tout ce qui dépend d'une vérité factuelle.
 
-### Ce qu'elle fait bien, et mal
+### Là où l'on se fait piéger
 
-Je ferais volontiers confiance à l'IA générative pour produire un premier jet, proposer des idées ou reformuler avec un ton donné. Je serais beaucoup plus prudent pour des faits sensibles, des conseils médicaux, juridiques ou financiers, ou tout contexte où l'erreur a un coût élevé. Les LLM peuvent inventer des informations plausibles mais fausses, ce phénomène est documenté dans les [Anthropic docs](https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations).
+Le piège est simple : plausible ne veut pas dire vrai. Le [guide Anthropic](https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations) décrit les **hallucinations** comme des cas où un modèle génère un texte factuellement faux ou incohérent avec le contexte fourni, et il recommande de vérifier les affirmations importantes. C'est pour cela que l'IA générative est utile pour un premier jet, cinq variantes ou une reformulation plus propre, mais risquée pour des réponses médicales, juridiques ou financières tant qu'un humain qualifié n'a pas contrôlé le résultat.
 
-La règle qui compte vraiment : plus votre besoin porte sur la **forme**, plus l'IA générative aide ; plus il porte sur l'**exactitude garantie**, plus elle doit être encadrée.
-
-### Le bon outil pour le bon problème
-
-Si votre problème consiste à créer, reformuler, résumer ou transformer un contenu existant, l'IA générative mérite votre attention. Si votre problème consiste à calculer un résultat précis, appliquer une règle stable ou garantir une réponse exacte à chaque fois, commencez plutôt par un logiciel classique ou un système bien contraint. La prochaine étape utile est de comprendre ce qu'est exactement un LLM, c'est le moteur derrière la majorité des usages texte.
+Si ce sont surtout les outils texte que vous croisez, l'étape suivante utile est de comprendre ce qu'est un grand modèle de langage, ou LLM, et pourquoi il se comporte comme une autocomplétion avec une mémoire absurde des motifs. Si le travail consiste à créer, résumer ou reformuler, je testerais l'IA générative en premier ; si le travail exige un fait garanti, une règle stable ou un nombre exact, commencez par un logiciel classique et une vérification humaine.

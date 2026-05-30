@@ -4,43 +4,53 @@ order: 10
 difficulty: intermediate
 tags: [RAG, chunking, LangChain, LlamaIndex]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Your vector search returns results. Wrong results. Not because the model is dumb, but because you sliced the document in places no human would. Every chunking tutorial shows the happy path with neat paragraphs. Real documents have headings, tables, bullet lists, code fences, footnotes, and PDF extraction scars.
+Your vector search still returns something. Usually the wrong paragraph. The failure is rarely the embedding model. It is the moment you separated a heading from its table, chopped a speaker label away from the answer, or split a code fence in half.
 
-My stance is simple: chunk by structure first, by token count second. If a heading, table, or code block defines meaning, keep it intact as long as you can. Only fall back to recursive splitting when the section is still too large. The [LangChain splitters](https://python.langchain.com/docs/concepts/text_splitters/) docs and [LlamaIndex docs](https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/) both support this idea with parser-based and recursive strategies. The [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) guide is the reminder that token budget is still real, so structure alone cannot be your only rule.
+I would chunk by document structure first and token budget second. For Markdown, I reach for [MarkdownHeaderTextSplitter](https://docs.langchain.com/oss/python/integrations/splitters/markdown_header_metadata_splitter) because it groups content by headers and keeps that hierarchy in metadata. When the source has already lost its shape, [RecursiveCharacterTextSplitter](https://docs.langchain.com/oss/python/integrations/splitters/recursive_text_splitter) is my fallback because it tries larger separators before smaller ones instead of shredding the text immediately.
 
-The mistake I see most often is treating all source formats the same. Markdown docs, API references, call transcripts, and OCR text should not be chunked with one universal function. Tables are the classic failure case: one splitter keeps rows together but exceeds your target size, another splitter breaks rows apart and makes retrieval useless. The right answer is usually to normalize first, then chunk.
+The trap I fell into was treating Markdown, HTML, transcripts, and OCR text as one generic blob. They are not. [LlamaIndex node parsers](https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/) inherit document attributes into child nodes, so format-aware chunking is already part of the ingestion model. I normalize first, then pick the cheapest splitter that still preserves the boundary a human cares about.
 
-This is the minimal dispatcher I like before I touch any framework abstractions.
+That choice is easier to enforce with one tiny dispatcher before I wire in any framework abstraction.
 
 ```ts
-export function chunkDocument(input: { type: 'markdown' | 'html' | 'transcript'; text: string }) {
-  if (input.type === 'markdown') {
+type SourceKind = 'markdown' | 'html' | 'transcript' | 'plain';
+
+export function chunkDocument(input: { kind: SourceKind; text: string }) {
+  if (input.kind === 'markdown') {
     return chunkMarkdownByHeading(input.text, {
-      maxTokens: 400,
-      keepHeading: true,
-      preserveCodeBlocks: true,
+      maxTokens: 400, // leave room for titles and retrieval prompts
+      keepHeading: true, // the heading usually carries the meaning
+      preserveCodeBlocks: true, // splitting fenced code too early hurts search
     });
   }
 
-  if (input.type === 'transcript') {
+  if (input.kind === 'html') {
+    return chunkHtmlBySection(input.text, {
+      allowedTags: ['h1', 'h2', 'h3', 'p', 'li', 'pre'],
+      maxTokens: 400, // recurse only inside a section that is still too large
+    });
+  }
+
+  if (input.kind === 'transcript') {
     return chunkTranscriptBySpeaker(input.text, {
-      maxTokens: 300,
-      mergeShortTurns: true,
+      maxTokens: 300, // shorter turns, but speaker labels must stay attached
+      mergeShortTurns: true, // avoid one-line chunks with no standalone meaning
     });
   }
 
   return recursiveChunk(input.text, {
     maxTokens: 350,
+    overlapTokens: 40, // enough continuity without paying twice for everything
     separators: ['\n\n', '\n', '. ', ' '],
   });
 }
 ```
 
-Notice the order: format-aware logic first, generic recursion last. That one choice usually improves retrieval more than switching embedding models.
+Once the boundaries look sane, I still make every chunk explain itself. [LlamaIndex parser modules](https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/modules/) point out that surrounding context can live in metadata and that some window metadata is not visible to the LLM or embedding model, so I prepend the parent heading or speaker label to the text I embed instead of trusting metadata alone.
 
-I also keep parent context close to the chunk. A heading, section title, or speaker label often matters as much as the body text, so I prepend it during indexing instead of hoping metadata filters will rescue the search later.
+This is also where cost, rate limits, and security become concrete. [OpenAI's embeddings guide](https://platform.openai.com/docs/guides/embeddings) says embeddings are billed per input token and capped by max input size, so aggressive overlap is not free. More tiny chunks also mean more requests, which makes provider quotas show up sooner. And because the full chunk text is what you send to the embeddings API, I redact secrets, API keys, and customer identifiers before indexing.
 
-My rule of thumb: if a human would say “that sentence only makes sense with the line above it,” your chunker needs more structure. If your first splitter for every document is “split every 500 tokens,” you are optimizing for convenience, not retrieval quality.
+If I have to choose quickly, I start with section-aware chunks around 300 to 500 tokens, keep overlap under roughly 10%, and recurse only when one section still blows the budget. The moment you need 20% overlap to rescue answer quality, stop tuning models and fix your boundaries first.

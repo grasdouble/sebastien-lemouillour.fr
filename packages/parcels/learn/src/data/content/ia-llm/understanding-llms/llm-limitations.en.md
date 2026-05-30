@@ -3,34 +3,28 @@ id: llm-limitations
 order: 14
 difficulty: beginner
 tags: [LLM]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
-The roughest beginner moment is realizing the model can sound brilliant and still fail at things you assumed were easy. It can explain a concept beautifully, then miscount, miss a key sentence, or invent a citation. That does not mean LLMs are useless. It means they have limits, and I think using them well starts with respecting those limits instead of pretending they are temporary quirks.
+The frustrating part is not that an LLM gives bad answers all the time. It is that it can sound calm, helpful, and convincing right before it gets something important wrong. A **large language model (LLM)** is trained to predict likely next tokens, which are small chunks of text, one step at a time [GPT-3 paper](https://arxiv.org/abs/2005.14165). That training makes it excellent at producing language. It does not make it a built-in fact checker.
 
-## They generate language, not guaranteed truth
+## Fluent is not the same as reliable
 
-An LLM is a system trained to predict likely text. That makes it strong at drafting, paraphrasing, summarizing, and pattern-matching across language. It does not automatically make it a source of verified truth. The [GPT-4 report](https://arxiv.org/abs/2303.08774) documents impressive capabilities, but it also discusses limitations and unreliable behavior.
+That gap explains why beginners get surprised. If a model writes smoothly, we start treating it like a knowledgeable person. I would not do that. The [GPT-4 report](https://arxiv.org/abs/2303.08774) shows strong capabilities, but it also documents inaccurate and unreliable outputs. When a model invents a source or states a wrong fact with confidence, the problem is not attitude. The system is doing language generation, not guaranteed verification.
 
-This is the first limitation I would memorize: a good answer is not the same thing as a correct answer. If the task depends on facts, sources, calculations, or current events, the model may need external help.
+That is why I would split tasks early. Drafting an email, rephrasing notes, or brainstorming titles are good fits. Tax advice, medical questions, exact calculations, or anything that must be current are not tasks I would trust without another check.
 
-That help often comes from tools or retrieval. Anthropic’s [tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) shows how a model can call external systems instead of guessing, and the [RAG paper](https://arxiv.org/abs/2005.11401) explains retrieval-augmented generation, where the model answers from supplied documents.
+## More context helps, but only up to a point
 
-## They are limited by context and attention
+Once people learn this first limit, the next instinct is to paste more material. Sometimes that helps, especially if you also give the model tools. Anthropic’s [tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) shows how a model can call external systems instead of guessing, and the [RAG paper](https://arxiv.org/abs/2005.11401) describes retrieval-augmented generation, or **RAG**, where the model answers from documents you provide.
 
-Even before a model gets something factually wrong, it can simply lose track of what matters. A **context window** is the amount of tokenized text the model can consider in one request. Long windows help, but they do not solve everything. [Lost in the Middle](https://arxiv.org/abs/2307.03172) shows that information buried inside long inputs can be underused.
+I still would not assume a huge prompt solves the problem. A **context window** is the amount of tokenized text the model can work with in one request. Even when the text fits, the model may still use some parts badly. [Lost in the Middle](https://arxiv.org/abs/2307.03172) found that long-context models often use information near the beginning or end better than information buried in the middle. My preference is smaller evidence, clearly labeled, over one giant paste.
 
-This creates a beginner trap. People paste everything because they are afraid to leave out something important. I would usually do the opposite. I would reduce, label, and prioritize. Models often perform better with cleaner evidence than with bigger piles of text.
+## Small prompt changes can change the result
 
-## They are uneven, not uniformly bad
+That leads to the last beginner shock: you ask twice and get two noticeably different answers. This is normal enough that providers tell you to test prompts empirically. The [OpenAI prompting](https://help.openai.com/en/articles/10032626-prompt-engineering-best-practices-for-chatgpt) guide recommends testing and iterating on prompts instead of assuming one wording is always best. So I would test the exact task I care about, not trust a model’s reputation or one lucky demo.
 
-Another limitation is inconsistency. The same model can give an excellent answer once and a weak one on the next try. Small wording changes can alter the result. Some tasks are easy for one model and awkward for another. This does not mean evaluation is hopeless. It means you should test the exact behavior you care about instead of relying on reputation.
+## What I would choose in practice
 
-I also would not expect one model to be equally good at reasoning, multilingual nuance, formatting, safety, retrieval, and domain knowledge. “General purpose” is useful marketing language, but real systems still have distinct strengths and weak spots.
-
-## What I would do with that knowledge
-
-I would sort tasks into two buckets. Bucket one: low-risk drafting, brainstorming, rephrasing, and summarizing. LLMs shine there. Bucket two: high-stakes facts, decisions, compliance, math, medicine, law, or anything where being wrong costs real money or trust. There I would assume the model needs verification, grounding, or a different tool entirely.
-
-A concrete rule helps: before trusting an answer, ask what failure mode would hurt you most. If you can name the failure mode, you can usually design a check for it. Your next step is to choose one task you currently hand to AI without thinking, then write down the exact limitation most likely to break it. That habit is much more valuable than memorizing a list of generic caveats.
+I would use an LLM as a fast first-draft engine and a patient explainer. I would not use it alone for high-stakes facts. If you want the next concept after this, read hallucinations next, because that is where this limitation turns into a concrete checking habit. My rule is simple: if being wrong would cost trust, money, or safety, the model should not be working without a source, a tool, or a human review.

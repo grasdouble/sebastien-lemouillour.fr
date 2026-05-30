@@ -3,40 +3,55 @@ id: temperature
 order: 20
 difficulty: intermediate
 tags: [LLM, paramètres]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Quand un modèle commence à paraître instable, on adore accuser le modèle lui-même. La moitié du temps, le vrai coupable est l’échantillonnage. J’ai vu des modèles tout à fait corrects devenir erratiques, verbeux ou inutilement téméraires simplement parce que quelqu’un avait laissé `temperature: 1` en production sans vérifier combien d’aléatoire la tâche pouvait vraiment supporter.
+Quand un flux d’extraction commence à sortir de jolies petites surprises, on accuse le prompt. Moi, j’accuse d’abord la température. J’ai vu de bons modèles avoir l’air téméraires simplement parce que quelqu’un avait laissé `temperature: 1` sur une tâche qui demandait une réponse ennuyeuse et répétable.
 
-## La température change le risque, pas l’intelligence
+## La température change l’échantillonnage, pas la qualité du modèle
 
-La température re-scale les logits avant l’échantillonnage. Des valeurs basses resserrent la distribution autour des tokens les plus probables. Des valeurs hautes l’aplatissent et laissent entrer des candidats plus faibles. Les [docs Hugging Face](https://huggingface.co/docs/transformers/en/main_classes/text_generation), la [référence API](https://platform.openai.com/docs/api-reference/chat/create) d’OpenAI et la [documentation messages](https://docs.anthropic.com/en/api/messages) d’Anthropic exposent toutes ce paramètre parce qu’il modifie directement le comportement de sortie.
+Dans [Transformers](https://huggingface.co/docs/transformers/en/main_classes/text_generation), la température modifie les probabilités du token suivant utilisées pour l’échantillonnage. Le guide [text generation](https://platform.openai.com/docs/guides/text-generation) d’OpenAI rappelle aussi que la sortie d’un modèle reste non déterministe, donc je traite la température comme un budget de risque, pas comme un curseur magique d’intelligence.
 
-Un petit changement suffit souvent:
+Des valeurs basses gardent le modèle proche de sa continuation la plus probable. Des valeurs hautes laissent entrer des candidats plus faibles. Ça peut aider pour l’idéation. Ça ne transforme pas une chaîne de raisonnement faible en bonne réponse.
 
-```json
-{ "temperature": 0.1 }
-{ "temperature": 0.4 }
-{ "temperature": 0.8 }
+Si j’ai besoin d’une sortie structurée, je commence par quelque chose comme ça.
+
+```ts
+const response = await client.responses.create({
+  model: 'gpt-4.1-mini',
+  input: 'Extract the company name and country as JSON.',
+  temperature: 0.1, // garde un échantillonnage serré
+  top_p: 1, // régler un seul contrôle stochastique d’abord
+  max_output_tokens: 80, // laisser assez de place pour un JSON valide
+});
 ```
 
-Ce que la température ne fait pas, c’est rendre soudain un modèle faible meilleur en raisonnement. Elle change le niveau d’exploration. Parfois, ça aide le modèle à sortir d’un motif trop banal. Parfois, ça laisse juste entrer plus vite de mauvaises continuations.
+## Là où je la règle vraiment
 
-## Comment je choisis les valeurs
+Pour l’extraction, la classification, le routage ou les appels d’outils, je pars entre `0` et `0.2`. Je veux quelque chose d’ennuyeux. L’ennui coûte moins cher que des retries, des validateurs et une sortie bizarre qui finit en production.
 
-Pour l’extraction, la classification, le routage ou les appels d’outils, je démarre bas, généralement entre `0` et `0.2`. Si le schéma de sortie compte, l’aléatoire est une taxe. On la paie en retries, en validations échouées et en tickets support.
+Pour un assistant généraliste, je reste le plus souvent entre `0.2` et `0.5`. Au-dessus, je continue seulement si la variation est le but. Le [papier Holtzman](https://arxiv.org/abs/1904.09751) reste pour moi le meilleur rappel que les choix de décodage peuvent ruiner la qualité même quand le modèle lui-même tient la route.
 
-Pour un assistant généraliste, je reste le plus souvent entre `0.2` et `0.5`. Cette zone laisse encore un peu de souplesse dans la formulation sans transformer la réponse en machine à sous.
+Pour des titres ou du brainstorming, je monte la température, mais seulement avec une boucle d’évaluation et des exemples conservés. Une température plus haute ne change pas le prix par token, mais elle augmente souvent le nombre d’échantillons qu’on compare ou qu’on jette, et les retries répétés vous rapprochent plus vite des [rate limits](https://platform.openai.com/docs/guides/rate-limits) du fournisseur. C’est un vrai coût, même si la ligne de facture paraît identique.
 
-Pour du brainstorming, du naming ou du texte créatif, je ne monte la température que si j’ai aussi une boucle d’évaluation. Une température plus haute peut clairement faire émerger des options plus fraîches, mais elle augmente aussi le coût de revue. Le prix en tokens d’un appel isolé ne bouge pas forcément beaucoup, mais le coût système grimpe parce qu’on relance plus souvent, on jette davantage de sorties et on compare plus de variantes.
+## L’erreur que je vois encore
 
-Le papier sur la [dégénérescence du texte neuronal](https://arxiv.org/abs/1904.09751) reste pour moi le meilleur rappel que les choix de décodage façonnent autant la qualité que les poids du modèle. Un mauvais échantillonnage peut faire paraître un bon modèle bien pire qu’il n’est.
+Les équipes changent la température et `top_p` en même temps, puis passent l’après-midi à débattre du prompt. L’[API Messages](https://docs.anthropic.com/en/api/messages) d’Anthropic recommande explicitement de modifier soit `temperature`, soit `top_p`, pas les deux, et je trouve que ce conseil évite beaucoup de faux debugging.
 
-## L’erreur que je vois le plus souvent
+Si vous voulez comparer des réglages proprement, je garderais le reste de la requête fixe comme ceci.
 
-Les équipes touchent à la température et à `top_p` en même temps, puis ne savent plus quel bouton a réellement changé le comportement. Je fais rarement ça. Je choisis d’abord un contrôle stochastique principal, j’évalue, puis je ne touche au second que si je peux décrire précisément le mode d’échec que je cherche à corriger.
+```ts
+const response = await client.responses.create({
+  model: 'gpt-4.1-mini',
+  input: 'Give me 6 headline options for a note-taking app.',
+  temperature: 0.8, // augmenter la variété volontairement
+  top_p: 1, // laisser le nucleus sampling tranquille
+  seed: 42, // si votre fournisseur le prend en charge
+  max_output_tokens: 120, // plafonner le coût de revue
+});
+```
 
-J’évite aussi de faire semblant que `temperature: 0` veut dire “parfaitement déterministe pour toujours”. En pratique, cela signifie surtout “aussi déterministe que cette stack le permet”. Des changements côté fournisseur, des différences de calcul flottant ou des détails d’implémentation peuvent encore introduire de la variation.
+Ne confondez pas `temperature: 0` avec un déterminisme parfait. Le guide [reproducible output](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/reproducible-output) d’Azure dit que le déterminisme n’est pas garanti, même avec un seed, et cette réserve compte encore plus quand les sorties s’allongent. Je garde donc une validation côté serveur autour des appels d’outils, parce qu’une faible part d’aléatoire n’est pas un système de sécurité.
 
-Ma règle: réglez la température selon le coût d’une mauvaise réponse. Si se tromper coûte cher, commencez bas et ne montez que si les évaluations prouvent que la diversité supplémentaire vaut vraiment la peine.
+Si une mauvaise réponse coûte cher, restez entre `0` et `0.2`. Si vous ne savez pas expliquer pourquoi vous avez besoin de plus de variation, vous n’en avez probablement pas besoin.

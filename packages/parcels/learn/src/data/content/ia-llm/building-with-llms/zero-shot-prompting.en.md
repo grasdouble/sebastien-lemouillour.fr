@@ -7,21 +7,21 @@ publishedAt: 2099-12-31
 updatedAt: 2026-05-30
 ---
 
-Sometimes you have no examples, no dataset, and no patience. You still need a useful answer in the next 30 seconds. That is where zero-shot prompting earns its keep.
+Sometimes you just need the model to stop being clever and do the job. No dataset, no curated examples, no afternoon to burn tuning prompts. Zero-shot is the first thing I would try.
 
-**Zero-shot prompting** means asking the model to perform a task using instructions alone, with no worked example in the prompt. It is a standard prompting pattern described in [Gemini's strategies](https://ai.google.dev/gemini-api/docs/prompting-strategies), [OpenAI's prompting guide](https://platform.openai.com/docs/guides/prompt-engineering), and [Anthropic's overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview). If you are a beginner, I would start here almost every time.
+**Zero-shot prompting** is simply asking the model to perform a task with instructions alone, without putting a worked example in the prompt, which is exactly how the [Gemini guide](https://ai.google.dev/gemini-api/docs/prompting-strategies) presents it. If you are a beginner, starting here is usually the least annoying choice.
 
 ### Why zero-shot is the default
 
-Modern language models are already trained to follow instructions reasonably well. For common tasks like summarizing text, extracting key points, rewriting tone, or classifying obvious sentiment, a clean instruction is often enough.
+For common tasks like summarizing, extracting fields, rewriting tone, or classifying obvious sentiment, a clear instruction gets you surprisingly far. That bias is built into current API guidance too: OpenAI explicitly says GPT models benefit from more explicit instructions about how to accomplish tasks in its [OpenAI guide](https://developers.openai.com/api/docs/guides/prompt-engineering).
 
-The trick, and this is the part many tutorials skip, is that zero-shot does **not** mean zero context. You are still responsible for telling the model what success looks like. If you omit the audience, boundaries, or format, the model will fill the gaps with guesses.
+The catch is that zero-shot does **not** mean zero context. Anthropic recommends defining your success criteria before you start tuning prompts in its [Anthropic overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview), and that advice matters a lot here. If you skip the audience, the boundary, or the output shape, the model will happily improvise. Sometimes that improvisation is useful. Sometimes it is chaos wearing a tie.
 
 ### What a good zero-shot prompt looks like
 
-I like zero-shot prompts because they stay readable. You can hand them to a teammate and they still look like normal language, not ritual magic.
+I like zero-shot because it stays readable. You can hand the prompt to a teammate and it still looks like a normal instruction, not a wizard spell somebody copy-pasted from a forum in 2023.
 
-Here is a practical example.
+Here is the kind of prompt I would actually ship first.
 
 ```text
 Classify the sentiment of this customer message as positive, neutral, or negative.
@@ -31,12 +31,10 @@ Message:
 "The new dashboard is easier to use, but exports still fail half the time."
 ```
 
-This works because the task is specific, the allowed labels are explicit, and the output format is tight. If the model responds with an essay anyway, that usually means the instruction was too loose, not that zero-shot "doesn't work."
+This works because the task is narrow, the allowed labels are explicit, and the output format is constrained. Anthropic's [best practices](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices) make the same point in a more polite way: clarity and concrete output guidance do a lot of the heavy lifting before you ever add examples.
 
 ### When zero-shot starts to wobble
 
-Zero-shot is weaker when the task depends on subtle style, custom labels, edge cases, or company-specific rules. For example, "classify this support ticket as P1, P2, or P3" may sound simple, but those labels mean different things in different teams. Without examples, the model has to guess your local definition.
+Zero-shot gets shaky when the task depends on subtle style, custom labels, tricky edge cases, or rules that only make sense inside your team. "Classify this ticket as P1, P2, or P3" sounds easy until you realize every company has invented its own religion around priority levels.
 
-That is why I treat zero-shot as the first move, not the only move. It is fast, cheap in prompt length, and often good enough. When it fails, the failure is informative: it tells you exactly what definition or example was missing.
-
-My decision rule is simple: start zero-shot unless the wording, labels, or tone are unusually specific. When the model almost gets it but keeps drifting, that is your cue for the next guide, because one well-chosen example can save a shocking amount of frustration.
+My rule is simple: start zero-shot for common tasks, then switch to few-shot as soon as you need house labels, house tone, or the model misses the same edge case twice. That is usually the moment when keeping the prompt short stops being the smart choice.

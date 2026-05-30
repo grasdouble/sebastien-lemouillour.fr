@@ -3,36 +3,36 @@ id: ai-benchmarks
 order: 27
 difficulty: advanced
 tags: [LLM, évaluation]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
-Un modèle gagne trois points sur un leaderboard et, tout à coup, la salle se comporte comme si la décision était prise. Puis ce même modèle rate ton extraction, casse ton workflow d'outils, ou échoue sur une requête utilisateur d'une banalité affligeante. Les benchmarks sont utiles. Le culte du classement ne l'est pas. L'erreur consiste à traiter les scores comme une vérité produit alors qu'ils ne sont qu'un signal compressé avec d'énormes angles morts.
+Un modèle gagne trois points sur un leaderboard et, soudain, tout le monde veut signer. Puis il rate ton extraction structurée, laisse tomber un appel d'outil, ou explose le budget de latence. Voilà le piège. Les benchmarks publics sont utiles pour faire le tri. Ils sont mauvais pour prendre la décision finale à ta place en production.
 
-## À quoi servent vraiment les benchmarks populaires
+## Ce que chaque benchmark achète vraiment
 
-Le [papier MMLU](https://arxiv.org/abs/2009.03300) est utile pour mesurer une large couverture de connaissances académiques et professionnelles sous forme de questions à choix multiple. Ça dit quelque chose sur l'étendue et le rappel, mais presque rien sur le comportement multi-tour, l'ancrage dans des sources, ou la capacité à rester utile quand le prompt devient sale.
+[MMLU](https://arxiv.org/abs/2009.03300) reste utile pour une seule chose : la connaissance générale en format QCM. Si je veux une lecture rapide du rappel académique et professionnel, je le regarde. Si je veux prédire un vrai travail multi-tour un peu sale, je l'ignore.
 
-Le [papier HumanEval](https://arxiv.org/abs/2107.03374) est excellent pour la synthèse de code dans un sens étroit : est-ce que le modèle peut générer une fonction qui passe des tests unitaires cachés, souvent résumés avec pass@k ? C'est précieux, mais ça reste un bac à sable contrôlé. Ça dit beaucoup moins sur l'édition de grosses bases de code, la gestion de l'ambiguïté, ou l'évitement de régressions subtiles.
+[HumanEval](https://arxiv.org/abs/2107.03374) est celui que je prends au sérieux pour la synthèse de code au sens étroit, parce que le pass@k mesure si des solutions échantillonnées passent des tests cachés. Ça ne dit toujours presque rien sur l'édition d'une base de code vivante sous ambiguïté.
 
-Le [papier HELM](https://arxiv.org/abs/2211.09110) est plus honnête sur ce qu'est vraiment l'évaluation : une matrice de compromis. Il compare les modèles à travers plusieurs scénarios et plusieurs métriques au lieu de prétendre qu'un seul nombre peut représenter la qualité. Je fais plus confiance à cette approche parce qu'un vrai système doit gérer en même temps la robustesse, la calibration, l'efficacité et l'équité.
+[HELM](https://arxiv.org/abs/2211.09110) est le cadre auquel je fais le plus confiance parce qu'il traite l'évaluation comme une combinaison de scénario, de métrique et d'adaptation, pas comme un nombre magique. C'est beaucoup plus proche de la manière dont les vrais systèmes cassent en production.
 
-[Chatbot Arena](https://arxiv.org/abs/2403.04132) est utile pour mesurer la préférence humaine dans le chat ouvert. Il capte mieux le goût conversationnel que des benchmarks académiques statiques, surtout quand des utilisateurs comparent deux sorties face à face. Le piège, c'est qu'il mesure ce que les utilisateurs d'Arena récompensent, pas forcément ce que tes utilisateurs à toi récompensent.
+[Chatbot Arena](https://arxiv.org/abs/2403.04132) devient utile quand la préférence conversationnelle compte vraiment, puisqu'il classe les modèles à partir de votes humains en face à face agrégés avec un score de type Elo. Je n'achèterais quand même pas un modèle sur Arena seul, sauf si mon produit est presque uniquement du chat ouvert.
 
-## Là où les benchmarks trompent les équipes
+## Pourquoi les victoires au leaderboard ratent la production
 
-D'abord, les benchmarks saturent. Quand suffisamment de modèles se retrouvent au sommet, de petites variations de score créent une fausse impression de séparation significative. Ensuite, le format du prompt compte énormément. Un résultat de benchmark reflète souvent non seulement la capacité du modèle, mais aussi le harness exact d'évaluation, les instructions système, le réglage de décodage, et la logique d'extraction de réponse.
+Le premier problème, c'est la sensibilité du harness. HELM le pose noir sur blanc : les résultats dépendent du scénario, des métriques et de la procédure d'adaptation, donc le format du prompt et le setup d'évaluation peuvent bouger le score. Les petits écarts sur un leaderboard ont l'air précis bien après avoir cessé d'être utiles pour décider.
 
-Ensuite, les benchmarks collent rarement à l'économie réelle de la production. Ils cachent souvent la latence, la fiabilité des appels d'outils, le coût par requête, l'observabilité, les comportements de repli et la conformité aux politiques. Un modèle qui gagne sur des questions de connaissances peut rester un mauvais choix s'il est trop lent, trop cher ou trop instable pour ton produit.
+Le deuxième problème, c'est l'exploitation réelle. Les benchmarks publics disent rarement si le modèle tient un SLA, garde des appels d'outils fiables, ou reste assez bon marché à ton niveau de trafic. Le [guide latence](https://developers.openai.com/api/docs/guides/latency-optimization) existe précisément parce que les contraintes de déploiement sont un problème différent d'une victoire sur benchmark. Si tu portes la latence, le budget d'erreur ou la marge, cette omission compte plus qu'une décimale de plus sur MMLU.
 
-Le dernier piège, c'est la contamination. Quand des items de benchmark fuient dans les données d'entraînement ou de tuning, le score mesure moins la généralisation que le rappel pur. On ne sait pas toujours quand c'est arrivé, donc chaque leaderboard mérite d'être lu avec un peu de méfiance.
+Le troisième problème, c'est la contamination. Le [rapport GPT-4](https://arxiv.org/abs/2303.08774) traite le recouvrement de données comme un vrai risque d'évaluation, parce que des items de benchmark peuvent fuiter dans l'entraînement et gonfler artificiellement la capacité apparente. Lis donc chaque leaderboard comme un résultat potentiellement partiellement mémorisé tant que le contraire n'est pas établi.
 
-## Comment les utiliser sans te mentir
+## Ce que je ferais à la place
 
-Utilise les benchmarks publics pour présélectionner et pour comprendre la forme générale d'un modèle, pas pour trancher seul. Je les aime bien pour répondre à des questions du type : ce modèle est-il particulièrement fort en code, en connaissances générales ou en préférence conversationnelle ? Je ne leur fais pas confiance pour répondre à : ce modèle va-t-il améliorer mon produit le trimestre prochain ?
+Utilise les benchmarks publics pour réduire le marché à une short list. Ensuite, construis des évaluations privées qui collent à tes prompts, à tes modes d'échec et à tes seuils d'acceptation. Le [guide OpenAI Evals](https://platform.openai.com/docs/guides/evals) pousse exactement cette habitude : évalue la tâche que tu possèdes vraiment, pas celle qu'un leaderboard public a rendue commode.
 
-Le bon pattern est banal, mais efficace. Commence par les benchmarks publics pour scanner le marché, puis construis des évaluations privées qui reproduisent tes prompts, tes contraintes, tes modes d'échec et ton niveau d'exigence. Si les scores publics et tes résultats privés se contredisent, fais confiance à ta tâche.
+Je suivrais deux familles de métriques : la réussite de tâche pour ce que l'utilisateur paie réellement, et les métriques opérationnelles pour ce que ton équipe doit garder vivant. Si les deux racontent des histoires différentes, le réalisme de la tâche gagne.
 
 ## Règle de décision
 
-Utilise les benchmarks pour réduire l'espace de recherche, jamais pour déléguer ton jugement. Si un benchmark mesure réellement la même forme de tâche, le même niveau de risque et la même attente utilisateur que ton produit, donne-lui du poids. Sinon, traite-le comme un signal de contexte et passe à autre chose.
+Fais confiance à un benchmark en proportion de sa proximité avec ta forme de tâche, ton niveau de risque et tes contraintes d'exploitation. S'il est à plus d'une couche d'abstraction de la production, utilise-le pour filtrer et rien de plus.

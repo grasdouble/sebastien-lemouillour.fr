@@ -7,9 +7,9 @@ publishedAt: 2099-12-31
 updatedAt: 2026-05-30
 ---
 
-You have probably seen this annoying situation: the model nearly gets it. The structure is close, the tone is almost right, and yet the answer still feels off by 15 percent. That is exactly when one-shot prompting shines.
+You get your first LLM call working, then one reply comes back with an extra sentence, a weird label, or a tone you never asked for, and your neat little parser suddenly looks very optimistic. That is when I reach for one-shot prompting.
 
-**One-shot prompting** means giving the model one example of the kind of input and output you want before asking it to handle a new case. Official docs from [Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies), [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering), and [Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) all recommend examples when instructions alone leave too much room for interpretation.
+**One-shot prompting** means giving the model one example of the kind of input and output you want before asking it to handle a new case. The official guides from [Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies), [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering), and [Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) all treat examples as a practical way to pin down output format and behavior when plain instructions are still too fuzzy.
 
 ### Why one example helps so much
 

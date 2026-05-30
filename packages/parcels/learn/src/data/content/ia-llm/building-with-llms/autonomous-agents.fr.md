@@ -4,12 +4,12 @@ order: 20
 difficulty: advanced
 tags: [agent, autonomy, monitoring, escalation, AutoGen]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2099-12-31
 ---
 
-Vous avez donné à un agent le droit de nettoyer des enregistrements obsolètes, et il a vidé la moitié d'une table parce que personne n'avait défini ce qu'obsolète voulait dire. Ce n'est pas un échec amusant de démo. C'est la vraie tête de l'autonomie non bornée en production.
+Vous avez donné à un agent le droit de nettoyer des enregistrements obsolètes, et il a vidé la moitié d'une table parce que personne n'avait défini ce qu'obsolète voulait dire. Ce n'est pas un échec amusant de démo. C'est à ça que ressemble l'autonomie non bornée en production.
 
-La mauvaise question est : « Jusqu'où peut-on rendre cet agent autonome ? » La bonne est : « Quel est le niveau minimal d'autonomie nécessaire, et quel arrêt dur empêche l'agent de dépasser la frontière ? » Le [guide OpenAI Agents](https://platform.openai.com/docs/guides/agents) insiste sur les contrôles au niveau des outils et les confirmations pour une raison simple. Si une action peut écrire, supprimer, publier ou envoyer, la frontière doit vivre dans l'exécuteur, pas dans le prompt.
+La mauvaise question est : « Jusqu'où peut-on rendre cet agent autonome ? » La bonne est : « Quel est le niveau minimal d'autonomie nécessaire, et quel arrêt dur empêche l'agent de dépasser la frontière ? » Les [docs HITL](https://openai.github.io/openai-agents-python/human_in_the_loop/) insistent sur les règles d'approbation au niveau des outils et sur les interruptions pour une raison simple. Si une action peut écrire, supprimer, publier ou envoyer, la frontière doit vivre dans l'exécuteur, pas dans le prompt.
 
 J'utilise toujours trois limites : un budget d'actions, un budget de temps, et un seuil d'irréversibilité. Les deux premières contrôlent le coût et la latence. La troisième contrôle le regret. Un agent peut explorer, résumer et proposer beaucoup plus librement qu'il ne peut modifier un état durable.
 
@@ -37,8 +37,8 @@ class AutonomyEnvelope:
 
 L'agent n'a pas le droit de redéfinir ces limites en cours de route. S'il veut plus de budget, il escalade.
 
-L'autre sujet que les équipes sautent trop souvent, c'est la supervision. Les logs racontent ce qui s'est passé après les dégâts. Les moniteurs servent à couper le courant avant. [LangGraph](https://langchain-ai.github.io/langgraph/) rend le checkpointing et l'état persistant suffisamment concrets pour que la détection de boucle cesse d'être un concept flou. Hash chaque couple `(tool_name, input)`, compte les répétitions dans l'état, et tuez l'exécution quand la même action apparaît trois fois sans nouvelle preuve.
+L'autre sujet que les équipes sautent trop souvent, c'est la supervision. Les logs racontent ce qui s'est passé après les dégâts. Les moniteurs servent à couper le courant avant. Les [docs persistence](https://docs.langchain.com/oss/python/langgraph/persistence) et les [docs interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts) de LangGraph comptent vraiment ici : les checkpoints vous donnent un état durable, et les interruptions un point de pause propre pour revue humaine. La détection de boucle reste votre problème, mais une fois que le runtime persiste l'état à chaque étape, hasher `(tool_name, input)` et tuer l'exécution après trois appels identiques sans nouvelle preuve cesse d'être un vague ticket « on verra plus tard ».
 
-L'autonomie a aussi besoin d'une vraie sortie de secours. Je préfère deux chemins d'escalade : une pause douce pour l'ambiguïté, et un arrêt dur pour les actions irréversibles, les échecs répétés ou une accélération des coûts. [AutoGen](https://microsoft.github.io/autogen/) est intéressant à étudier ici parce qu'il traite les conditions de terminaison comme un sujet central, pas comme un détail ajouté à la fin.
+L'autonomie a aussi besoin d'une vraie sortie de secours. Je préfère deux chemins d'escalade : une pause douce pour l'ambiguïté, et un arrêt dur pour les actions irréversibles, les échecs répétés ou une accélération des coûts. [AutoGen](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/termination.html) vaut le détour ici parce qu'il transforme les conditions de terminaison en vraie surface d'API, pas en TODO perdu dans la glue d'orchestration.
 
 Mon seuil est simple : si une tâche ne peut pas se terminer en sécurité dans 50 actions et une seule frontière d'approbation, la tâche est trop grande pour un agent autonome. Découpez la tâche. N'allongez pas la laisse en appelant ça de l'architecture.

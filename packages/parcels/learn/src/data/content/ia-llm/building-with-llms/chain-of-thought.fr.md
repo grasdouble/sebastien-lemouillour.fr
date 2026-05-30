@@ -7,15 +7,15 @@ publishedAt: 2099-12-31
 updatedAt: 2026-05-30
 ---
 
-Ton prompt marche jusqu’au moment où l’entrée contient une exception et deux nombres. Là, le modèle saute directement à la réponse, oublie l’étape du milieu, et tu te retrouves à déboguer un adjectif comme si c’était une panne de prod.
+Ton prompt tient la route jusqu’au moment où l’entrée glisse une exception et deux nombres. Là, le modèle balance une réponse trop vite, saute l’étape qui comptait, et tu te retrouves à déboguer une phrase comme à 2 h du matin.
 
-C’est là que le chain of thought devient utile. Le [papier fondateur](https://arxiv.org/abs/2201.11903) montre que fournir des exemples avec étapes intermédiaires améliore les tâches de raisonnement complexes, notamment en arithmétique, en bon sens et en raisonnement symbolique. J’utilise encore cette idée, mais seulement quand la tâche est vraiment multi-étapes. Pour de la classification, de la recherche d’info ou une simple réécriture, ajouter du raisonnement visible apporte souvent surtout de la latence et de la facture.
+Le chain of thought sert exactement à ce genre de galère. Dans le [papier Wei et al.](https://arxiv.org/abs/2201.11903), l’idée est simple : montrer des étapes intermédiaires dans les exemples, pas seulement une question et une réponse. Ça améliore les tâches d’arithmétique, de bon sens et de raisonnement symbolique quand il y a vraiment plusieurs sauts à faire. J’utilise encore cette idée, mais comme un scalpel. Pour de la classification, de la recherche d’info ou une réécriture banale, du raisonnement visible, c’est souvent du théâtre facturé.
 
-Le point que la plupart des tutos zappent, c’est que le chain of thought n’a rien de magique, c’est un échafaudage. Tu indiques au modèle où s’arrêter, quelles preuves relever, et à quel moment se prononcer. Le [guide OpenAI](https://platform.openai.com/docs/guides/prompt-engineering) et la [vue d’ensemble Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) racontent la même chose avec des mots plus récents : définis clairement la réussite, structure la tâche, et teste tes prompts au lieu de faire confiance à ton ressenti du vendredi soir.
+Le papier reste utile, mais les docs des fournisseurs ont bougé. Le [guide reasoning](https://platform.openai.com/docs/guides/reasoning) d’OpenAI dit que les reasoning models dépensent déjà des reasoning tokens internes avant de répondre, et la [vue Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) te dit de poser des critères de réussite et des evals avant de tripoter le prompt. Traduction : avant de coller « think step by step » partout, vérifie que tu as choisi le bon modèle et que tu sais mesurer si cette réflexion supplémentaire sert vraiment à quelque chose.
 
-J’évite aussi de demander un énorme monologue visible sauf si j’en ai un vrai besoin. Un raisonnement verbeux consomme des tokens, peut exposer des règles métier dans les logs, et rend les evals pénibles à lire. Mon défaut préféré est donc : raisonne brièvement, réponds proprement. Si j’ai besoin d’auditabilité, je demande quelques vérifications numérotées, pas un journal intime.
+Je ne ferais pas non plus sortir un énorme monologue au modèle sauf si j’ai besoin d’inspecter ses ratés. Le [guide prompting](https://platform.openai.com/docs/guides/prompt-engineering) d’OpenAI récompense toujours une structure claire, et l’[effort Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/effort) rend le compromis très explicite : plus de réflexion veut souvent dire plus de tokens et plus de latence. Mon réglage par défaut est volontairement banal : une réponse propre, quelques vérifications courtes, et du raisonnement visible seulement quand ces vérifications m’aident à déboguer ou à relire.
 
-Un pattern pratique ressemble à ça :
+Voici la version que j’enverrais vraiment :
 
 ```txt
 You are validating invoice line items.
@@ -34,6 +34,6 @@ Invoice text:
 """{{invoice_text}}"""
 ```
 
-Le vrai gain n’est pas l’étiquette. Le vrai gain, c’est la séparation entre observation et jugement. L’étape 2 force le modèle à recopier la preuve avant de décider, ce qui rend les échecs beaucoup plus lisibles. Quand la réponse est fausse, tu vois vite s’il a mal lu la source, sauté un calcul, ou simplement halluciné avec beaucoup d’assurance.
+Le vrai gain n’est pas l’expression. Le vrai gain, c’est de séparer l’observation du jugement. L’étape 2 force le modèle à recopier la preuve avant de décider, donc les ratés deviennent beaucoup plus lisibles. Quand la réponse est fausse, tu vois s’il a mal lu la source, sauté un calcul, ou inventé des maths avec aplomb. Son petit côté artiste, quoi.
 
-Je n’utiliserais quand même pas ce pattern partout. Si la réponse peut être vérifiée par une fonction déterministe après coup, garde un prompt court et laisse le code contrôler. Si le modèle échoue parce qu’il saute toujours une étape implicite, ajoute du chain of thought et limite le budget de raisonnement avant que ça se transforme en impro payante.
+Ma règle est simple : si je peux vérifier la sortie avec du code, je garde un prompt court et je laisse le code jouer l’adulte dans la pièce. Je sors le chain of thought visible seulement quand la tâche rate toujours sur une étape intermédiaire implicite et que j’ai besoin d’assez de raisonnement pour attraper l’erreur, pas d’un roman.

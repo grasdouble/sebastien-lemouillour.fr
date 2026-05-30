@@ -7,21 +7,21 @@ publishedAt: 2099-12-31
 updatedAt: 2026-05-30
 ---
 
-Parfois, vous n'avez ni exemple, ni dataset, ni patience. Vous avez juste besoin d'une réponse utile dans les 30 prochaines secondes. C'est précisément là que le zero-shot prompting devient précieux.
+Parfois, vous avez juste besoin que le modèle arrête de faire le malin et fasse le boulot. Pas de dataset, pas d'exemples bien propres, pas une après-midi entière à peaufiner le prompt. Le zero-shot, c'est le premier réflexe que j'aurais.
 
-Le **zero-shot prompting** consiste à demander au modèle d'exécuter une tâche à partir des seules instructions, sans exemple résolu dans le prompt. C'est un schéma classique décrit dans les [stratégies Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies), le [guide OpenAI](https://platform.openai.com/docs/guides/prompt-engineering) et la [vue d'ensemble Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview). Si vous débutez, c'est presque toujours par là que je commencerais.
+Le **zero-shot prompting**, c'est tout simplement demander au modèle d'exécuter une tâche à partir des seules instructions, sans mettre d'exemple résolu dans le prompt, ce que présente très clairement le [guide Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies). Si vous débutez, c'est souvent le choix le moins pénible pour commencer.
 
 ### Pourquoi le zero-shot est le point de départ
 
-Les modèles de langage modernes savent déjà suivre des instructions de manière assez correcte. Pour des tâches courantes comme résumer un texte, extraire les points clés, réécrire un ton ou classer un sentiment évident, une instruction propre suffit souvent.
+Pour des tâches courantes comme résumer, extraire des champs, réécrire un ton ou classer un sentiment évident, une instruction claire va déjà étonnamment loin. Ce n'est pas juste une impression : OpenAI explique noir sur blanc dans son [guide OpenAI](https://developers.openai.com/api/docs/guides/prompt-engineering) que les modèles GPT profitent d'instructions plus explicites sur la manière d'accomplir une tâche.
 
-L'astuce, et c'est la partie que beaucoup de tutoriels oublient, c'est que zero-shot ne veut pas dire **zéro contexte**. Vous devez quand même expliquer au modèle à quoi ressemble une bonne réponse. Si vous oubliez le public, les limites ou le format, il comblera les trous avec des suppositions.
+Le piège, c'est que zero-shot ne veut **pas** dire zéro contexte. Anthropic recommande de définir les critères de réussite avant de commencer à bricoler les prompts dans sa [vue d'ensemble Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview), et ce conseil compte énormément ici. Si vous oubliez le public, la contrainte ou le format de sortie, le modèle improvisera. Parfois c'est utile. Parfois c'est juste du chaos avec une cravate.
 
 ### À quoi ressemble un bon prompt zero-shot
 
-J'aime le zero-shot parce qu'il reste lisible. On peut le partager à un collègue et il ressemble encore à du langage normal, pas à une formule ésotérique.
+J'aime le zero-shot parce qu'il reste lisible. Vous pouvez montrer le prompt à un collègue et il ressemble encore à une consigne normale, pas à une formule magique déterrée d'un forum en 2023.
 
-Voici un exemple très concret.
+Voici le genre de prompt que j'enverrais en premier.
 
 ```text
 Classe le sentiment de ce message client comme positif, neutre ou négatif.
@@ -31,12 +31,10 @@ Message :
 "Le nouveau dashboard est plus simple à utiliser, mais les exports échouent encore une fois sur deux."
 ```
 
-Cela fonctionne parce que la tâche est précise, les labels autorisés sont explicites et le format de sortie est serré. Si le modèle répond avec un roman malgré ça, c'est en général que l'instruction restait trop floue, pas que le zero-shot « ne marche pas ».
+Cela fonctionne parce que la tâche est étroite, les labels autorisés sont explicites et le format de sortie est contraint. Les [bonnes pratiques Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices) disent la même chose de façon plus sage : la clarté et des consignes de sortie concrètes font déjà une grosse partie du travail avant même d'ajouter des exemples.
 
-### Quand le zero-shot commence à montrer ses limites
+### Quand le zero-shot commence à vaciller
 
-Le zero-shot tient moins bien quand la tâche dépend d'un style subtil, de labels maison, de cas limites ou de règles propres à une entreprise. Par exemple, « classe ce ticket support en P1, P2 ou P3 » a l'air simple, mais ces labels n'ont pas exactement la même signification selon les équipes. Sans exemples, le modèle doit deviner votre définition locale.
+Le zero-shot devient fragile quand la tâche dépend d'un style subtil, de labels maison, de cas limites pénibles ou de règles qui n'ont de sens que dans votre équipe. « Classe ce ticket en P1, P2 ou P3 » a l'air simple jusqu'au moment où vous découvrez que chaque entreprise a inventé sa propre religion autour des niveaux de priorité.
 
-C'est pour cela que je traite le zero-shot comme le premier mouvement, pas comme la solution universelle. C'est rapide, peu coûteux en longueur de prompt, et souvent largement suffisant. Quand il échoue, son échec est utile : il vous montre précisément quelle définition ou quel exemple manquait.
-
-Ma règle de décision est simple : commencez en zero-shot sauf si le vocabulaire, les labels ou le ton sont vraiment spécifiques. Quand le modèle est presque juste mais dérive encore, c'est le signal du guide suivant, parce qu'un seul bon exemple peut faire gagner un temps franchement ridicule.
+Ma règle est simple : commencez en zero-shot pour les tâches courantes, puis passez en few-shot dès que vous avez des labels maison, un ton maison, ou que le modèle rate deux fois le même cas limite. C'est généralement le moment où garder un prompt court cesse d'être une bonne idée.

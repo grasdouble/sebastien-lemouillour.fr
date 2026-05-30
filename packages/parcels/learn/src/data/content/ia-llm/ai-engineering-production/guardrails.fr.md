@@ -4,16 +4,16 @@ order: 19
 difficulty: advanced
 tags: [LLM, security, guardrails, OWASP]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Votre fonctionnalité IA marche. Les utilisateurs adorent. Puis un utilisateur comprend comment lui faire ignorer le prompt système, exposer les instructions internes et appeler un outil avec des paramètres absurdes. Les garde-fous, c'est le travail que personne ne veut financer avant l'incident. L'erreur classique consiste à les traiter comme une couche de modération ajoutée à la fin. En production, les garde-fous sont des points de contrôle autour de tout le cycle de requête.
+Votre fonctionnalité IA part vite en prod et impressionne en démo. Puis un utilisateur réussit une prompt injection, récupère des instructions internes et déclenche un appel d'outil avec des arguments absurdes. Les garde-fous, c'est le travail que les équipes repoussent jusqu'au premier incident sale. C'est une erreur. En production, les garde-fous sont des points de contrôle autour de tout le cycle de requête, pas une case « modération » agrafée au début.
 
-Le [Top 10 OWASP LLM](https://owasp.org/www-project-top-10-for-large-language-model-applications/) est un meilleur point de départ que la plupart des schémas d'architecture, parce qu'il nomme les vraies pannes qui vous coûtent cher : prompt injection, fuite de données sensibles, sorties dangereuses. Cette liste doit changer votre design. Je ne fais pas confiance à un seul classifieur posé devant le modèle. Je veux trois rails : validation d'entrée avant l'inférence, contraintes sur les outils pendant l'exécution, validation de sortie avant que la réponse quitte le système.
+Je pars du [Top 10 OWASP](https://genai.owasp.org/llm-top-10/) parce qu'il nomme les pannes qui comptent en prod : prompt injection, sorties dangereuses et fuite d'informations sensibles. Cette liste doit changer le design, pas finir dans un slide. Je ne fais pas confiance à un classifieur unique devant le modèle. Je veux trois rails capables d'échouer séparément : validation d'entrée avant l'inférence, contraintes d'exécution autour des outils et validation de sortie avant qu'un texte atteigne l'utilisateur.
 
-C'est pour ça que j'aime [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) et [Guardrails AI](https://www.guardrailsai.com/docs). Ce ne sont pas des baguettes magiques, et ça ne rattrape pas une mauvaise décision produit, mais ces frameworks vous obligent à rendre les règles explicites. Explicite bat implicite, à chaque fois. Si un modèle peut chercher, envoyer un email ou appeler une API interne, le garde-fou doit vivre au niveau de cette capacité, pas dans un paragraphe poli caché dans le prompt système.
+C'est pour ça que je vais vers les [docs NeMo Guardrails](https://docs.nvidia.com/nemo/guardrails/latest/index.html) ou les [docs Guardrails AI](https://www.guardrailsai.com/docs). Pas parce qu'un framework rend le problème simple, mais parce qu'une politique explicite vaut mieux qu'une intuition floue. Si un modèle peut chercher, envoyer un email ou appeler une API interne, le garde-fou doit vivre au niveau de cette capacité. Cacher la règle dans le prompt système, c'est de l'ingénierie paresseuse.
 
-Un flux de prod minimal ressemble plus à une passerelle qu'à un wrapper de chat. Mettez le contrat dans le code, puis laissez le modèle évoluer à l'intérieur.
+Un flux de prod minimal doit ressembler à une passerelle plus qu'à une surcouche de chat. Mettez le contrat dans le code, puis laissez le modèle évoluer à l'intérieur.
 
 ```python
 policy = {
@@ -32,8 +32,8 @@ if validated.escalate:
 return validated.answer
 ```
 
-Regardez surtout ce qui manque : des listes de mots-clés qui prétendent régler l'abus. Les vrais garde-fous sont contextuels. Ils savent quels outils sont disponibles, quelles classes de données sont présentes et quel mode d'échec mérite une escalade plutôt qu'un refus silencieux. Ils doivent aussi rester alignés avec les règles du fournisseur, par exemple les [usage policies d'OpenAI](https://openai.com/policies/usage-policies), parce que votre politique interne et celle du vendor sont deux barrières différentes.
+La partie que les équipes ratent, c'est le repli. Les listes de mots-clés sont rapides à livrer et coûteuses à croire. Les vrais garde-fous sont contextuels : ils savent quels outils sont exposés, quelles classes de données sont en jeu et quels échecs doivent déclencher une escalade au lieu d'un refus silencieux. Ils doivent aussi rester alignés sur les règles du fournisseur, par exemple le [guide sécurité d'OpenAI](https://platform.openai.com/docs/guides/safety-best-practices). Votre politique et celle du fournisseur sont deux barrières distinctes. Traitez-les comme telles.
 
-L'opérationnel compte plus que le framework choisi. Journalisez chaque action bloquée, chaque override, chaque échec de schéma. Revoyez les faux positifs toutes les semaines. Si des utilisateurs déclenchent un rail et que personne ne sait expliquer pourquoi, vous avez construit du théâtre, pas de la sécurité.
+Je me soucie plus de l'observabilité que de la marque du framework. Journalisez chaque action bloquée, chaque override, chaque échec de schéma. Revoyez les faux positifs chaque semaine, parce que des garde-fous que personne ne sait expliquer finiront contournés par l'astreinte à 2 h du matin.
 
-Mon seuil est simple : si le modèle peut agir au nom d'un utilisateur, les garde-fous sont obligatoires. S'il peut toucher à l'argent, à des données privées ou à des systèmes de production, des étapes d'approbation déterministes valent mieux que des prompts ingénieux.
+Ma règle est simple : si le modèle agit au nom d'un utilisateur, les garde-fous sont obligatoires. S'il peut toucher à l'argent, à des données privées ou à des systèmes de production, ajoutez une étape d'approbation déterministe dans le flux. Si ce détour vous paraît trop cher, la fonctionnalité est probablement trop risquée pour être automatisée.

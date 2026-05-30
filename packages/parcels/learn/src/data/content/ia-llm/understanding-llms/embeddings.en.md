@@ -3,34 +3,30 @@ id: embeddings
 order: 11
 difficulty: beginner
 tags: [LLM, embeddings]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
-You search for “how to cancel a plan,” but the document you need says “end your subscription.” Keyword search misses it, and that feels silly because the meaning is obviously close to a human. **Embeddings** exist for exactly this problem. An embedding is a list of numbers that represents meaning in a way a machine can compare. If I had to explain why embeddings matter in one line, I would say this: they help computers notice semantic closeness, not just word overlap.
+You search for “how to cancel a plan,” but the page says “end your subscription.” Keyword search shrugs, and you are left thinking, “come on, that is obviously the same idea.” If the problem is “same meaning, different words,” an embedding is often the first tool I would choose.
 
 ## What an embedding really is
 
-OpenAI’s [embeddings guide](https://platform.openai.com/docs/guides/embeddings) defines embeddings as vectors, which are ordered lists of numbers. Those numbers are not human-readable explanations. They are coordinates in a mathematical space where similar texts end up closer together.
+OpenAI’s [embeddings guide](https://platform.openai.com/docs/guides/embeddings) defines an embedding as a vector, which is just an ordered list of numbers, and explains that distance between vectors measures how related two texts are. The numbers are not a secret human-readable summary. They are coordinates that let a machine compare meaning.
 
-That sounds abstract, so here is the mental picture I prefer. Imagine a huge map where sentences with related meanings are placed near one another. “Cheap hotel” and “budget place to stay” will not land on the exact same point, but a good embedding model tries to place them in the same neighborhood.
+That still sounds cold and mathematical, so I picture a city map. Sentences with nearby meanings live in the same neighborhood. “Cheap hotel” and “budget place to stay” do not share many words, but a decent embedding model tries to park them close together.
 
-This idea did not appear from nowhere. Earlier work like [word2vec](https://arxiv.org/abs/1301.3781) showed how models could learn meaningful numeric representations from language. Modern systems extended that idea from single words to sentences, paragraphs, images, and more.
+That trick has older roots than most beginners expect. The [word2vec paper](https://arxiv.org/abs/1301.3781) showed early on that language can be turned into vectors that capture useful patterns. Modern embedding models do the same job with richer context.
 
-## How people actually use embeddings
+## What people use embeddings for
 
-The most common use is **semantic search**, which means retrieving text by meaning rather than by exact wording. Sentence Transformers, documented at [SBERT](https://www.sbert.net/), made this especially practical for sentence-level similarity.
+Once you can compare meaning with distance, the next question becomes practical: what is that good for? Google’s [embeddings module](https://developers.google.com/machine-learning/crash-course/embeddings/) highlights search, clustering, and recommendations as standard uses. In plain language, that means finding related text even when wording changes, grouping similar documents without hand-sorting every one, and suggesting items that feel close in meaning.
 
-A second common use is recommendation. If two products, articles, or support tickets land close together in embedding space, you can suggest one when a user interacts with the other.
+If I had to pick one beginner-friendly use, I would start with semantic search, which means search by meaning instead of exact wording. The [SBERT paper](https://arxiv.org/abs/1908.10084) made sentence-level similarity much more practical by producing sentence embeddings that can be compared efficiently.
 
-A third use is clustering, which means grouping similar items automatically. That is helpful when you have thousands of comments or documents and want to discover themes.
+That convenience creates a new problem: speed. Once you have thousands or millions of vectors, comparing everything to everything gets expensive. Tools like [FAISS](https://faiss.ai/) exist for that exact reason, because they are built for efficient similarity search and clustering over large collections of vectors.
 
-To make this work at scale, teams often store embeddings in systems optimized for similarity search. [FAISS](https://faiss.ai/) is a widely used example. It helps find nearby vectors quickly without comparing every item one by one.
+## Where I would use them, and where I would stop
 
-## What embeddings are good at, and bad at
+Here is my stance: use embeddings when wording changes but intent stays similar. Do not treat them as a truth machine. OpenAI describes embeddings as a way to measure relatedness between texts, which is perfect for ranking what feels close and useless for proving that a statement is correct.
 
-I would reach for embeddings when the task is about similarity, retrieval, grouping, or recommendation. I would not reach for them when I need a final answer that must already be correct and explained. An embedding can tell you what looks related. It cannot, by itself, verify facts.
-
-That distinction matters. Beginners sometimes expect embeddings to “understand” text in a magical way. They do not. They compress useful patterns about meaning into numbers, which is powerful, but still limited.
-
-A simple rule works well: if wording varies but intent stays similar, embeddings are probably the right tool. Your next step is to take five phrases that mean nearly the same thing, plus two that do not, and compare how an embedding-based search system groups them. That tiny experiment makes the concept feel concrete very quickly.
+If you want a next step, build a tiny toy search set with five near-duplicates and two obvious outsiders, then inspect the nearest neighbors by hand. If the job is “find related items,” embeddings are a strong default. If the job is “verify a fact,” stop and add a separate verification step before you trust the answer.

@@ -4,29 +4,23 @@ order: 2
 difficulty: beginner
 tags: [LLM, cost, tokens, OpenAI, Anthropic]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-You've built your first LLM feature. Now someone asks: how much will this cost per month? You have no idea. That is normal, because LLM pricing feels abstract until you translate it into one request, one user, one month.
+You ship a small LLM feature, a few people try it, and the first awkward question lands immediately: are we about to spend pocket change or next month's coffee budget? Don't worry if this still feels abstract, it clicked for me once I stopped pricing “AI” in the abstract and priced one real request.
 
-Most providers charge per token. A token is a small chunk of text, not a word. "Hello world" is a couple of tokens, a long support conversation is many more. If you want to see how text gets split, the [OpenAI tokenizer](https://platform.openai.com/tokenizer) makes it concrete very quickly.
+That is the move I recommend first every time. A monthly bill is just one request cost, repeated many times, with a few annoying extras layered on top.
 
-Then the provider bills two things: input tokens, the text you send, and output tokens, the text the model generates. Check the current rates on [OpenAI pricing](https://openai.com/api/pricing/) and [Anthropic pricing](https://www.anthropic.com/pricing/). The exact numbers change over time, but the habit you need does not: estimate before launch.
+To price one request, you need one new word: token. A token is a small chunk of text rather than a full word, and Anthropic's [token counting guide](https://docs.anthropic.com/en/docs/build-with-claude/token-counting) is a clear place to see how providers count them. If you want the idea to stop feeling magical, the [OpenAI tokenizer](https://platform.openai.com/tokenizer) lets you paste text and watch it split into pieces.
 
-My rule is boring and useful: cost is a product decision, not a finance spreadsheet. A chat that keeps the whole history, adds a huge system prompt, retrieves five long documents, and asks for a 1,500-word answer is telling the model to be expensive. The bill follows the design.
+Once tokens make sense, the next surprise is billing. Most APIs price input tokens, the text you send, separately from output tokens, the text the model generates back, and OpenAI's [pricing](https://developers.openai.com/api/docs/pricing) plus Anthropic's [pricing](https://docs.anthropic.com/en/docs/about-claude/pricing) show why output is often the part that stings first. That is why I would shorten long answers before I touched anything else.
 
-A simple mental model helps:
+Here is the mental model I actually use. Request cost is input cost plus output cost. Monthly baseline is request cost multiplied by request count. Real monthly cost is baseline plus automatic retries, failed experiments, and the traffic spike nobody mentioned in the planning meeting.
 
-- Cost per request = input tokens + output tokens
-- Monthly cost = cost per request × number of requests
-- Real cost = monthly cost + retries + failures + experiments + logging
+Beginners usually underestimate that third line. A prompt that fails and gets sent again is not “just one more try”, it is another paid call. A huge system prompt sent on every request is not invisible plumbing, it is repeated spend. Both pricing pages also show discounted cached input for some models, meaning reused prompt prefixes can cost less, but I still would not depend on that to rescue a messy design. Shorter prompts and smaller answers are easier habits to trust.
 
-That last line is the one beginners miss. Every time a prompt fails and you try again, you pay again. Every time you send unnecessary context, you pay again. Every time you choose a bigger model just to be safe, you pay again.
+So where should you start? I would start from a budget per active user, not from a favorite model. If one active user can only cost a few cents per day, you probably need shorter prompts, fewer retrieved documents, or a smaller model. If one response directly saves real time or revenue, you can afford a more capable model and a longer answer.
 
-This is why I prefer to start with a budget, not a model. Decide what one user can cost per day. Then work backward. If you can afford only a few cents per active user, you probably need shorter prompts, fewer retrieved documents, smaller models, or tighter output limits. If the product creates high value per request, you can spend more.
+A simple first estimate works well enough. Take one short prompt, one average prompt, and one ugly worst case from your app. Count the input tokens, guess a realistic answer length, apply the provider prices, then multiply by expected daily traffic. Add a safety margin that feels slightly annoying. If the number still looks comfortable after that, you are probably in the right neighborhood.
 
-A good first exercise is to measure three real prompts from your app: short, average, and worst case. Count their tokens, estimate the answer length, multiply by your expected daily traffic, and add a safety margin. That number will still be rough, but it will be more useful than guessing.
-
-The trap is obsessing over the model price and ignoring usage shape. A cheap model with wasteful prompts can cost more than a better model with disciplined inputs.
-
-What next: once you can estimate request cost on a napkin, move to choosing a model. Price only matters after you know what quality and latency the feature needs.
+My main caveat is simple. Do not compare models before you compare how the feature is actually used. A cheaper model with bloated prompts can lose to a better model with disciplined inputs. If your rough estimate is already higher than the value of the user action, cut context or output length first, then move on to the next guide about choosing a model.

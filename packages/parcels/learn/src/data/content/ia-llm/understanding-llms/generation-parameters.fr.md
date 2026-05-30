@@ -3,65 +3,60 @@ id: generation-parameters
 order: 23
 difficulty: intermediate
 tags: [LLM, paramètres]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Si tu as déjà vu le même prompt passer d'excellent à inutilisable, tu connais déjà le piège : on accuse le modèle alors que ce sont les réglages de décodage qui font les dégâts. J'ai fait cette erreur au début. Je réécrivais mes prompts alors que le vrai problème venait d'une température mal choisie, d'une limite de tokens trop serrée, ou de deux paramètres d'échantillonnage qui se marchaient dessus.
+Quand un workflow passe d’un JSON propre à un résultat coupé ou absurde, beaucoup réécrivent le prompt. Moi, je regarde d’abord les paramètres de décodage. J’ai perdu trop d’heures à accuser le wording alors que le vrai bug venait d’une `temperature` laissée au hasard, d’une limite de tokens minuscule, ou d’un preset copié qui ne voulait pas dire la même chose chez un autre fournisseur.
 
-## Le piège, c'est de faire confiance aux réglages par défaut
+## La première correction, c’est d’arrêter de faire confiance aux défauts
 
-Les valeurs par défaut ne sont pas neutres. Elles changent selon les fournisseurs et les bibliothèques, et elles reflètent souvent un objectif produit générique, pas ton cas d'usage. Les contrôles exposés dans la [doc OpenAI](https://platform.openai.com/docs/guides/text?api-mode=responses), la [doc Anthropic](https://docs.anthropic.com/en/api/messages) et la [doc Transformers](https://huggingface.co/docs/transformers/main/en/generation_strategies) visent le même problème : décider quel token suivant a le droit de gagner.
+Les valeurs par défaut sont des choix produit, pas des bonnes pratiques universelles. Dans les [Messages examples](https://docs.anthropic.com/en/api/messages-examples) d’Anthropic, Claude Opus 4.7 et les versions suivantes refusent `temperature`, `top_p` et `top_k` hors valeur par défaut, alors que [Transformers strategies](https://huggingface.co/docs/transformers/main/en/generation_strategies) documente le décodage greedy comme comportement par défaut et l’échantillonnage comme quelque chose qu’on active volontairement.
 
-Ma règle est simple : traite les paramètres de génération comme une partie du contrat de l'application. Si tu construis de l'extraction, de la classification ou du tool calling, l'aléatoire est un bug tant que tu n'as pas une bonne raison de le garder. Si tu construis de l'idéation, des variantes marketing ou de l'exploration de données synthétiques, un peu d'aléatoire aide, mais seulement volontairement.
+C’est pour ça que je traite les paramètres de génération comme une partie du contrat de l’application. Si la tâche sert à extraire, router ou appeler des outils, je veux une requête ennuyeuse volontairement. Si la tâche sert à produire des idées, alors j’achète de la variation consciemment au lieu de la laisser entrer par défaut.
 
-## Les paramètres qui comptent vraiment
+## Régler un seul bouton d’aléatoire avant le reste
 
-### Température
+Ma position est simple : je change d’abord `temperature` et je laisse `top_p` à `1` tant que je ne peux pas décrire un vrai problème de queue de distribution. L’[API Responses](https://platform.openai.com/docs/api-reference/responses/create) d’OpenAI documente `temperature`, `top_p`, `max_output_tokens` et `stop`, et présente `top_p` comme une alternative à la température, pas comme son compagnon obligatoire.
 
-La température change à quel point le modèle préfère fortement les tokens les plus probables. Des valeurs basses rendent les sorties plus prudentes. Des valeurs hautes poussent le modèle à explorer davantage la queue de distribution. Pour de l'extraction ou du formatage, je partirais généralement entre `0` et `0.3`. Pour du brainstorming, je préfère monter entre `0.7` et `1.0` plutôt que de faire semblant qu'une tâche créative devrait être déterministe.
+Pour de l’extraction, de la classification ou des appels d’outils, je démarre autour de `0` à `0.2`. Pour explorer des variantes marketing, je peux monter vers `0.7` ou `0.9`, mais seulement si je suis prêt à relire plusieurs candidats.
 
-### top_p
-
-`top_p` conserve seulement le plus petit ensemble de tokens dont la probabilité cumulée dépasse un seuil. C'est utile, mais beaucoup de gens en abusent. Mon réglage par défaut, c'est `top_p: 1`, puis j'ajuste la température d'abord. Si tu ajustes fortement les deux, les échecs deviennent plus difficiles à comprendre, parce que deux filtres différents façonnent la même distribution.
-
-### max_output_tokens et stop
-
-Ce sont des leviers de budget et de contrôle, pas des détails cosmétiques. Une limite courte force des réponses concises, mais elle coupe aussi du raisonnement ou des sorties structurées. Les séquences d'arrêt sont meilleures quand tu sais où la réponse doit se terminer, surtout dans des templates, des sorties pseudo-JSON ou des pipelines multi-étapes.
-
-### Les pénalités de répétition
-
-Les pénalités de fréquence ou de présence peuvent aider quand le modèle boucle, mais je ne les activerais pas par défaut. Ce sont des outils de réparation. Si le modèle se répète, commence par vérifier si le prompt ou le contexte l'y pousse.
-
-## Réglages pratiques
-
-Pour un flux d'extraction déterministe, je commencerais comme ça :
+C’est le genre de requête avec lequel je commencerais pour une tâche structurée.
 
 ```ts
 const response = await client.responses.create({
   model: 'gpt-4.1-mini',
   input: 'Extract the company name and country as JSON.',
-  temperature: 0.2,
-  top_p: 1,
-  max_output_tokens: 120,
-  stop: ['\n\n'],
+  temperature: 0.1, // garder un échantillonnage serré
+  top_p: 1, // régler un seul contrôle d’aléatoire d’abord
+  max_output_tokens: 120, // assez de place pour une sortie valide
 });
 ```
 
-Pour de la génération d'idées, je ne desserrerais que les paramètres utiles à la variation :
+## Contrôler la longueur avant d’accuser le style
+
+`max_output_tokens` et `stop` ne sont pas des détails cosmétiques. Ils décident si le modèle a assez de place pour terminer et à quel endroit il a le droit de s’arrêter. Je vois souvent des équipes débattre de créativité alors qu’une limite trop basse coupe silencieusement la réponse.
+
+Si j’ai besoin d’une structure stricte, je préfère un schéma à une séquence `stop` soi-disant astucieuse. Les [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) d’OpenAI disent qu’une sortie basée sur JSON Schema peut faire respecter le schéma et rendre les refus détectables par programme, ce qui est plus sûr pour les automatisations que d’espérer qu’un prompt et une séquence d’arrêt coopèrent toujours.
+
+C’est le pattern que je préfère quand la variation est le but mais que la forme doit rester bornée.
 
 ```ts
 const response = await client.responses.create({
   model: 'gpt-4.1-mini',
   input: 'Give me 8 landing page headline options for a privacy-first note app.',
-  temperature: 0.9,
-  top_p: 1,
-  max_output_tokens: 220,
+  temperature: 0.8, // ajouter de la variation volontairement
+  top_p: 1, // laisser le nucleus sampling neutre pour mieux débugger
+  max_output_tokens: 220, // plafonner le coût de revue
 });
 ```
 
-Observe ce qui reste stable : je ne touche pas à tout en même temps. C'est ce pattern qui fait gagner du temps. Tu changes une variable, tu regardes les échecs, puis tu décides s'il te faut plus de diversité, plus de contrôle, ou simplement un meilleur prompt.
+## Les contrôles de répétition sont des outils de réparation
 
-## Règle de décision
+Transformers explique que le décodage greedy finit souvent par se répéter sur les sorties longues, alors que l’échantillonnage est ce qu’on active quand on veut un texte plus divers. C’est pour ça que je ne commence pas par les pénalités de répétition. Si le modèle boucle, je regarde d’abord la tâche, le contexte et la limite avant d’empiler des rustines.
 
-Si la tâche a une seule bonne forme de sortie, pars avec une température basse, `top_p: 1`, et une limite de tokens assez large pour éviter la coupe. Si la tâche profite de la variation, monte la température avant de toucher au reste. N'ajoute `top_p`, des séquences `stop` ou des pénalités de répétition que quand tu peux nommer précisément le problème qu'ils corrigent.
+## Les coûts et les limites punissent les réglages brouillons
+
+Des caps plus longs, plus de retries et des expériences plus larges ne changent pas seulement le ton. Ils mangent votre budget de tokens et vous rapprochent des limites du fournisseur. Le [guide rate limits](https://platform.openai.com/docs/guides/rate-limits) d’OpenAI suit les RPM, TPM, RPD et TPD, et c’est un bon rappel qu’un tuning désordonné a un coût opérationnel bien avant que la finance le remarque.
+
+Ma règle de décision est ennuyeuse volontairement : si la tâche a une seule bonne forme, commence avec une température basse, `top_p: 1`, et une limite assez large pour éviter la coupe. Si la tâche a besoin de variation, monte d’abord la température. Si tu ne peux pas nommer le problème précis qu’un paramètre corrige, ne touche pas à ce paramètre.

@@ -4,32 +4,35 @@ order: 23
 difficulty: advanced
 tags: [LLM, scalability, vLLM, LiteLLM]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-The demo handled fifty users and everybody relaxed. Then one customer pasted a giant ticket history, another opened five tabs, and suddenly your queue time is longer than inference. AI scalability problems rarely start with CPU. They start with too much work per request.
+The demo survived fifty users, so everybody pretended the system was ready. Then one customer pasted a year of ticket history, another opened five tabs, and your queue time passed inference time. Scalability pain in AI apps usually starts with too much work per request, not with a lack of GPUs.
 
-At scale, there are only four levers that matter: shrink the prompt, reduce unnecessary retrieval, batch inference, and route requests by SLA. Throwing more machines at a bad prompt pipeline just buys you a more expensive failure. This is why [vLLM](https://docs.vllm.ai/) is important. Its serving model is designed for high-throughput inference, and features like continuous batching change the economics of concurrent traffic. The gateway layer matters too. With [LiteLLM](https://docs.litellm.ai/), routing and fallback policy can live outside product code, which is how you keep one traffic spike from turning into a rewrite.
+The first fix is boring, which is why teams dodge it. The [latency guide](https://developers.openai.com/api/docs/guides/latency-optimization) says output tokens dominate latency and prompt trimming helps less unless contexts are already huge. Repeated prefixes should use [prompt caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching), because recomputing the same system prompt on every call is self-inflicted pain. If you serve your own weights, [vLLM](https://docs.vllm.ai/) exists for high-throughput inference, and the [vLLM paper](https://arxiv.org/abs/2309.06180) is still the reference for why paged KV memory and continuous batching hold up under concurrent load. For the gateway, I would start with [LiteLLM routing](https://docs.litellm.ai/docs/routing), not a homegrown router, and I would keep its documented `simple-shuffle` default until real traffic proves you need something more expensive.
 
-I scale AI systems in this order. First, remove useless tokens. Second, split traffic by task criticality. Third, batch or cache aggressively. Fourth, add capacity. Most teams start at step four because buying capacity feels simpler than arguing with prompt owners. They also skip the ugly load test, the one with long conversations, mixed tenant sizes, and retrieval misses, which is exactly where the queue starts lying to you.
+I scale AI systems in this order. First, remove useless tokens. Second, separate traffic by business criticality. Third, cache or batch the paths that repeat. Fourth, add capacity. Most teams start at step four because buying capacity is politically easier than telling prompt owners they are wasting half the latency budget. They also skip the ugly load test, the one with long conversations, mixed tenant sizes, retrieval misses, and client cancellations. That is exactly where the queue starts lying.
 
-Here is the kind of routing policy I want before traffic gets serious.
+This is the routing shape I would ship first.
 
 ```yaml
 model_list:
   - model_name: fast-lane
     litellm_params:
-      model: gpt-4.1-mini
+      model: openai/gpt-4.1-mini
+      weight: 3
+  - model_name: fast-lane
+    litellm_params:
+      model: openai/gpt-4.1
+      weight: 1
   - model_name: quality-lane
     litellm_params:
-      model: gpt-4.1
+      model: openai/gpt-4.1
 
 router_settings:
-  routing_strategy: usage-based-routing
-  fallbacks:
-    - fast-lane: ['quality-lane']
+  routing_strategy: simple-shuffle
 ```
 
-That only works if the rest of the architecture cooperates. [Martin Fowler's patterns](https://martinfowler.com/articles/building-with-genai.html) are a good reminder that orchestration, memory, and domain logic should not collapse into one service. If they do, you cannot scale them independently. You also need explicit backpressure: queue limits, tenant quotas, timeout budgets, and cancellation when the client disappears. Silent work on abandoned requests is how AI systems burn money and still miss latency objectives.
+That keeps the policy readable. The product chooses `fast-lane` or `quality-lane` by SLA, and the router stays on the lowest-overhead strategy until you have measurements that justify latency-based or usage-based routing. I would also make backpressure explicit: queue caps, tenant quotas, timeout budgets, and cancellation when the client disappears. Silent work on abandoned requests is how you burn margin and still miss latency objectives.
 
-Do not obsess over raw QPS without looking at tokens per second, prompt growth, and tool fan-out. Those are usually the real bottlenecks. My rule is blunt: if P95 latency misses your target while serving infrastructure is comfortably underutilized, your problem is request design, not hardware.
+My decision rule is blunt: if P95 misses the target while serving infrastructure is comfortably underutilized, redesign the request path. If utilization is high and queues still grow after prompt cleanup, caching, and batching, then buy capacity.

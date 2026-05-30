@@ -4,16 +4,16 @@ order: 21
 difficulty: advanced
 tags: [agent, architecture, orchestration, observability, LangGraph]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2099-12-31
 ---
 
-A lot of teams split one mediocre agent into five mediocre agents and call it a platform. What they actually built is extra latency, extra coordination, and a debugging story nobody wants to own.
+When one user request bounces through a planner, a researcher, a reviewer, and a formatter, your p95 latency blows up and nobody can explain which hop actually failed. Multi-agent architecture is usually that kind of self-inflicted pain.
 
-Multi-agent architecture only earns its keep when one of three things is true: parts of the task can run in parallel, the required specializations actively conflict inside one system prompt, or you need hard tool isolation between roles. If none of that is happening, keep one agent and fix its plan. [AutoGen](https://microsoft.github.io/autogen/) and [LangGraph](https://langchain-ai.github.io/langgraph/) both make multi-agent orchestration possible, but neither of them protects you from inventing unnecessary traffic between components.
+I only reach for multiple agents when I can justify the tax in one of three ways: real parallel work, a hard isolation boundary, or specialist behavior I do not want mixed in one runtime. [AutoGen](https://microsoft.github.io/autogen/stable/) is built for conversational single and multi-agent apps, and [LangGraph](https://docs.langchain.com/oss/python/langgraph/overview) is explicit about being an orchestration runtime for long-running, stateful agents. Nice tooling, same warning: if you do not need orchestration, you are just paying for more hops.
 
-The orchestrator is where most designs go bad. I do not want the orchestrator reasoning about the business problem. I want it routing structured work to specialists and aggregating typed results. If the orchestrator prompt contains domain judgment, you misplaced the logic.
+The orchestrator is where architecture turns into theater. I do not want it doing business reasoning. I want it validating a plan, routing typed work, and rejecting unknown paths. If the orchestrator prompt is full of domain judgment, you hid product logic in the least testable place.
 
-Here is the level of orchestration I trust in production:
+Before the handoff code, lock the contract down so failure is loud instead of polite.
 
 ```python
 from typing import Callable
@@ -25,16 +25,23 @@ AGENTS: dict[str, Callable] = {
 }
 
 def dispatch(subtask: Subtask) -> Result:
-    handler = AGENTS.get(subtask.tool_hint)
+    handler = AGENTS.get(subtask.role)
     if handler is None:
-        raise ValueError(f"No agent for {subtask.tool_hint}")
+        raise ValueError(f"No agent for {subtask.role}")
     return handler(subtask)
 ```
 
-No fallback to guessing. No "best effort" reroute. If the plan says a pricing specialist is required and none exists, fail loudly and fix the plan.
+No guessing, no silent reroute, no magical fallback. If the plan says pricing and you only have security and docs, fail the run and fix the plan. A multi-agent system that improvises around missing specialists is just a flaky single agent wearing a fake mustache.
 
-Observability is the part tutorials wave away, and it is the first thing that hurts in production. Every message that crosses an agent boundary should carry a `task_id`, sender, receiver, token count, latency, and exit status. Otherwise, once a run fails, you are reconstructing behavior from partial logs and hope. The same orchestration concern shows up in [Semantic Kernel](https://learn.microsoft.com/en-us/semantic-kernel/overview/): composition matters, but only if you can trace it.
+Observability is where the real bill shows up. [OpenTelemetry traces](https://opentelemetry.io/docs/concepts/signals/traces/) exist to correlate work across process boundaries, and [Semantic Kernel observability](https://learn.microsoft.com/en-us/semantic-kernel/concepts/enterprise-readiness/observability/) spells out the boring part people skip: logs, metrics, and tracing are table stakes for enterprise AI. Every cross-agent handoff should carry a trace identifier, sender, receiver, latency, token usage, and terminal status. If you cannot reconstruct one request end to end, you do not have an architecture. You have folklore.
 
-The math is not negotiable. A three-agent path with 95% reliability per hop gives you about 86% end-to-end reliability before retries. Add approval gates, network variance, or tool calls, and the number gets worse fast.
+That gets even more concrete for agent systems. [OpenTelemetry GenAI agent spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/) define attributes such as `gen_ai.operation.name`, `gen_ai.agent.name`, `gen_ai.request.model`, and error data for agent and workflow spans. I would use those names before inventing my own schema, because custom telemetry vocabularies age like milk.
 
-My rule is boring and effective: if you cannot point to parallelism, conflicting specialization, or a security boundary, you do not need multiple agents. You need a better single-agent design.
+The reliability math is still merciless: three hops at 95% success each gives you roughly 86% end-to-end before retries. Add approval gates, queueing, or tool calls and the tail gets uglier, not smarter.
+
+My cutoff is blunt: if you are not buying parallel throughput, isolation, or a real specialist boundary, keep one agent. If you are not hitting enough scale or risk to feel the tracing pain, ignore the multi-agent hype and spend your time on a better single-agent plan.
+
+## Resources
+
+- [LangGraph persistence](https://docs.langchain.com/oss/python/langgraph/persistence)
+- [LangGraph interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts)

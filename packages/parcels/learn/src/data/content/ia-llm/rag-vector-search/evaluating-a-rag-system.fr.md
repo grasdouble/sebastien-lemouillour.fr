@@ -4,20 +4,18 @@ order: 24
 difficulty: advanced
 tags: [RAG, evaluation, observability, Ragas, TruLens]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Beaucoup d’équipes RAG déploient encore des changements au ressenti. Quelqu’un modifie le chunking, remplace le reranker, ajuste le prompt, puis pose trois questions favorites en staging. Une semaine plus tard, les utilisateurs remontent des régressions et personne n’est capable de dire si le système est moins précis, moins fidèle, plus lent, ou simplement plus cher.
+On ne repère pas un RAG fragile pendant la démo. On le repère après la mise en prod, quand un changement d’indexation fait chuter la qualité, qu’un ajustement de prompt ajoute des hallucinations, et que personne ne peut prouver quelle couche a cassé en premier. C’est pour ça que je refuse l’idée d’un score unique pour décider d’une release RAG.
 
-Ma position est simple : un score unique donne un faux sentiment de sécurité. Un système RAG a besoin d’une évaluation séparée pour la qualité du retrieval, la qualité des réponses et le comportement opérationnel. Si tu écrases tout dans un seul nombre, l’équipe optimisera la couche la plus simple à bouger et laissera intacte celle qui crée la panne.
+Il faut d’abord découper le problème comme le font [Azure Foundry](https://learn.microsoft.com/en-us/azure/foundry/concepts/evaluation-evaluators/rag-evaluators) et [Bedrock metrics](https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base-evaluation-metrics.html) : qualité du retrieval, génération ancrée dans le contexte, utilité de bout en bout. Si tu mélanges tout, l’équipe optimisera la métrique la moins chère à faire monter et ratera celle qui casse le SLA.
 
-J’aime [Ragas](https://docs.ragas.io/) parce qu’il pousse naturellement vers des expériences plutôt que vers des captures d’écran. J’aime [TruLens](https://www.trulens.org/) parce que les traces rendent les pannes inspectables étape par étape : chunks récupérés, appels d’outils, grounding, sortie finale. Et j’aime [DeepEval](https://docs.confident-ai.com/) quand je veux que le harnais d’évaluation vive dans la CI à côté du code, pas dans un dashboard que personne ne regarde avant un merge.
+Pour les régressions offline, je choisirais d’abord [Ragas faithfulness](https://docs.ragas.io/en/latest/concepts/metrics/available_metrics/faithfulness/) parce que la métrique vérifie directement si la réponse est bien supportée par le contexte récupéré. Ça règle le problème suivant : la plupart des équipes testent seulement des requêtes faciles. Je construirais le dataset à partir des modes d’échec, avec du contenu périmé, des trous de permissions, des chunks quasi dupliqués, du jargon interne, des questions multi-sauts, et des prompts où la bonne réponse est un refus explicite.
 
-Le point que les tutoriels sautent presque toujours, c’est le design du dataset. Les requêtes aléatoires ne servent plus à grand-chose dès que le système devient correct. Je veux des sets d’évaluation construits à partir des modes d’échec : jargon interne flou, documents périmés, permissions manquantes, questions multi-sauts, sources quasi dupliquées, et questions où le bon comportement consiste à répondre “je ne sais pas”. Si ton dataset n’inclut pas des cas moches, il ne protège pas la production.
+Une fois que le dataset devient assez hostile, les captures d’écran ne servent plus à rien. [TruLens tracing](https://www.trulens.org/component_guides/instrumentation/) est le bon choix quand il faut inspecter le contexte récupéré, les étapes intermédiaires et les cibles d’évaluation dans le même flux d’exécution. Je le couple avec [OTel GenAI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) pour standardiser la latence, l’usage de tokens et les spans d’échec au lieu de dépendre de ce que le vendeur du moment expose.
 
-Quand le coût d’annotation devient le vrai frein, lis [ARES](https://arxiv.org/abs/2311.09476). La leçon importante n’est pas que les juges automatiques remplacent les humains, mais qu’on peut combiner données synthétiques, juges légers et petit set humain calibré pour faire monter l’évaluation en puissance sans exploser l’organisation.
-
-Le contrat minimum que j’attends d’une équipe RAG sérieuse ressemble à ça :
+Avant de discuter d’une mise en prod, écris le contrat noir sur blanc :
 
 ```yaml
 eval_layers:
@@ -37,6 +35,6 @@ release_rule:
   block_if_any_critical_metric_regresses: true
 ```
 
-J’ajouterais aussi des propriétaires explicites. Les métriques de retrieval appartiennent à la personne qui touche à l’indexation et au ranking. La faithfulness appartient à la personne qui modifie les prompts et la politique de génération. Le coût et la latence appartiennent à la couche plateforme. La responsabilité partagée finit souvent en absence totale de responsabilité.
+Si tu veux que ce contrat résiste à la pression de la prod, exécute les mêmes évaluations dans la CI. J’utiliserais [DeepEval CI](https://www.confident-ai.com/docs/llm-evaluation/unit-testing-cicd) quand l’équipe veut que les régressions bloquent les merges au lieu de dormir dans un dashboard que personne n’ouvre. L’attribution reste non négociable : les métriques de retrieval appartiennent aux responsables du retrieval, le groundedness appartient à la personne qui modifie prompts ou politiques, et la latence comme le coût appartiennent à la plateforme.
 
-Ma règle est difficile à contester : si un changement proposé ne sait pas dire quelle métrique il doit améliorer, quel seuil il doit préserver et quel déclencheur impose un rollback, il n’est pas prêt pour la production.
+Ma règle est simple : bloque la release si la faithfulness passe sous le seuil prévu, si la p95 de latence casse le SLA, ou si la couverture de traces devient trop faible pour expliquer les incidents. Si un changement n’est pas capable de nommer la métrique qu’il doit améliorer, le seuil qu’il doit préserver et le déclencheur de rollback, il n’est pas prêt.

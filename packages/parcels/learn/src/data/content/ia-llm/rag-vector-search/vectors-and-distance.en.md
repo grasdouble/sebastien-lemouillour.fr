@@ -4,19 +4,19 @@ order: 6
 difficulty: beginner
 tags: [RAG, LLM, vectors, cosine]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Your search system says one document is "closer" to the question than another, and that word can feel suspiciously hand-wavy. Closer according to what? If you do not answer that, vector search stays magical in the bad way.
+You ask a question, the search returns a score like 0.82, and you still cannot tell whether to trust it. That confusion is normal. "Closer" sounds precise, but until you know what the system is measuring, vector search feels like a black box.
 
-A **vector** is just an ordered list of numbers. In retrieval, an embedding model maps each text to one of those lists, as described in the [embeddings guide](https://platform.openai.com/docs/guides/embeddings). You can imagine each vector as a point in a very high-dimensional space. High-dimensional only means there are many coordinates, far more than the two or three we can draw on paper.
+The first useful idea is simple: an **embedding model**, meaning a model that turns text into numbers, produces a **vector**, which is just an ordered list of numbers, as explained in the [OpenAI docs](https://platform.openai.com/docs/guides/embeddings). You can picture that vector as a point in a huge space. Huge only means many coordinates, not magic.
 
-Once texts become points, you need a rule for deciding which points are near each other. That rule is your **distance metric** or **similarity metric**. The most common one for beginner RAG projects is [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity). It compares the angle between vectors more than their raw length. In plain English, it asks, "are these vectors pointing in a similar direction?" For semantic retrieval, that often matches the intuition we want.
+Once every text becomes a point, a new problem appears: what does "near" mean? That is the job of a **similarity metric**. The [Google ML docs](https://developers.google.com/machine-learning/clustering/dnn-clustering/supervised-similarity) are a good reference here: cosine similarity mostly compares direction, dot product reflects direction and vector length, and Euclidean distance measures the geometric distance between points. For beginner semantic search, I would start by thinking of cosine as a simple question: are these two arrows pointing roughly the same way?
 
-Other metrics exist. Some systems use dot product. Others use Euclidean distance, which is the ordinary straight-line distance many people know from school. Tools such as [Qdrant](https://qdrant.tech/documentation/) and [FAISS](https://faiss.ai/) support different choices because different embedding models and use cases behave better with different metrics.
+That choice is not just theory. Real vector search systems expose it as a setting. The [Elastic docs](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/dense-vector) define k-nearest neighbor search as finding the nearest vectors according to a similarity metric, which is why two systems can rank the same documents differently even when they store the same embeddings.
 
-The thing most tutorials skip is that the absolute numbers rarely matter to a human. A similarity score of 0.82 is not "good" in the abstract. It is only useful compared with the other candidates for the same query, or compared with scores you have observed during evaluation. Beginners often stare at the score itself when they should be looking at the ranking and the retrieved documents.
+One detail saves a lot of beginner confusion. The [FAISS docs](https://github.com/facebookresearch/faiss/wiki/MetricType-and-distances) explain that cosine similarity can be implemented by normalizing vectors and then using inner product. So cosine is not a magical third thing. It is often a particular way of preparing vectors before comparison.
 
-My default advice is boring on purpose: for text retrieval, start with cosine similarity unless the embedding model documentation tells you otherwise. That is not because cosine is universally superior. It is because matching the metric to the model recommendation saves you from subtle, annoying mistakes early on. The second thing I would do is inspect real results manually before inventing thresholds.
+My beginner rule is deliberately boring, because boring rules are useful when the topic still feels fuzzy: start with the metric recommended by your embedding model or vector store docs, and if nothing is specified, start with cosine for text search. I would not invent a fixed score threshold on day one, because a number like 0.82 means little by itself. First inspect the ranking on at least twenty real queries, and remember the main limitation: a high score only means "close under this metric," not "definitely correct."
 
-If this still feels abstract, that is normal. It became concrete for me only when I compared a dozen real queries and watched how the ranking changed under different metrics. That is a good next experiment for you too. After that, the next guide I would read is the one on vector databases, because metrics become much easier to reason about once you see where they live in a real system.
+If you want the next piece to click, read the guide on vector databases right after this one. Seeing where the metric is configured makes the whole topic much less abstract.

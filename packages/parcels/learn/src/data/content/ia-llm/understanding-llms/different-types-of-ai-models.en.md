@@ -3,38 +3,34 @@ id: different-types-of-ai-models
 order: 6
 difficulty: beginner
 tags: [IA, LLM]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
-You've read about "AI" and "machine learning," but when you try to choose a tool for a specific problem, you hit a wall of model names and jargon. What is the difference between a classification model and a generative model? Why does the type matter? This guide maps the main families so you can make informed decisions.
+You open one AI tool and see “classifier.” You open another and see “LLM,” short for **large language model**. A third promises “multimodal reasoning.” It feels like shopping in a hardware store where every box is labeled in a language you do not speak yet. The fastest way to calm that down is not to memorize model names. It is to ask one question first: what kind of output do you actually need?
 
-### Models That Predict a Category or Number
+### Start With The Output
 
-The oldest and most widely deployed AI models are **supervised learning** models. You give them labeled examples (input-output pairs) and they learn to predict the output for new inputs.
+If you need a model to choose a label such as “spam” or “not spam,” you are in **classification**. Google defines classification as predicting which class, meaning category, an example belongs to ([Google classification](https://developers.google.com/machine-learning/crash-course/classification)). If you need a number such as a price or delivery time, you are in **regression**, which predicts a numerical value from data ([Google regression](https://developers.google.com/machine-learning/crash-course/linear-regression)).
 
-**Classification models** predict which category an input belongs to: spam or not spam, benign or malignant, cat or dog. These run invisibly in your bank's fraud detection, your email inbox, and your social media feed every day.
+Both usually sit inside **supervised learning**, which means the model learns from examples that already include the right answer. If I had clean labeled data and a clear success metric, I would start here before touching a generative model. It is cheaper, easier to debug, and usually easier to explain.
 
-**Regression models** predict a continuous value rather than a category: tomorrow's temperature, the expected price of a house, the probable delivery time of a package. Both classification and regression have been in production for decades and are among the most well-understood forms of AI.
+### What If You Do Not Have The Right Answers Yet?
 
-### Models That Find Structure Without Labels
+Sometimes you have data but no labels, which means nobody has tagged each example with the correct category. Then you move to **unsupervised learning**. The most common beginner example is **clustering**, which groups similar unlabeled examples together ([Google clustering](https://developers.google.com/machine-learning/clustering/overview)).
 
-**Unsupervised learning** models, including **clustering** algorithms, work without labeled data. They find natural groupings or patterns in raw data. A retailer might cluster customers by purchasing behavior without knowing in advance what the groups will look like. These models are less about prediction and more about discovery.
+That solves one problem, but not the next one. Real datasets can have too many **dimensions**, meaning too many numerical features to compare comfortably. **Embeddings** are compact numerical representations that place similar things closer together in a smaller space, which is why they are so useful for search and recommendations ([Google embeddings](https://developers.google.com/machine-learning/crash-course/embeddings/video-lecture)).
 
-A related family is **dimensionality reduction**: techniques like [PCA (Principal Component Analysis)](https://en.wikipedia.org/wiki/Principal_component_analysis) or embeddings that compress high-dimensional data into a smaller space while preserving meaningful relationships. Embeddings in particular are a building block of modern LLMs and power semantic search.
+### What If The System Must Learn By Trial And Error?
 
-### Models That Learn Through Interaction
+Some problems are less like sorting email and more like learning a game. In **reinforcement learning**, or **RL**, the model improves by taking actions and receiving rewards or penalties. The classic mental picture is a player getting points for good moves. DeepMind’s [AlphaGo](https://www.nature.com/articles/nature16961) is the famous example: it learned Go through reinforcement learning and self-play rather than from a neat table of correct answers.
 
-**Reinforcement Learning (RL)** models learn by taking actions in an environment and receiving rewards or penalties. This is how [DeepMind's AlphaGo](https://deepmind.google/research/breakthroughs/alphago/) learned to play Go at a superhuman level. It is also a core technique used to fine-tune LLMs to follow instructions, through the process called RLHF.
+I would not reach for RL unless the task truly is interactive, because it is much harder to train and evaluate than basic supervised learning.
 
-### Generative and Multimodal Models
+### When Do Generative And Multimodal Models Matter?
 
-Generative models learn the distribution of training data well enough to produce new samples: text, images, audio, video. This is the family that includes LLMs, image generators, and music generation systems. They attract the most press attention right now, but they are one category among many.
+If the job is to produce new text, images, or audio, you are in **generative AI**. A **multimodal** model goes one step further and handles more than one kind of data, such as text plus image, in the same system. Google’s [Gemini docs](https://ai.google.dev/gemini-api/docs/models) describe models that work across text, images, audio, and video, which is the practical beginner meaning of multimodal.
 
-**Multimodal models** go further by accepting and producing multiple types of input and output together, mixing images, audio, and text in a single model. [GPT-4o](https://openai.com/index/hello-gpt-4o/) and [Gemini](https://deepmind.google/technologies/gemini/) are prominent examples.
+This is where the hype lives, but I would treat it as a last stop, not a default. If your task has one right answer that you can score, a classifier or regressor is usually the saner first bet.
 
-### How to Pick the Right Type
-
-The rule I'd apply: match the model type to the structure of your problem, not to what is currently trending. If you have labeled historical data and want to predict a binary outcome, a classification model will likely outperform a generative one, cost far less to run, and be much easier to explain to stakeholders. Generative models are genuinely transformative for open-ended tasks, but they are overkill, and often worse, for structured prediction problems.
-
-Start with the simplest model type that could plausibly solve your problem. Add complexity only when you have evidence that it is needed.
+If your next question is less “which family?” and more “which provider?”, read the guide on open-source vs proprietary models next. My threshold is simple: if success can be measured with a clear correct answer, start with classification or regression; only jump to a generator when the job is truly open-ended.

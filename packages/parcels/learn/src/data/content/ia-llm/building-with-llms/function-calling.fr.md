@@ -4,18 +4,18 @@ order: 14
 difficulty: intermediate
 tags: [LLM, OpenAI, function-calling, schema]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2099-12-31
 ---
 
-La version gênante du function calling, c’est quand le modèle dit “j’ai réservé le rendez-vous” alors qu’il n’a absolument rien fait.
+Tu connais la version pénible des features IA : le modèle annonce fièrement “c’est fait”, et ton app n’a absolument rien fait.
 
-Le function calling existe pour couper court à cette comédie. Avec le [function calling](https://platform.openai.com/docs/guides/function-calling), le modèle n’exécute pas l’action lui-même. Il renvoie une demande structurée disant quelle fonction il veut appeler et avec quels arguments. Ton code garde l’exécution, les permissions, les retries et la gestion d’erreur. Toute la valeur est dans cette séparation.
+Le function calling existe pour tuer ce mensonge. Chez [OpenAI](https://platform.openai.com/docs/guides/function-calling), [Anthropic](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview) et [Gemini](https://ai.google.dev/gemini-api/docs/function-calling), la boucle de base reste la même : le modèle renvoie une demande d’outil structurée, ton application exécute l’action, puis tu peux renvoyer le résultat pour obtenir la réponse finale. J’aime ce pattern parce que la partie dangereuse, les vrais effets de bord, reste dans du code normal, là où l’auth, les retries et les logs d’audit ont leur place.
 
-Ce que la plupart des tutos conçoivent mal, c’est le schéma. Si ton outil prend `query: string`, `options: object` et `metadata: any`, tu n’as pas défini une fonction, tu as donné un lance-flammes au modèle. Traite le schéma comme un contrat d’API. Plus il est simple et serré, moins tu débogueras d’appels absurdes plus tard. Les règles de [JSON Schema](https://json-schema.org/understanding-json-schema/) sont utiles ici, parce qu’elles t’obligent à expliciter les enums, les champs requis et les objets imbriqués. Si tu veux que le modèle reste vraiment dans les rails, combine la définition de l’outil avec des [strict schemas](https://platform.openai.com/docs/guides/structured-outputs).
+Là où la plupart des tutos se ratent, c’est le schéma. Si ton outil prend `query: string`, `options: object` et `metadata: any`, tu n’as pas défini une fonction, tu as donné un lance-flammes au modèle. Traite le schéma comme un contrat d’API. Les détails chiants de [JSON Schema](https://json-schema.org/understanding-json-schema/) comptent plus que le prompt, parce que les enums, les champs requis et `additionalProperties: false` sont ce qui t’évite des appels absurdes à 2 h du matin. Si tu bosses avec OpenAI, j’activerais aussi les [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) avec des schémas stricts au lieu d’espérer que le modèle respecte ton format par magie.
 
-Avant le code, voilà le piège dans lequel je suis tombé : le function calling rend les démos magiques, donc les gens laissent le modèle choisir trop de choses. En prod, je veux qu’il choisisse parmi quelques opérations sûres, pas qu’il invente un mini langage de requête pour mon backend.
+Voilà le piège dans lequel je suis tombé : le function calling rend les démos plus intelligentes que le produit réel, donc les gens laissent le modèle choisir trop de choses. En prod, je veux un tout petit menu d’actions sûres, pas une aire de jeu en forme de backend.
 
-Voilà le type de définition que je considère fiable :
+En syntaxe façon OpenAI, voilà le genre de définition que je considère fiable :
 
 ```ts
 const tools = [
@@ -45,6 +45,6 @@ const tools = [
 ];
 ```
 
-Quelques règles rendent ça robuste. Ne laisse jamais les arguments d’outil partir directement vers du SQL, du shell ou des API tierces sans une nouvelle validation. Accroche l’auth et les contrôles de tenant en dehors de la boucle du modèle, parce que le modèle ne sait pas qui a le droit de faire quoi. Anticipe aussi la latence supplémentaire : chaque appel d’outil implique souvent un autre aller-retour modèle, donc il faut le budgéter et afficher des états de chargement côté UI.
+Ensuite, garde les garde-fous. Revalide les arguments d’outil avant qu’ils touchent du SQL, du shell ou des API tierces. Garde l’auth et les contrôles de tenant hors de la boucle du modèle, parce que le modèle n’a aucune idée de qui a le droit de faire quoi. Et pense à la latence : le flux standard avec outils se fait en plusieurs étapes, donc un appel d’outil peut très bien ajouter un tour de modèle avant que l’utilisateur voie la réponse finale.
 
-J’utilise le function calling quand le modèle doit choisir dans un petit menu d’actions. Si tu te retrouves à ajouter vingt fonctions vaguement similaires, arrête-toi. C’est souvent le moment où la surface d’outil cache en réalité un problème de design produit.
+Ma règle est simple : j’utilise le function calling quand le modèle doit juste choisir parmi quelques opérations bien nommées. Si tu ajoutes des outils quasi identiques pour compenser un flou produit, arrête-toi et revois le workflow d’abord.

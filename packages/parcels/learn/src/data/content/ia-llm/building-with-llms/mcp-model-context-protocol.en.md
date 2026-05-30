@@ -7,30 +7,39 @@ publishedAt: 2099-12-31
 updatedAt: 2026-05-30
 ---
 
-Every agent stack eventually grows the same ugly layer: custom adapters for files, search, internal APIs, and databases, all wired to one framework in one very specific way. Then the team swaps model vendors or adds a second runtime, and the whole tool layer becomes technical debt overnight.
+Your agent stack works, right up to the day you need the same tools in two hosts or two model runtimes. Then the hacks show up: one adapter for local files, another for internal APIs, a third for search, and a fourth because some SDK wanted a different shape. That pile rots fast.
 
-That is exactly the problem [MCP](https://modelcontextprotocol.io/) is trying to solve. It standardizes how clients discover tools, resources, and prompts so you stop rewriting the same adapter logic for every model stack. The important idea is not convenience. It is portability. Tooling should survive a framework change.
+That is why I take MCP seriously. Anthropic introduced it as an open standard for connecting AI assistants to external systems, and the real win is not “more tools”. It is escaping one vendor-shaped integration tax. If I expect my tool layer to outlive one framework, I would rather bet on a protocol than another convenience SDK. [Anthropic announcement](https://www.anthropic.com/news/model-context-protocol)
 
-The [Anthropic announcement](https://www.anthropic.com/news/model-context-protocol) made the design goal explicit: shared protocol, not shared framework. That distinction matters. Framework abstractions tend to trap you inside one ecosystem. Protocols give you an interface contract you can reuse across clients.
+The architecture is cleaner too: a host owns one client per server, servers expose tools, resources, and prompts, and transports stay separate from the data model. That separation is the bit I would fight to keep, because it gives you a contract you can observe and replace instead of a blob of framework magic. [MCP architecture](https://modelcontextprotocol.io/docs/learn/architecture)
 
-What matters in production is capability negotiation. A client asks what the server supports, then chooses which capabilities it will use. That means you can add a new tool to a server without breaking older clients, provided they respect the advertised contract instead of assuming the world. If you are already building tool-heavy agents with patterns from the [OpenAI Agents guide](https://platform.openai.com/docs/guides/agents), MCP gives you a cleaner boundary between the agent runtime and the tool surface.
+Where teams usually get sloppy is initialization. MCP is stateful, starts with `initialize`, negotiates protocol version and capabilities, then moves to normal operation only after `notifications/initialized`. That handshake is not paperwork. It is what lets old and new components talk without pretending they support the same surface. [Lifecycle spec](https://modelcontextprotocol.io/specification/2025-03-26/basic/lifecycle)
 
-This is the kind of server shape I want teams to think in:
+If I were starting today, I would begin with a tiny stdio server, keep it local, and use the same `FastMCP(...); mcp.run(transport="stdio")` shape as the official quickstart, which also warns you not to write logs to stdout on stdio. [Server quickstart](https://modelcontextprotocol.io/quickstart/server)
 
 ```python
-from mcp.server import MCPServer
+from mcp.server.fastmcp import FastMCP
 
-server = MCPServer(name="docs-search", version="1.0.0")
+mcp = FastMCP("docs-search")
 
-@server.tool(name="search_docs")
-async def search_docs(query: str, max_results: int = 5) -> list[dict]:
-    return await docs_index.search(query, limit=max_results)
 
-server.run()
+@mcp.tool()
+async def search_docs(query: str) -> str:
+    """Search internal docs."""
+    return f"results for: {query}"
+
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
 ```
 
-The code itself is not the interesting part. The contract is. Once the tool is exposed through a standard interface, any compatible client can discover it without a one-off adapter.
+That example is intentionally plain. The hard part is not the decorator. The hard part is refusing to leak transport concerns into business logic and refusing to hide contract changes behind “it still works on my machine”.
 
-Do not confuse protocol with security. MCP does not magically make your tools safe. You still need authentication, per-client authorization, rate limits, and invocation logs with enough detail to audit misuse. Treat an MCP server like a microservice with teeth, not like a helper function hiding inside your app.
+Transport choice is where production reality starts. Stdio is the default I would pick for local integrations because it is simpler and the spec explicitly recommends client support for it. I move to Streamable HTTP only when I need remote deployment, shared infrastructure, or many clients on one server, and then I treat it like a real network service: validate `Origin`, bind locally when appropriate, and add proper auth. The transport spec is very explicit here for good reason. [Transport spec](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports)
 
-My decision rule is simple: if you have more than two independent tool servers, or more than one model runtime that needs the same tools, MCP starts paying for itself. Before that, direct integration is cheaper. After that, direct integration gets expensive fast.
+My rule is blunt: use MCP when the same tool surface must survive more than one host, more than one model runtime, or an actual SLA. If you have one app and a couple of helper functions, skip the ceremony. If portability, observability, and protocol-level contracts matter, adopt MCP before your adapter pile becomes a career-limiting event.
+
+## Resources
+
+- [MCP intro](https://modelcontextprotocol.io/introduction)
+- [Latest spec](https://modelcontextprotocol.io/specification/latest)

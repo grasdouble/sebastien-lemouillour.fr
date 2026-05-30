@@ -3,36 +3,34 @@ id: what-is-an-llm
 order: 4
 difficulty: beginner
 tags: [LLM]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-When someone says "I use AI to write my emails," what they almost always mean is "I use a Large Language Model." The abbreviation LLM shows up everywhere, in news articles, product descriptions, and job listings, usually without explanation. This guide breaks it down so you can understand what is actually happening when you talk to one.
+You open a chatbot because the blank page is winning. It gives you a polished email in ten seconds, and then you hit the annoying part: everyone calls this magic "an LLM" and moves on. If that acronym feels vague, good. It usually hides the one idea that actually matters.
 
-### The Three Words in "Large Language Model"
+### An LLM is a text machine first
 
-Start with **Model**: a mathematical function with millions or billions of numerical parameters (adjustable values) trained to map inputs to outputs. Think of it as a machine with an enormous number of dials, all tuned through exposure to data.
+I would explain **LLM** this way: it is a **model**, meaning a mathematical system whose behavior comes from learned **parameters**, or adjustable numerical values; it works on **language**, meaning text; and it is **large** because that system can contain billions of parameters. The [GPT-3 paper](https://arxiv.org/abs/2005.14165) gives a concrete scale point: GPT-3 had 175 billion parameters.
 
-Add **Language**: the input and output are human language, specifically text. The model learned to work with language by being exposed to vast amounts of it, including books, websites, code, and research papers.
+That still sounds abstract, so the next useful question is simple: what is such a big text machine trained to do? Not "know everything." Its core job is much narrower.
 
-Now add **Large**: modern LLMs have billions of parameters. [GPT-3](https://arxiv.org/abs/2005.14165), released by OpenAI in 2020, had 175 billion parameters. [Meta's Llama 3](https://ai.meta.com/blog/meta-llama-3/) family ranges from 8 billion to over 70 billion. "Large" matters because past a certain scale, models exhibit qualitatively new behaviors: they start following instructions, reasoning across topics, and generalizing to tasks they were never explicitly trained for.
+### It learns by guessing the next piece of text
 
-### How an LLM Learns Language
+During training, an LLM learns to predict the next piece of text from the context that came before it, the basic language modeling setup described in [Attention Is All You Need](https://arxiv.org/abs/1706.03762). The unit it predicts is a **token**, a small chunk of text that can be a whole word, part of a word, or punctuation. OpenAI's [Tokenizer](https://platform.openai.com/tokenizer) makes that visible in a few seconds.
 
-LLMs are trained through a process called **pre-training**: the model reads vast quantities of text and learns to predict the next word, or more precisely, the next [token](https://platform.openai.com/tokenizer) (a chunk of text roughly corresponding to part of a word). Over billions of predictions, the model adjusts its parameters to get better and better at this task. It is not memorizing the internet; it is building a compressed, probabilistic model of how language works.
+This is the part beginners often underestimate. By getting very good at next-token prediction across huge datasets, the model picks up grammar, style, common facts, and many patterns about how language fits together. That is why the same tool can draft an email, rewrite a paragraph, or explain a concept in simpler words without switching brains.
 
-This is why an LLM can write in the style of a historical author, explain quantum physics in plain language, or translate between dozens of languages: it has internalized statistical patterns across all these domains.
+### Why it feels smart
 
-After pre-training, most deployed models go through additional fine-tuning to make them helpful, honest, and safe. This typically involves **RLHF (Reinforcement Learning from Human Feedback)**, where human raters score model outputs and those scores steer further training.
+The Transformer architecture matters because it helps the model use context instead of treating each word in isolation. My preferred mental model is not "tiny person in a box" or "search engine with opinions." It is "extremely powerful autocomplete." That comparison is useful because it explains both the impressive part and the dangerous part.
 
-### What an LLM Is Not
+### Why it can sound sure and still be wrong
 
-An LLM is not a database. It does not retrieve stored facts; it generates text that is statistically consistent with its training data. This matters enormously: it can be wrong, even confidently wrong. It also cannot tell you what happened yesterday unless it was trained on data that includes yesterday.
+Once you see the autocomplete idea, the next problem makes sense. The model is trained to produce a plausible continuation, not to pause and verify a claim against the outside world. Most chat systems are also tuned after pre-training so they follow instructions better, often with human-feedback methods like the one described in [InstructGPT](https://arxiv.org/abs/2203.02155). That makes them more helpful, but it does not turn them into truth machines.
 
-An LLM is also not a search engine. A search engine returns links. An LLM generates prose. These are useful for different things, and conflating them leads to misplaced trust.
+This is why I would use an LLM confidently for drafting, summarizing, translating, or reorganizing text, and cautiously for medicine, law, finance, or anything that depends on fresh facts. Fluency is real skill. Fluency is not evidence.
 
-### Choosing Which LLM to Use
+### The rule I would use
 
-My recommendation: match model size to your task. For simple drafting and summarization, a smaller, cheaper model is often just as good as a frontier model and costs a fraction. For complex reasoning, coding, or long documents, the quality difference becomes worth paying for. [Hugging Face's Open LLM Leaderboard](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard) is one of the most transparent places to compare models across standardized benchmarks before committing.
-
-The next guide explains the mechanism by which an LLM actually produces its output, which will make it far easier to understand why it sometimes fails.
+If your task is mostly about shaping language, start with an LLM. If your task is mostly about verified facts, recent events, or high-stakes decisions, treat the LLM as a first draft and bring in a trusted source before you believe it. Then read the next guide on token-by-token generation, because that is the point where these systems stop feeling mystical and start feeling predictable.

@@ -4,38 +4,52 @@ order: 8
 difficulty: intermediate
 tags: [RAG, indexing, embeddings, OpenAI]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Ta recherche remonte des résultats. Les mauvais résultats. Pas parce que le modèle est nul, mais parce que l'index est périmé, dupliqué, ou incomplet. Une énorme partie des bugs RAG que je vois sont des bugs d'indexation déguisés en problèmes de retrieval.
+Ta recherche remonte des résultats. Les mauvais résultats. Le modèle est rarement le vrai coupable. Le problème est presque toujours plus haut dans la chaîne : des chunks périmés, des vecteurs dupliqués, ou des documents jamais réindexés après une mise à jour. Je vois souvent des équipes accuser la qualité de la recherche alors que l'indexeur est la pièce qui leur ment en silence.
 
-Je traite l'indexation comme un pipeline de build, pas comme une tâche de fond qu'on laisse tourner sans trop regarder. On lit la source, on la normalise, on la découpe, on génère les embeddings, on upsert, on supprime ce qui n'existe plus, et on garde une trace exacte de la version source qui a produit chaque chunk. Dès qu'une de ces étapes devient floue, les réponses commencent à dériver.
+Je traite l'indexation d'abord comme un problème de détection de changement. OpenAI facture les embeddings au token d'entrée et limite la quantité de texte envoyée par requête dans le [guide embeddings](https://platform.openai.com/docs/guides/embeddings), donc recalculer des embeddings pour du contenu inchangé, c'est juste payer deux fois pour la même erreur.
 
-Les docs officielles donnent chacune un morceau du pipeline. Les [splitters LangChain](https://python.langchain.com/docs/concepts/text_splitters/) couvrent la découpe, le guide [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) couvre la génération des vecteurs, et le stockage gère upserts et suppressions, que tu partes sur la [doc Qdrant](https://qdrant.tech/documentation/) ou la [doc Pinecone](https://docs.pinecone.io/). Ce que beaucoup de contenus laissent de côté, c'est la colle entre ces briques : des identifiants stables et un hash de contenu.
+Du coup, je choisis volontairement un pipeline très sobre : normaliser la source, calculer son empreinte, la découper, n'embeder que ce qui a changé, puis upsert avec des IDs stables. Je batch aussi avec prudence parce que les [rate limits](https://platform.openai.com/docs/guides/rate-limits) portent à la fois sur les requêtes et sur les tokens par minute. Quand quelqu'un lance tous les chunks en parallèle, il fabrique souvent son propre problème de throttling.
 
-Je veux une indexation idempotente. Si un document n'a pas changé, on le saute. Si un seul paragraphe a bougé, on remplace uniquement les chunks concernés. Si la source a disparu, on retire ses vecteurs. Tout reconstruire à chaque déploiement paraît rassurant au début, puis le corpus grossit, les coûts montent, et tu te cognes des limites de débit pour rien.
+Les IDs stables ne sont pas négociables. Les [points Qdrant](https://qdrant.tech/documentation/manage-data/points/) acceptent des identifiants explicites, et les [upserts Pinecone](https://docs.pinecone.io/guides/data/upsert-data) écrasent les enregistrements existants avec le même ID tout en laissant remonter les métadonnées dans les résultats de recherche. C'est précisément pour ça que je garde des métadonnées utiles mais ennuyeuses : `documentId`, URL source, timestamps et empreintes de contenu. Je n'y mettrais jamais de secrets, de jetons bruts ou de notes privées.
 
-C'est le pattern que je réutilise le plus souvent en production.
+Voici la plus petite version que je mettrais en prod avant de toucher aux diffs au niveau chunk.
 
 ```ts
 import { createHash } from 'node:crypto';
 
-type SourceDoc = { id: string; title: string; text: string; url: string; updatedAt: string };
+type SourceDoc = {
+  id: string;
+  title: string;
+  text: string;
+  url: string;
+  updatedAt: string;
+};
 
 export async function indexDocument(doc: SourceDoc, vectorStore: VectorStore) {
-  const contentHash = createHash('sha256').update(doc.text).digest('hex');
-  const existing = await vectorStore.getDocumentVersion(doc.id);
+  const normalizedText = normalizeWhitespace(doc.text);
+  const contentHash = createHash('sha256').update(normalizedText).digest('hex');
+  const previousVersion = await vectorStore.getDocumentVersion(doc.id);
 
-  if (existing?.contentHash === contentHash) {
-    return { skipped: true };
+  if (previousVersion?.contentHash === contentHash) {
+    return { skipped: true, reason: 'unchanged' };
   }
 
-  const chunks = splitDocument(doc.text, {
-    chunkSize: 400, // cible en tokens, pas en caractères
-    overlap: 40,
+  const chunks = splitDocument(normalizedText, {
+    maxTokens: 400, // reste sous des limites d'entrée courantes
+    overlapTokens: 40, // garde le contexte quand une phrase déborde
   });
 
-  const embeddings = await embedBatch(chunks.map((chunk) => chunk.text));
+  const embeddings = await embedBatch(
+    chunks.map((chunk) => chunk.text),
+    {
+      batchSize: 100, // baisse cette valeur si le provider throttle
+    }
+  );
+
+  await vectorStore.deleteByDocumentId(doc.id); // retire les chunks de la version précédente
 
   await vectorStore.upsert(
     chunks.map((chunk, index) => ({
@@ -52,11 +66,16 @@ export async function indexDocument(doc: SourceDoc, vectorStore: VectorStore) {
     }))
   );
 
-  await vectorStore.saveDocumentVersion(doc.id, { contentHash, chunkCount: chunks.length });
+  await vectorStore.saveDocumentVersion(doc.id, {
+    contentHash,
+    chunkCount: chunks.length,
+    indexedAt: new Date().toISOString(),
+  });
+
   return { skipped: false, chunkCount: chunks.length };
 }
 ```
 
-Regarde ce qui n'est pas négociable ici : `contentHash`, des ids de chunks stables, et un suivi de version au niveau document. Sans ces trois éléments, la réindexation devient une suite d'hypothèses et le nettoyage finit à la main.
+Je commence par un versioning au niveau document parce qu'il est plus simple à déboguer et supprime déjà la majorité des appels d'embedding inutiles. Je ne passe aux empreintes par chunk que lorsque la facture d'indexation devient visible ou que la file d'embedding passe son temps au bord de la limite.
 
-Ma règle de décision est volontairement sévère : si ton indexeur n'est pas capable de répondre à « qu'est-ce qui a changé ? » et « qu'est-ce qu'il faut supprimer ? » sans rescanner tout le corpus, il n'est pas prêt pour la prod. Corrige ça avant d'optimiser les prompts de retrieval, parce qu'un contexte périmé fera plus de dégâts qu'un prompt moyen.
+Mon seuil est simple : si relancer le même corpus appelle encore l'API d'embeddings pour des documents inchangés, l'indexeur n'est pas terminé. Corrige ça avant de perdre une heure de plus à retoucher tes prompts de recherche.

@@ -3,65 +3,60 @@ id: generation-parameters
 order: 23
 difficulty: intermediate
 tags: [LLM, paramètres]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-If you have ever watched the same prompt swing from perfect to useless, you already know the trap: people blame the model when the decoding settings are doing the damage. I made that mistake early on. I kept rewriting prompts for outputs that were actually caused by a sloppy temperature, an over-tight token cap, or two sampling knobs fighting each other.
+When a workflow flips from clean JSON to clipped nonsense, people rewrite the prompt. I check the decoding knobs first. I lost too many hours blaming wording for bugs that came from a random `temperature`, a tiny token cap, or a copied preset that meant something different on another provider.
 
-## The trap is trusting defaults
+## The first fix is to stop trusting defaults
 
-Defaults are not neutral. They differ across providers and libraries, and they often reflect a generic product goal, not your task. The sampling controls exposed by [OpenAI docs](https://platform.openai.com/docs/guides/text?api-mode=responses), [Anthropic docs](https://docs.anthropic.com/en/api/messages), and [Transformers docs](https://huggingface.co/docs/transformers/main/en/generation_strategies) all aim at the same problem: deciding which next token is allowed to win.
+Defaults are product choices, not universal best practices. In Anthropic’s [Messages examples](https://docs.anthropic.com/en/api/messages-examples), Claude Opus 4.7 and later reject non-default `temperature`, `top_p`, and `top_k`, while [Transformers strategies](https://huggingface.co/docs/transformers/main/en/generation_strategies) documents greedy decoding as the default and sampling as something you turn on deliberately.
 
-My rule is simple: treat generation parameters as part of the application contract. If you are building extraction, classification, or tool calling, randomness is a bug unless you can justify it. If you are building ideation, copy variants, or synthetic data exploration, some randomness is useful, but only on purpose.
+That is why I treat generation parameters as part of the app contract. If the task is extraction, routing, or tool calling, I want a boring request on purpose. If the task is ideation, then I buy variation knowingly instead of letting a default sneak it in.
 
-## Parameters that actually matter
+## Tune one randomness knob before anything else
 
-### Temperature
+My stance is simple: change `temperature` first and leave `top_p` at `1` unless you can describe a tail problem. OpenAI’s [Responses API](https://platform.openai.com/docs/api-reference/responses/create) documents `temperature`, `top_p`, `max_output_tokens`, and `stop`, and it frames `top_p` as an alternative to temperature, not a mandatory companion.
 
-Temperature changes how sharply the model prefers high-probability tokens. Lower values make outputs more conservative. Higher values make the model explore more of the tail. For extraction or formatting, I would usually start around `0` to `0.3`. For brainstorming, I would rather push `0.7` to `1.0` than pretend a creative task should be deterministic.
+For extraction, classification, or tool calls, I start around `0` to `0.2`. For copy exploration, I will go closer to `0.7` or `0.9`, but only if I am ready to review multiple candidates.
 
-### top_p
-
-`top_p` keeps only the smallest token set whose cumulative probability crosses a threshold. It is useful, but people overuse it. My default is `top_p: 1` and then I tune temperature first. If you aggressively tune both, you make failures harder to reason about because two different filters are shaping the same distribution.
-
-### max_output_tokens and stop
-
-These are budget and control knobs, not cosmetic ones. A short cap forces concise answers, but it also truncates reasoning or structured output. Stop sequences are better when you know where the answer should end, especially in templates, JSON-ish output, or multi-turn pipelines.
-
-### Repetition penalties
-
-Frequency or presence penalties can help when the model loops, but I would not add them by default. They are repair tools. If the model repeats itself, first check whether the prompt or context is inviting repetition.
-
-## Practical presets
-
-For a deterministic extraction flow, I would start here:
+This is the kind of request I would start with for a structured task.
 
 ```ts
 const response = await client.responses.create({
   model: 'gpt-4.1-mini',
   input: 'Extract the company name and country as JSON.',
-  temperature: 0.2,
-  top_p: 1,
-  max_output_tokens: 120,
-  stop: ['\n\n'],
+  temperature: 0.1, // keep sampling tight
+  top_p: 1, // tune one randomness control first
+  max_output_tokens: 120, // enough room for valid output
 });
 ```
 
-For idea generation, I would loosen only the knobs that help variation:
+## Control length before you blame style
+
+`max_output_tokens` and `stop` are not cosmetic. They decide whether the model has enough room to finish and where it is allowed to stop. I see teams obsess over creativity settings while a tiny cap is silently clipping the answer.
+
+If I need strict structure, I would rather use a schema than a clever `stop` string. OpenAI [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) says schema-based output can enforce JSON Schema and make refusals programmatically detectable, which is safer for automations than hoping a prompt and a stop sequence will always cooperate.
+
+This is the pattern I prefer when variation is the goal and the shape is still bounded.
 
 ```ts
 const response = await client.responses.create({
   model: 'gpt-4.1-mini',
   input: 'Give me 8 landing page headline options for a privacy-first note app.',
-  temperature: 0.9,
-  top_p: 1,
-  max_output_tokens: 220,
+  temperature: 0.8, // add variation on purpose
+  top_p: 1, // keep nucleus sampling neutral for easier debugging
+  max_output_tokens: 220, // cap review cost
 });
 ```
 
-Notice what stays stable: I am not touching everything at once. That is the pattern that saves time. Change one variable, look at failures, then decide whether you need more diversity, more control, or just a better prompt.
+## Repetition controls are repair tools
 
-## Decision rule
+Transformers explains that greedy decoding tends to break down on longer outputs and repeat itself, while sampling is what you enable when you want more diverse text. That is why I do not reach for repetition penalties first. If the model is looping, I check the task, the context, and the cap before I start piling on penalties.
 
-If the task has one correct shape, start with low temperature, `top_p: 1`, and a token cap large enough to avoid clipping. If the task benefits from variation, raise temperature before touching anything else. Only add `top_p`, stop sequences, or repetition penalties when you can name the exact failure mode they are fixing.
+## Costs and limits punish messy tuning
+
+Longer caps, more retries, and wider experiments do not just change tone. They eat into token budgets and push you toward provider limits. OpenAI’s [rate limits guide](https://platform.openai.com/docs/guides/rate-limits) tracks RPM, TPM, RPD, and TPD, which is a good reminder that sloppy experimentation has an operational cost even before finance notices it.
+
+My decision rule is boring on purpose: if the task has one correct shape, start with low temperature, `top_p: 1`, and a cap large enough to avoid clipping. If the task needs variation, raise temperature first. If you cannot name the failure mode a parameter is fixing, leave that parameter alone.

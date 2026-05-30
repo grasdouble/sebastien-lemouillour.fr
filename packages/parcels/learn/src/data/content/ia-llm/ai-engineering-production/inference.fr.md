@@ -4,35 +4,52 @@ order: 10
 difficulty: intermediate
 tags: [LLM, inference, vLLM, latency]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Un modèle qui paraît excellent dans un notebook peut devenir pénible dès que deux vrais utilisateurs l'appellent en même temps. Le premier token arrive trop tard, le débit s'écroule, la mémoire GPU grimpe, et d'un coup le problème de « qualité du modèle » devient surtout un problème d'inférence.
+Un modèle qui paraît rapide dans un notebook peut donner l'impression d'être cassé dès que deux vrais utilisateurs arrivent en même temps. Le premier token met une éternité, le débit tombe d'un coup, la mémoire GPU grimpe, et la partie vraiment coûteuse n'est plus l'entraînement. C'est le serving.
 
-C'est la partie que beaucoup d'équipes sous-estiment. L'inférence, ce n'est pas simplement « exécuter le modèle après l'entraînement ». C'est le moment où la latence, le batching, la longueur de contexte et le comportement mémoire se transforment en expérience produit. L'erreur classique consiste à acheter un modèle plus gros avant de mesurer où le temps part vraiment. Très souvent, la douleur vient de prompts trop longs, d'un batching mal géré, ou d'un runtime qui gaspille le hardware déjà payé.
+Le piège dans lequel je suis déjà tombé, c'est d'accuser le modèle trop tôt. La [doc NVIDIA sur le TTFT](https://docs.nvidia.com/nim/benchmarking/llm/latest/metrics.html) le dit clairement : des prompts plus longs augmentent le temps de prefill, donc le time to first token monte avant même qu'on parle de vitesse de decode. Quand le produit paraît lent, je vérifie donc la taille des prompts et la file d'attente avant de réclamer un autre GPU.
 
-Si j'ai besoin d'un service GPU avec du débit, je commence par la doc [vLLM](https://docs.vllm.ai/) parce que le continuous batching et la gestion efficace du KV-cache changent vite l'équation. Si j'ai besoin d'un setup local léger ou orienté edge, [llama.cpp](https://github.com/ggerganov/llama.cpp) et GGUF sont souvent plus pratiques. Et si la machine est assez petite pour que chaque gigaoctet compte, [bitsandbytes](https://huggingface.co/docs/bitsandbytes/) fait partie des premiers leviers que j'essaie pour charger le modèle en précision réduite. Rien de ça ne remplace les bases matérielles, d'où l'intérêt de garder [NVIDIA](https://developer.nvidia.com/deep-learning) en tête quand on cherche à comprendre l'écart entre débit théorique et débit réel.
+Si le vrai problème vient du chevauchement entre requêtes, je commencerais par la [doc d'optimisation vLLM](https://docs.vllm.ai/en/stable/configuration/optimization/) parce que le scheduler, le continuous batching et les limites du KV-cache sont souvent les leviers qui font bouger la latence p95. Si la cible est un laptop ou une petite machine edge, je préfère livrer [llama.cpp avec GGUF](https://huggingface.co/docs/hub/gguf-llamacpp) plutôt que de traîner une stack de serving plus lourde. Et quand la mémoire est le vrai plafond, la [quantization bitsandbytes](https://huggingface.co/docs/transformers/main/en/quantization/bitsandbytes) reste le test le plus rapide pour essayer un chargement en 8 bits ou en 4 bits avant de dépenser plus en hardware.
 
-Le modèle mental que je garde est simple : la phase de prefill coûte cher, la phase de decode se répète, et la concurrence punit tout ce qui gère mal le cache. C'est pour ça qu'une démo en contexte 32k peut impressionner seule et décevoir en production.
+C'est le modèle mental que je garde : les prompts longs font mal à la latence du premier token, les requêtes qui se chevauchent punissent un batching faible, et les limites de VRAM se transforment très vite en coût. Je traite ces trois pannes séparément parce que la correction n'est pas la même.
 
-Avant de choisir un runtime, j'aime forcer le compromis dans un peu de code.
+Avant de choisir un moteur, j'aime forcer le compromis dans un peu de code.
 
 ```ts
-type Target = 'prod-api' | 'edge-box' | 'developer-laptop';
+type DeploymentTarget = 'shared-gpu-api' | 'edge-device' | 'team-laptop';
 
-export function chooseInferenceEngine(target: Target, concurrentUsers: number) {
-  if (target === 'prod-api' && concurrentUsers > 8) {
-    return { engine: 'vLLM', reason: 'continuous batching helps under load' };
+type InferenceInputs = {
+  target: DeploymentTarget;
+  concurrentRequests: number; // Volume de requêtes simultanées attendu au p95.
+  promptTokensP95: number; // Les prompts longs abîment souvent d'abord le premier token.
+  gpuMemoryGb: number; // VRAM réellement disponible, pas le chiffre marketing.
+};
+
+export function chooseInferencePlan({ target, concurrentRequests, promptTokensP95, gpuMemoryGb }: InferenceInputs) {
+  if (target === 'shared-gpu-api' && concurrentRequests >= 8) {
+    return {
+      engine: 'vLLM',
+      firstFix: promptTokensP95 > 4000 ? 'réduire les prompts' : 'régler le batching',
+      reason: 'le continuous batching paie souvent dès que les requêtes se chevauchent',
+    };
   }
 
-  if (target === 'edge-box') {
-    return { engine: 'llama.cpp', reason: 'GGUF is easier to fit on smaller machines' };
+  if (target === 'edge-device' || gpuMemoryGb <= 16) {
+    return {
+      engine: 'llama.cpp',
+      firstFix: 'choisir un modèle GGUF qui garde de la marge',
+      reason: 'les petites machines sanctionnent le runtime trop gros avant même le modèle',
+    };
   }
 
-  return { engine: 'local quantized model', reason: 'optimize for cheap iteration first' };
+  return {
+    engine: 'quantized baseline',
+    firstFix: 'charger en 8 bits ou en 4 bits puis mesurer à nouveau',
+    reason: "itérer à petit coût vaut mieux qu'acheter du hardware trop tôt",
+  };
 }
 ```
 
-Ce code paraît simpliste, et c'est volontaire. La plupart des erreurs d'inférence viennent d'un oubli des contraintes évidentes : nombre d'utilisateurs concurrents, taille des prompts, longueur des réponses, budget mémoire. Mesurez les tokens par seconde, le time to first token et la latence p95 avant de toucher au choix du modèle. Sinon, vous optimisez la mauvaise couche.
-
-Ma règle est pratique : si vos utilisateurs se plaignent d'attendre le premier token, raccourcissez les prompts et réduisez le contexte avant d'acheter plus de GPU. S'ils se plaignent surtout sous charge, corrigez le batching et la stratégie de serving avant de conclure que le modèle est trop lent.
+J'aime ce genre de sketch parce qu'il oblige à choisir. Si la plainte porte sur le premier token, coupez la taille des prompts et supprimez le contexte inutile avant d'acheter plus de GPU. Si le système casse seulement sous concurrence, corrigez d'abord le batching. Je ne paierais une machine plus grosse qu'après l'échec de ces deux vérifications, parce que la facture d'inférence devient ridicule beaucoup plus vite que prévu.

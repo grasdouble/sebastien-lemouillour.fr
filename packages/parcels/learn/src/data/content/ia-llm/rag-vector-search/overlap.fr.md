@@ -4,33 +4,44 @@ order: 12
 difficulty: intermediate
 tags: [RAG, chunking, recall, LangChain]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Tu poses une bonne question, la réponse existe bien dans la source, et pourtant le retrieval la rate parce que la phrase clé a été coupée en deux entre deux chunks. Voilà le vrai rôle de l'overlap. Pas donner un air sophistiqué au découpage, mais protéger le sens aux frontières.
+Tu as la bonne question, la réponse existe dans la source, et pourtant le retriever la rate parce qu'une phrase a été coupée entre deux chunks. C'est là que l'overlap devient utile. Je m'en sers pour protéger le sens aux bords des chunks, pas pour donner un air intelligent au pipeline.
 
-Je garde un overlap modeste par défaut. La plupart des équipes font l'un des deux extrêmes : zéro overlap, donc perte de contexte en bordure, ou un overlap énorme qui remplit le store de quasi-doublons. Les deux font mal. Les [splitters LangChain](https://python.langchain.com/docs/concepts/text_splitters/) et les [node parsers LlamaIndex](https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/) exposent ce paramètre pour une bonne raison : il améliore le rappel quand le sens déborde d'un chunk sur l'autre. Mais chaque token répété, c'est aussi un token de plus à embed, stocker, classer, puis parfois envoyer au modèle, donc le coût décrit dans [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) doit rester présent pendant le réglage.
+Je pars d'un overlap modeste parce que zéro reste la manière la plus rapide de perdre du contexte en bordure, alors qu'un overlap énorme remplit l'index de quasi-doublons. Les [splitters LangChain](https://python.langchain.com/docs/concepts/text_splitters/) et les [node parsers LlamaIndex](https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/) exposent ce réglage comme un vrai paramètre pour cette raison. Et je garde le guide [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) en tête pendant le réglage : les tokens répétés restent des tokens en entrée, donc ils augmentent le coût d'embedding et le volume stocké avant même d'améliorer le retrieval.
 
-Mon point de départ tourne en général entre 10 et 15 % de la taille du chunk. Suffisant pour garder la continuité, pas assez pour inonder les résultats de recherche avec des clones. Je descends sur des documents bien structurés avec des titres, et je monte un peu sur des transcriptions brouillonnes ou de l'OCR où les frontières sont peu fiables. Si ton chunker respecte déjà les sections et les tours de parole, l'overlap devient un petit filet de sécurité. Si ton chunker est grossier, l'overlap devient un pansement coûteux.
+Mon point de départ est 10 à 15 % de la taille du chunk. C'est suffisant pour des docs où une idée déborde sur le paragraphe suivant, sans noyer les résultats de recherche sous des clones. Je descends quand le document a déjà une structure solide, avec des titres, des sections d'API ou des tours de parole nets. Je monte seulement pour de l'OCR sale ou des transcriptions brouillonnes où les frontières sont peu fiables. Si tu as besoin d'un overlap énorme sur un contenu propre, je corrigerais le splitter avant de retoucher le pourcentage.
 
-Le détail que les tutos oublient presque toujours, c'est la déduplication. L'overlap améliore le rappel, mais il augmente aussi la probabilité que le top des résultats soit composé de cinq variantes du même passage. Je préfère dédupliquer après le retrieval plutôt que d'augmenter `topK` à l'aveugle en espérant que le modèle fasse le tri.
+Ce choix mène au piège que la plupart des guides sautent : la déduplication après le retrieval. L'overlap peut améliorer le rappel, mais il augmente aussi la probabilité que tes premiers résultats soient quatre variantes du même passage. Je préfère dédupliquer les hits qui se recouvrent avant d'assembler le prompt plutôt que d'augmenter `topK` et de payer pour du contexte répété.
 
-Voici le nettoyage post-retrieval que j'ajoute presque à chaque fois.
+Voici le helper que je sors dès que l'overlap commence à produire des clones.
 
 ```ts
-export function dedupeOverlappingChunks(chunks: Array<{ id: string; sourceId: string; start: number; end: number }>) {
+type RetrievedChunk = {
+  id: string;
+  sourceId: string; // original document identifier
+  start: number; // inclusive character or token offset
+  end: number; // exclusive character or token offset
+};
+
+export function dedupeOverlappingChunks(
+  chunks: RetrievedChunk[],
+  maxOverlapRatio = 0.6 // drop later chunks that overlap more than 60%
+) {
   return chunks.filter((chunk, index, all) => {
     return !all.slice(0, index).some((prev) => {
-      const sameSource = prev.sourceId === chunk.sourceId;
-      const overlaps = Math.max(0, Math.min(prev.end, chunk.end) - Math.max(prev.start, chunk.start));
+      if (prev.sourceId !== chunk.sourceId) return false;
+
+      const sharedSpan = Math.max(0, Math.min(prev.end, chunk.end) - Math.max(prev.start, chunk.start));
       const smallerSpan = Math.min(prev.end - prev.start, chunk.end - chunk.start);
 
-      return sameSource && overlaps / smallerSpan > 0.6;
+      return smallerSpan > 0 && sharedSpan / smallerSpan > maxOverlapRatio;
     });
   });
 }
 ```
 
-Ce simple passage garde la sécurité apportée par l'overlap sans remplir le prompt final de contexte répété.
+Je l'exécute après le retrieval et avant l'assemblage du prompt, pour garder le gain de rappel sans gonfler la fenêtre de contexte finale. Si ton vector store renvoie déjà les offsets des passages, c'est peu coûteux à ajouter. Sinon, je hash le texte normalisé et je supprime les voisins quasi identiques à cette étape.
 
-Ma règle de décision : démarre à 10 % d'overlap, mets zéro seulement quand tes documents ont des frontières naturelles fortes, et méfie-toi au-delà de 20 %. Si tu as besoin de plus pour sauver le retrieval, le problème vient le plus souvent de la structure des chunks, pas de l'overlap lui-même.
+Ma règle : commence à 10 %, mets zéro seulement quand les documents ont de vraies frontières naturelles, et méfie-toi au-delà de 20 %. Si le retrieval a besoin de plus pour fonctionner, le vrai problème vient en général de la qualité du chunking, pas de l'overlap.

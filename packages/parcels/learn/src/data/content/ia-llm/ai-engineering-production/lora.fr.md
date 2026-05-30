@@ -4,37 +4,37 @@ order: 8
 difficulty: intermediate
 tags: [LLM, LoRA, fine-tuning, adapters]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Vous voulez un modèle qui parle mieux votre domaine, puis vous lisez deux tutos sur le fine-tuning complet et vous heurtez immédiatement le mur du hardware : checkpoints énormes, GPU coûteux, et runs d'entraînement où la moindre erreur devient hors de prix. C'est exactement pour ça que je commence par LoRA.
+Vous voulez un modèle qui parle mieux votre domaine, puis le fine-tuning complet explose immédiatement le budget : checkpoints énormes, GPU coûteux, et runs d'entraînement où une seule mauvaise expérience brûle de l'argent réel. C'est à ce moment-là que j'arrête de viser le contrôle parfait et que je commence par LoRA.
 
-LoRA vient du [papier d'origine](https://arxiv.org/abs/2106.09685) : on fige le modèle de base, on injecte de petites matrices entraînables de faible rang dans certaines couches, puis on n'optimise que ça. La conséquence pratique est le vrai sujet : on garde presque tout le modèle intact, l'entraînement coûte moins cher, et l'adapter final est minuscule comparé à un checkpoint complet. Pour la majorité des équipes produit, ce compromis est excellent.
+LoRA vient du [papier d'origine](https://arxiv.org/abs/2106.09685) : on fige le modèle de base, on injecte de petites matrices entraînables de faible rang dans certaines couches, puis on n'optimise que ça. Le gain pratique est celui qui m'intéresse vraiment : l'entraînement coûte moins cher, presque tout le modèle de base reste intact, et vous livrez un adapter au lieu d'un checkpoint complet. Pour la plupart des équipes produit, c'est le compromis qu'il faut tester en premier.
 
-Ma position est plus tranchée que celle de la plupart des tutos : choisissez LoRA plutôt qu'un fine-tuning complet, sauf si vous avez beaucoup de GPU et une très bonne raison de faire autrement. La plupart des équipes n'essaient pas de réécrire tout le modèle. Elles veulent surtout ajuster le style, le vocabulaire métier et certains comportements. LoRA suffit souvent, et la doc [PEFT](https://huggingface.co/docs/peft/) rend la mise en place bien moins pénible qu'avant.
+Ma recommandation tient en une ligne : choisissez LoRA avant le fine-tuning complet, sauf si vous savez déjà que le modèle de base est assez proche et que vous avez le budget pour réentraîner bien plus de poids. La [doc LoRA de PEFT](https://huggingface.co/docs/peft/package_reference/lora) rappelle aussi un détail important : `target_modules` peut être déduit pour les architectures connues, mais les architectures moins standard demandent encore un choix explicite. Dès que je compare des evals sérieusement, je préfère l'écrire noir sur blanc, parce que les valeurs implicites deviennent vite un mauvais piège.
 
-Le piège, c'est de croire que LoRA rend la qualité des données secondaire. Pas du tout. Des exemples médiocres produisent toujours un comportement médiocre, simplement plus vite. L'autre piège, c'est de monter le rang trop haut par nervosité. Un adapter trop gros peut surapprendre avec autant d'enthousiasme qu'un fine-tuning complet. Je pars presque toujours de réglages modestes, puis je ne bouge que si les evals le justifient.
+Le piège dans lequel je suis tombé au début, c'est de croire que LoRA rend la qualité du dataset secondaire. Pas du tout. De mauvais exemples enseignent toujours un mauvais comportement, simplement plus vite et à moindre coût. Le deuxième piège, c'est de monter le rang trop haut par peur du sous-apprentissage. Un gros adapter peut tout à fait surapprendre, donc je commence petit, je garde les evals proches, puis j'ajoute des paramètres seulement quand les ratés sont vraiment cohérents.
 
-La forme de configuration ci-dessous me sert de point de départ par défaut.
+Quand je veux une base de départ assez bon marché pour itérer vite, je pars de ceci.
 
 ```python
-from peft import LoraConfig, get_peft_model
+from peft import LoraConfig, TaskType, get_peft_model
 
 lora_config = LoraConfig(
     r=16,  # rang de l'adapter, commence petit avant de grossir
-    lora_alpha=32,  # facteur d'échelle des mises à jour
+    lora_alpha=32,  # premier choix courant pour r=16
     lora_dropout=0.05,  # régularisation utile sur les petits datasets
-    target_modules=["q_proj", "v_proj"],  # premier choix fréquent sur les modèles decoder-only
-    bias="none",
-    task_type="CAUSAL_LM",
+    target_modules=["q_proj", "v_proj"],  # bon premier choix sur beaucoup de modèles decoder-only de type Llama
+    bias="none",  # valeur par défaut, et souvent l'option la plus prévisible
+    task_type=TaskType.CAUSAL_LM,
 )
 
 model = get_peft_model(base_model, lora_config)
 model.print_trainable_parameters()
 ```
 
-Si le modèle de base reste trop gros, [bitsandbytes](https://huggingface.co/docs/bitsandbytes/) est le levier suivant que j'utilise pour charger les poids figés en précision réduite. La boucle d'entraînement suit ensuite le flux classique de [Transformers](https://huggingface.co/docs/transformers/training), ce qui explique pourquoi LoRA devient assez accessible une fois le dataset prêt.
+Si le modèle figé rentre tout juste en mémoire, je passe ensuite à la [quantification bitsandbytes](https://huggingface.co/docs/transformers/quantization/bitsandbytes) pour charger les poids de base en 8 bits ou 4 bits au lieu de louer une machine plus grosse. Le [flux Trainer](https://huggingface.co/docs/transformers/trainer) continue de fonctionner après ça, ce qui explique pourquoi LoRA est le raccourci que je recommande quand le vrai goulet d'étranglement, c'est la vitesse d'itération, pas la pureté académique.
 
-Le point que beaucoup de tutoriels sautent, c'est le choix des modules cibles. Mettre à jour toutes les projections possibles parce qu'un repo l'a fait une fois, c'est paresseux. Commencez par les projections d'attention qui comptent pour votre famille de modèles, lancez des evals métier, puis n'élargissez que si les échecs observés justifient vraiment des paramètres supplémentaires.
+Autre raccourci utile : n'arrosez pas toutes les projections avec des adapters juste parce qu'un repo d'exemple l'a fait. PEFT sait auto-sélectionner des modules sur les architectures courantes, mais dès que je veux des comparaisons fiables, je préfère partir des projections d'attention qui comptent pour la famille de modèles, lancer des evals métier, puis élargir seulement quand les échecs pointent vers un manque de capacité. Vous gardez les coûts plus bas et vous pouvez expliquer l'expérience suivante sans raconter une histoire compliquée.
 
-Ma règle est simple : si LoRA avec de bonnes données ne corrige pas le comportement, mon premier soupçon n'est pas « LoRA est trop faible ». Mon premier soupçon, c'est que le mauvais modèle de base a été choisi, ou que le problème relevait plutôt du retrieval, des outils, ou d'un meilleur prompting.
+Ma règle de décision est volontairement terre à terre : si LoRA avec de bonnes données et des evals ciblées rate encore franchement, je n'accuse pas LoRA en premier. Je vérifie d'abord le choix du modèle de base, puis si du retrieval, des outils, ou un meilleur prompting résoudraient le problème avec moins de risque. Le fine-tuning complet, je le garde pour les cas où ces leviers moins chers ont déjà échoué.

@@ -3,32 +3,30 @@ id: rlhf
 order: 24
 difficulty: advanced
 tags: [RLHF, alignement]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Your base model looked impressive in prompts and demos. Then real users found the ugly parts: fake confidence, sycophancy, evasive refusals, and answers that sounded aligned while missing the point. That gap is why RLHF exists. Pretraining gives you capability. It does not give you the behavior contract you need in a product.
+Your assistant looked polished in evals, then customers used it for a week and filed the same complaint three different ways: too agreeable to bad requests, too rigid on harmless ones, and weirdly verbose the moment confidence dropped. That is the mess RLHF tries to clean up. Pretraining buys capability. It does not buy a behavior contract.
 
 ## What RLHF actually adds
 
-The canonical recipe from the [InstructGPT paper](https://arxiv.org/abs/2203.02155) is not mysterious: supervised fine-tuning on demonstrations, a reward model trained on ranked outputs, then policy optimization against that reward. The usual optimizer is [PPO paper](https://arxiv.org/abs/1707.06347) territory, with an explicit pressure to stay close to a reference model so you do not destroy general capabilities while chasing preference gains.
+The recipe in the [InstructGPT paper](https://arxiv.org/abs/2203.02155) is simple: supervised fine-tuning on demonstrations, a reward model trained on ranked outputs, then policy optimization. That last step usually leans on ideas from the [PPO paper](https://arxiv.org/abs/1707.06347) with a KL penalty toward a reference policy, because the whole point is to move behavior without wiping out general usefulness.
 
-That matters because product quality is full of fuzzy targets. "Helpful but not overconfident." "Refuse the dangerous request, but do not refuse the harmless adjacent one." "Use tools when needed, but do not spam them." Those are easier to express as comparisons than as gold labels. RLHF turns that ambiguity into pairwise preference data and forces the model to internalize it.
+That structure answers the real product problem. Most painful failures are preference failures. "Helpful but calibrated." "Refuse the dangerous request, not the harmless adjacent one." "Use tools when they help, not to show off." Pairwise judgments capture those tradeoffs better than pretending you have perfect labels.
 
 ## Why teams still pay the RLHF tax
 
-At scale, RLHF is a behavior-shaping system more than a training trick. It lets you tune tone, calibration, refusal style, and task-following in ways plain supervised fine-tuning usually cannot match. If your failures live in the gap between "technically valid" and "actually useful," preferences are often the right signal.
+Once the model is in production, static datasets stop being enough. New abuse patterns show up, refusal style drifts, and raters find edge cases your offline evals never touched. RLHF gives you a loop to turn those judgments into behavior updates. If you care about safety SLAs, escalation handling, or tool-use discipline, that loop is the product, not a training detail.
 
-It is also one of the few approaches that can continuously absorb new judgments. That becomes important once deployment teaches you what your internal evaluation missed. A model that is good on static prompts can still fail on escalation handling, adversarial phrasing, or subtle user frustration. RLHF gives you a loop for that.
+That is also why I would not start here by default. RLHF is powerful, but it is ops-heavy on purpose. You need stable preference collection, rater calibration, disagreement reviews, reward-model drift checks, and rollback criteria after each tuning round. If you cannot run that machinery, you do not have an RLHF program. You have a one-off experiment.
 
 ## Where RLHF gets expensive fast
 
-The catch is that the training loop optimizes for the reward you managed to specify, not for the product quality you wish you had specified. Reward hacking is not a side effect. It is the default failure mode when the reward model learns proxies that score well but do not hold up under distribution shift. You see this as verbosity inflation, hedging, refusal overreach, or polished nonsense that raters accidentally rewarded.
+The ugly part is objective misspecification. The policy optimizes the reward you managed to encode, not the product quality you meant. Treat reward hacking as the default threat model: verbosity inflation, fake nuance, refusal overreach, or polished nonsense that raters accidentally scored well. If you are not watching those patterns in production, the training win is probably fake.
 
-The operational cost is just as real. You need consistent preference collection, good rater instructions, disagreement analysis, reward-model monitoring, and policy checks after every tuning round. If that sounds like running a mini evaluation organization, that is because it is. RLHF only makes sense when behavior quality matters enough to justify that loop.
-
-This is why Anthropic pushed [Constitutional AI](https://arxiv.org/abs/2212.08073): use explicit principles and model-generated critiques to reduce some dependence on large volumes of human comparisons. I think that move is important, but it does not remove the core problem. You still need a clear target behavior, and you still need to watch for models gaming the training signal.
+That is why [Constitutional AI](https://arxiv.org/abs/2212.08073) matters. It replaces much of the human-comparison burden with explicit principles and model-generated critiques. I like that direction because it attacks labeling cost directly. It does not remove the core problem, though. You still need a target behavior that survives contact with users, and you still need monitoring strong enough to catch models gaming the signal.
 
 ## Decision rule
 
-Use RLHF when you need ongoing behavior control at product scale and you can afford the data and monitoring machinery that comes with it. If you only have a static preference dataset and no appetite for running a continuous reward pipeline, skip the theater and look at DPO or plain supervised tuning instead.
+I would choose [DPO paper](https://arxiv.org/abs/2305.18290) first when the target behavior is stable and the preference data is already good. Choose RLHF only when behavior has to keep moving after launch and you can afford the monitoring loop. If you are not prepared to run preference collection and post-tuning rollback checks as an ongoing function, skip RLHF.

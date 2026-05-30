@@ -7,15 +7,17 @@ publishedAt: 2099-12-31
 updatedAt: 2026-05-30
 ---
 
-La première version, c’est toujours un seul prompt. Deux semaines plus tard, ce prompt fait la classification, la recherche, la rédaction, le formatage, les fallbacks, et présente ses excuses quand un étage casse.
+La première version tient dans un seul prompt. Puis tu la déploies, un ticket un peu tordu arrive, et soudain ce prompt fait la classification, la recherche, la rédaction, le formatage, les fallbacks, et le service après-vente.
 
-La plupart des équipes voient ce bazar et sautent directement à “il nous faut un agent”. La plupart du temps, il leur faut un workflow. Un workflow, c’est juste une orchestration explicite : des étapes nommées, des branchements bornés, des entrées et sorties claires. Tu peux très bien utiliser [structured outputs](https://platform.openai.com/docs/guides/structured-outputs) dedans, et appeler des outils avec [function calling](https://platform.openai.com/docs/guides/function-calling). La différence, c’est que le chemin est visible. D’après la [vue d’ensemble LangChain](https://python.langchain.com/docs/concepts/agents/), les agents sont utiles quand l’action suivante doit être décidée dynamiquement. Si tu connais déjà le chemin, garde-le déterministe.
+La plupart des équipes voient ce bazar et sautent directement à “il nous faut un agent”. Moi, la plupart du temps, je ne le ferais pas. Anthropic pose bien la frontière dans [effective agents](https://www.anthropic.com/engineering/building-effective-agents) : les workflows suivent des chemins de code prédéfinis, les agents décident dynamiquement de l’étape suivante. Si tu connais déjà le chemin, prends l’option ennuyeuse et garde-la déterministe. Quand c’est toi qui es d’astreinte, l’ennui devient une qualité.
+
+Un workflow, c’est juste une orchestration explicite : des étapes nommées, des branchements bornés, et des entrées-sorties claires. Tu peux toujours verrouiller les résultats intermédiaires avec [structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs), et appeler de vrais systèmes avec [function calling](https://developers.openai.com/api/docs/guides/function-calling). L’astuce, c’est que le chemin reste visible, donc les pannes deviennent agaçantes de clarté, ce qui est franchement mieux que l’alternative.
 
 Ce choix compte parce qu’un workflow coûte moins cher à déboguer. Quand l’étape trois casse, tu sais où regarder. Quand une boucle d’agent casse, tu récupères souvent une transcription floue et un après-midi perdu. Pour la majorité des features produit, déterministe bat malin.
 
-Avant le code, voilà ce que beaucoup de gens ratent : les workflows sont l’endroit où tu gagnes sur les coûts. Mets le modèle bon marché au début pour le routage et l’extraction, puis réserve le modèle cher au petit pourcentage de requêtes qui ont vraiment besoin d’un raisonnement plus profond.
+L’autre sujet que beaucoup ratent, c’est le coût. Le [guide de sélection](https://developers.openai.com/cookbook/examples/partners/model_selection_guide/model_selection_guide) d’OpenAI est assez clair sur le fait qu’il faut adapter la taille du modèle au boulot, et je ferais sans hésiter le routage avec un modèle bon marché au début. Laisse le petit modèle classer, extraire, ou rejeter le bruit. Garde le modèle cher pour la minorité de requêtes qui demandent vraiment plus de raisonnement. Cramer ton meilleur modèle sur chaque requête, c’est une manière très élégante de payer le GPU de quelqu’un d’autre.
 
-Voilà une forme de workflow que j’expédierais pour des réponses support :
+Voilà la forme de workflow que j’expédierais pour des réponses support :
 
 ```ts
 export async function runSupportReplyWorkflow(ticket: Ticket) {
@@ -47,6 +49,6 @@ export async function runSupportReplyWorkflow(ticket: Ticket) {
 }
 ```
 
-Quelques patterns gardent les workflows sains. Persiste le résultat de chaque étape pour que les retries repartent du dernier checkpoint valide au lieu de rejouer toute la chaîne. Donne à chaque étape son propre timeout et son propre budget d’erreur, parce qu’un problème de retrieval et un problème de modèle ne méritent pas le même fallback. Ajoute des branches explicites de revue humaine pour les cas à risque, comme les remboursements, le juridique ou le médical. Et si un workflow appelle des API externes, expose les rate limits comme un état normal, pas comme un mystérieux “AI error”.
+Quelques patterns gardent un workflow sain. Persiste le résultat de chaque étape pour que les retries repartent du dernier checkpoint valide au lieu de rejouer toute la chaîne. Donne à chaque étape son propre timeout et son propre fallback, parce qu’un problème de recherche documentaire et un problème de modèle ne sont pas le même échec. Ajoute une revue humaine explicite pour les branches à risque, comme les remboursements, le juridique, ou le médical. Et si le workflow tape les limites du fournisseur, expose ça comme un état normal plutôt que comme un “AI error” qui fait peur ; le [guide rate limits](https://developers.openai.com/api/docs/guides/rate-limits) rappelle bien que ces limites font partie du comportement normal de l’API, pas d’une panne mystique.
 
 Ma règle est brutale : si tu peux dessiner le chemin sur un seul tableau blanc, prends un workflow. Sors l’agent uniquement quand l’étape suivante dépend vraiment d’observations que tu ne peux pas prévoir à l’avance.

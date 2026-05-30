@@ -4,19 +4,43 @@ order: 4
 difficulty: beginner
 tags: [RAG, LLM, embeddings, similarity]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-A user types "How do I stop paying?" while your help center article is titled "Cancel your subscription." Keyword search can miss that match even though a human sees they mean almost the same thing. Semantic similarity exists to bridge that gap.
+Your search box is working, yet users still miss obvious answers. Someone types "How do I stop paying?" and your content says "Cancel your subscription." Keyword search can shrug at that pair, even though any human would call it the same intent. Semantic similarity is the tool I reach for when wording changes but meaning does not.
 
-**Semantic** means related to meaning. **Similarity** means closeness. So semantic similarity is a way to measure whether two pieces of text express nearby ideas, even when they do not reuse the same words. For retrieval systems, this matters more than beginners usually expect, because real users rarely phrase things the way your documentation team does.
+The first fix is to turn text into an [embedding](https://platform.openai.com/docs/guides/embeddings). An embedding is a numeric representation of text, and OpenAI describes embeddings as vectors whose distance reflects relatedness. "Vector" sounds scarier than it is: think of it as a coordinate that places each sentence somewhere on a meaning map. If two sentences land near each other on that map, they probably talk about the same thing.
 
-The usual trick is to convert sentences into vectors with an [embeddings guide](https://platform.openai.com/docs/guides/embeddings). A vector is just a list of numbers. On its own, that sounds abstract, and that is normal. What matters is the role those numbers play: they place each sentence somewhere in a mathematical space where similar meanings land near each other. Libraries and model families such as [Sentence Transformers](https://www.sbert.net/) were built specifically to make this kind of sentence-level meaning useful.
+Once you have vectors, you need a way to compare them. [Cosine similarity](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.cosine_similarity.html) measures how closely two vectors point in the same direction. You do not need to love the formula. For a beginner, the useful mental model is simpler: a higher cosine score usually means closer meaning, even when the words differ.
 
-Once texts are represented as vectors, you can compare them with a metric such as [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity). The math looks intimidating at first, but the intuition is friendly: if two vectors point in a similar direction, the underlying texts probably talk about a similar thing. You do not need to enjoy linear algebra for this to click. It clicked for me only when I stopped staring at the numbers and started thinking in pairs like "refund" and "money back," or "vacation policy" and "paid time off."
+A tiny example makes this less foggy before you touch any database:
 
-A good [Pinecone guide](https://www.pinecone.io/learn/vector-search/) makes the practical consequence clear: semantic search cares less about exact wording and more about conceptual closeness. That is why it works so well for RAG. The user asks one way, your docs phrase it another way, and the system still has a chance to bring back the right evidence.
+```python
+from openai import OpenAI
+from sklearn.metrics.pairwise import cosine_similarity
 
-The tricky part, which many tutorials politely ignore, is that semantic similarity is not mind reading. Similar words can refer to different intents, and domain language matters a lot. In a medical app, "positive" can be good news or bad news depending on context. In billing, "charge" can mean a fee or an accusation. That is why I prefer testing retrieval with ten ugly real queries from users instead of ten beautiful examples written by the team.
+client = OpenAI()
 
-My default advice is simple: if users and documents describe the same idea with different wording, semantic similarity is worth learning early. If your content depends on exact IDs, product codes, or legal phrasing, combine it with keyword search instead of treating it as a religion. The next guide turns this notion of closeness into something operational: vector search.
+def embed(text: str):
+    return client.embeddings.create(
+        model="text-embedding-3-small",
+        input=text,
+    ).data[0].embedding
+
+documents = [
+    "Cancel your subscription",
+    "Update your payment method",
+]
+query = "How do I stop paying?"
+
+doc_vectors = [embed(text) for text in documents]
+query_vector = embed(query)
+
+scores = cosine_similarity([query_vector], doc_vectors)[0]
+best_match = documents[scores.argmax()]
+print(best_match)
+```
+
+I like this example because it shows the real job: score a query against several candidate texts, then keep the closest one. When you outgrow a toy list in memory, tools such as [pgvector](https://github.com/pgvector/pgvector) can store vectors and sort rows by distance, and systems such as [Pinecone semantic search](https://docs.pinecone.io/guides/search/semantic-search) can return the nearest records for a query. "Nearest neighbor" just means the stored text whose vector is closest to your query vector.
+
+Here is the catch, and beginners deserve to hear it early: semantic similarity is helpful, not psychic. It can confuse texts that share vocabulary but not intent, and it can miss exact identifiers such as invoice numbers, product codes, or legal clauses. My rule is simple: if 2 or 3 queries out of a rough test set of 10 are paraphrases that keyword search misses, semantic similarity is already earning its keep. If exact wording is the contract, keep keyword search in the loop, then read the next guide on vector search to see how those neighbors are retrieved efficiently.

@@ -4,25 +4,23 @@ order: 3
 difficulty: beginner
 tags: [LLM, evaluation, latency, OpenAI, HuggingFace]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-You open a model list and suddenly every name sounds made up: mini, turbo, instruct, 70B, Sonnet, latest. Beginners expect one best model. There is no single winner. There is only the best model for a job, a budget, and a delay users can tolerate.
+You open a model catalog, and the names feel like cereal boxes: mini, turbo, instruct, 70B, Sonnet, latest. The trap is thinking there must be one best model. I would not hunt for “best.” I would pick the cheapest model that is still good enough for the job, because model choice is always a trade between quality, latency, and price.
 
-A model is the engine that turns your prompt into an answer. Bigger models often reason better, but they usually cost more and can respond more slowly. Smaller models are cheaper and faster, which matters a lot in real products. That is why my default is not pick the smartest model. It is pick the smallest model that reliably passes your tests.
+A model is the system that turns your prompt, meaning your instruction, into an answer. Provider comparison tables keep showing the same pattern: smaller models are usually faster and cheaper, while larger ones are better for harder reasoning tasks, so [Anthropic overview](https://docs.anthropic.com/en/docs/about-claude/models/overview) is a useful reality check when the naming gets confusing.
 
-If you are browsing open models, the [Hugging Face](https://huggingface.co/models) hub shows size, license, and community signals. If you want to run open-weight models on your own machine, [Ollama](https://ollama.com/) lowers the friction. On the API side, the rates on [OpenAI pricing](https://openai.com/api/pricing/) and [Anthropic pricing](https://www.anthropic.com/pricing/) are a good reminder that model choice is never just about quality.
+That still leaves a practical problem: where do you compare options without getting lost? If you are exploring open-weight models, [Hugging Face Models](https://huggingface.co/models) helps you filter by task, size, and license. If you want to run one locally, meaning on your own machine, [Ollama](https://ollama.com/) gives you a simple way to pull and serve supported models.
 
-For beginners, I use three questions.
+When beginners ask me where to start, I use three questions, and I would answer them in this order.
 
-First, what does the task actually need? Classification, extraction, simple rewriting, and short summaries often work fine on cheaper models. Long-form reasoning, messy instructions, or multi-step tool use usually push you toward stronger models.
+First, what does the task really need? Classification, extraction, simple rewriting, and short summaries often work on cheaper models. Multi-step planning, messy instructions, or long reasoning usually need a stronger one. If the task looks simple, I would start small and force the model to prove it deserves an upgrade.
 
-Second, how wrong can the model be? If a mistake only creates a slightly awkward sentence, a small model is often fine. If a mistake changes legal meaning, billing, or customer trust, I become more conservative very quickly.
+Second, how expensive is a mistake? If the worst outcome is an awkward sentence, I am comfortable testing a small model first. If an error could affect money, legal meaning, safety, or trust, I would pay for more headroom sooner. This is the part beginners underestimate: model risk is a product decision, not only a technical one.
 
-Third, how long can the user wait? Latency means response delay. People are more patient with a research assistant than with an autocomplete box. If the feature sits inside a fast workflow, shaving one second matters.
+Third, how long can the user wait? Latency means response delay. The [OpenAI latency guide](https://platform.openai.com/docs/guides/latency-optimization) explains why smaller models usually respond faster and why output length matters too. In a chat assistant, a few extra seconds may be acceptable. In autocomplete or a tightly repeated workflow, one second can feel huge.
 
-This is the part I care about most: do not choose from vibes. Build five to ten realistic examples from your own use case and run them through two or three candidate models. That tiny evaluation set will teach you more than a leaderboard. A model that looks impressive in public benchmarks can still be bad for your exact prompts.
+Once you know the task, the risk, and the patience budget, one last problem remains: benchmark scores still do not tell you whether your prompts will work. That is why I would build a tiny eval set first. The [OpenAI evals guide](https://platform.openai.com/docs/guides/evals) recommends testing models against representative inputs, and that is the habit I trust most. Five to ten realistic examples from your own use case beat a flashy public leaderboard every time.
 
-If you feel stuck, start with a smaller paid model or a practical open model, set a clear pass or fail bar, and only move up when it misses that bar. Beginners often do the opposite: they start with the biggest model, love the answers, then panic when latency or cost shows up.
-
-What next: once you have a candidate model, the next adult question is not speed or price. It is data privacy, meaning what information you send, where it goes, and who can see it.
+My rule of thumb is simple: start with the smallest model that passes your evals, then move up only when you can name the failure clearly. What next: once you can state your quality bar and your maximum acceptable delay in one sentence, move to data privacy, because the next model decision is really about what data you can send and where it is processed.

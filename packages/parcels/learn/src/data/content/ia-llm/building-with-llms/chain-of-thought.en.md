@@ -7,15 +7,15 @@ publishedAt: 2099-12-31
 updatedAt: 2026-05-30
 ---
 
-Your prompt works until the input contains one exception and two numbers. Then the model jumps straight to an answer, skips the middle step, and you end up debugging an adjective like it was a production outage.
+You've got a prompt that works right until the input sneaks in one exception and two numbers. Then the model blurts out an answer, skips the part that mattered, and you end up debugging a sentence like it just paged you at 2 a.m.
 
-That is where chain of thought becomes useful. The original [chain-of-thought paper](https://arxiv.org/abs/2201.11903) showed that giving the model intermediate reasoning examples can improve complex reasoning, especially on arithmetic, commonsense, and symbolic tasks. I still use the idea, but only when the task is genuinely multi-step. For classification, retrieval, or simple rewriting, extra reasoning text often buys you latency and token cost, not quality.
+Chain-of-thought prompting exists for exactly that mess. In the original [Wei et al. paper](https://arxiv.org/abs/2201.11903), the trick was simple: show intermediate reasoning steps in the examples, not just question-answer pairs. That improved arithmetic, commonsense, and symbolic reasoning on tasks that genuinely require several hops. I still use that idea, but I treat it like a scalpel. For classification, retrieval, or plain rewriting, visible reasoning is usually expensive theater.
 
-The thing most tutorials skip is that chain of thought is not magic, it is scaffolding. You are telling the model where to pause, what evidence to collect, and when to commit. OpenAI’s [prompt engineering guide](https://platform.openai.com/docs/guides/prompt-engineering) and Anthropic’s [prompt engineering overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) both push the same lesson in modern form: define success clearly, structure the task, and test prompts empirically instead of trusting vibes.
+The paper still matters, but provider guidance has moved. OpenAI's [reasoning guide](https://platform.openai.com/docs/guides/reasoning) says reasoning models already spend internal reasoning tokens before answering, and Anthropic's [prompt engineering overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) tells you to define success criteria and evals before fiddling with prompt wording. Translation: before you spray “think step by step” everywhere, make sure you picked the right model and can measure whether the extra thinking helps.
 
-I also avoid asking for a giant visible monologue unless I truly need it. Verbose reasoning burns tokens, can leak business rules into logs, and makes evals noisy. My default is: reason briefly, answer cleanly. If I need auditability, I ask for short numbered checks, not a diary entry.
+I also would not make the model dump a giant monologue unless I need to inspect failure modes. OpenAI's [prompt engineering guide](https://platform.openai.com/docs/guides/prompt-engineering) still rewards clear structure, and Anthropic's [effort control](https://docs.anthropic.com/en/docs/build-with-claude/effort) makes the trade-off explicit: more thinking usually means more tokens and more latency. My default is boring on purpose: keep the answer clean, ask for short checks, and only expose reasoning when those checks help me debug or review.
 
-A practical pattern looks like this:
+Here's the version I'd actually ship:
 
 ```txt
 You are validating invoice line items.
@@ -34,6 +34,6 @@ Invoice text:
 """{{invoice_text}}"""
 ```
 
-The real win is not the label. The real win is separating observation from judgment. Step 2 forces the model to copy evidence before it decides, which makes failures much easier to inspect. When the answer is wrong, you can see whether it misread the source, skipped a calculation, or simply hallucinated confidence.
+The real win is not the phrase. The real win is separating observation from judgment. Step 2 forces the model to copy evidence before it decides, which makes failures much easier to inspect. When the answer is wrong, you can tell whether it misread the source, skipped a calculation, or confidently invented math. Classic model behavior, sadly.
 
-I still would not use this pattern everywhere. If the task can be checked with a deterministic function after the answer, keep the prompt short and let code do the verification. If the task fails because the model keeps skipping a hidden intermediate step, add chain of thought and cap the reasoning budget before it turns into paid improv.
+My rule is simple: if I can verify the output with code, I keep the prompt short and let code be the adult in the room. I reach for visible chain of thought only when the task keeps failing on a hidden intermediate step and I need just enough reasoning to catch it, not a novella.

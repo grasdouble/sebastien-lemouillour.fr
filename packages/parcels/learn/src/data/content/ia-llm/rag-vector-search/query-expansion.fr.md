@@ -4,32 +4,34 @@ order: 16
 difficulty: intermediate
 tags: [RAG, retrieval, HyDE, reformulation]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Les utilisateurs ne posent presque jamais leurs questions avec le vocabulaire exact de ta documentation. Ils écrivent « le login bloque après le SSO » alors que la page utile parle de « timeout d'authentification pendant une redirection fédérée ». Quand la recherche rate pour cette raison, de meilleurs embeddings aident un peu, mais ne ferment pas tous les écarts de langage. L'expansion de requête, je l'utilise quand le problème vient du rappel, pas du classement.
+Ton retriever a l'air cassé quand un utilisateur tape "le login bloque après le SSO" et que le chunk utile dit "timeout d'authentification pendant une redirection fédérée". Si ce décalage de formulation continue d'éjecter le bon chunk du jeu de candidats, je ne touche pas d'abord au générateur. Je corrige le rappel côté retrieval avec de l'expansion de requête.
 
-Il y a trois familles qui valent vraiment le détour. La recherche multi-requêtes génère quelques reformulations puis cherche avec chacune. La réécriture de requête produit une seule version plus pertinente. [HyDE](https://arxiv.org/abs/2212.10496) va plus loin : on demande au modèle de rédiger une réponse hypothétique, puis on embed ce texte synthétique pour lancer la recherche. Des outils comme [LlamaIndex query transforms](https://docs.llamaindex.ai/en/stable/examples/query_transformations/query_transform_cookbook/) exposent directement ces variantes, et des travaux comme [Query2doc](https://arxiv.org/abs/2303.07678) montrent pourquoi des pseudo-documents peuvent améliorer le rappel.
+La première décision consiste à vérifier que tu as vraiment un problème de rappel. Si le chunk gagnant apparaît déjà quelque part dans le top 10, l'expansion te fait surtout dépenser plus. La réécriture de requête sert à combler un écart de formulation, pas à corriger un mauvais ordre des résultats. Les moteurs de recherche managés proposent déjà [query rewrite](https://learn.microsoft.com/en-us/azure/search/semantic-how-to-query-rewrite) pour ce cas précis.
 
-Le piège, c'est la sur-expansion. Cinq reformulations donnent l'impression d'être plus robuste qu'une seule, jusqu'au moment où tu regardes les résultats et tu vois surtout une facture de retrieval multipliée, un ensemble candidat plus large et des pages à moitié hors sujet. L'expansion de requête est facile à surutiliser parce qu'un problème de retrieval et un problème de ranking se ressemblent beaucoup dans une démo. Si le bon chunk est déjà dans le top 10, l'expansion est souvent le mauvais levier. Il faut reranker, pas multiplier les requêtes.
+Une fois l'échec identifié, je choisis l'expansion la plus légère capable de le corriger. Les [LlamaIndex transforms](https://docs.llamaindex.ai/en/stable/examples/query_transformations/query_transform_cookbook/) montrent bien l'échelle habituelle : une réécriture pour nettoyer la formulation, quelques variantes pour une recherche multi-requêtes, puis des approches plus lourdes quand la langue du corpus reste loin de celle de l'utilisateur. Le [papier HyDE](https://arxiv.org/abs/2212.10496) est le saut que j'utilise avec parcimonie : je demande au modèle une courte réponse hypothétique, j'embed ce texte, puis je lance la recherche à partir de là. Le [papier Query2doc](https://arxiv.org/abs/2303.07678) va dans le même sens, les pseudo-documents peuvent améliorer le rappel, mais seulement quand ce texte supplémentaire reste collé au domaine.
 
-Quand j'en fais, je garde un contrat petit et observable :
+Quand le décalage de formulation est réel, voilà le pattern que je garde en production :
 
 ```ts
 async function expandedSearch(question: string) {
   const variants = await llm.generate([
-    `Rewrite for exact terms: ${question}`,
-    `Rewrite for product language: ${question}`,
-    `Write a likely answer paragraph: ${question}`,
+    `Rewrite as an exact search query: ${question}`, // recover precise product terms
+    `Rewrite with likely domain wording: ${question}`, // bridge user language to corpus language
+    `Write a short likely answer paragraph: ${question}`, // HyDE-style synthetic seed
   ]);
 
-  const queries = dedupe([question, ...variants]).slice(0, 4);
-  const hits = await Promise.all(queries.map((q) => vectorIndex.search(q, { topK: 6 })));
+  const queries = dedupe([question, ...variants]).slice(0, 4); // cap model cost and latency
+  const hits = await Promise.all(
+    queries.map((q) => vectorIndex.search(q, { topK: 6 })) // keep fan-out small enough to inspect
+  );
 
-  return reciprocalRankFusion(hits).slice(0, 8);
+  return reciprocalRankFusion(hits).slice(0, 8); // hand a tight set to reranking or generation
 }
 ```
 
-Cette limite sur le nombre de variantes n'est pas décorative. Je veux assez de diversité pour combler un écart de vocabulaire, pas assez de créativité pour inventer un nouveau problème de recherche. Je journalise aussi la reformulation qui a réellement récupéré le chunk gagnant. Sans ça, impossible de savoir si HyDE a aidé ou si une simple réécriture faisait déjà tout le boulot.
+Je garde cette limite basse volontairement. Chaque reformulation supplémentaire consomme un appel modèle, grignote ton budget de rate limits et augmente le risque de partir sur des sujets voisins. Mets en cache les expansions par requête normalisée, journalise la variante qui récupère réellement le chunk gagnant, et retire les emails, tickets bruts ou secrets avant d'envoyer le texte utilisateur au modèle d'expansion.
 
-Le point que la plupart des tutoriels évitent, c'est l'analyse des échecs. L'expansion peut dériver vers des sujets voisins et dégrader la précision sans bruit apparent. Si ton corpus contient des concepts proches, par exemple facturation, authentification et provisioning, une reformulation trop large peut tout mélanger. Ma règle est simple : je sors l'expansion seulement quand j'ai des preuves que la recherche mono-requête rate des documents pertinents à cause d'un décalage de formulation. Si ton jeu d'évaluation montre que la bonne réponse est déjà présente mais mal ordonnée, n'ajoute pas plus de requêtes. Ajoute une meilleure étape de ranking et garde la recherche la plus sobre possible.
+Je fusionne aussi par rang, pas par score brut. La [doc Elastic RRF](https://www.elastic.co/docs/reference/elasticsearch/rest-apis/reciprocal-rank-fusion) l'explique bien : RRF combine plusieurs listes de résultats sans faire semblant que leurs échelles de score racontent la même chose. Mon seuil est simple : si deux à quatre requêtes au total ne font pas entrer les documents ratés dans le jeu de candidats, j'arrête l'expansion et je corrige plutôt le chunking, les métadonnées ou le reranking.

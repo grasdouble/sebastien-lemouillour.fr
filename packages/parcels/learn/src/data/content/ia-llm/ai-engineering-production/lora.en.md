@@ -4,37 +4,37 @@ order: 8
 difficulty: intermediate
 tags: [LLM, LoRA, fine-tuning, adapters]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-You want a model that speaks your domain better, but the second you read about full fine-tuning you hit the hardware wall: huge checkpoints, expensive GPUs, and training runs that make a small mistake feel very expensive. This is why I reach for LoRA first.
+You want a model that speaks your domain better, then full fine-tuning immediately blows up the budget: huge checkpoints, expensive GPUs, and training runs where one bad experiment wastes real money. That is the moment where I stop dreaming about perfect control and reach for LoRA first.
 
-LoRA comes from the [original paper](https://arxiv.org/abs/2106.09685): freeze the base model, inject small trainable low-rank matrices into a few layers, and update only those. The practical consequence is what matters: you keep most of the base model intact, training gets cheaper, and the resulting adapter is tiny compared with a full checkpoint. For most product teams, that trade-off is excellent.
+LoRA comes from the [original paper](https://arxiv.org/abs/2106.09685): freeze the base model, inject small trainable low-rank matrices into selected layers, and update only those. The practical win is the part I care about: training gets cheaper, most of the base model stays untouched, and you ship an adapter instead of a whole new checkpoint. For most product teams, that trade-off is the one worth testing first.
 
-My opinion is stronger than the average tutorial: choose LoRA over full fine-tuning unless you have a lot of GPUs and a very good reason not to. Most teams are not trying to rewrite the whole model. They are trying to nudge style, domain vocabulary, and task behavior. LoRA is usually enough for that, and the [PEFT docs](https://huggingface.co/docs/peft/) make the setup much less painful than it used to be.
+My recommendation is simple: pick LoRA before full fine-tuning unless you already know the base model is close enough and you have the budget to retrain much more of it. The current [PEFT LoRA docs](https://huggingface.co/docs/peft/package_reference/lora) also make an important detail explicit: `target_modules` can be inferred for known architectures, but unknown ones still need you to set them deliberately. I prefer being explicit once evals matter, because silent defaults are a bad surprise when you are comparing runs.
 
-The trap is assuming LoRA makes data quality less important. It does not. Garbage examples still produce garbage behavior, only faster. The other trap is pushing rank too high because you are nervous. A giant adapter can overfit just as enthusiastically as a full fine-tune. I usually start with modest settings, then move only if evals justify it.
+The trap I fell into early was thinking LoRA makes dataset quality less important. It does not. Bad examples still teach bad behavior, only faster and more cheaply. The second trap is pushing rank too high because you are nervous about underfitting. A large adapter can still overfit hard, so I start small, keep evals close, and only spend more parameters when the misses are consistent.
 
-This is the configuration shape I use as a default starting point.
+When I want a baseline that is cheap enough to iterate on, I start here.
 
 ```python
-from peft import LoraConfig, get_peft_model
+from peft import LoraConfig, TaskType, get_peft_model
 
 lora_config = LoraConfig(
     r=16,  # adapter rank, start small before scaling up
-    lora_alpha=32,  # effective scaling of adapter updates
-    lora_dropout=0.05,  # regularization, useful on smaller datasets
-    target_modules=["q_proj", "v_proj"],  # common first target for decoder models
-    bias="none",
-    task_type="CAUSAL_LM",
+    lora_alpha=32,  # common first scaling choice for r=16
+    lora_dropout=0.05,  # useful regularization on smaller datasets
+    target_modules=["q_proj", "v_proj"],  # good first pass for many Llama-like decoder models
+    bias="none",  # default, and usually the least surprising option
+    task_type=TaskType.CAUSAL_LM,
 )
 
 model = get_peft_model(base_model, lora_config)
 model.print_trainable_parameters()
 ```
 
-If the base model is still too large, [bitsandbytes](https://huggingface.co/docs/bitsandbytes/) is the next lever I pull so the frozen weights fit in lower precision. The training loop itself still follows the usual [Transformers flow](https://huggingface.co/docs/transformers/training), which is why LoRA feels approachable once the dataset is ready.
+If the frozen model still barely fits, I reach for [bitsandbytes quantization](https://huggingface.co/docs/transformers/quantization/bitsandbytes) next so the base weights load in 8-bit or 4-bit precision instead of forcing a bigger machine. The usual [Trainer flow](https://huggingface.co/docs/transformers/trainer) still works after that, which is why LoRA is the shortcut I recommend when the real bottleneck is iteration speed, not academic purity.
 
-What tutorials skip is target-module choice. Updating every possible projection because a repo did it once is lazy. Start with the attention projections that matter for your model family, run task evals, and expand only when the misses are specific enough to justify extra parameters.
+One more shortcut: do not spray adapters across every projection just because one example repo did. PEFT can auto-select modules for common architectures, but once you care about reliable comparisons, I would rather start with the attention projections that matter for the model family, run task evals, and expand only when the failures point to missing capacity. That keeps cost down and makes the next experiment easier to explain.
 
-My rule is simple: if LoRA with clean data cannot fix the behavior, the first suspect is not “LoRA is weak”. The first suspect is that you picked the wrong base model, or that the problem should have been solved with retrieval, tools, or better prompts.
+My decision rule is boring on purpose: if LoRA with clean data and targeted evals still misses badly, I do not blame LoRA first. I check the base model choice, then whether retrieval, tools, or prompt work would solve the problem with less risk. Full fine-tuning is the move I keep for the cases where those cheaper levers have already failed.

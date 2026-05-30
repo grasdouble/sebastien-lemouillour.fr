@@ -4,47 +4,51 @@ order: 15
 difficulty: intermediate
 tags: [LLM, Anthropic, OpenAI, tools, orchestration]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2099-12-31
 ---
 
-One tool feels clever. Three tools, two retries, and one timeout later, you realize you accidentally built a tiny distributed system inside a chat feature.
+You've wired your first LLM call, the demo works, then the model decides to search twice, retry a write, and ask for one more tool just to be safe. Congrats, your chat feature now has failure modes.
 
-That is why I separate function calling from tool calling. Function calling is the payload format. Tool calling is the runtime loop around it. The model asks to use a tool, your app decides whether that call is allowed, executes it, then sends the result back. Anthropic documents that loop in [tool use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use), OpenAI wraps the same idea in its [Agents guide](https://platform.openai.com/docs/guides/agents), and the older [function calling guide](https://platform.openai.com/docs/guides/function-calling) is still the cleanest place to understand the argument shape.
+I separate function calling from tool calling because the distinction saves architecture mistakes. Function calling is the schema. Tool calling is the loop you own. Across providers, the contract is basically the same: you send tool definitions, the model returns a structured request when it needs one, your code executes it, then you feed the result back. OpenAI documents that as a multi-step function-calling flow, Anthropic frames it as `tool_use` plus `tool_result`, and Gemini does the same with function declarations and a call `id` you return with the result ([OpenAI](https://developers.openai.com/api/docs/guides/function-calling), [Anthropic](https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works), [Gemini](https://ai.google.dev/gemini-api/docs/function-calling)).
 
-The important bit is not the JSON. The important bit is who owns the loop. It should be your runtime, not the model. The model can suggest the next action. It should never decide budgets, side effects, or whether retry number four is a good idea.
+The part people underestimate is not the JSON. It is control. If the model owns retries, budgets, or write access, you did not build an agent. You delegated your future incident report.
 
-Before the code, here is the shortcut I wish somebody had given me: treat every tool like an unreliable network dependency, even when it is just a local function today. That mindset forces you to add timeouts, idempotency, and logs before production teaches you the lesson the expensive way.
+The shortcut I wish I had stolen earlier: treat every tool like a flaky remote dependency, even when it is a local helper today. That mindset pushes you toward timeouts, schema validation, idempotency, and logs before production gets opinionated on your behalf.
 
-This is the control loop I would actually keep in an app:
+This is the loop I would actually ship:
 
 ```ts
 const MAX_TOOL_HOPS = 4;
 
 for (let hop = 0; hop < MAX_TOOL_HOPS; hop += 1) {
-  const response = await callModel(messages, tools);
-  const toolRequest = extractToolRequest(response);
+  const assistantTurn = await callModel({ messages, tools });
+  const toolCalls = readToolCalls(assistantTurn);
 
-  if (!toolRequest) return response;
+  if (toolCalls.length === 0) {
+    return assistantTurn;
+  }
 
-  assertAllowedTool(toolRequest.name); // allowlist
-  const args = validateArgs(toolRequest.name, toolRequest.input); // schema check
+  const toolResults = await Promise.all(
+    toolCalls.map(async (toolCall) => {
+      assertAllowedTool(toolCall.name);
+      const args = validateArgs(toolCall.name, toolCall.args);
 
-  const result = await runWithTimeout(
-    () => executeTool(toolRequest.name, args),
-    4_000 // milliseconds
+      const output = await runWithTimeout(() => executeTool(toolCall.name, args), 4_000);
+
+      return {
+        callId: toolCall.id,
+        output,
+      };
+    })
   );
 
-  messages.push(response);
-  messages.push({
-    role: 'tool',
-    tool_call_id: toolRequest.id,
-    content: JSON.stringify(result),
-  });
+  logToolHop({ hop, toolCalls, toolResults });
+  messages.push(assistantTurn, formatToolResults(toolResults));
 }
 
-throw new Error('Tool loop exceeded max hops');
+throw new Error('Too many tool hops');
 ```
 
-A few production habits matter immediately. Put a hard cap on tool hops, otherwise a confused model will spend your budget in circles. Make write operations idempotent, because the same call may be retried after a partial failure. Log tool name, latency, and outcome for every hop, because “the agent was weird” is not a useful incident report. And if a tool can touch money, email, or customer data, add a human approval step before execution.
+A few production habits pay for themselves fast. Cap the number of hops, because confused models can burn budget in circles. Keep write tools idempotent, because partial failures love replaying the same action. Log tool name, latency, and outcome on every hop, because “the agent got weird” is not a serious postmortem. If a tool can move money, contact customers, or change data, put a human approval step in front of it.
 
-I use tool calling when the model genuinely needs external state to finish the task. If the tool result does not change the next decision, skip the loop and call the service directly. You will get the same outcome with fewer moving parts.
+My rule is simple: use tool calling when the model needs fresh state or has to choose between external actions. If you already know which service to call, skip the ceremony and call it yourself. Fewer loops, fewer surprises.

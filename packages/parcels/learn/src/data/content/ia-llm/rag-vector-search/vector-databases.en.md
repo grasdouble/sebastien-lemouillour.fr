@@ -4,39 +4,46 @@ order: 7
 difficulty: intermediate
 tags: [RAG, VectorDB, Qdrant, pgvector]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Your retrieval can look broken even when your embeddings are fine. The usual culprit is storage: slow filters, painful updates, no deletion strategy, or a database choice that forces every query through application code. I learned this the hard way by shoving vectors into whatever datastore was already there, then wondering why the LLM kept citing the right topic from the wrong product version.
+Your RAG demo looks smart until it answers with the right paragraph from the wrong customer, the wrong language, or last month's version. When that happens, I do not blame embeddings first. I blame storage, because retrieval breaks the moment filters, deletes, and updates feel bolted on.
 
-I do not pick a vector database by benchmark screenshots. I pick it by operational friction. [Qdrant docs](https://qdrant.tech/documentation/) are usually my first stop when I want a purpose-built engine with solid filtering and predictable behavior. If the team already lives in Postgres, [pgvector](https://github.com/pgvector/pgvector) is often the better call because it keeps vectors, relational data, backups, and access control in one place. [Pinecone docs](https://docs.pinecone.io/) make sense when I want a managed service and do not want to spend my week tuning infrastructure. [Weaviate docs](https://weaviate.io/developers/weaviate) are attractive when the built-in search features and schema model match the product.
+I pick a vector database by operational friction, not by benchmark screenshots. If a team already runs [pgvector](https://github.com/pgvector/pgvector), I would start there because vectors stay next to the relational data, backups, and permissions you already operate. I move to [Qdrant filters](https://qdrant.tech/documentation/concepts/filtering/) when filtered retrieval is the product and I want a store built around payload filtering instead of retrofitting it. I only reach for [Pinecone serverless](https://docs.pinecone.io/guides/index-data/indexing-overview) when the team genuinely wants a managed surface and accepts the extra bill that comes with it. [Weaviate filters](https://weaviate.io/developers/weaviate/search/filters) are the option I look at when the search API shape already matches the product and I want less glue code.
 
-The trap most tutorials skip is this: retrieval quality is tied to boring features. Can you filter by tenant, language, or version without a hack? Can you upsert the same chunk idempotently? Can you delete one document without rebuilding the whole index? If the answer is fuzzy, the database is working against your RAG system.
+The part people skip is the unglamorous part. Can you upsert the same chunk without creating duplicates? Can you filter by tenant, language, and version in one query? Can you delete a document cleanly when a policy page changes? If those answers are vague, the database is already taxing your retrieval quality.
 
-When I stay in Postgres, this is the minimum shape I want from day one.
+Before debating vendors for weeks, this is the SQL shape I would ship first on Postgres.
 
 ```sql
 create extension if not exists vector;
 
 create table knowledge_chunks (
   id uuid primary key,
+  tenant_id text not null, -- security boundary for multi-tenant retrieval
   document_id text not null,
   chunk_index integer not null,
-  title text not null,
+  content text not null,
   metadata jsonb not null default '{}'::jsonb,
-  embedding vector(1536) not null -- match your embedding model output
+  embedding vector(1536) not null -- replace 1536 with your model dimension
 );
 
 create index knowledge_chunks_embedding_idx
 on knowledge_chunks using hnsw (embedding vector_cosine_ops);
 
-select id, document_id, title
+create index knowledge_chunks_metadata_idx
+on knowledge_chunks using gin (metadata jsonb_path_ops);
+
+select id, document_id, chunk_index, content
 from knowledge_chunks
-where metadata @> '{"language":"en","version":"2026-05"}'
-order by embedding <=> $1
-limit 5;
+where tenant_id = $2 -- current tenant or workspace
+  and metadata @> '{"language":"en","version":"2026-05"}'
+order by embedding <=> $1 -- $1 is the query embedding
+limit 5; -- top-k before reranking or prompt assembly
 ```
 
-That `vector(1536)` only works if it matches the embedding size you generate, so check your provider before you lock the schema. The [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) guide is the kind of detail worth confirming once, before you index a million rows with the wrong dimension.
+That shape works because [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) make the model dimension explicit, and [JSONB indexing](https://www.postgresql.org/docs/current/datatype-json.html#JSON-INDEXING) keeps metadata filters practical instead of turning them into table scans. I treat `tenant_id` as a security boundary, not convenience metadata. If one query path can skip it, you built a leak path.
 
-My rule is simple: if you already run Postgres and your filtering needs are moderate, start with pgvector. If retrieval is becoming its own product, multi-tenant, high-write, heavy-filtered, operationally separate, move to Qdrant or Pinecone. The moment you need three workarounds to express one search query, you picked the wrong home for your vectors.
+The cost trap usually sits outside the database. Re-embedding a large corpus is an API job, so check your provider's [rate limits](https://platform.openai.com/docs/guides/rate-limits) before you launch a backfill that stalls halfway through.
+
+My rule is simple: start with pgvector if you already trust Postgres and your retrieval can stay healthy with one vector index plus one metadata index. Move to a dedicated vector database when filtered search, write volume, or operational isolation turns into weekly pain. If you spend more time nursing the storage layer than improving relevance, that is the threshold where a specialized system starts earning its cost.

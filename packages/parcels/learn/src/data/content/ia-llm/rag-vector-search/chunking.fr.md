@@ -4,43 +4,53 @@ order: 10
 difficulty: intermediate
 tags: [RAG, chunking, LangChain, LlamaIndex]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Ta recherche vectorielle remonte bien des résultats. Les mauvais. Pas parce que le modèle est bête, mais parce que tu as découpé le document à des endroits qu'aucun humain n'aurait choisis. Tous les tutos de chunking montrent des paragraphes propres. Les vrais documents ont des titres, des tableaux, des listes, des blocs de code, des notes de bas de page, et les cicatrices d'une extraction PDF bancale.
+Ta recherche vectorielle remonte toujours quelque chose. Souvent le mauvais paragraphe. Le problème vient rarement du modèle d'embedding. Il apparaît au moment où tu sépares un titre de son tableau, où tu détaches un label de speaker de la réponse, ou où tu coupes un bloc de code en deux.
 
-Ma position est simple : on découpe d'abord par structure, ensuite par budget de tokens. Si un titre, un tableau ou un bloc de code porte du sens, je le garde intact aussi longtemps que possible. Je ne bascule vers une découpe récursive que si la section reste trop grosse. Les [splitters LangChain](https://python.langchain.com/docs/concepts/text_splitters/) et les [node parsers LlamaIndex](https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/) vont tous les deux dans ce sens, avec des stratégies récursives ou pilotées par parseur. Le guide [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) rappelle simplement qu'un budget de tokens existe toujours, donc la structure ne suffit pas à elle seule.
+Moi, je découpe d'abord par structure, ensuite par budget de tokens. En Markdown, je prends [MarkdownHeaderTextSplitter](https://docs.langchain.com/oss/python/integrations/splitters/markdown_header_metadata_splitter) parce qu'il groupe le contenu par titres et conserve cette hiérarchie dans les métadonnées. Quand la source a déjà perdu sa forme, [RecursiveCharacterTextSplitter](https://docs.langchain.com/oss/python/integrations/splitters/recursive_text_splitter) devient mon filet de secours parce qu'il essaie d'abord les gros séparateurs avant de hacher le texte trop tôt.
 
-L'erreur que je vois partout, c'est de traiter tous les formats source de la même manière. Une doc Markdown, une référence d'API, une transcription d'appel et un texte OCR ne devraient jamais passer par une seule fonction universelle. Les tableaux sont le cas le plus traître : un splitter garde les lignes ensemble mais dépasse ta cible, un autre coupe les lignes en morceaux et rend le retrieval inutile. La bonne réponse consiste souvent à normaliser d'abord, puis à découper.
+Le piège dans lequel je suis tombé, c'était de traiter Markdown, HTML, transcription et texte OCR comme un seul blob générique. Ce n'est pas le même travail. Les [node parsers LlamaIndex](https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/) héritent déjà des attributs du document vers les nœuds enfants, donc le chunking orienté format fait partie du modèle d'ingestion. Je normalise d'abord, puis je choisis le splitter le moins coûteux qui préserve encore la frontière qu'un humain juge importante.
 
-Voici le petit dispatcher que j'aime avoir avant même de brancher les abstractions du framework.
+Cette décision devient simple à tenir avec un petit dispatcher avant même de brancher une abstraction de framework.
 
 ```ts
-export function chunkDocument(input: { type: 'markdown' | 'html' | 'transcript'; text: string }) {
-  if (input.type === 'markdown') {
+type SourceKind = 'markdown' | 'html' | 'transcript' | 'plain';
+
+export function chunkDocument(input: { kind: SourceKind; text: string }) {
+  if (input.kind === 'markdown') {
     return chunkMarkdownByHeading(input.text, {
-      maxTokens: 400,
-      keepHeading: true,
-      preserveCodeBlocks: true,
+      maxTokens: 400, // garde de la marge pour les titres et le prompt de retrieval
+      keepHeading: true, // le titre porte souvent une partie du sens
+      preserveCodeBlocks: true, // couper un bloc fenced trop tôt casse la recherche
     });
   }
 
-  if (input.type === 'transcript') {
+  if (input.kind === 'html') {
+    return chunkHtmlBySection(input.text, {
+      allowedTags: ['h1', 'h2', 'h3', 'p', 'li', 'pre'],
+      maxTokens: 400, // on ne recurse que dans une section encore trop grosse
+    });
+  }
+
+  if (input.kind === 'transcript') {
     return chunkTranscriptBySpeaker(input.text, {
-      maxTokens: 300,
-      mergeShortTurns: true,
+      maxTokens: 300, // tours plus courts, mais labels de speaker obligatoires
+      mergeShortTurns: true, // évite les chunks d'une ligne sans sens autonome
     });
   }
 
   return recursiveChunk(input.text, {
     maxTokens: 350,
+    overlapTokens: 40, // assez de continuité sans payer deux fois tout le texte
     separators: ['\n\n', '\n', '. ', ' '],
   });
 }
 ```
 
-Regarde l'ordre : logique spécifique au format d'abord, récursion générique en dernier. Ce seul choix améliore souvent plus le retrieval qu'un changement de modèle d'embedding.
+Une fois les frontières propres, je fais quand même en sorte que chaque chunk s'explique tout seul. Les [modules de parsers LlamaIndex](https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/modules/) rappellent que le contexte voisin peut vivre dans les métadonnées et qu'une partie de ces métadonnées de fenêtre n'est pas visible par le LLM ni par le modèle d'embedding, donc je préfixe le titre parent ou le nom du speaker dans le texte indexé au lieu de parier uniquement sur les métadonnées.
 
-Je garde aussi le contexte parent collé au chunk. Un titre, un nom de section ou un label de speaker compte souvent autant que le texte lui-même, donc je le préfixe pendant l'indexation au lieu d'espérer qu'un filtre sur métadonnées sauvera la recherche plus tard.
+C'est aussi là que le coût, les limites de débit et la sécurité deviennent concrets. Le guide [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) précise que les embeddings sont facturés au token d'entrée et limités par une taille maximale d'entrée, donc un overlap agressif n'est jamais gratuit. Multiplier les micro-chunks augmente aussi le nombre de requêtes et fait apparaître plus vite les quotas du fournisseur. Et comme c'est bien le texte complet du chunk qui part vers l'API d'embedding, je retire les secrets, clés d'API et identifiants client avant l'indexation.
 
-Ma règle de base : si un humain dirait « cette phrase n'a de sens qu'avec la ligne du dessus », ton chunker a besoin de plus de structure. Si ton premier réflexe pour tous les documents reste « couper tous les 500 tokens », tu optimises le confort de développement, pas la qualité du retrieval.
+Si je dois trancher vite, je pars sur des chunks structurés de 300 à 500 tokens, un overlap sous environ 10 %, et je ne recurse que lorsqu'une seule section dépasse encore le budget. Dès que tu as besoin de 20 % d'overlap pour sauver la qualité des réponses, arrête d'ajuster le modèle et corrige tes frontières de chunking.

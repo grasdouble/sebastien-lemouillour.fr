@@ -3,30 +3,34 @@ id: different-types-of-ai-models
 order: 6
 difficulty: beginner
 tags: [IA, LLM]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
-Si vous débutez, tous les modèles IA finissent par se ressembler. On voit passer des mots comme classificateur, modèle génératif, modèle de diffusion, modèle de langage, système de recommandation, et on a vite l'impression d'un catalogue sans logique. Le bon réflexe n'est pas de mémoriser une liste. C'est de comprendre qu'un type de modèle se définit avant tout par la tâche qu'il résout.
+Vous ouvrez un outil IA et vous voyez « classifier ». Vous en ouvrez un autre et vous voyez « LLM », pour **large language model**, autrement dit un grand modèle de langage. Un troisième promet du « raisonnement multimodal ». On a vite l'impression d'entrer dans un magasin de bricolage où toutes les boîtes sont étiquetées dans une langue qu'on ne parle pas encore. Le moyen le plus rapide de faire baisser cette confusion, ce n'est pas de mémoriser des noms de modèles. C'est de poser d'abord une seule question : quel type de sortie vous faut-il vraiment ?
 
-### Première séparation : prédire, classer, générer
+### Commencez par la sortie
 
-Je commencerais par trois grandes familles. Un **modèle de classification** range une entrée dans une catégorie : spam ou non spam, chat ou non chat, avis positif ou négatif. Un **modèle de régression** prédit une valeur numérique, un prix, une durée, une probabilité. Un **modèle génératif** produit un nouveau contenu : du texte, une image, de l'audio. Les [Google ML docs](https://developers.google.com/machine-learning/problem-framing/categorical-data) et [IBM](https://www.ibm.com/think/topics/machine-learning-models) utilisent cette distinction de base parce qu'elle aide immédiatement à choisir une approche.
+Si vous avez besoin qu'un modèle choisisse une étiquette comme « spam » ou « pas spam », vous êtes dans la **classification**. Google définit la classification comme la tâche qui consiste à prédire à quelle classe, donc à quelle catégorie, appartient un exemple ([Google classification](https://developers.google.com/machine-learning/crash-course/classification)). Si vous avez besoin d'un nombre comme un prix ou un délai de livraison, vous êtes dans la **régression**, qui prédit une valeur numérique à partir de données ([Google regression](https://developers.google.com/machine-learning/crash-course/linear-regression)).
 
-Pour un débutant, c'est déjà très utile. Si votre but est de ranger, vous ne cherchez pas le même outil que si votre but est de créer.
+Les deux appartiennent en général à l'**apprentissage supervisé**, ce qui veut dire que le modèle apprend à partir d'exemples qui contiennent déjà la bonne réponse. Si j'avais des données bien étiquetées et un critère de réussite clair, je commencerais ici avant de toucher à un modèle génératif. C'est moins coûteux, plus simple à déboguer et, la plupart du temps, plus facile à expliquer.
 
-### Quelques familles que vous rencontrerez souvent
+### Et si vous n'avez pas encore les bonnes réponses ?
 
-Les **arbres de décision** prennent des décisions par étapes, comme une suite de questions, ils sont souvent plus faciles à expliquer qu'un réseau de neurones. Les **réseaux de neurones** sont des modèles composés de couches de calcul capables d'apprendre des motifs complexes. Les **Transformers** sont un type particulier de réseau de neurones très efficace pour le langage et, de plus en plus, pour d'autres modalités, comme décrit dans le papier fondateur [Transformer](https://arxiv.org/abs/1706.03762). Les **modèles de diffusion** apprennent à générer des images en retirant progressivement du bruit, une idée popularisée par les [Google DeepMind docs](https://deepmind.google/technologies/diffusion/).
+Parfois, vous avez des données mais pas d'étiquettes, donc personne n'a marqué chaque exemple avec la bonne catégorie. Vous passez alors à l'**apprentissage non supervisé**. L'exemple le plus parlant pour un débutant est le **clustering**, qui regroupe ensemble des exemples non étiquetés mais similaires ([Google clustering](https://developers.google.com/machine-learning/clustering/overview)).
 
-Vous croiserez aussi des **modèles multimodaux**, des systèmes capables de traiter plusieurs types de données ensemble, par exemple texte et image. Les [Gemini docs](https://ai.google.dev/gemini-api/docs/models) en donnent un bon exemple.
+Cela règle un premier problème, mais pas le suivant. Les jeux de données réels peuvent avoir trop de **dimensions**, c'est-à-dire trop de caractéristiques numériques à comparer confortablement. Les **embeddings** sont des représentations numériques compactes qui placent les éléments similaires plus près les uns des autres dans un espace plus petit, ce qui explique leur utilité pour la recherche et les recommandations ([Google embeddings](https://developers.google.com/machine-learning/crash-course/embeddings/video-lecture)).
 
-### Le meilleur modèle n'existe pas
+### Et si le système doit apprendre par essai-erreur ?
 
-C'est un point que je trouve essentiel : il n'y a pas un "meilleur modèle IA" dans l'absolu. Il y a un modèle plus adapté à une tâche, à une contrainte de coût, à une exigence d'explicabilité ou à un type de données. Un petit arbre de décision peut être préférable à un grand réseau de neurones si vous avez peu de données et besoin d'expliquer chaque décision à un utilisateur ou à un auditeur.
+Certains problèmes ressemblent moins au tri d'e-mails qu'à l'apprentissage d'un jeu. En **apprentissage par renforcement**, ou **RL**, le modèle progresse en prenant des actions puis en recevant des récompenses ou des pénalités. L'image mentale la plus simple, c'est un joueur qui gagne des points quand il fait un bon coup. [AlphaGo](https://www.nature.com/articles/nature16961) de DeepMind est l'exemple célèbre : le système a appris à jouer au Go grâce au renforcement et à l'auto-jeu, pas à partir d'un joli tableau rempli de bonnes réponses.
 
-À l'inverse, pour générer du texte naturel ou comprendre des images complexes, les architectures modernes comme les Transformers sont souvent le bon choix. Le piège classique au début est de choisir le modèle le plus célèbre au lieu de choisir celui qui correspond au problème réel.
+Je n'irais vers le RL que si la tâche est vraiment interactive, parce que c'est bien plus difficile à entraîner et à évaluer que l'apprentissage supervisé de base.
 
-### La règle qui aide à choisir
+### Quand les modèles génératifs et multimodaux deviennent-ils utiles ?
 
-Quand vous voyez le nom d'un modèle, ne demandez pas d'abord s'il est à la mode. Demandez : **quelle entrée reçoit-il, quelle sortie produit-il, et quelle erreur me coûterait cher ?** Cette triple question élimine beaucoup de confusion. Si votre prochain doute porte sur le choix entre modèles ouverts et services hébergés, l'étape logique suivante est la comparaison entre open-source et modèles propriétaires.
+Si le travail consiste à produire un nouveau texte, une image ou de l'audio, vous êtes dans l'**IA générative**. Un modèle **multimodal** va un cran plus loin et gère plusieurs types de données dans le même système, par exemple du texte et une image. Les [Gemini docs](https://ai.google.dev/gemini-api/docs/models) décrivent des modèles qui travaillent avec du texte, des images, de l'audio et de la vidéo, ce qui correspond bien au sens pratique de « multimodal » pour un débutant.
+
+C'est là que tout le bruit médiatique se concentre, mais je le traiterais comme un dernier recours, pas comme le choix par défaut. Si votre tâche a une seule bonne réponse que vous pouvez mesurer, un classificateur ou un régresseur est en général le pari le plus raisonnable.
+
+Si votre prochaine question ressemble moins à « quelle famille ? » qu'à « quel fournisseur ? », le bon enchaînement est le guide sur les modèles open-source et propriétaires. Mon seuil est simple : si la réussite se mesure avec une réponse clairement correcte, commencez par la classification ou la régression ; ne passez à un générateur que si la tâche est vraiment ouverte.

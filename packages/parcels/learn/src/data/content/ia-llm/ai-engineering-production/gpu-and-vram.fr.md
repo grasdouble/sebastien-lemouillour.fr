@@ -4,35 +4,57 @@ order: 12
 difficulty: intermediate
 tags: [LLM, GPU, VRAM, quantization, CUDA]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Vous chargez un modèle censé « tenir sur une carte 24 Go », puis la première vraie requête tombe en out-of-memory. C'est généralement à ce moment-là qu'on apprend la vérité agaçante : le budget VRAM ne se résume pas à la taille du fichier du modèle.
+Vous choisissez un modèle pour un GPU de 24 Go, il démarre une fois, puis le premier vrai prompt finit en out-of-memory. Je tombe dans ce piège chaque fois que j'estime à partir de la taille du téléchargement au lieu de la mémoire qui apparaît vraiment à l'exécution.
 
-Les poids ne sont que la première ligne de la facture. Il faut aussi payer les activations pendant l'entraînement, le KV cache pendant l'inférence, l'overhead du framework, la taille de batch, et la longueur du contexte. Des acteurs comme [NVIDIA](https://developer.nvidia.com/deep-learning) parlent beaucoup de compute, mais dans la pratique la VRAM est souvent la première limite dure qu'on rencontre avec les LLM. C'est pour ça qu'un modèle peut se charger correctement et échouer dès qu'on augmente la concurrence ou la taille des prompts.
+Pendant l'entraînement, la [mémoire GPU](https://huggingface.co/docs/transformers/main/model_memory_anatomy) part aussi dans les activations et les tenseurs temporaires, et pendant l'inférence le [KV cache](https://huggingface.co/docs/transformers/main/cache_explanation) grossit avec les tokens et les requêtes concurrentes. C'est pour ça que « les poids tiennent » ne veut pas dire « le service tient ».
 
-Mon réflexe par défaut est conservateur. Je préfère faire tourner un modèle un peu plus petit avec de la marge plutôt que d'étrangler un gros modèle jusqu'à rendre chaque déploiement fragile. La quantization aide énormément. [bitsandbytes](https://huggingface.co/docs/bitsandbytes/) rend le chargement en précision réduite viable dans la pile Hugging Face, et [llama.cpp](https://github.com/ggerganov/llama.cpp) avec GGUF est souvent la voie la plus propre pour des machines locales ou edge. Côté serving, [vLLM](https://docs.vllm.ai/) compte aussi, parce qu'une gestion mémoire plus efficace du KV cache change concrètement ce qui « tient » sous trafic réel.
+Je préfère les choix un peu ennuyeux, parce que les choix ennuyeux survivent au trafic. Si un modèle ne tient qu'après des réglages héroïques, je le quantize d'abord avec [bitsandbytes](https://huggingface.co/docs/transformers/main/quantization/bitsandbytes) dans la pile Hugging Face, ou je bascule vers [llama.cpp](https://github.com/ggml-org/llama.cpp) et GGUF pour une machine locale ou edge avant d'accuser CUDA.
 
-L'estimation que je fais en premier est volontairement approximative, parce qu'une approximation tôt vaut mieux qu'une précision parfaite après une panne.
+La première estimation à laquelle je fais confiance reste volontairement grossière, et je garde le terme du cache explicite parce qu'il dépend de l'architecture, du type de cache, et des réglages de serving. Si vous utilisez [vLLM](https://docs.vllm.ai/en/latest/configuration/optimization/) ou ses [engine args](https://docs.vllm.ai/en/latest/configuration/engine_args.html), c'est cette ligne qui décide si vous obtenez un débit stable ou de la préemption sous charge.
+
+Avant de toucher aux flags de l'allocator, je pose une estimation de coin de table comme celle-ci :
 
 ```ts
 type Precision = 'fp16' | 'int8' | 'int4';
 
-export function estimateVramGb(
-  paramsBillions: number,
-  precision: Precision,
-  concurrency: number,
-  contextTokens: number
-) {
-  const bytesPerParam = precision === 'fp16' ? 2 : precision === 'int8' ? 1 : 0.5;
-  const weightGb = (paramsBillions * 1e9 * bytesPerParam) / 1024 ** 3;
-  const kvCacheGb = (concurrency * contextTokens * 16) / 1024 ** 2; // budget approximatif du cache par token en KB
-  const runtimeOverheadGb = 2; // framework, fragmentation mémoire, buffers divers
+const BYTES_PER_PARAM: Record<Precision, number> = {
+  fp16: 2,
+  int8: 1,
+  int4: 0.5,
+};
 
-  return weightGb + kvCacheGb + runtimeOverheadGb;
+type VramInput = {
+  paramsBillions: number; // 7 pour un modèle 7B
+  precision: Precision; // précision des poids après quantization
+  contextTokens: number; // budget prompt + génération gardé en cache
+  concurrentRequests: number; // nombre maximal de séquences simultanées
+  kvCacheKbPerToken: number; // valeur mesurée ou estimée pour votre moteur
+  runtimeOverheadGb?: number; // kernels, marge allocator, buffers framework
+  safetyMargin?: number; // gardez 0.2 pour 20 % de marge
+};
+
+export function estimateVramGb({
+  paramsBillions,
+  precision,
+  contextTokens,
+  concurrentRequests,
+  kvCacheKbPerToken,
+  runtimeOverheadGb = 2,
+  safetyMargin = 0.2,
+}: VramInput) {
+  const weightGb = (paramsBillions * 1e9 * BYTES_PER_PARAM[precision]) / 1024 ** 3;
+  const kvCacheGb = (concurrentRequests * contextTokens * kvCacheKbPerToken) / 1024 ** 2;
+  const baseGb = weightGb + kvCacheGb + runtimeOverheadGb;
+
+  return {
+    breakdown: { weightGb, kvCacheGb, runtimeOverheadGb },
+    baseGb,
+    recommendedGb: baseGb * (1 + safetyMargin),
+  };
 }
 ```
 
-Ce chiffre n'est pas assez précis pour un papier, mais il suffit largement pour rejeter rapidement une mauvaise idée. Un modèle 7B en fp16 consomme déjà une part sérieuse de VRAM rien qu'avec les poids. Ajoutez un contexte plus long, des batches plus gros, ou plusieurs utilisateurs, et le KV cache dévore le reste. C'est exactement pour ça que tant d'équipes se font surprendre par « le modèle se charge » mais « le service s'écroule ». Elles ont mesuré la mauvaise chose.
-
-Ma règle pratique est de garder au moins 15 à 20 % de marge après cette estimation grossière. Si vous n'y arrivez pas, le modèle ne tient pas, même si vous pouvez forcer un démarrage une fois. Quantifiez plus tôt, réduisez le contexte, ou choisissez un modèle plus petit avant de perdre du temps à déboguer des erreurs mémoire qui sont en réalité des erreurs de budget.
+Ce résultat suffit pour tuer tôt un mauvais plan de déploiement. Si `recommendedGb` dépasse la taille de votre carte, je réduirais le contexte ou la concurrence avant de partir à la chasse aux « fuites mémoire ». Si ça ne tient qu'en descendant la marge sous 20 %, partez du principe que ça ne tient pas vraiment.

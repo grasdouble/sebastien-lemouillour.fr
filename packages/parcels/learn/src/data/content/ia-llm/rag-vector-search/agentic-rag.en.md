@@ -4,18 +4,20 @@ order: 19
 difficulty: advanced
 tags: [RAG, agents, orchestration, LlamaIndex]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Your retriever works for obvious questions, then a user asks for a comparison across three manuals, one changelog, and a support note buried in another system. The answer falls apart, not because embeddings are bad, but because a single retrieve-then-generate pass is the wrong shape for the job.
+Your retriever looks fine until a user asks for a comparison spread across three manuals, one changelog, and a support note hiding in another system. Then the answer collapses. The problem is not embeddings. The problem is that a single retrieve-then-generate pass is the wrong shape for multi-step evidence gathering.
 
-That is where agentic RAG earns its keep. I use it when the system has to decide that one query is not enough, break work into smaller retrieval steps, choose the right tool, and verify whether the evidence is actually complete. That is the point of [LlamaIndex agents](https://docs.llamaindex.ai/en/stable/use_cases/agents/): not adding “intelligence” for marketing, but giving the pipeline a way to route, plan, and recover when the first attempt is weak.
+I switch to agentic RAG only when the system must break the question apart, choose different tools, and keep track of what each step proved. That is exactly what [LlamaIndex agents](https://docs.llamaindex.ai/en/stable/use_cases/agents/) are for. I do not want a fake “smart” layer. I want a planner that can recover after a weak first retrieval.
 
-I would not use agentic RAG for a documentation FAQ, a help center bot, or anything with a tight latency budget and mostly single-hop questions. In those cases, better chunking, metadata filters, hybrid retrieval, and reranking are cheaper and more predictable. Agentic RAG only makes sense when the question distribution is wide enough that hardcoded retrieval paths keep failing.
+I would not ship that machinery for a documentation FAQ, a support bot, or anything living under a hard latency budget. Start with better chunking, metadata filters, [hybrid search](https://docs.pinecone.io/guides/search/hybrid-search), and [rerank](https://docs.cohere.com/docs/reranking-with-cohere). Agentic RAG only earns its cost when single-hop retrieval keeps missing cross-source questions.
 
-What most tutorials skip is cost control. Every extra planning step and tool call multiplies latency, token spend, and failure surface. If you cannot explain the maximum number of steps, the fallback behavior, and the per-step observability, you do not have an architecture, you have a demo. The tracing story matters as much as the planner. [TruLens](https://www.trulens.org/) is useful here because it treats retrieved context, tool calls, and execution flow as first-class evaluation targets instead of hiding everything behind a final answer score.
+Most guides are too soft on operations. Every extra step increases latency, spend, and failure surface. If you cannot inspect the plan, tool arguments, and retrieved document IDs for each request, you cannot debug misses against an SLA. I want [traces](https://docs.langchain.com/langsmith/observability-quickstart) before I want a clever planner.
 
-Before I ship one of these systems, I want a contract that looks more like this:
+Then I force the pipeline to fail in CI before users do. [DeepEval](https://deepeval.com/docs/getting-started) is useful because it lets you run agent and RAG evals like tests instead of treating regressions as something you discover from support tickets.
+
+That pressure should show up in a hard contract, not a slide deck:
 
 ```yaml
 planner:
@@ -35,6 +37,4 @@ observability:
   trace_document_ids: true
 ```
 
-Then I put regression pressure on it in CI. [DeepEval](https://docs.confident-ai.com/) is a practical fit when you want agent or RAG evals to run like tests, because that forces you to catch step explosions, bad tool choices, and groundedness regressions before users do.
-
-My rule is simple: if a one-shot retriever plus reranker can answer at least 85% of real questions inside your SLA, stay there. Bring in agentic RAG only when multi-step retrieval failures are frequent enough to justify the extra latency, tracing, and maintenance burden.
+My rule is blunt: if a single-pass retriever plus reranker answers at least 85% of real production questions inside your SLA, stay there. Below that threshold, agentic RAG is justified. Above it, you are paying for self-inflicted latency.

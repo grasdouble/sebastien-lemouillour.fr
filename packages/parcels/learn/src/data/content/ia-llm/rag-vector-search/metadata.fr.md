@@ -4,41 +4,39 @@ order: 9
 difficulty: intermediate
 tags: [RAG, metadata, filtering, VectorDB]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Le chunk a l'air pertinent, la réponse reste fausse, et tout le monde accuse les embeddings. Très souvent, la pièce manquante s'appelle métadonnées. La similarité sait dire « ce paragraphe parle de facturation ». Les métadonnées disent « ce paragraphe concerne le produit EU, version 3, en français, visible seulement pour le support ».
+Tu livres la réponse, le chunk a l'air parfait, et le support t'envoie quand même la capture d'écran. Le coupable habituel, c'est « de mauvais embeddings ». Chez moi, ils n'étaient généralement pas mauvais. Le retriever ramenait le bon sujet, mais pour le mauvais public, la mauvaise langue ou une version retirée.
 
-J'utilise les métadonnées comme une surface de contrôle, pas comme un grenier. Si un champ aide le filtrage, le ranking, l'audit ou le nettoyage, je le garde. S'il est là juste parce que « ça servira peut-être un jour », je le retire. Des métadonnées gonflées rendent l'indexation plus lourde et les requêtes plus floues.
+Voilà pourquoi je traite les métadonnées comme le premier filtre, pas comme un bonus. Les [filtres Pinecone](https://docs.pinecone.io/guides/search/filter-by-metadata) permettent de restreindre la recherche avec des métadonnées, le [filtrage Qdrant](https://qdrant.tech/documentation/concepts/filtering/) repose sur des conditions booléennes sur le payload, les [filtres Weaviate](https://weaviate.io/developers/weaviate/search/filters) combinent recherche vectorielle et contraintes structurées, et [pgvector](https://github.com/pgvector/pgvector) garde des prédicats SQL classiques à côté de la similarité vectorielle. Les moteurs changent, la leçon reste la même : la similarité doit classer des candidats après que tes contraintes ont déjà réduit l'espace de recherche.
 
-Les docs officielles racontent la même idée avec un vocabulaire différent. La [doc Pinecone](https://docs.pinecone.io/) expose les filtres sur métadonnées, la [doc Qdrant](https://qdrant.tech/documentation/) parle de payload filtering, la [doc Weaviate](https://weaviate.io/developers/weaviate) permet de combiner recherche vectorielle et filtres structurés, et [pgvector](https://github.com/pgvector/pgvector) s'appuie sur des prédicats SQL classiques à côté de la similarité vectorielle. Le mécanisme change, la discipline devrait rester la même.
+Je garde des métadonnées ennuyeuses mais applicables : `audience`, `locale`, `docType`, `product`, `version`, `visibility`, `publishedAt`. J'écarte les champs que personne n'interrogera de manière cohérente. Les gros blobs coûtent du stockage, ralentissent les mises à jour et poussent les équipes vers du JSON bricolé au lieu de filtres stables. Je garde aussi un `topK` raisonnable, parce que les [limites OpenAI](https://platform.openai.com/docs/guides/rate-limits) rendent le budget d'ingestion et de retrieval très concret quand tu dois ré-encoder un gros corpus après un changement de schéma.
 
-Le piège, c'est de choisir des métadonnées qui copient la source brute au lieu de refléter tes décisions de retrieval. Je veux des champs compacts, stables et filtrables : `tenantId`, `language`, `docType`, `product`, `version`, `publishedAt`, `visibility`. Je ne veux pas des bios d'auteur complètes, des labels aléatoires ou un gros JSON que personne n'interroge de manière cohérente.
-
-Avant de brancher la recherche, définis le contrat que le store doit réellement tenir.
+Avant de brancher la recherche, j'écris le contrat de filtrage que j'attends du store.
 
 ```ts
 type ChunkMetadata = {
-  tenantId: string;
-  language: 'en' | 'fr';
-  docType: 'guide' | 'faq' | 'api';
-  product: 'search' | 'billing' | 'security';
+  audience: 'public' | 'internal'; // frontière d'accès
+  locale: 'en' | 'fr'; // langue de la requête
+  docType: 'guide' | 'faq' | 'api'; // segment de retrieval
+  product: 'search' | 'billing' | 'security'; // domaine fonctionnel
   version: string; // exemple : 2026-05
-  visibility: 'public' | 'internal';
+  publishedAt: string; // date ISO pour la fraîcheur
 };
 
 const results = await vectorStore.search({
   query: userQuestion,
-  topK: 5,
+  topK: 5, // assez de rappel sans noyer le prompt
   filter: {
-    tenantId: currentTenant.id,
-    language: userLocale,
-    visibility: 'public',
+    audience: 'public',
+    locale: userLocale,
     product: 'billing',
+    publishedAt: { gte: '2026-01-01' }, // exclure les docs obsolètes
   },
 });
 ```
 
-C'est souvent là qu'on évite une bonne partie des hallucinations. Si ton retriever a le droit de fouiller dans des versions retirées, des notes internes et la mauvaise langue, il finira forcément par trouver quelque chose de sémantiquement proche et pratiquement inutile.
+Ce filtre améliore souvent plus la qualité des réponses qu'un nouveau tour de prompt tuning. Il fait aussi une partie du travail de sécurité : il garde le contenu interne ou retiré hors du contexte avant même qu'il arrive au modèle. Je pars quand même du principe qu'un texte récupéré peut contenir des instructions hostiles, parce que l'[injection de prompt OWASP](https://genai.owasp.org/llmrisk/llm01-prompt-injection/) dit clairement que le RAG améliore la pertinence, pas l'immunité.
 
-Ma règle : chaque champ de métadonnées doit gagner sa place en répondant à une question, est-ce que ça améliore le retrieval ou le cycle de vie des données ? Si non, dehors. Si oui, rends-le stable, typé et imposé dès l'indexation, parce que rajouter des métadonnées après coup sur des millions de chunks, c'est un enfer.
+Mon seuil est simple : si un champ de métadonnées ne justifie pas son coût de stockage avec un vrai filtre, une règle de ranking ou une règle de rétention dès ce sprint, je ne l'indexe pas.

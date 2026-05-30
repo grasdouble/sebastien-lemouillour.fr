@@ -3,32 +3,36 @@ id: dpo
 order: 25
 difficulty: advanced
 tags: [DPO, alignement]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Si ta stack RLHF demande un modèle de récompense, un entraînement PPO, une infra de rollouts et une semaine de débogage juste pour faire refuser plus proprement une classe de requêtes douteuses, tu paies surtout une taxe de coordination. C'est pour ça que DPO a été adopté aussi vite. Il permet d'apprendre à partir de préférences sans traîner toute la mécanique RLHF derrière.
+Si ton plan d'alignement commence encore par « on va d'abord entraîner un modèle de récompense », tu attaques probablement le mauvais goulot d'étranglement. La plupart des équipes ne plantent pas parce qu'il leur manque du RL malin. Elles plantent parce que les données de préférences sont sales et que la boucle d'entraînement coûte trop cher à itérer. C'est pour ça que je testerais DPO avant le RLHF presque à chaque fois.
 
-## Ce que DPO change
+## Ce que DPO achète vraiment
 
-Le mouvement central du [papier DPO](https://arxiv.org/abs/2305.18290) est simple et utile : au lieu d'entraîner un modèle de récompense séparé puis d'optimiser une politique contre lui, DPO transforme directement les paires de préférences en objectif de type classification entre une politique et un modèle de référence. Sous les hypothèses classiques du modèle [Bradley-Terry](https://projecteuclid.org/euclid.aoms/1177729694), ça permet d'augmenter la probabilité de la réponse choisie et de diminuer celle de la réponse rejetée en une seule étape.
+Le sujet du [papier DPO](https://arxiv.org/abs/2305.18290), ce n'est pas que l'alignement devient soudain facile. Le sujet, c'est que le pipeline modèle de récompense plus RL popularisé par [InstructGPT](https://arxiv.org/abs/2203.02155) peut être remplacé, pour beaucoup de travaux de post-entraînement, par un objectif direct sur des complétions préférées versus rejetées par rapport à un modèle de référence. Opérationnellement, c'est un vrai gain. Moins de pièces mobiles, c'est moins de façons de perdre une semaine sur la plomberie d'entraînement au lieu d'améliorer le comportement.
 
-Cette simplification compte en pratique. Tu retires tout un mode d'échec lié au modèle de récompense, tu retires l'instabilité de PPO, et tu restes dans un régime d'entraînement que la plupart des équipes savent déjà opérer : l'optimisation hors ligne par batch. Les mécanismes sont assez simples pour que des frameworks les exposent maintenant comme des entraîneurs de premier plan, notamment dans la [doc TRL](https://huggingface.co/docs/trl/main/en/dpo_trainer).
+C'est précisément pour ça que j'aime DPO pour des équipes déjà mûres et un comportement cible clair. Il te faut toujours un modèle de référence et il faut toujours choisir jusqu'où t'en éloigner, mais au moins tu arrêtes de faire semblant que plus de complexité de pipeline achète automatiquement un meilleur alignement.
 
-## Pourquoi les équipes le choisissent
+## Pourquoi la qualité des données devient tout le sujet
 
-DPO plaît parce qu'il coûte moins cher à faire tourner et qu'il est plus simple à raisonner. Si tu as déjà des paires choisi-versus-rejeté, DPO te donne un chemin court entre les données et le changement de comportement. Pour le suivi d'instructions, le contrôle de style, l'ajustement des refus et beaucoup de problèmes produit fondés sur les préférences, c'est un vrai avantage.
+Le piège est brutal : DPO rend les mauvaises préférences impossibles à cacher. Les [docs OpenAI](https://developers.openai.com/api/docs/guides/direct-preference-optimization) et la [doc TRL](https://huggingface.co/docs/trl/main/en/dpo_trainer) supposent toutes deux des sorties préférées et non préférées explicites, et OpenAI entraîne actuellement le DPO sur des exemples en un seul tour. Si la réponse choisie n'est que marginalement meilleure que la rejetée, ou si les deux sont loin du trafic réel, le modèle apprend l'hésitation, pas le jugement.
 
-Je pense aussi que DPO force une meilleure discipline sur la qualité des données. Avec le RLHF, certaines équipes cachent des préférences médiocres derrière la complexité d'entraînement. DPO rend la dépendance évidente : si tes réponses choisies sont incohérentes, trop proches des réponses rejetées, ou dominées par un template étroit, le modèle apprendra exactement cette étroitesse.
+Je préfère largement livrer 20k paires impeccables que 200k paires bruitées. DPO est assez peu coûteux pour que beaucoup oublient que la partie chère s'est simplement déplacée en amont vers l'annotation, la revue et le rafraîchissement du jeu de données. Ce n'est pas un défaut de la méthode. C'est la méthode qui te montre où le vrai travail se cachait.
 
-## Là où DPO casse
+## Ce qu'il faut surveiller en production
 
-Le récit propre a ses limites. DPO reste ancré à une politique de référence, un jeu de préférences, et un facteur d'échelle de type température souvent appelé beta. Ces choix comptent plus que beaucoup ne veulent l'admettre. Trop conservateur, et le modèle bouge à peine. Trop agressif, et tu obtiens des changements de comportement fragiles, des refus excessifs, ou un effondrement du ton.
+Une fois l'entraînement lancé, arrête de fixer la loss comme si elle suffisait. TRL expose les marges de récompense, les accuracies de récompense, les log-probabilités choisi versus rejeté, et l'entropie. Ce sont ces signaux qui te disent si le modèle sépare réellement la paire ou s'il devient juste plus confiant partout. Si les marges montent pendant que les refus explosent, que la verbosité s'effondre ou que le ton devient bizarre, ton beta est probablement trop agressif pour les données que tu as collectées.
 
-C'est aussi une méthode hors ligne. C'est une qualité quand tu veux de la stabilité, mais une limite quand ton produit a besoin d'exploration continue ou d'objectifs qui changent vite. DPO ne te dira pas magiquement quel comportement préférer ensuite. Il ne fait qu'accentuer les préférences que tu as déjà collectées.
+C'est aussi là que naissent la plupart des plaintes du type « DPO est instable ». L'optimiseur n'est généralement pas le premier problème. Les mauvaises paires, les paires périmées et l'absence d'évals le sont. Si tu tiens à des SLA, traite le rafraîchissement des préférences et les évals post-entraînement comme une partie de la boucle produit, pas comme le ménage après la mise en ligne.
 
-C'est pour ça que des variantes comme [IPO paper](https://arxiv.org/abs/2310.12036) existent : le domaine cherche encore à stabiliser le compromis entre force d'optimisation des préférences et généralisation. Donc quand on vend DPO comme « du RLHF plus simple », je suis globalement d'accord, mais seulement si la tâche est assez statique et les données assez propres.
+## Là où DPO cesse d'être un bon choix
+
+DPO est un optimiseur de préférences hors ligne, pas un moteur de découverte. Il affine le signal de classement que tu as déjà capturé. Si ton comportement cible change chaque semaine, ou si ta posture de sécurité dépend de nouveaux abus qui arrivent sans arrêt, la boucle d'entraînement bon marché cesse d'être bon marché parce que la maintenance du dataset devient tout le produit.
+
+C'est pour ça que des variantes comme le [papier IPO](https://arxiv.org/abs/2310.12036) continuent d'apparaître. Le domaine se bat encore avec l'overfitting, les mises à jour trop conservatrices et la faiblesse des paires. Donc oui, j'achète l'argument selon lequel DPO est plus simple que le RLHF complet. Je n'achète pas la version paresseuse de cet argument où plus simple voudrait dire indulgent.
 
 ## Règle de décision
 
-Choisis DPO quand tu as un bon jeu de préférences hors ligne et que tu veux une alternative plus stable et moins chère à la stack RLHF complète. Ne le choisis pas juste parce que ça sonne moderne. Si tes préférences sont bruyantes, que ta cible comportementale change chaque semaine, ou que tu as besoin d'adaptation en ligne, DPO exposera ces faiblesses au lieu de les résoudre.
+Choisis DPO quand tu as déjà des paires de préférences stables, un processus de revue assez strict pour jeter les labels limites, et une cible comportementale capable de survivre à un cycle de release sans changer de forme. Évite-le quand tes labels sont bruités ou quand ta cible bouge plus vite que ta boucle d'annotation. Si tu ne peux pas garder ton dataset de paires assez frais jusqu'à la prochaine release, DPO va fossiliser tes erreurs.

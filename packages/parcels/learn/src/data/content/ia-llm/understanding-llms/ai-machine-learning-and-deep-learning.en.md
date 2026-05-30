@@ -3,32 +3,32 @@ id: ai-machine-learning-and-deep-learning
 order: 2
 difficulty: beginner
 tags: [IA, MachineLearning]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
-If you've ever searched "how does ChatGPT work" and come back more confused than before, juggling "AI," "machine learning," and "deep learning" as if they were interchangeable, you are not alone. These three terms are genuinely nested inside one another, and once you see that nesting, everything becomes much clearer.
+You hear "AI" in a sales demo, "machine learning" in a tutorial, and "deep learning" in anything that sounds expensive. If those words feel like three stickers slapped on the same box, the confusion is not your fault. I would fix it with one image: nested toolboxes.
 
-### Three Circles, Not Three Synonyms
+### Start With The Biggest Box
 
-Think of three concentric circles. AI is the outermost: all systems that mimic some form of human-like intelligence. Inside it sits **Machine Learning (ML)**, a specific approach to building AI where the system learns from data rather than following hand-coded rules. Inside ML sits **Deep Learning (DL)**, a specific flavor of ML that uses layered neural networks (structures loosely inspired by the brain) to handle complex tasks like understanding speech or recognizing objects in photos.
+Artificial intelligence, or **AI**, is the broad category. NIST describes AI as systems built to carry out tasks that usually call for human intelligence, which is intentionally wide because it covers many ways of building those systems, not one magic recipe ([NIST](https://www.nist.gov/artificial-intelligence)). So when someone says "this product uses AI," you still do not know how it works. You only know it is trying to perceive, predict, recommend, or decide.
 
-[Wikipedia's article on Machine Learning](https://en.wikipedia.org/wiki/Machine_learning) puts it concisely: ML is "a field of study in statistics and computer science that develops and studies statistical algorithms that can learn from data and generalize to unseen data." [Deep Learning](https://en.wikipedia.org/wiki/Deep_learning) simply takes that further with many stacked layers, enabling it to learn far more abstract representations from raw data.
+That vagueness creates the next problem: if AI is the big box, which tool inside it are people usually talking about?
 
-### Why Machine Learning Mattered
+### Machine Learning Is The Workhorse
 
-Before ML, building a system to sort your inbox meant writing hundreds of explicit rules: "If the subject contains 'YOU HAVE WON' and the sender is not in your contacts, mark as spam." Those rules broke the moment spammers changed their wording. ML changed the game by letting the model infer its own rules from labeled examples. Feed it a million emails flagged as spam or not, and it figures out the patterns, including patterns no human rule-writer ever thought of.
+**Machine learning**, or **ML**, is the part of AI where a system improves from data instead of following only hand-written rules. Stanford HAI also places **deep learning** inside ML as the branch built from multi-layer neural networks, which is the nesting most beginners need to keep in mind ([Stanford HAI](https://hai.stanford.edu/policy/brief-definitions-of-key-terms-in-ai)). A **model** is the mathematical system doing the task, and **training** is the adjustment process that makes that model better.
 
-The trade-off is interpretability. You gain accuracy; you often lose the ability to understand exactly why a decision was made. This is sometimes called the "black box" problem, a genuine concern that regulators, including under the [EU AI Act](https://artificialintelligenceact.eu/), are taking seriously.
+The analogy I would keep is cooking. Classic software is a recipe you write line by line. ML is showing the machine many finished dishes with labels like "spam" and "not spam" until it starts recognizing the pattern for itself. That is powerful, but it also means the result is often harder to explain in plain human rules.
 
-### Why Deep Learning Changed Everything
+### Deep Learning Is What You Reach For When The Input Is Messy
 
-Deep Learning was not new in concept, but it became practical around 2012 when researchers showed that deep neural networks trained on GPUs could outperform every prior method on image-classification benchmarks. Since then, DL has powered the advances you see in voice assistants, translation tools, and, most relevantly for this series, large language models.
+**Deep learning**, or **DL**, is still machine learning, but it uses **neural networks**, meaning layers of connected math operations that pass signals forward. A **layer** is one stage of processing. Early layers may catch simple patterns, and later ones combine them into richer ones. That is why deep learning became such a strong fit for inputs like images, speech, and text, and why the field is closely tied to large datasets and heavy compute budgets ([Nature](https://www.nature.com/articles/nature14539)).
 
-The key insight of DL is that stacking many layers of processing lets the network build increasingly abstract representations: from raw pixels to edges to shapes to "this is a cat." That same layering, applied to text, is what lets a model move from individual characters to words to sentences to meaning.
+This is also where I take a clear stance: I would not start with deep learning unless the problem truly needs it. If a smaller dataset and a simpler model can do the job, I would choose that first every time.
 
-### How to Think About All Three
+### Why The Term Took Over
 
-The rule I'd recommend: use "AI" when talking about the broad concept or a deployed product. Use "Machine Learning" when discussing how a system is trained or improved. Reserve "Deep Learning" for conversations about neural-network architecture or anything involving image, audio, or language models.
+The phrase became impossible to ignore after AlexNet showed in 2012 that a deep convolutional neural network trained on GPUs could beat previous ImageNet results by a large margin ([AlexNet](https://papers.nips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf)). You do not need to memorize the paper. The useful takeaway is that better hardware, more data, and better training tricks finally lined up, so deep learning stopped being a niche research idea and became the default answer for many perception tasks.
 
-Getting this vocabulary right will not just make you sound sharper in meetings; it will help you ask better questions when a vendor claims their product "uses AI." The next question is always: what kind?
+If you want the next piece to click, read a guide on generative AI or LLMs, because that is where deep learning stops feeling abstract. My rule is simple: say **AI** for the big category, **machine learning** when the system learns from data, and **deep learning** only when neural networks are doing the heavy lifting.

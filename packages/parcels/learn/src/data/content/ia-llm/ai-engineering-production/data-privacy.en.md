@@ -4,21 +4,17 @@ order: 4
 difficulty: beginner
 tags: [LLM, privacy, security, OpenAI, Anthropic]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-A teammate pastes customer data into your AI feature and suddenly the prototype feels different. That is the moment data privacy stops being legal jargon and becomes product design.
+A customer pastes a passport scan or a medical note into your AI feature and suddenly the nice demo feels risky. That is the moment I stop thinking about AI magic and start thinking about data movement.
 
-Data privacy, here, means a simple question: when you send text to a model, where does it go, how long does it stay there, and who inside or outside your company can access it? If you use an external API, you are crossing a trust boundary. Read the provider terms, not marketing snippets. Start with [OpenAI privacy](https://openai.com/enterprise-privacy/) and [Anthropic privacy](https://www.anthropic.com/legal/privacy/).
+For a beginner, I would translate privacy into three plain questions: where does the text go, how long is it kept, and who can see it? The moment you call an external model API, you cross a trust boundary, which simply means the data leaves the system you directly control. [OpenAI data controls](https://platform.openai.com/docs/guides/your-data) explain that API data is not used for training by default, while abuse monitoring logs can still be retained for up to 30 days and some features can store application state.
 
-My default rule is strict: assume every prompt can contain sensitive data unless you have actively prevented that. Users paste names, invoices, contracts, medical notes, or internal strategy documents the minute the feature becomes useful. The app does not care whether the leak was intentional. The damage is the same.
+My default rule is strict: treat every prompt as sensitive until you have proved otherwise. Once a feature becomes useful, people paste names, invoices, contracts, support tickets, and sometimes things they really should not paste. That is why I would choose data minimization first. Send the smallest useful slice, then redact, meaning hide or remove identifiers such as names, emails, account numbers, and addresses.
 
-That is why privacy work starts before encryption checklists. First, minimize what you send. If the model only needs an order status, do not send the full CRM record. Second, redact personal data when possible. Redaction means removing or masking details like names, emails, account numbers, and addresses. Third, decide what should never leave your infrastructure. The [OWASP LLM Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/) exists because AI systems create new ways to mishandle sensitive data, not because old security rules stopped mattering.
+I also would not trust one catchy policy sentence from a vendor deck. [Anthropic data usage](https://docs.anthropic.com/en/docs/claude-code/data-usage) shows why: consumer and commercial terms differ, commercial use keeps the no-training default unless you opt in, and standard retention is documented separately from zero data retention options. That sounds fussy, but it is exactly the kind of detail that saves you from making a bad promise to legal or security.
 
-Sometimes the right answer is local execution. If policy or common sense says the text should stay inside your environment, running a model yourself through [Ollama](https://ollama.com/) or another self-hosted stack can reduce exposure. It does not magically solve privacy, because logs, backups, and access control still exist, but it keeps the data boundary closer to you.
+Sometimes the safest answer is local execution. [Ollama privacy](https://ollama.com/privacy) says local runs stay on your device, which can reduce exposure, but local does not mean carefree because logs, backups, and access control still exist. I would also keep the bigger risk map in view: [OWASP LLM Top 10](https://genai.owasp.org/llm-top-10/) treats sensitive information disclosure as a core LLM application risk, so I recommend classifying data before you ship anything: public, internal, sensitive, restricted.
 
-The beginner mistake is asking, "Does this provider train on my data?" as if that were the only issue. It matters, but it is not the whole story. Retention, support access, audit logs, and internal access are all part of the privacy picture. So is your own app. If you log raw prompts in plain text, you can create a privacy problem even when the model provider behaves perfectly.
-
-A healthy rule is to classify data before you integrate AI: public, internal, sensitive, restricted. Then decide which classes can go to which model route. That one habit prevents a surprising number of messy conversations later.
-
-What next: privacy answers where data goes. The next guide, on prompt injection, answers a different problem, what happens when the data itself tries to manipulate your app.
+If you cannot answer three questions for one prompt path, do not ship that path for sensitive data yet: what leaves your system, how long it stays, and who can retrieve it. Next, read the prompt injection guide, because a private system can still be manipulated by untrusted input.

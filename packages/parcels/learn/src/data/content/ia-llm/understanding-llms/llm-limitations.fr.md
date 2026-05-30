@@ -3,34 +3,28 @@ id: llm-limitations
 order: 14
 difficulty: beginner
 tags: [LLM]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
-Le moment le plus rude quand on débute, c’est souvent celui où l’on découvre qu’un modèle peut sembler brillant tout en échouant sur des choses qu’on croyait faciles. Il peut expliquer un concept, puis mal compter, oublier une phrase importante, ou inventer une référence. Cela ne veut pas dire que les LLMs sont inutiles. Cela veut dire qu’ils ont des limites, et qu’on les utilise bien seulement quand on les respecte au lieu de les traiter comme des défauts provisoires.
+Le plus agaçant, ce n’est pas qu’un LLM donne de mauvaises réponses tout le temps. C’est qu’il peut paraître calme, utile et convaincant juste avant de se tromper sur quelque chose d’important. Un **grand modèle de langage (LLM)** est entraîné à prédire les tokens probables suivants, c’est-à-dire de petits morceaux de texte, un pas après l’autre [GPT-3 paper](https://arxiv.org/abs/2005.14165). Cet entraînement le rend très bon pour produire du langage. Il n’en fait pas un vérificateur de faits intégré.
 
-## Ils génèrent du langage, pas une vérité garantie
+## La fluidité ne garantit pas la fiabilité
 
-Un LLM est un système entraîné à prédire du texte probable. Cela le rend fort pour rédiger, reformuler, résumer et repérer des motifs dans le langage. En revanche, cela n’en fait pas automatiquement une source de vérité vérifiée. Le [rapport GPT-4](https://arxiv.org/abs/2303.08774) documente des capacités impressionnantes, mais il parle aussi de limites et de comportements peu fiables.
+C’est cet écart qui surprend les débutants. Quand un modèle écrit avec aisance, on commence à le traiter comme une personne qui sait. Moi, je ne ferais pas ça. Le [rapport GPT-4](https://arxiv.org/abs/2303.08774) montre des capacités fortes, mais documente aussi des sorties inexactes et peu fiables. Quand un modèle invente une source ou affirme un fait faux avec assurance, le problème n’est pas son ton. Le système génère du langage, il ne vérifie pas automatiquement la réalité.
 
-C’est la première limite que je retiendrais : une bonne réponse n’est pas la même chose qu’une réponse correcte. Si la tâche dépend de faits, de sources, de calculs, ou d’informations à jour, le modèle peut avoir besoin d’aide extérieure.
+C’est pour ça que je séparerais vite les usages. Rédiger un mail, reformuler des notes ou chercher des idées de titres, oui. Un conseil fiscal, une question médicale, un calcul exact ou un sujet qui dépend d’informations à jour, non, pas sans autre vérification.
 
-Cette aide vient souvent d’outils ou de récupération documentaire. La documentation [tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) d’Anthropic montre comment un modèle peut appeler des systèmes externes au lieu de deviner, et le [papier RAG](https://arxiv.org/abs/2005.11401) explique la génération augmentée par récupération de documents, où le modèle répond à partir de sources fournies.
+## Plus de contexte aide, mais jusqu’à un certain point
 
-## Ils sont limités par le contexte et l’attention
+Une fois cette première limite comprise, le réflexe suivant consiste souvent à coller plus de matière. Parfois, ça aide, surtout si on donne aussi des outils au modèle. La documentation [Anthropic tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) montre comment un modèle peut appeler des systèmes externes au lieu de deviner, et le [papier RAG](https://arxiv.org/abs/2005.11401) décrit la génération augmentée par récupération, ou **RAG**, où le modèle répond à partir de documents fournis.
 
-Même avant de se tromper sur le fond, un modèle peut simplement perdre le fil de ce qui compte. Une **fenêtre de contexte** est la quantité de texte tokenisé qu’un modèle peut prendre en compte dans une requête. Les longues fenêtres aident, mais ne règlent pas tout. [Lost in the Middle](https://arxiv.org/abs/2307.03172) montre que des informations enfouies dans de longs contextes peuvent être moins bien exploitées.
+Je ne partirais quand même pas du principe qu’un énorme prompt règle le problème. Une **fenêtre de contexte** est la quantité de texte tokenisé qu’un modèle peut traiter dans une requête. Même quand tout tient, certaines parties peuvent être mal utilisées. [Lost in the Middle](https://arxiv.org/abs/2307.03172) a montré que les modèles à long contexte exploitent souvent mieux l’information placée au début ou à la fin que celle enfouie au milieu. Ma préférence va à des preuves plus petites, bien étiquetées, plutôt qu’à un énorme collage.
 
-C’est un piège fréquent chez les débutants. On colle tout parce qu’on a peur d’oublier un détail important. Moi, je ferais plutôt l’inverse : réduire et hiérarchiser. Les modèles s’en sortent souvent mieux avec des preuves plus propres qu’avec une pile de texte plus grande.
+## De petits changements de prompt peuvent changer le résultat
 
-## Ils sont inégaux, pas uniformément mauvais
+C’est le dernier choc classique quand on débute : on pose presque deux fois la même question et on obtient deux réponses sensiblement différentes. C’est assez normal pour que les fournisseurs recommandent de tester les prompts de façon empirique. Le guide [OpenAI prompting](https://help.openai.com/en/articles/10032626-prompt-engineering-best-practices-for-chatgpt) recommande de tester et d’itérer sur les prompts au lieu de supposer qu’une seule formulation sera toujours la bonne. Donc moi, je testerais exactement la tâche qui m’intéresse, au lieu de faire confiance à la réputation du modèle ou à une démo chanceuse.
 
-Une autre limite, c’est l’inconstance. Le même modèle peut produire une excellente réponse une fois, puis une réponse médiocre juste après. De petites variations de formulation peuvent changer le résultat. Certaines tâches sont faciles pour un modèle et maladroites pour un autre. Il faut donc tester précisément le comportement qui vous intéresse au lieu de se fier à sa réputation générale.
+## Ce que je choisirais en pratique
 
-Je n’attendrais pas non plus d’un seul modèle qu’il soit aussi bon partout : raisonnement, nuances multilingues, formatage, sécurité, récupération d’information, connaissance métier. L’étiquette « généraliste » est pratique, mais les systèmes réels gardent des angles morts.
-
-## Ce que je ferais avec cette idée en tête
-
-Je classerais les tâches en deux groupes. Premier groupe : brouillons à faible risque, idées, reformulations, résumés. Deuxième groupe : faits à fort enjeu, décisions, conformité, mathématiques, médecine, droit, ou tout contexte où une erreur coûte de l’argent ou de la confiance. Là, je partirais du principe qu’il faut vérifier ou utiliser un autre outil.
-
-Une règle aide : avant de faire confiance à une réponse, demandez-vous quel mode d’échec vous ferait le plus de tort. Si vous savez nommer ce risque, vous pouvez souvent concevoir un contrôle adapté. Votre prochaine étape peut être simple : choisissez une tâche que vous confiez aujourd’hui à l’IA presque automatiquement, puis notez la limitation la plus susceptible de la faire dérailler. Cette habitude vaut bien plus qu’une liste abstraite de précautions.
+J’utiliserais un LLM comme moteur de premier brouillon et comme explicateur patient. Je ne l’utiliserais pas seul pour des faits à fort enjeu. Si vous voulez la suite logique après ça, lisez le guide sur les hallucinations, parce que c’est là que cette limite devient une vraie habitude de vérification. Ma règle est simple : si le prix d’une erreur, c’est de la confiance, de l’argent ou de la sécurité, le modèle ne devrait pas travailler sans source, sans outil ou sans relecture humaine.

@@ -2,39 +2,48 @@
 id: precision
 order: 22
 difficulty: advanced
-tags: [RAG, evaluation, retrieval, TruLens]
+tags: [RAG, evaluation, retrieval, precision]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Your retriever stopped missing the answer, but now it sends ten barely related chunks for every good one. The model latches onto the wrong paragraph, the prompt gets bloated, and people call it hallucination when the real issue started earlier. That is a precision problem.
+Your retriever stopped missing the answer, but now it drags six irrelevant chunks into every prompt. The useful passage gets buried under stale notes, policy boilerplate, and duplicate snippets. The model answers from the wrong paragraph, and people blame generation for a retrieval failure.
 
-Once recall is healthy enough, precision becomes the metric that keeps the answer on rails. I care about precision because irrelevant context is not neutral. It competes for attention, inflates latency, increases cost, and gives the generator more opportunities to synthesize nonsense from near-matches.
+Once recall is no longer catastrophic, precision decides whether your SLA survives production traffic. I care about precision because irrelevant context is not harmless. It burns latency, inflates cost, and gives the model extra opportunities to stitch together a plausible lie.
 
-The lazy move is increasing `k` and hoping the model figures it out. That works until it does not. High `k` is not a quality strategy, it is debt. If your top results are noisy, you need better filtering, better ranking, or both. [TruLens](https://www.trulens.org/) is useful here because context relevance and groundedness sit close to the actual failure mode instead of pretending all bad answers come from the model. [Ragas](https://docs.ragas.io/) is also practical when you want experiments that compare retrieval settings across the same dataset rather than anecdotal chats.
+I would measure this the way [Ragas metric](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/) defines it: can the retriever rank relevant chunks above irrelevant ones. If that score is weak, increasing `k` is not caution. It is noise injection.
 
-What many teams miss is that precision is local. A retriever can have acceptable overall precision and still be terrible for one corpus segment, one language, or one metadata slice. That is why I always break precision down by query family and content source. One noisy index can poison an otherwise solid system.
+The first correction is narrowing the candidate set before similarity search gets a vote. [Pinecone filters](https://docs.pinecone.io/guides/search/filter-by-metadata) make the point clearly: metadata filters let you constrain search to the right tenant, language, or document class at query time. If you skip that step, one dirty slice of the corpus poisons every downstream metric.
 
-The [ARES paper](https://arxiv.org/abs/2311.09476) reinforces the same point from another angle: evaluate RAG components separately. If context relevance is weak, do not hide behind end-to-end answer scores. Retrieval quality deserves its own failure budget.
+When the corpus mixes exact terms with fuzzy language, dense retrieval alone is too forgiving. [Azure hybrid](https://learn.microsoft.com/en-us/azure/search/hybrid-search-overview) combines full-text and vector queries in one request and merges them with reciprocal rank fusion. That is the default I would choose in production because keyword and semantic retrieval fail differently, and precision improves when both are allowed to compete.
 
-Before I touch prompting, I want the retrieval pipeline to look disciplined:
+Even then, the first pass is usually too loose for a generator that only sees a handful of chunks. [Semantic ranker](https://learn.microsoft.com/en-us/azure/search/semantic-search-overview) adds a secondary reranking stage over an initial result set. That is where I want expensive relevance modeling to happen: after cheap retrieval, before prompt assembly, on a bounded shortlist.
+
+You also need observability that matches the failure mode. [TruLens triad](https://www.trulens.org/getting_started/core_concepts/rag_triad/) separates context relevance from groundedness, which is the only sane way to debug a system that “hallucinates” because retrieval fed it junk. If context relevance drops for one language or one document family, I want that alert before users do.
+
+Before I touch prompt templates, I want the retrieval contract to look like this:
 
 ```yaml
-pipeline:
+retrieval_contract:
   pre_filters:
-    - access_control
+    - tenant_id
     - language
     - document_type
-  retrieval:
-    - hybrid_search
-  post_filters:
+  first_pass:
+    - hybrid_search_top_50
+  second_pass:
+    - semantic_rerank_top_8
+  guards:
     - deduplicate_chunks
-    - rerank_top_50_to_top_6
+    - drop_low_score_matches
 observability:
-  log_rejected_chunks: true
-  inspect_top_10_weekly: true
+  slice_metrics:
+    - by_query_family
+    - by_language
+    - by_source
+  weekly_review:
+    - inspect_top_10
+    - inspect_rejected_chunks
 ```
 
-That last line matters. Sampling your top results every week is boring, but it catches bad metadata, duplicated chunks, and ranking regressions faster than any dashboard.
-
-My rule is simple: after recall is acceptable, drive top-5 precision above 0.7 before increasing context size. If you cannot do that, your generator is cleaning up retriever mistakes it should never have seen.
+My rule is blunt: do not expand context until top-5 precision is above 0.7 on your critical query families and stable by corpus slice. If filters, hybrid retrieval, and reranking still cannot clear that bar, the problem is your index or labels, not the generator.

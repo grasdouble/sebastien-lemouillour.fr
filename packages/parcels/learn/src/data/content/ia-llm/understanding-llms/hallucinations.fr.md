@@ -3,32 +3,32 @@ id: hallucinations
 order: 12
 difficulty: beginner
 tags: [LLM, fiabilité]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Vous demandez une source, le modèle vous donne une citation, puis cinq minutes plus tard vous découvrez que le titre de l’article n’existe même pas. C’est le genre de moment qui marque vite. Avec les LLMs, une **hallucination** est une réponse plausible en apparence, mais fausse, non étayée, ou carrément inventée. Si vous débutez, le changement d’état d’esprit le plus important est simple : une réponse fluide n’est pas une preuve.
+Vous demandez une source, le modèle en invente une, et vous ne vous en rendez compte que lorsque le titre de l’article ne mène nulle part. C’est souvent là que les débutants arrêtent de confondre réponse bien tournée et preuve. Une **hallucination** est une réponse qui a l’air sûre d’elle mais qui est fausse, non étayée ou inventée, ce qui correspond à la manière dont OpenAI décrit le problème dans son [guide hallucinations](https://cookbook.openai.com/articles/hallucinations). S’il ne fallait garder qu’une règle, je prendrais celle-ci : une formulation fluide est un signal de style, pas un signal de vérité.
 
-## Pourquoi elles arrivent
+## Pourquoi ça arrive
 
-Un grand modèle de langage est entraîné à prédire les tokens probables qui viennent ensuite à partir de motifs observés dans les données. Le [papier GPT-3](https://arxiv.org/abs/2005.14165) reste une source primaire très claire pour comprendre cette logique. Ce qui manque dans cet objectif saute alors aux yeux : il n’y a pas de vérificateur de vérité intégré. Le modèle est optimisé pour produire une suite crédible, pas pour ouvrir un navigateur, interroger une base de données, ou reconnaître spontanément son incertitude, sauf si on l’y aide explicitement.
+Un grand modèle de langage est entraîné à prédire les prochains **tokens**, c’est-à-dire de petits morceaux de texte comme des mots ou de la ponctuation. Le [papier GPT-3](https://arxiv.org/abs/2005.14165) reste une source primaire claire pour comprendre cet objectif d’entraînement. Ce que cet objectif ne contient pas saute vite aux yeux : il n’y a pas de vérificateur de faits intégré. Le modèle apprend des régularités de langage, pas le réflexe de s’arrêter pour vérifier une affirmation dans le monde extérieur.
 
-C’est pour ça que les hallucinations ne sont pas de simples bugs aléatoires. C’est un mode d’échec prévisible pour des systèmes conçus d’abord pour générer du langage. Quand le prompt est flou, quand le contexte manque, ou quand la réponse exige des faits précis, le modèle peut combler les trous avec quelque chose qui a l’air statistiquement convaincant.
+C’est pour ça que je ne traite pas les hallucinations comme des bugs rares. Je les traite comme un mode d’échec normal d’un système conçu d’abord pour produire du texte plausible. Si le prompt est flou, si le contexte est mince, ou si la question demande des faits exacts, le modèle peut combler le vide avec quelque chose de statistiquement probable au lieu de quelque chose de vrai.
 
-Je trouve le mot « hallucination » utile, mais aussi un peu trompeur, parce qu’il peut faire croire à un phénomène rare ou spectaculaire. En pratique, beaucoup d’hallucinations sont juste des erreurs ordinaires livrées avec trop d’assurance.
+Je garde le mot « hallucination » parce qu’il parle à tout le monde, mais je refuse de le rendre plus mystérieux qu’il ne l’est. La plupart du temps, c’est juste une erreur ordinaire portée par un ton trop assuré.
 
-## Ce qui les réduit vraiment
+## Ce qui la réduit vraiment
 
-Les meilleurs remèdes sont assez banals, et c’est plutôt rassurant. Donnez au modèle un contexte fiable. Demandez des citations ou des extraits. Branchez-le à des outils quand des informations exactes ou à jour comptent vraiment. La documentation [tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) d’Anthropic montre comment un modèle peut appeler des systèmes externes au lieu de deviner, et le [papier RAG](https://arxiv.org/abs/2005.11401) explique la génération augmentée par récupération de documents, où le modèle répond à partir de sources retrouvées plutôt qu’à partir de sa seule mémoire interne.
+Les solutions banales sont celles auxquelles je fais le plus confiance. Donnez au modèle un contexte fiable. Demandez-lui de citer le passage qu’il utilise. Quand l’exactitude compte, branchez-le à des systèmes capables d’aller chercher l’information au lieu de deviner. La documentation [tool use docs](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) d’Anthropic montre comment un modèle peut appeler des outils externes, et le [papier RAG](https://arxiv.org/abs/2005.11401) explique la génération augmentée par récupération, une approche où le modèle répond à partir de documents retrouvés plutôt qu’à partir de sa seule mémoire.
 
-L’évaluation compte aussi. Le [guide evals](https://platform.openai.com/docs/guides/evals) d’OpenAI rappelle utilement que la fiabilité progresse quand on teste le système sur des cas représentatifs, au lieu de se fier à quelques réponses impressionnantes.
+Je testerais aussi le flux de travail au lieu d’admirer trois bons exemples. Le [guide evals](https://platform.openai.com/docs/guides/evals) d’OpenAI défend l’idée de vérifier un système sur des tâches représentatives, et c’est important parce que les hallucinations se cachent souvent dans les cas qu’on a oublié de tester.
 
-Ce qui marche mal, en revanche, c’est la confiance aveugle dans la formulation du prompt. Un meilleur prompt aide, mais il ne transforme pas magiquement un générateur en autorité fiable.
+Ce que je ne ferais pas, en revanche, c’est traiter la formulation du prompt comme le remède principal. De meilleurs prompts aident, mais ils ne transforment pas un générateur de texte en témoin fiable.
 
 ## Comment je réagirais face à une réponse suspecte
 
-Je n’irais pas demander : « Est-ce que c’est une hallucination ? » La question est trop vague. Je poserais des questions plus serrées : quelles affirmations doivent être vérifiées ? Lesquelles sont réellement appuyées par une source ? Lesquelles dépendent d’informations à jour ? Lesquelles relèvent seulement de la formulation du modèle ?
+Je ne demanderais pas : « Est-ce que c’est une hallucination ? » Cette question est trop molle pour aider. Je poserais des questions plus serrées : quelles affirmations doivent être vérifiées ? Lesquelles sont appuyées par une source citée ? Lesquelles dépendent d’informations à jour ? Lesquelles relèvent d’une reformulation produite de mémoire par le modèle ?
 
-Ensuite, je rapprocherais la réponse des preuves. Demandez des passages cités. Demandez que l’incertitude soit formulée clairement. Demandez de séparer les faits, les hypothèses et les points ouverts. Si l’enjeu est important, utilisez une vérification externe et considérez la première réponse comme un brouillon.
+Ensuite, je rapprocherais la réponse des preuves. Demandez des passages cités. Demandez que l’incertitude soit formulée clairement. Demandez de séparer les faits, les hypothèses et les questions ouvertes. Si l’enjeu est élevé, traitez la première réponse comme un brouillon et vérifiez-la en dehors du modèle.
 
-Une règle de décision fonctionne très bien : plus le coût de l’erreur est élevé, moins vous devez accepter une réponse sans contrôle. Votre prochaine étape peut être toute simple : reprenez une réponse que vous auriez tendance à croire trop vite, puis vérifiez chaque affirmation factuelle ligne par ligne. Cet exercice change souvent la manière d’utiliser les LLMs bien plus qu’un grand discours sur les hallucinations.
+Si vous voulez une prochaine étape, reprenez une réponse que vous étiez prêt à croire et contrôlez chaque affirmation factuelle ligne par ligne. Mon seuil est simple : si le coût d’une erreur est élevé, une sortie non vérifiée n’est pas acceptable.

@@ -4,7 +4,7 @@ order: 23
 difficulty: advanced
 tags: [RAG, evaluation, hallucination, FactScore]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
 The answer looks polished, cites the right document, and still sneaks in one unsupported sentence that can get your team in trouble. That is the failure mode people hand-wave as “hallucination.” In a RAG system, I prefer the stricter word: faithfulness.
@@ -13,7 +13,7 @@ Faithfulness asks whether the claims in the answer are actually supported by the
 
 The best mental model I know comes from [FactScore](https://arxiv.org/abs/2305.14251), which breaks a generation into atomic facts and checks whether each fact is supported by a reliable source. That is the right granularity. A response can be mostly useful and still contain one unacceptable claim. If you only score the answer as a blob, you will not catch that.
 
-For automated loops, [Ragas](https://docs.ragas.io/) is a practical place to start because it gives you faithfulness-style metrics you can run repeatedly, and [TruLens](https://www.trulens.org/) is helpful when you want groundedness tied back to traces and retrieved context. I use both ideas the same way: judge support at the claim level, then inspect failures with the original chunks in front of me.
+For automated loops, [Ragas faithfulness metric](https://docs.ragas.io/en/latest/concepts/metrics/available_metrics/faithfulness/) is a practical place to start because it gives you faithfulness-style metrics you can run repeatedly, and [TruLens](https://www.trulens.org/) is helpful when you want groundedness tied back to traces and retrieved context. I use both ideas the same way: judge support at the claim level, then inspect failures with the original chunks in front of me.
 
 What most tutorials skip is that citations are not proof. A model can mention a source ID and still fabricate the actual statement. Formatting a citation is cheap. Evidence alignment is the hard part.
 

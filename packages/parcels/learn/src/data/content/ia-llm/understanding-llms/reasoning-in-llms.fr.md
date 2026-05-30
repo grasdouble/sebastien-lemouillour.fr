@@ -3,30 +3,50 @@ id: reasoning-in-llms
 order: 19
 difficulty: intermediate
 tags: [LLM, raisonnement]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
 Le mode d’échec le plus agaçant d’un LLM, ce n’est pas le non-sens complet. C’est la réponse propre, détaillée, convaincante, et pourtant fausse. C’est pour ça que je ne traite pas le “raisonnement” comme une ambiance ou un badge marketing. Je le traite comme une capacité qu’il faut acheter, déclencher et vérifier avec soin.
 
-## Le raisonnement n’est pas un simple interrupteur
+## Le raisonnement, c’est un budget, pas de la magie
 
-Un modèle raisonne bien quand trois choses s’alignent: le modèle de base possède la capacité latente, le prompt expose correctement la structure de la tâche, et le budget d’inférence laisse assez de place pour explorer des étapes intermédiaires. Le papier sur le [chain-of-thought](https://arxiv.org/abs/2201.11903) a montré que de grands modèles peuvent mieux réussir sur des tâches multi-étapes quand on leur demande de produire un raisonnement intermédiaire. Le résultat était important, mais il a aussi créé une mauvaise habitude: demander à tous les modèles de “penser étape par étape”, même quand la tâche n’en a pas besoin.
+Un modèle raisonne bien quand trois choses s’alignent: le modèle de base possède la capacité latente, le prompt expose correctement la structure de la tâche, et le budget d’inférence laisse assez de place pour des étapes intermédiaires. Le papier [Chain-of-Thought](https://arxiv.org/abs/2201.11903) a montré que de grands modèles peuvent mieux réussir sur des tâches multi-étapes quand on leur demande de produire un raisonnement intermédiaire. Le résultat était important, mais il a aussi appris aux gens un mauvais réflexe: demander à tous les modèles de “penser étape par étape”, même quand la tâche est triviale.
 
-Je ne ferais pas ça par défaut. Un raisonnement visible et long augmente la consommation de tokens, la latence et le coût de revue. Sur les API où les tokens de sortie sont fortement facturés, le coût est immédiat. Sur des workflows sensibles, cela peut aussi exposer des étapes intermédiaires qu’on n’avait pas forcément envie de stocker ou d’afficher.
+Je ne ferais pas ça par défaut. Le [guide OpenAI](https://platform.openai.com/docs/guides/reasoning) explique qu’un effort de raisonnement plus élevé échange vitesse et consommation de tokens contre de la qualité, et la doc [Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking) décrit le même compromis avec la profondeur de réflexion et les budgets de tokens. Si la tâche est courte ou facile à vérifier, ce supplément de raisonnement ressemble souvent à une facture plus lente.
 
-## Ce que le prompting apporte réellement
+## Quand je paierais pour ça
 
-Le prompting aide surtout quand la tâche se décompose bien et que la réponse peut être vérifiée. Le résultat [self-consistency](https://arxiv.org/abs/2203.11171) en est un bon exemple: on échantillonne plusieurs chemins de raisonnement, puis on retient la réponse de consensus. Cher ? Oui. Utile pour les maths, les tâches symboliques et les problèmes de décision structurés ? Oui aussi.
+Le prompting commence à valoir son prix quand la tâche est vraiment multi-étapes et que la réponse finale peut être vérifiée. Le papier [self-consistency](https://arxiv.org/abs/2203.11171) est la meilleure version de cette idée: on échantillonne plusieurs chemins de raisonnement, puis on garde la réponse de consensus. Je réserverais ça aux maths, aux tâches symboliques ou aux décisions coûteuses, parce qu’on paie littéralement plusieurs tentatives pour n’en garder qu’une.
 
-Quand la tâche demande des preuves externes ou une action, je préfère le schéma [ReAct](https://arxiv.org/abs/2210.03629) à un raisonnement purement interne. Le modèle réfléchit un peu, appelle un outil, inspecte le résultat, puis continue. C’est généralement plus fiable que de payer pour un long monologue déconnecté du réel.
+Il reste alors le vrai problème: et si le modèle manque surtout d’informations, pas de réflexion ? Dans ce cas, j’arrête de lui demander de “réfléchir plus fort” et je passe aux outils. Le papier [ReAct](https://arxiv.org/abs/2210.03629) a vu juste: un peu de raisonnement, une preuve externe, puis on continue. Ce schéma est généralement plus fiable qu’un long monologue qui essaie d’inventer des données qu’il n’a pas.
 
-Le comportement du fournisseur compte aussi. Le [guide OpenAI](https://platform.openai.com/docs/guides/reasoning) sur le raisonnement et la [documentation Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking) sur l’extended thinking posent le compromis noir sur blanc: plus de budget de raisonnement peut améliorer la qualité, mais augmente aussi la latence et le coût. Ça colle très bien à l’usage réel. Sur des charges à fort volume, on sent vite la taxe.
+## Mon réglage par défaut
 
-## Ce que je choisirais en pratique
+Je commence avec un niveau de raisonnement low ou medium, j’exige des citations ou une sortie d’outil, et je n’augmente le budget qu’après avoir vu des échecs qui ressemblent à un manque de délibération plutôt qu’à un manque de données. C’est aussi là que le débit se dégrade vite: les [rate limits](https://platform.openai.com/docs/guides/rate-limits) d’OpenAI suivent à la fois les requêtes et les tokens, donc un prompt “plus prudent” peut quand même casser la capacité s’il gonfle trop la réponse.
 
-En production, je préfère des réponses visibles courtes, combinées soit à un support de raisonnement caché côté fournisseur, soit à un usage explicite d’outils que je peux auditer. Je ne demande un long raisonnement en langage naturel que lorsque ce raisonnement fait partie du livrable lui-même, par exemple pour du tutorat ou un exemple corrigé.
+Voici le point de départ que je mettrais réellement en production avant de payer pour plus de réflexion:
 
-Je ne confonds pas non plus raisonnement et connaissance. Un modèle ne peut pas raisonner jusqu’à un fait qu’il ne possède pas. Si la réponse dépend d’un prix à jour, d’un changement de politique ou d’une ligne en base de données, la bonne solution est la récupération d’information ou l’accès à un outil, pas un prompt plus sophistiqué pour “réfléchir plus fort”.
+```python
+from openai import OpenAI
 
-Ma règle: payez du raisonnement supplémentaire seulement sur des tâches vraiment multi-étapes et vérifiables de l’extérieur. Sinon, on paie souvent des suppositions plus longues, pas de meilleures décisions.
+client = OpenAI()
+
+response = client.responses.create(
+    model="gpt-5.5",  # modèle capable de raisonner
+    reasoning={"effort": "low"},  # commencer peu cher, augmenter après les evals
+    input=[
+        {
+            "role": "user",
+            "content": "Calcule la TVA due sur 420 € à 20 %. Retourne seulement le nombre.",
+        }
+    ],
+    max_output_tokens=80,  # plafonner le coût et éviter une réponse verbeuse
+)
+
+print(response.output_text)
+```
+
+Si les prompts peuvent contenir des secrets, des données client ou des règles internes, je n’exposerais pas le raisonnement brut aux utilisateurs finaux juste parce que le fournisseur sait le renvoyer. Anthropic renvoie la réflexion dans des blocs distincts, donc je la traite comme quelque chose à filtrer, journaliser avec prudence, ou ne pas afficher du tout.
+
+Ma règle est simple: je paie pour plus de raisonnement seulement quand la tâche est multi-étapes, vérifiable de l’extérieur, et assez coûteuse pour qu’une réponse plus lente reste moins chère qu’une réponse fausse.

@@ -7,52 +7,72 @@ publishedAt: 2099-12-31
 updatedAt: 2026-05-30
 ---
 
-Si vous envoyez chaque tâche vers votre modèle le plus cher, vous n'êtes pas prudent. Vous refusez de mesurer. La classification, l'extraction, la modération, la synthèse longue et la review de code n'ont pas besoin du même profil de modèle, et faire semblant que si est une méthode très fiable pour rendre la facture absurde.
+Quand votre chemin bon marché redirige en douce la moitié du trafic vers un plus gros modèle, vous n'avez pas du routage. Vous avez un bug de facturation avec un joli nom. La classification, l'extraction, la modération et la synthèse longue ne méritent pas le même profil de modèle, et faire semblant du contraire est une excellente façon de cramer le budget avant même d'avoir du volume.
 
-Le rôle du routage est simple : envoyer chaque tâche vers le modèle le moins cher qui dépasse encore le seuil de qualité attendu. Le [guide des modèles OpenAI](https://platform.openai.com/docs/models) montre clairement que capacité, latence et prix varient vraiment selon les modèles. Cette réalité devrait vous pousser à raisonner en classes de tâches, pas avec un modèle par défaut unique.
+Le but est d'envoyer chaque classe de tâche vers le modèle le moins cher qui tient encore le SLA. Le [guide des modèles OpenAI](https://platform.openai.com/docs/models) le dit sans détour : les gros modèles achètent de la capacité, les petits achètent de la latence et du coût. Donc je classerais d'abord les tâches, puis je routerais ensuite. Un modèle par défaut pour tout faire, c'est de l'architecture paresseuse.
 
-J'aime les tables de routage avec quatre champs par classe : plancher de qualité, plafond de latence, plafond de coût, et cible de fallback. La tâche arrive déjà classée, puis le routeur choisit le modèle viable le moins cher. Ne laissez pas le modèle se choisir lui-même. C'est exactement le genre d'autonomie qui se transforme discrètement en dépense.
+Je veux cinq champs par route : alias primaire, alias de fallback, plancher de qualité, budget de latence et plafond de coût. La route doit être choisie avant de lancer l'appel modèle. Ne demandez pas au modèle s'il est le bon modèle. C'est une fausse bonne idée.
 
-C'est le minimum de politique que je veux voir codé :
+Écrivez la politique d'abord, comme ça la dispute a lieu en review plutôt qu'en plein incident.
 
 ```python
 from dataclasses import dataclass
-from typing import Optional
 
-@dataclass
-class ModelSpec:
-    name: str
+@dataclass(frozen=True)
+class RoutePolicy:
+    primary_alias: str
+    fallback_alias: str | None
     quality_floor: float
-    latency_ceiling_ms: int
-    cost_ceiling_per_1k: float
-    fallback: Optional[str] = None
+    latency_budget_ms: int
+    max_input_cost_per_million: float
 
 ROUTES = {
-    "classification": ModelSpec("gpt-4o-mini", 0.88, 500, 0.005, fallback="gpt-4o"),
-    "extraction":     ModelSpec("gpt-4o-mini", 0.90, 700, 0.005, fallback="gpt-4o"),
-    "synthesis":      ModelSpec("gpt-4o", 0.92, 4000, 0.040, fallback=None),
+    "classification": RoutePolicy("fast-classifier", "deep-generalist", 0.88, 500, 0.40),
+    "extraction": RoutePolicy("fast-extractor", "deep-generalist", 0.90, 800, 0.60),
+    "synthesis": RoutePolicy("deep-generalist", None, 0.94, 4000, 8.00),
 }
 ```
 
-Une fois la politique en place, il faut une couche de transport. [LiteLLM](https://docs.litellm.ai/) est utile parce qu'il normalise les API des fournisseurs et apporte des primitives de fallback et de load balancing sans vous obliger à enfouir la logique de routage dans le SDK. Gardez le routage au-dessus de la couche transport. Une abstraction utile doit faciliter le changement de fournisseur, pas vous cacher l'économie réelle.
+Une fois la politique écrite, gardez la couche de transport sous laisse. LiteLLM documente déjà les fallbacks ordonnés dans son [guide de fiabilité](https://docs.litellm.ai/docs/proxy/reliability) et le routage entre déploiements dans son [guide de load balancing](https://docs.litellm.ai/docs/proxy/load_balancing). Parfait. La couche transport peut exécuter la politique, mais elle ne doit pas inventer la politique.
 
-Voici le point de passage que j'implémente en général juste après :
+Voilà la séparation que je mettrais en prod.
 
 ```python
-import litellm
+from litellm import Router
 
-def call_route(task_class: str, messages: list[dict]) -> str:
+router = Router(
+    model_list=[
+        {
+            "model_name": "fast-classifier",
+            "litellm_params": {"model": "provider/small-instruct", "rpm": 600},
+        },
+        {
+            "model_name": "fast-extractor",
+            "litellm_params": {"model": "provider/medium-instruct", "rpm": 300},
+        },
+        {
+            "model_name": "deep-generalist",
+            "litellm_params": {"model": "provider/large-reasoner", "rpm": 60},
+        },
+    ],
+    fallbacks=[
+        {"fast-classifier": ["deep-generalist"]},
+        {"fast-extractor": ["deep-generalist"]},
+    ],
+)
+
+
+def run_route(task_class: str, messages: list[dict]) -> str:
     spec = ROUTES[task_class]
-    try:
-        response = litellm.completion(model=spec.name, messages=messages)
-        return response.choices[0].message.content
-    except litellm.exceptions.APIError:
-        if not spec.fallback:
-            raise
-        response = litellm.completion(model=spec.fallback, messages=messages)
-        return response.choices[0].message.content
+    response = router.completion(model=spec.primary_alias, messages=messages)
+    return response.choices[0].message.content
 ```
 
-Le routage n'est jamais terminé. Les fournisseurs mettent les modèles à jour, la qualité bouge, et la route premium d'hier devient le gaspillage d'aujourd'hui. C'est pour ça que je veux des évaluations hebdomadaires qui alimentent la table, pas de la connaissance orale. La leçon d'orchestration que l'on retrouve aussi dans [Semantic Kernel](https://learn.microsoft.com/en-us/semantic-kernel/overview/) reste valable ici : les abstractions aident seulement si vos politiques restent explicites et testables.
+Le routage se dégrade plus vite que ce que les équipes aiment admettre. Le [guide OpenAI sur les evals](https://developers.openai.com/api/docs/guides/evals) dit explicitement que les evals sont essentielles quand on change ou qu'on teste de nouveaux modèles, et c'est exactement pour ça que je veux des evals par route sur une cadence fixe au lieu de dépendre de l'intuition de quelqu'un dans Slack. Si un fournisseur refresh un modèle et que qualité ou latence bougent, la table doit changer dans la même semaine.
 
-Un seul seuil suffit pour savoir que la table est mauvaise : si plus de 30 % du trafic de production finit sur le modèle de fallback pour une route, votre primaire est mal configuré. Corrigez la politique. Le fallback est une assurance, pas le vrai chemin.
+Mon seuil est volontairement banal : si une route envoie plus de 30 % du trafic de production vers le fallback pendant sept jours d'affilée, la route primaire est morte. Reclassifiez la tâche, élargissez le budget de latence, ou payez le plus gros modèle. Le fallback est une assurance, pas votre vraie architecture.
+
+## Ressources
+
+- [Graders OpenAI](https://platform.openai.com/docs/guides/graders)
+- [Semantic Kernel](https://learn.microsoft.com/en-us/semantic-kernel/overview/)

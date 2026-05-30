@@ -4,16 +4,16 @@ order: 17
 difficulty: advanced
 tags: [RAG, architecture, ColBERT, retrieval]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Single-vector retrieval starts looking naive once you debug enough near misses. A chunk contains the exact sentence you need, yet its one embedding is dominated by surrounding text and the passage never makes the shortlist. That is the failure mode multi-vector RAG tries to fix. If you have not seen it clearly in evaluations, do not reach for this pattern yet.
+Single-vector retrieval looks dumb after your fifth near miss in production. The sentence exists, the evaluator highlights it, yet the chunk embedding gets washed out by neighboring text and never reaches the prompt. Multi-vector RAG is the fix for that exact failure. If your eval set does not show this pattern, skip it.
 
-The important distinction is architectural, not cosmetic. Models like [ColBERT](https://arxiv.org/abs/2004.12832) keep multiple vectors per passage and score with late interaction, which preserves fine-grained token matches instead of crushing a whole chunk into one point in space. [ColBERTv2](https://arxiv.org/abs/2112.01488) improves the efficiency story, but it is still a fundamentally heavier system. You store more vectors, run more expensive search, and need better observability because failures get harder to explain.
+The architectural line matters. [ColBERT](https://github.com/stanford-futuredata/ColBERT) keeps a matrix of token-level embeddings per passage and scores with late interaction plus MaxSim, so narrow token matches survive instead of being averaged away. [ColBERTv2](https://aclanthology.org/2022.naacl-main.272/) cuts the space footprint by 6–10x, but that still leaves you with a heavier serving path. More vectors, more memory pressure, more expensive search, and harder incident review when recall drops.
 
-There is another family that people also call multi-vector: indexing several representations of the same parent document, for example a summary, synthetic questions, and the original chunk. Tools like [LlamaIndex](https://docs.llamaindex.ai/en/stable/) make that strategy approachable. I still separate it mentally from late interaction because the operational tradeoff is different. Multi-representation indexing inflates write-time cost; ColBERT-style retrieval inflates read-time cost.
+That extra cost is why I separate two patterns that people lazily lump together. One is true late interaction. The other is application-level multi-representation indexing: several child vectors for one parent document, such as a summary, synthetic questions, and the original passage. [Qdrant's ColBERT guide](https://qdrant.tech/documentation/fastembed/fastembed-colbert/) makes the tradeoff blunt: late-interaction models buy precision, but they are often better used after an initial dense shortlist because speed and memory get ugly fast.
 
-The storage contract I trust is explicit about the parent-child relationship:
+When I do use the cheaper pattern, I make the parent-child contract impossible to ignore:
 
 ```ts
 type ChildVector = {
@@ -35,8 +35,8 @@ async function retrieveParentDocs(query: string) {
 }
 ```
 
-That `parentId` is the part teams under-design. If retrieval surfaces a great child vector but your generator receives only that tiny fragment, you lose context. If you always expand back to the full parent, you gain context but risk bringing noise back in. The right answer depends on domain. In legal or compliance search, I usually return a larger parent window. In support search, I prefer smaller parent spans to keep prompts lean.
+That `parentId` is where teams usually lie to themselves. A great child hit is useless if generation sees only that fragment. Rehydrating the full parent solves context loss, but it also drags noise back into the prompt. I pick the expansion window from the SLA, not from aesthetic preference. Compliance search can afford a fatter parent window; support search usually cannot.
 
-This only makes sense at scale when you have already exhausted simpler fixes: better chunking, better metadata filters, hybrid retrieval, then reranking. Production metrics matter more than model novelty here. Watch average vectors per document, p95 retrieval latency, candidate collapse rate by parent ID, and how often a relevant passage appears as a child hit but disappears after parent aggregation. Systems like [Vespa](https://docs.vespa.ai/en/nearest-neighbor-search.html) can handle this class of search, but the operational bill is real.
+The index also needs observability that single-vector systems often skip. [Qdrant multivectors](https://qdrant.tech/documentation/concepts/vectors/#multivectors) support storing multiple vectors per point, and [Vespa](https://docs.vespa.ai/en/embedding.html) shows the same operational reality from the serving side: once you index arrays of texts into multi-vector tensors, memory usage grows and feed latency can rise. So watch average child vectors per parent, p95 retrieval latency, collapse rate by parent ID, and the share of child hits that vanish after parent aggregation. If you cannot explain those four numbers during an incident, you are not ready to run this pattern.
 
-My threshold is blunt: adopt multi-vector RAG only when single-vector retrieval keeps missing narrow passages that humans can point to instantly, and reranking no longer closes the gap. If your problem is broad topical recall, this is the wrong hammer. If your problem is precision on small, high-value facts, then the extra index complexity starts to earn its keep.
+My rule is simple: adopt multi-vector RAG only when single-vector retrieval still misses narrow, high-value passages after you have fixed chunking, metadata filters, hybrid search, and reranking. If you are not failing on exact evidence and tight recall, this is wasted complexity. If your latency budget is already tight, it is probably the wrong call even when the quality lift looks real.

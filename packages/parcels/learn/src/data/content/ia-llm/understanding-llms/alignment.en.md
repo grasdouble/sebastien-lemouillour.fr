@@ -3,34 +3,34 @@ id: alignment
 order: 26
 difficulty: advanced
 tags: [alignement]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-The model looks great in a demo, then turns agreeable when it should push back, rigid when it should help, and unsafe on the edge cases nobody bothered to test. That is not a prompting problem. That is alignment debt. You can postpone it for a while, but the bill shows up the moment real users start poking at the boundaries of your product.
+The model looks sharp in a demo, then folds when it should resist, stonewalls when it should help, and goes off the rails on the edge cases nobody scored. That is not a prompt tweak problem. That is alignment debt, and it gets expensive the minute real users start testing the perimeter.
 
-## Alignment is not one thing
+## Alignment is a policy problem first
 
-People talk about alignment as if it were a single axis called "safety." It is not. In practice, alignment is the discipline of making model behavior match your intended norms, constraints, and trade-offs. That includes safety, but also honesty, calibration, refusal style, deference, tool use, privacy boundaries, and when the model should ask for clarification. Documents like the [Model Spec](https://model-spec.openai.com/) make this explicit: aligned behavior is a policy choice, not a natural property of a pretrained model.
+People talk about alignment as if it were one slider called "safety." It is not. In practice, alignment is the job of making model behavior match explicit norms, constraints, and trade-offs around help, refusal, honesty, privacy, and escalation. The [Model Spec](https://platform.openai.com/docs/model-spec) makes the same point in more formal language: behavior is governed by policy, not magically inherited from pretraining.
 
-That is why alignment arguments are usually really arguments about objectives. Do you want the assistant to be maximally helpful, or conservative under uncertainty? Should it answer borderline requests with partial help, a refusal, or a redirect? If your team cannot answer those questions clearly, no training method will rescue you.
+That is why alignment debates are usually objective debates wearing a technical costume. Should the assistant answer borderline requests with partial help, a refusal, or a redirect? Should it defer under uncertainty or push back? If your team cannot answer those questions consistently, training harder is theater.
 
-## The main families of approaches
+## Three approaches that actually matter
 
-The classic industrial answer is [InstructGPT paper](https://arxiv.org/abs/2203.02155)-style RLHF: collect demonstrations and ranked comparisons, then optimize the model toward preferred behavior. It works because pairwise preferences can encode fuzzy product judgments better than static labels.
+The classic industrial move is [InstructGPT](https://arxiv.org/abs/2203.02155)-style RLHF: collect demonstrations and ranked comparisons, then optimize toward preferred behavior. It remains useful because pairwise preferences capture messy product judgment better than static labels.
 
-A second path is [Constitutional AI](https://arxiv.org/abs/2212.08073): specify principles, let the model critique and revise its own outputs, and use those revisions as supervision or preference signal. I like this approach when the target behavior can be articulated clearly, because it makes the policy more inspectable. The catch is obvious: a bad constitution scales bad judgment very efficiently.
+A second path is [Constitutional AI](https://arxiv.org/abs/2212.08073): write principles, have the model critique and revise outputs against them, then learn from those revisions or preferences. I would choose this only when the principles can survive audit line by line. A vague constitution is just vague policy with better branding.
 
-A third path is [DPO paper](https://arxiv.org/abs/2305.18290)-style preference optimization without the full RLHF stack. This is attractive when you want cheaper offline tuning from chosen-versus-rejected pairs. It is simpler operationally, but it still inherits your data bias and your objective ambiguity.
+A third path is [DPO](https://arxiv.org/abs/2305.18290) and related direct preference methods. This is often my default for offline preference tuning because it cuts operational drag versus a full RLHF pipeline. It does not rescue bad preference data, and it definitely does not settle unresolved policy fights.
 
 ## What matters in production
 
-The hardest part is not choosing a method. The hardest part is defining what failure you are actually trying to prevent. Alignment targets move with domain, jurisdiction, risk level, and user maturity. A coding assistant, a medical triage assistant, and a consumer chatbot should not share the same refusal policy just because they all use an LLM.
+Risk tolerances are not portable. A coding assistant, a medical triage assistant, and a consumer chatbot should not share the same refusal policy just because they all sit on top of an LLM. The [NIST AI RMF](https://www.nist.gov/itl/ai-risk-management-framework) is useful here because it forces the boring but necessary question: harmful for whom, in what context, and with what impact.
 
-You also need to separate capability failures from alignment failures. If the model invents facts because it lacks knowledge, that is not solved by more alignment tuning. If it confidently follows a harmful request it clearly understood, that is. Teams mix these up constantly and then wonder why training gets expensive without fixing the right thing.
+You also need to separate capability failures from alignment failures. If the model lacks the knowledge or tools to answer correctly, no amount of nicer refusal tuning fixes that. If it understood the request and still chose the wrong policy, that is alignment. Teams blur those two buckets all the time and burn months tuning the wrong layer.
 
-My view is blunt: alignment work starts with policy writing and evaluation design, not with optimizer choice. If you cannot describe the desired behavior in edge cases and score it consistently, your "alignment strategy" is mostly branding.
+My stance is simple: start with written policy and evaluation before touching the optimizer. If you cannot describe the expected behavior on ugly edge cases and score it consistently, you do not have an alignment strategy yet.
 
 ## Decision rule
 
-Pick the lightest alignment method that can reliably enforce the behavior contract you care about. If prompt rules and product constraints handle the risk, stop there. If behavior needs to hold under pressure, graduate to preference-based tuning. If your team still cannot agree on what the right answer looks like, do not train yet. You are missing the objective, not the algorithm.
+Use the lightest method that reliably enforces the behavior contract you actually need. Stop at prompts and product constraints if the stakes are low and the failure modes are observable. Move to preference tuning when the behavior has to hold under pressure. If the team still argues about what "good" looks like, freeze training and settle policy first.

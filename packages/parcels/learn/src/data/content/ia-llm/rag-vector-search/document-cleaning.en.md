@@ -4,45 +4,56 @@ order: 13
 difficulty: intermediate
 tags: [RAG, preprocessing, OCR]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Your RAG pipeline looks solid on clean Markdown. Then someone uploads a scanned PDF with a footer on every page, a table of contents pasted into the body, and ligatures that turn “office” into nonsense. Document cleaning is the step people postpone until retrieval quality collapses.
+Your RAG pipeline looks great on neat Markdown, then one scanned PDF poisons the index: footer on every page, table of contents pasted into the body, ligatures that mangle words, duplicated OCR text. I treat document cleaning as retrieval prevention work, not as formatting polish.
 
-The mistake I made early was treating parsing as a solved problem. It is not. If you embed raw extraction output, the noise becomes part of the index. Repeated headers start ranking like real content. Broken OCR tokens pollute semantic neighbors. By the time you notice, you are debugging retrieval when the damage happened during ingestion.
+I learned that the hard way. Raw extraction output is not neutral. If you embed it as-is, the noise becomes searchable. Repeated headers rank like answers. OCR garbage contaminates semantic neighbors. Weeks later, you blame embeddings when the real bug happened during ingestion.
 
-I clean before chunking, always. Tools like [Unstructured](https://docs.unstructured.io/open-source/core-functionality/partitioning) help because they preserve document structure instead of flattening everything into one string. When PDFs get weird, [PyMuPDF](https://pymupdf.readthedocs.io/en/latest/recipes-text.html) gives you lower-level access to blocks and coordinates, which is often what you need to strip navigation chrome instead of guessing from text alone. And if the source is a scan, run OCR deliberately with something like [OCRmyPDF](https://ocrmypdf.readthedocs.io/en/latest/introduction.html), because bad text extraction is not a retrieval problem you can fix later with a smarter embedding model.
+I clean before chunking, always. [Unstructured partitioning](https://docs.unstructured.io/open-source/core-functionality/partitioning) is my default because it extracts typed elements instead of flattening everything into one string. When layout is the real issue, [PyMuPDF blocks](https://pymupdf.readthedocs.io/en/latest/recipes-text.html) gives me coordinates and block-level text so I can remove navigation chrome deterministically. And when the file is really a scan, I run [OCRmyPDF intro](https://ocrmypdf.readthedocs.io/en/latest/introduction.html) first, because searchable text layers are a prerequisite, not an optional cleanup pass.
 
-What I actually clean is boring, and that is why it works:
+The next trap is mixing cleaning and splitting into one blurry step. I keep them separate. Clean first, then split with a structure-aware splitter such as [LangChain splitters](https://python.langchain.com/docs/concepts/text_splitters/). I also keep source metadata on every chunk because filtering and citation get harder once page numbers disappear, and [Pinecone metadata](https://www.pinecone.io/learn/retrieval-augmented-generation/) is a good reminder that retrieval quality is not just about embeddings.
 
-- repeated headers and footers
-- page numbers and legal boilerplate
-- broken whitespace and line wraps
-- duplicated text from OCR layers
-- tables that turned into unreadable text soup
-
-The contract I like at indexing time looks like this:
+The version I would ship for most teams is a deterministic pass with explicit thresholds, not an LLM rewrite.
 
 ```python
-from unstructured.partition.pdf import partition_pdf
+import re
+from pathlib import Path
+
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from unstructured.cleaners.core import clean_extra_whitespace
+from unstructured.partition.pdf import partition_pdf
+
+HEADER_FOOTER_PATTERNS = [
+    re.compile(r"^page \d+ of \d+$", re.IGNORECASE),
+    re.compile(r"^confidential$", re.IGNORECASE),
+]
 
 
-def normalize_document(path: str) -> list[str]:
+def clean_and_chunk_pdf(path: str) -> list[dict]:
     elements = partition_pdf(
         filename=path,
-        strategy="hi_res",
-        infer_table_structure=True,
+        strategy="hi_res",  # keep layout-aware extraction for messy PDFs
+        infer_table_structure=True,  # avoid flattening tables into text soup
+    )
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=800,  # conservative size for most embedding pipelines
+        chunk_overlap=120,  # preserve context across chunk boundaries
     )
 
-    cleaned_chunks = []
     seen = set()
+    chunks = []
 
     for element in elements:
-        text = clean_extra_whitespace(str(element))
-        text = text.replace("Page 1 of 12", "")
-        text = text.replace("Confidential", "")
-        text = text.strip()
+        lines = clean_extra_whitespace(str(element)).splitlines()
+        kept_lines = [
+            line.strip()
+            for line in lines
+            if line.strip()
+            and not any(pattern.match(line.strip()) for pattern in HEADER_FOOTER_PATTERNS)
+        ]
+        text = re.sub(r"\s+", " ", " ".join(kept_lines)).strip()
 
         if len(text) < 40:
             continue
@@ -50,11 +61,23 @@ def normalize_document(path: str) -> list[str]:
             continue
 
         seen.add(text)
-        cleaned_chunks.append(text)
+        page_number = getattr(element.metadata, "page_number", None)
 
-    return cleaned_chunks
+        for chunk in splitter.split_text(text):
+            chunks.append(
+                {
+                    "text": chunk,
+                    "metadata": {
+                        "source": Path(path).name,
+                        "page": page_number,
+                        "element_type": type(element).__name__,
+                    },
+                }
+            )
+
+    return chunks
 ```
 
-This is intentionally simple. Most teams jump too fast to LLM-based cleaning. I only reach for an LLM when the document class is messy and high value, for example invoices with vendor-specific layouts. Heuristics are cheaper, deterministic, and easier to test.
+I only pay for LLM-based cleaning when a document family is both high value and too irregular for regex plus layout rules, for example vendor invoices with wildly different templates. Otherwise the extra API cost, latency, and rate-limit pressure are a bad trade. Deterministic cleaning is cheaper, easier to test, and easier to explain when legal or support teams ask why a chunk vanished.
 
-The thing most tutorials skip is measurement. Track how much text you remove, how many chunks disappear, and which patterns you strip. If a cleaning pass removes 30% of a contract corpus, I want to inspect samples before I trust it. My rule is blunt: if the same junk appears on more than a few percent of documents, clean it offline before indexing. If it is rare, do not build a fragile pipeline around one ugly PDF.
+My threshold is blunt: if cleaning removes more than about 20% of characters, or if table content changes shape, I review samples before indexing. If the same junk shows up in more than roughly 5% of files, automate the cleanup. If it is rarer than that, fix those documents manually and keep the pipeline boring.

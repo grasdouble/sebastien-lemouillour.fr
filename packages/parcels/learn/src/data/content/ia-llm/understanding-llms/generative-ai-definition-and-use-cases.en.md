@@ -4,38 +4,25 @@ order: 3
 difficulty: beginner
 tags: [IA, LLM]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-You've probably used it without quite naming it. You typed a prompt and got back a poem, an image, a block of code, or a customer-service reply that felt strangely human. The term "generative AI" is everywhere now, but most explanations either skip the definition or bury it in jargon. Here is what it actually means and why it matters.
+You ask a tool for a polite email, a quick summary, or a nice-looking image, and it gives you something usable in seconds. Then the doubt hits: was that actual intelligence, fancy autocomplete, or just marketing language? I think beginners do better with a blunt definition instead of the usual mystique.
 
-### What "Generative" Actually Means
+### What "generative" means
 
-Most traditional AI models are **discriminative**: they look at input and make a classification. Is this email spam or not? Is this tumor malignant or benign? They draw a boundary between existing categories.
+In the [Google glossary](https://developers.google.com/machine-learning/glossary/generative), generative AI means systems that produce new content such as text, images, audio, or synthetic data. The word **generate** matters because the tool is not only choosing between fixed labels like spam or not spam. It is producing a fresh output from patterns learned during **training**, the phase where a **model**, a mathematical system adjusted on many examples, learns what those patterns look like.
 
-**Generative AI** does something fundamentally different: it learns the underlying distribution of a dataset well enough to produce new data that resembles it. A generative model trained on millions of photos does not just label photos; it can synthesize new ones that look real. A model trained on text generates new text that follows the same statistical patterns as its training data. The [Wikipedia overview of generative AI](https://en.wikipedia.org/wiki/Generative_artificial_intelligence) traces this idea back to early statistical language models, but the current wave is dominated by deep learning approaches.
+### Why text tools feel so convincing
 
-This distinction matters because generating plausible output is much harder than classifying it, and carries different risks. A spam classifier that gets a decision wrong is annoying. A generative model that fabricates a convincing but false news article is a different kind of problem entirely.
+For text, the engine you usually meet is a **transformer**, a model architecture introduced in the [Transformer paper](https://arxiv.org/abs/1706.03762). In plain language, a transformer pays attention to how **tokens**, small chunks of text, relate to one another so it can continue a sentence in a way that feels coherent. That is why these tools can draft an email, rewrite a paragraph, or explain code in a tone that sounds confident. My advice is to picture them as extremely fast pattern completers before you picture them as thinkers.
 
-### What Generative AI Can Produce Today
+### Why image tools work differently
 
-The outputs vary widely depending on what the model was trained on:
+For images, many modern systems rely on **diffusion models**, introduced in the [Diffusion paper](https://arxiv.org/abs/2006.11239). A diffusion model learns to turn noise, meaning random visual static, into a structured image step by step. If it has seen enough examples during training, it can generate a new illustration, portrait, or mockup that looks convincing even when the exact image never existed before. I would use that strength for exploration and iteration, not for anything that depends on factual truth.
 
-- **Text:** drafting emails, summarizing reports, writing code, answering questions. Models like [GPT-4](https://openai.com/research/gpt-4) and [Claude](https://www.anthropic.com/claude) are the most prominent examples.
-- **Images:** generating illustrations, editing photos, creating product mockups. Stable Diffusion and DALL-E are widely used tools in this space.
-- **Audio and video:** generating voice-overs, synthetic music, and, more controversially, deepfake video.
-- **Code:** producing working programs from a plain-language description, finding bugs, or explaining existing code.
+### Where people get burned
 
-These use cases are not speculative; they are in production right now in industries from healthcare to law to marketing.
+The trap is simple: plausible is not the same as true. Anthropic's [Anthropic guide](https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations) describes **hallucinations** as cases where a model generates text that is factually wrong or inconsistent with the provided context, and it recommends verification for important claims. That is why generative AI is useful for a first draft, five alternatives, or a cleaner rewrite, but risky for medical, legal, or financial answers unless a qualified human checks the result.
 
-### Where Generative AI Falls Short
-
-Generative AI is not a reasoning engine. It creates plausible output by predicting what should come next based on patterns, not by understanding the world. This is why it can write a confident explanation of a topic and get the facts completely wrong, a phenomenon called **hallucination**. [Anthropic's research](https://www.anthropic.com/research) on model safety explicitly addresses the challenge of making generated content reliable and honest.
-
-The other hard limit is data. A generative model can only produce things that resemble what it trained on. Ask it for a truly novel scientific hypothesis it has never encountered, and you'll get something that sounds plausible but probably isn't.
-
-### When to Reach for Generative AI
-
-My personal rule: use generative AI when you need a first draft, not a final answer. It shines at overcoming blank-page paralysis, synthesizing large amounts of text quickly, and exploring variations. For anything where accuracy is non-negotiable, such as medical advice, legal conclusions, or financial decisions, treat its output as a starting point that requires expert review.
-
-The [Stanford HAI 2024 AI Index](https://aiindex.stanford.edu/report/) documents the rapid deployment of generative AI across industries, which makes this literacy more practical than ever. If you want to go deeper on one specific type of generative AI for text, the next guide covers Large Language Models in detail.
+If text tools are the part you keep meeting, the next useful step is learning what a large language model, or LLM, is and why it behaves like autocomplete with an absurd amount of pattern memory. If the job is to create, summarize, or rephrase, I would try generative AI first; if the job needs a guaranteed fact, a stable rule, or an exact number, start with conventional software and human review.

@@ -4,20 +4,20 @@ order: 17
 difficulty: advanced
 tags: [LLM, evaluation, CI, Braintrust, DeepEval]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-Your chatbot was fine on Friday. On Monday, after a prompt tweak, a model version change, and one retrieval config update, it now answers refund questions with the wrong policy. Nobody noticed until support tickets arrived. This is exactly why continuous evaluation exists.
+Your chatbot was fine on Friday. On Monday, after a prompt tweak, a model swap, and one retrieval config change, it answers refund questions with the wrong policy. Nobody noticed until support tickets landed. This is when continuous evaluation stops sounding smart and starts paying rent.
 
-This only makes sense if you are shipping AI to real users. If you are still prototyping, come back later. Evaluation has a maintenance cost, and you should only pay it once prompt changes, model swaps, and retrieval updates happen often enough to create real regression risk.
+This only makes sense if you are shipping AI to real users. If you are still prototyping, ignore it for now. Evaluation is operational overhead, and you should only pay that bill once prompt changes, model swaps, and retrieval updates happen often enough to create real regression risk.
 
-The main thing I care about is turning vague quality talk into a release gate. "It felt better in staging" is not a process. A living eval suite tied to production failure modes is a process. That means every bad incident should either create a new test case or strengthen an existing one. If your eval set is disconnected from incidents, it will slowly become a vanity benchmark.
+I care about turning vague quality talk into a release gate. [OpenAI Evals](https://platform.openai.com/docs/guides/evals) is explicit about the point: test outputs against named criteria, especially when you change prompts or upgrade models. Treat every production incident as fuel for that suite. If an incident does not become a case, you are volunteering to relearn it in prod.
 
-I do not want one giant score. I want slices: factuality, policy adherence, structured output validity, tool choice, multilingual behavior, and latency or cost budgets. [OpenAI Evals](https://github.com/openai/evals) is useful for understanding benchmark structure. [Braintrust](https://www.braintrust.dev/docs) is excellent when you want experiment tracking and dataset versioning around those benchmarks. [DeepEval](https://docs.confident-ai.com/) is the tool I reach for when I want code-first assertions in CI. [Promptfoo](https://promptfoo.dev/docs/intro) is great when I need to compare prompt and model matrices without building a platform first.
+I do not want one giant score. I want slices: factuality, policy adherence, structured output validity, tool choice, multilingual behavior, and latency or cost budgets. For the workflow, I would pick [Braintrust](https://www.braintrust.dev/docs/workflow) when the team needs traces, human annotation, datasets, and evals in one loop. I would pick [DeepEval](https://docs.confident-ai.com/) when the team wants pytest-native assertions in CI. I would pick [Promptfoo CI](https://promptfoo.dev/docs/integrations/github-action/) when the job is before-versus-after prompt comparisons on pull requests and nothing more.
 
-The trap is over-automating subjective judgments too early. Use model-graded evals where they are cheap and stable, but keep a narrow human-reviewed set for high-impact flows like pricing, legal language, or permission boundaries. A noisy auto-grader is still useful if it catches drift on the same dimension every day. It is useless if teams treat it like absolute truth.
+The tricky part is grading. Model-graded evals are useful when the signal is stable and the failure is cheap. I still keep a small human-reviewed set for pricing, legal language, or permission boundaries because that is where a confident wrong answer becomes an incident, not a metric blip. If you fully automate those flows on day one, you are not moving faster. You are hiding review debt under a dashboard.
 
-I also separate fast evals from slow evals. Fast checks run on every pull request. Slower, richer suites run before release or after major provider changes. If everything takes 45 minutes, engineers will stop trusting the gate and start clicking around it.
+I also split fast evals from slow evals. Fast checks run on every pull request. Slower and richer suites run before release or after a major model, provider, or retrieval change. If every gate takes 45 minutes, engineers stop believing in it and start routing around it.
 
 This is the release contract I like to make explicit.
 
@@ -40,4 +40,4 @@ evaluation-gates:
       threshold: 0.35
 ```
 
-My rule: if a prompt or model change cannot name the eval slice it is expected to improve, and the rollback threshold if it degrades, it is not ready for production traffic.
+My rule is blunt: if a prompt or model change cannot name the eval slice it should improve, the rollback threshold if it regresses, and the owner who will look at failures, it is not ready for production traffic. Below a few hundred production calls a day, keep this lean. Above that, stop arguing and wire the gate.

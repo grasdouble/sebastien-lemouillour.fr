@@ -4,16 +4,16 @@ order: 18
 difficulty: advanced
 tags: [RAG, architecture, graph, GraphRAG]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
-La recherche plate casse d'une manière très précise : la réponse existe, mais seulement si tu peux traverser des relations entre plusieurs documents. « Quels fournisseurs dépendent de la même région que le composant tombé en panne le trimestre dernier ? » n'est pas un problème de similarité entre chunks. C'est un problème de graphe. C'est pour ça que le Graph RAG existe, et c'est aussi pour ça qu'on le voit trop souvent dans des slides avant d'en avoir besoin.
+La recherche plate échoue d'une manière que les architectes détestent : la réponse est dans le corpus, mais elle se cache derrière deux ou trois relations que ton retriever ne parcourt jamais. « Quel fournisseur partage la même région que le composant tombé en panne le trimestre dernier, et quels contrats mentionnent cette dépendance ? » n'est pas un échec de ranking de chunks. C'est un échec relationnel.
 
-Je n'y touche pas tant que la recherche sémantique, les filtres de métadonnées et une récupération en plusieurs passes n'ont pas déjà échoué sur de vraies questions multi-sauts. [Microsoft GraphRAG](https://microsoft.github.io/graphrag/) est une proposition sérieuse, avec extraction d'entités, détection de communautés et résumés basés sur le graphe. La leçon importante n'est pas que les graphes sont magiques. C'est qu'il faut déjà disposer d'une structure exploitable avant qu'un graphe mérite d'être maintenu.
+Je ne passe au Graph RAG que quand la recherche sémantique, les filtres de métadonnées et une deuxième passe de retrieval perdent déjà sur un vrai jeu d'eval. [Microsoft GraphRAG](https://microsoft.github.io/graphrag/) repose sur l'extraction d'entités et de relations, leur regroupement en communautés, puis l'usage de ces structures au moment de la requête. Ça ne paie que quand les échecs sont vraiment multi-sauts. Sinon, tu construis un graphe pour masquer une hygiène de retrieval médiocre.
 
-La charge de maintenance est la partie que les tutoriels adoucissent trop. Il faut de la qualité d'extraction d'entités, de la qualité de relations, des identifiants stables, une base graphe et un moyen d'expliquer pourquoi une traversée a renvoyé tel résultat. Des bases comme [Neo4j](https://neo4j.com/developer/generative-ai/) sont très bonnes pour le stockage et la traversée. Des outils comme [LlamaIndex knowledge graphs](https://docs.llamaindex.ai/en/stable/examples/index_structs/knowledge_graph/KnowledgeGraphDemo/) peuvent aider à relier ingestion et retrieval. Rien de tout ça ne change la contrainte centrale : si ton corpus est surtout composé de prose désordonnée sans entités durables ni arêtes fiables, tu fabriques surtout de la complexité.
+La partie sale, c'est l'ingestion, pas le prompting. Si tu ne peux pas garder des identifiants d'entités stables, contraindre l'extraction des relations et réindexer sans transformer un seul client en trois quasi-doublons, le graphe va pourrir plus vite que les documents dont il vient. [PropertyGraphIndex](https://docs.llamaindex.ai/en/stable/module_guides/indexing/lpg_index_guide/) est utile parce qu'il expose les `kg_extractors`, la validation stricte du schéma et plusieurs retrievers au lieu de faire semblant que l'extraction est réglée. Pour le stockage et la récupération, je préfère une pile graphe maintenue par l'éditeur plutôt que d'en bricoler une, et [Neo4j GraphRAG](https://neo4j.com/docs/neo4j-graphrag-python/current/) détaille clairement ses composants RAG et knowledge-graph builder.
 
-L'architecture à laquelle je fais confiance garde la recherche graphe observable et séparée de la génération :
+Quand je le mets en prod, le chemin d'exécution reste banal et mesurable :
 
 ```ts
 async function answerWithGraph(question: string) {
@@ -29,8 +29,6 @@ async function answerWithGraph(question: string) {
 }
 ```
 
-Ce `maxDepth: 2` est exactement le genre de garde-fou banal qui sauve un vrai système. Une traversée sans borne a l'air brillante en démo et finit en pics de latence, avec des preuves hors sujet, en production. Je journalise aussi le nombre de nœuds, le nombre d'arêtes, la profondeur de traversée et la part des citations finales qui viennent réellement du graphe plutôt que d'une recherche documentaire classique. Si le chemin graphe n'apporte jamais une preuve décisive, il n'a rien à faire dans le hot path.
+Ce `maxDepth: 2` n'est pas un choix de style. C'est un contrôle de SLA. Les [query modes](https://microsoft.github.io/graphrag/query/overview/) de Microsoft gardent la recherche graphe à côté d'un chemin Basic Search simple parce que certaines questions doivent rester bon marché. En production, je journalise la profondeur de traversée, le nombre de nœuds, le nombre d'arêtes, le volume de faits récupérés et le fait que la réponse finale utilise réellement ou non des preuves issues du graphe. Si la traversée ne change pas la qualité de réponse, elle sort du hot path.
 
-Il y a malgré tout un cas où cette approche mérite du respect : répondre à des questions qui dépendent du voisinage d'entités, pas seulement d'un passage local. C'est pour ça qu'elle colle mieux aux organigrammes, aux chaînes d'approvisionnement, aux réseaux de citations et aux mappings de conformité qu'à une base de support générique. Des outils comme [LangChain graph QA](https://python.langchain.com/docs/integrations/graphs/) montrent l'interface, mais la difficulté réelle reste la qualité des données.
-
-Ma règle est sévère parce que le coût opérationnel l'est aussi. Je construis un Graph RAG seulement quand mon jeu d'évaluation contient des échecs multi-sauts répétés, impossibles à corriger avec un meilleur chunking, de meilleurs filtres ou une deuxième passe de retrieval. Si tu ne peux pas montrer l'arête manquante ou l'entité absente qui explique l'échec, tu n'es probablement pas prêt pour un graphe. Tu es surtout prêt pour une meilleure hygiène de retrieval.
+Je ne valide un Graph RAG que quand au moins environ 10 % des échecs d'eval proches de la prod sont clairement relationnels : arête manquante, mauvais saut ou entité orpheline. En dessous, corrige le chunking, les filtres, le reranking, ou ajoute une passe de retrieval. Les graphes servent à traiter des échecs relationnels répétés, pas à rendre une démo de RAG basique artificiellement plus chère.

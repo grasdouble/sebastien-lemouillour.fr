@@ -3,30 +3,26 @@ id: context-window
 order: 10
 difficulty: beginner
 tags: [LLM, contexte]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
-Vous collez un long document, vous posez une question sur le début, et le modèle répond surtout à partir des derniers paragraphes. Ce n’est pas forcément un mauvais prompt. C’est très souvent un problème de contexte. La **fenêtre de contexte** est le nombre maximal de tokens qu’un modèle peut prendre en compte dans une requête. Si vous la traitez comme une mémoire infinie, vous finirez presque toujours par obtenir des réponses brouillonnes.
+Vous collez un long document, vous posez une question sur le début, et le modèle répond comme s’il n’avait surtout retenu que la fin. Ce n’est pas vous qui êtes maladroit. Le plus souvent, le prompt demande au modèle de garder trop de choses en tête en même temps. La **fenêtre de contexte**, c’est la quantité de texte qu’un modèle peut utiliser comme mémoire de travail pour une réponse, et cet espace inclut aussi la réponse qu’il est en train de produire, pas seulement ce que vous avez collé [Anthropic context windows](https://docs.anthropic.com/en/docs/build-with-claude/context-windows).
 
-## Ce qui tient dans la fenêtre
+## Pourquoi la fenêtre paraît plus petite que prévu
 
-Le point important quand on débute, c’est que cette fenêtre est un espace partagé. Vos instructions, le document collé, l’historique de la conversation et la réponse du modèle se disputent tous la même place. La documentation [token counting](https://docs.anthropic.com/en/docs/build-with-claude/token-counting) d’Anthropic et la page [Gemini tokens](https://ai.google.dev/gemini-api/docs/tokens) de Google présentent le contexte comme un budget de tokens, pas comme un nombre de pages ou de mots.
+Le morceau qui manque souvent quand on débute, c’est que les modèles comptent en **tokens**, pas en pages. Un **token** est un morceau de texte, par exemple un mot, un bout de mot ou un signe de ponctuation, et les fournisseurs raisonnent en budgets de tokens plutôt qu’en nombres de pages faciles à imaginer [Anthropic token counting](https://docs.anthropic.com/en/docs/build-with-claude/token-counting).
 
-Autrement dit, un modèle avec une grande fenêtre de contexte n’est pas simplement « meilleur pour se souvenir ». Il dispose surtout d’un espace de travail plus grand pour la requête en cours. L’image que je préfère, c’est celle d’un bureau. Un bureau plus large permet d’étaler plus de feuilles, mais ça ne garantit pas que vous remarquerez la phrase essentielle cachée au milieu.
+C’est pour ça qu’une très grande fenêtre de contexte peut quand même décevoir. Moi, je la vois comme un bureau, pas comme un cerveau. Un bureau plus grand permet d’étaler plus de feuilles, mais il ne vous oblige pas à regarder la bonne phrase.
 
-C’est utile de le rappeler parce que les transformers, l’architecture présentée dans [Attention Is All You Need](https://arxiv.org/abs/1706.03762), utilisent un mécanisme appelé **attention** pour pondérer les parties du texte qui comptent le plus au moment de prédire la suite. Avoir plus d’espace aide, mais l’attention n’a rien de magique.
+## Pourquoi tout faire tenir ne suffit pas
 
-## Pourquoi les longs prompts ratent quand même
+Cette image du bureau aide à comprendre la suite, parce que les transformers reposent sur l’**attention**, le mécanisme qui aide le modèle à pondérer les tokens les plus utiles pour prédire la suite [Attention Is All You Need](https://arxiv.org/abs/1706.03762). L’attention aide, mais elle ne garantit pas qu’un long prompt sera exploité de façon uniforme.
 
-Beaucoup de débutants pensent que si un modèle accepte une entrée très longue, il exploitera tout son contenu de façon équitable. Je ne partirais pas sur cette hypothèse. Des travaux comme [Lost in the Middle](https://arxiv.org/abs/2307.03172) montrent que les modèles peuvent moins bien utiliser des informations placées au milieu d’un contexte long.
+C’est la réponse au problème suivant : « Si tout rentre, pourquoi le modèle rate quand même le détail important ? » Moi, je parierais d’abord sur la surcharge, pas sur un mystère. Il y a la limite dure, celle du volume maximal qui tient. Et il y a une limite plus souple, le moment où le prompt tient encore, mais devient moins fiable à utiliser correctement.
 
-Il faut donc respecter deux limites. La première est la limite dure, le maximum technique de tokens autorisés. La seconde est une limite plus souple : le moment où le prompt rentre encore, mais devient plus difficile à exploiter correctement.
+## Ce que je choisirais en pratique
 
-C’est pour ça que les énormes prompts déçoivent souvent. Pour l’humain qui les écrit, ils paraissent complets. Pour le modèle, ils mélangent parfois instruction cruciale, bruit, contexte répété, logs, exemples et arrière-plan peu utile. Une grande fenêtre de contexte réduit la pression, mais elle ne supprime pas le besoin de hiérarchiser.
+Je choisirais presque toujours un prompt plus court et bien balisé plutôt qu’un énorme collage. Ce n’est pas du minimalisme pour le principe. C’est un choix de fiabilité. Quand la phrase importante est enfouie au milieu d’un contexte long, les modèles peuvent moins bien l’utiliser, et c’est précisément le phénomène étudié dans [Lost in the Middle](https://arxiv.org/abs/2307.03172).
 
-## Ce que je ferais à la place
-
-Je traiterais le contexte comme un budget, pas comme une benne de stockage. Je mettrais la tâche en premier, les preuves essentielles juste après, puis le reste seulement si cela change vraiment la réponse. Si un document est long, je ne le collerais pas brut sauf en dernier recours. Je le découperais, je le résumerais, ou je ne récupérerais que les passages pertinents.
-
-Une règle simple fonctionne bien : si la réponse dépend d’un passage précis, rendez ce passage impossible à rater. Citez-le, nommez-le, et gardez-le près de la question. Votre prochaine étape peut être très concrète : reprenez un prompt trop long que vous utilisez déjà, coupez-en un tiers, puis comparez la qualité des réponses. On apprend souvent plus vite avec cette expérience qu’en mémorisant des limites théoriques.
+Donc, si un document est long, je ne le collerais pas entier dans le chat sauf si je n’ai vraiment pas mieux. Je garderais la tâche en premier, je citerais exactement le passage décisif, et je couperais tout ce qui ne change pas la réponse. Si vous voulez la suite logique après ça, regardez les tokens, parce qu’une fenêtre de contexte devient beaucoup moins abstraite dès qu’on sait estimer la taille d’un prompt. Ma règle est simple : si la réponse dépend d’un passage précis, rendez ce passage impossible à manquer, et si le prompt poursuit plusieurs objectifs à la fois, découpez-le avant de l’envoyer.

@@ -4,7 +4,7 @@ order: 19
 difficulty: advanced
 tags: [agent, planning, orchestration, budget, ReAct]
 publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+updatedAt: 2099-12-31
 ---
 
 Votre agent a terminé la tâche. Enfin, plus ou moins. Quarante-sept appels d'outils, deux boucles, et un résultat crédible jusqu'au moment où quelqu'un vérifie. On accuse souvent le modèle. La plupart du temps, le vrai problème est ailleurs : il n'y a pas de plan.

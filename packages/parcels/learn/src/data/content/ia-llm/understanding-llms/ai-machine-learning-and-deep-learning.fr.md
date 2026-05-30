@@ -3,30 +3,32 @@ id: ai-machine-learning-and-deep-learning
 order: 2
 difficulty: beginner
 tags: [IA, MachineLearning]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
-Si vous avez déjà cherché « différence entre IA, machine learning et deep learning », vous avez sans doute fermé l'onglet encore plus confus qu'avant. Beaucoup d'explications empilent les mots sans vous dire à quoi ils servent. Pour un débutant, le vrai besoin n'est pas une hiérarchie savante : c'est de savoir lequel de ces mots décrit quel type de système, et pourquoi on les mélange si souvent.
+Vous entendez « IA » dans une démo commerciale, « machine learning » dans un tutoriel, et « deep learning » dès que le sujet a l'air coûteux. Si ces mots vous donnent l'impression de voir trois autocollants collés sur la même boîte, ce n'est pas vous le problème. L'image que je garderais, c'est celle de boîtes à outils imbriquées.
 
-### Trois niveaux, pas trois rivaux
+### Commencez par la plus grande boîte
 
-Je garde une image simple en tête : **IA** est le grand parapluie, **machine learning** est une sous-partie de ce parapluie, et **deep learning** est une sous-partie du machine learning. C'est la distinction retenue par des références pédagogiques comme [IBM](https://www.ibm.com/think/topics/artificial-intelligence-vs-machine-learning-vs-deep-learning) et la [Britannica](https://www.britannica.com/technology/machine-learning).
+L'**intelligence artificielle**, ou **IA**, est la catégorie la plus large. Le NIST décrit l'IA comme des systèmes conçus pour accomplir des tâches qui demandent d'habitude une forme d'intelligence humaine, et cette définition est volontairement large parce qu'elle couvre plusieurs façons de construire ces systèmes, pas une recette magique ([NIST](https://www.nist.gov/artificial-intelligence)). Donc quand quelqu'un dit « ce produit utilise de l'IA », vous ne savez toujours pas comment il fonctionne. Vous savez seulement qu'il essaie de percevoir, prédire, recommander ou décider.
 
-L'**intelligence artificielle** désigne l'ensemble des techniques permettant à une machine d'accomplir des tâches associées à des capacités humaines. Le **machine learning**, ou apprentissage automatique, désigne les méthodes où la machine apprend à partir de données plutôt qu'à partir de règles écrites une par une. Le **deep learning**, ou apprentissage profond, désigne des méthodes de machine learning fondées sur des réseaux de neurones à plusieurs **couches**, chaque couche étant un niveau de calcul dans le modèle. Plus il y a de couches, plus le modèle peut apprendre des motifs complexes, mais cela demande aussi plus de données, plus de calcul et plus de réglages.
+C'est là que le vrai besoin apparaît : si l'IA est la grande boîte, de quel outil précis les gens parlent-ils la plupart du temps ?
 
-### Ce qui change concrètement
+### Le machine learning est l'outil de base
 
-Imaginez que vous vouliez reconnaître si une photo contient un chat. Avec une approche classique, vous écrivez des règles : « oreilles pointues », « moustaches visibles ». Avec le machine learning, vous montrez beaucoup d'images annotées "chat" ou "pas chat", et le système apprend les motifs statistiquement utiles. Avec le deep learning, vous utilisez un type de modèle particulièrement efficace pour apprendre des représentations complexes directement à partir des données brutes, comme l'explique le [MIT](https://news.mit.edu/2017/explained-neural-networks-deep-learning-0414).
+Le **machine learning**, ou **apprentissage automatique**, est la partie de l'IA où un système s'améliore à partir de données au lieu de suivre uniquement des règles écrites à la main. Stanford HAI place aussi le **deep learning** à l'intérieur du machine learning, comme la branche fondée sur des réseaux de neurones à plusieurs couches, et c'est exactement l'emboîtement qu'un débutant doit garder en tête ([Stanford HAI](https://hai.stanford.edu/policy/brief-definitions-of-key-terms-in-ai)). Un **modèle** est le système mathématique qui réalise la tâche, et l'**entraînement** est le processus d'ajustement qui le rend meilleur.
 
-C'est pour cela que le deep learning a eu un impact si décisif dans la reconnaissance d'image, la parole et le langage. Le papier [ImageNet](https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html) de 2012 a marqué un tournant très visible dans cette trajectoire, la précision des modèles a bondi d'un coup, et rien n'a été pareil depuis.
+L'analogie que je garderais est celle de la cuisine. Un logiciel classique, c'est une recette écrite ligne par ligne. Le machine learning, c'est montrer à la machine beaucoup de plats déjà classés « spam » ou « pas spam » jusqu'à ce qu'elle repère elle-même le motif. C'est puissant, mais c'est aussi pour cela que le résultat est souvent plus difficile à expliquer avec des règles humaines simples.
 
-### Pourquoi tout finit appelé "IA"
+### Le deep learning sert surtout quand l'entrée est brouillonne
 
-Dans le langage courant, les gens disent "IA" pour parler de presque n'importe quel système impressionnant. Ce n'est pas totalement faux, mais c'est imprécis. Un modèle de recommandation, un filtre anti-spam et un chatbot peuvent tous entrer dans la catégorie IA sans utiliser les mêmes méthodes.
+Le **deep learning**, ou **apprentissage profond**, reste du machine learning, mais il utilise des **réseaux de neurones**, c'est-à-dire des couches d'opérations mathématiques connectées qui se transmettent des signaux. Une **couche** est une étape de traitement. Les premières couches repèrent souvent des motifs simples, puis les suivantes les combinent en motifs plus riches. C'est pour cela que le deep learning s'est imposé sur des entrées comme les images, la parole et le texte, et pourquoi le domaine reste fortement lié à de grands volumes de données et à des budgets de calcul élevés ([Nature](https://www.nature.com/articles/nature14539)).
 
-Personnellement, j'évite d'utiliser "IA" seul quand je peux être plus précis. Si un système apprend à partir de données, je dis machine learning. S'il repose sur des réseaux de neurones profonds, je dis deep learning. Cette précision aide à poser les bonnes questions : combien de données faut-il, quel coût de calcul, quelle capacité de généralisation ?
+C'est aussi là que je prends une position claire : je ne commencerais pas par du deep learning si le problème n'en a pas vraiment besoin. Si un plus petit jeu de données et un modèle plus simple suffisent, je choisis cette option sans hésiter.
 
-### La règle à garder
+### Pourquoi ce mot a pris toute la place
 
-Retenez une seule chose : **toute IA n'est pas du machine learning, et tout machine learning n'est pas du deep learning**. Quand un produit vend de "l'IA", cherchez le niveau exact. Savoir nommer la bonne couche évite beaucoup de malentendus et vous évite de choisir un outil trop lourd pour votre problème. La prochaine étape logique est l'IA générative, c'est là que ces catégories deviennent enfin concrètes.
+L'expression est devenue impossible à ignorer après AlexNet, qui a montré en 2012 qu'un réseau de neurones convolutif profond entraîné sur GPU pouvait dépasser largement les résultats précédents sur ImageNet ([AlexNet](https://papers.nips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf)). Vous n'avez pas besoin de mémoriser le papier. Ce qu'il faut retenir, c'est que le matériel, les données et les techniques d'entraînement se sont enfin alignés, et le deep learning est passé d'idée de recherche un peu niche à réponse par défaut pour beaucoup de tâches de perception.
+
+Si vous voulez que la suite devienne concrète, l'étape logique est un guide sur l'IA générative ou les LLM, parce que c'est là que le deep learning cesse d'être abstrait. Ma règle est simple : dites **IA** pour la grande catégorie, **machine learning** quand le système apprend à partir de données, et **deep learning** seulement quand les réseaux de neurones font l'essentiel du travail.
