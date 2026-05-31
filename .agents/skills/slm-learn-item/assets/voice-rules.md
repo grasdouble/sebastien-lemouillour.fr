@@ -21,15 +21,15 @@ The first sentence must put the reader in a situation they recognize — not int
 - ❌ "React Query is a library for…"
 - ❌ "This article covers the basics of…"
 
-## Calibrate tone by difficulty
+## Voice — always Découvreur
 
-The voice stays opinionated at every level, but the register shifts:
+The voice is always the **Découvreur** persona regardless of the guide's `difficulty`. Difficulty controls the _depth and scope_ of content (see `content-quality-rules.md`), not the register.
 
-| Difficulty     | Persona     | Tone                                                                                                                          |
-| -------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `beginner`     | Découvreur  | Warm and reassuring: "Don't worry if this feels abstract — it clicked for me once I saw a real example." Normalize confusion. |
-| `intermediate` | Développeur | Peer-to-peer: "Here's the trap I fell into." Share the shortcut, not the theory.                                              |
-| `advanced`     | Architecte  | Blunt and direct: "This only makes sense at scale. If you're not hitting 10k req/s, ignore it."                               |
+- Warm and reassuring: normalize confusion, meet the reader where they are
+- ✅ "Don't worry if this feels abstract — it clicked for me once I saw a real example."
+- ✅ "This tripped me up the first time."
+- ❌ Blunt or peer-to-peer register that assumes fluency with jargon
+- ❌ Coldly authoritative: "This only makes sense at scale."
 
 ## Reformulation examples
 

@@ -3,46 +3,51 @@ id: human-evaluation-of-models
 order: 29
 difficulty: advanced
 tags: [evaluation, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-When quality really matters, automated evals stop being enough very quickly. They miss tone, usefulness, harmlessness, and the annoying class of answers users describe as "technically correct but bad." Human evaluation is how you catch that gap. It also becomes garbage the moment the operations are sloppy. Bad human eval is expensive noise with authority attached to it.
+When a release looks fine in dashboards but support tickets keep saying "the answer was technically right and still useless," you have a human evaluation problem. Automated checks are great at catching broken schemas and missing tool calls. They are much worse at catching tone, comparative preference, and the subtle kind of bad answer that annoys a real user in thirty seconds.
 
-## Start with the rubric, not the raters
+If that feels frustrating, you are not missing a secret metric. You are hitting the part of quality that still needs people.
 
-Most evaluation failures begin before anyone reads a sample. If the rubric is vague, raters will improvise. If the task instructions mix multiple criteria, scores collapse into vibe. Good annotation guidelines define each criterion, give positive and negative examples, and explain tie-break cases. Practical guidance like the [Label Studio guide](https://labelstud.io/guide/quality.html) gets this right: quality starts with clear instructions and review loops, not with hoping annotators share your intuition.
+## Write the rubric before you scale the team
 
-My bias is to keep rubrics narrower than teams want. Separate factuality from usefulness. Separate policy compliance from tone. Separate final-answer quality from process quality. The more dimensions you stuff into one question, the less interpretable the score becomes.
+If the rubric is fuzzy, adding more raters just buys you louder confusion. The [HF guidebook](https://github.com/huggingface/evaluation-guidebook/blob/main/contents/human-evaluation/using-human-annotators.md) recommends spending real time on guideline design, iterative annotation, and quality estimation, and [Human Signal](https://docs.humansignal.com/guide/quality) makes the same operational point from the tooling side: review, adjudication, and agreement tracking are part of the job, not cleanup after the job. I would start narrower than most teams want. Split factuality, usefulness, safety, and tone into separate questions so disagreement tells you what broke.
 
-## Choose the scale that fits the judgment
+When a team is getting lost, I sketch the loop before I touch the dashboard:
 
-People reach for 1-to-5 ratings because they are familiar. The original [Likert scale](https://archive.org/details/likert-1932-technique-for-measurement-of-attitudes) is fine for fast scalar judgments when the criterion is simple and the anchors are explicit. It is not my first choice when differences are subtle or outputs are close in quality.
+```mermaid
+flowchart TD
+  A[Define rubric] --> B[Calibrate on shared examples]
+  B --> C[Blind rating]
+  C --> D[Check agreement]
+  D --> E[Adjudicate disagreements]
+  E --> F{Release or rework}
+  F -->|Release| G[Track drift]
+  F -->|Rework| A
+```
 
-For ranking nuanced model outputs, pairwise comparison is often better. It reduces rater hesitation and forces a concrete preference. Statistical models such as [Bradley-Terry](https://projecteuclid.org/euclid.aoms/1177729694) exist for a reason: comparative judgments are often more stable than absolute ones. If the product decision is "which answer would we ship," pairwise is usually the more honest format.
+## Pick the format that matches the product decision
 
-## Agreement is a diagnostic, not a trophy
+If you just need fast triage on one dimension, a [Likert item](https://www.qualtrics.com/experience-management/research/likert-scales/) is fine as long as each question measures one thing and the anchors are explicit. If the real release question is "which output would I actually show to a user," I would switch to [Bradley-Terry](https://www.jstor.org/stable/2334029) style pairwise comparison early. It costs more per example, but it usually produces cleaner signal than pretending raters can defend the difference between a 3 and a 4 all day without drifting.
 
-Teams love reporting inter-annotator agreement as if a high number proves the evaluation is good. It does not. Agreement tells you whether the rubric is producing consistent judgments, not whether those judgments are the right ones. Measures like [Cohen's kappa](https://www.jstor.org/stable/2529310) and [alpha](https://repository.upenn.edu/asc_papers/43/) are useful because they surface ambiguity, rater drift, and criteria that need rewriting.
+When I have to choose quickly, this is the tradeoff table I use:
 
-The failure mode is using agreement as a punishment tool. If raters disagree, the first question should be whether the examples or rubric are underspecified. Some disagreement is healthy when prompts are genuinely ambiguous. Forced consensus can erase the edge cases you most need to understand.
+| Format       | Best for                    | What you gain                                      | What it costs                                                | What I would choose                       |
+| ------------ | --------------------------- | -------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------- |
+| Pass/fail    | Hard safety or policy gates | Fast decisions and clean escalation paths          | Hides near misses                                            | My default for non-negotiable constraints |
+| Anchored 1-5 | Single-dimension triage     | Cheap trend tracking                               | Raters compress the middle and interpret anchors differently | Fine for queue triage, not for ship calls |
+| Pairwise     | Ship or no-ship preference  | Cleaner preference signal with less fake precision | More comparisons and slower throughput                       | My pick when two outputs are close        |
 
-## What production-grade human eval needs
+## Treat agreement like a diagnostic
 
-Blind reviews matter. Randomized order matters. Sampling matters. If raters know which model produced which answer, or if you only review easy prompts, you are building a performance narrative, not an evaluation. Calibration sessions also matter more than most teams admit. A short weekly review of disagreements can improve data quality more than hiring more raters.
+A big agreement number is not a medal. [Cohen's kappa](https://doi.org/10.1177/001316446002000104) is the classic choice for two raters on nominal labels. [Krippendorff's alpha](https://repository.upenn.edu/asc_papers/43/) is the one I would reach for when you have more than two raters, missing judgments, or different measurement levels. The point is not to impress anyone with a coefficient. The point is to find the part of the rubric that your team is still interpreting three different ways.
 
-I would also keep a small adjudicated set that does not change casually. Not because it is sacred, but because trend lines need some stability. Then refresh the broader sample aggressively so the evaluation stays connected to current user behavior.
+## Fatigue is the quiet way eval quality collapses
 
-If I had to turn all of that into an actual annotation sheet, it would look more like this:
+This is the part teams keep under-budgeting because it looks boring until it breaks. The recent [annotation quality survey](https://aclanthology.org/2024.cl-3.1/) is blunt about it: guideline quality, adjudication, reviewer setup, and annotator management all shape the final data quality. In practice, I would shorten sessions, rotate harder examples through calibration meetings, and watch disagreement rate over time, not just average score. If disagreement spikes late in a shift, that is an operations signal, not a character flaw.
 
-| Dimension                         | What the rater should assess                                                    | Format I would use                                            | Anchor or decision rule                                                           | Common failure to watch                                  |
-| --------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| Factuality                        | Are the claims correct, supported, and free of invented details?                | 1-5 scale for simple tasks, or pass/fail for critical domains | Only score high if the answer is materially correct, not just plausible           | Hallucinations, fake citations, confident errors         |
-| Usefulness                        | Did the answer solve the user's job, not just answer part of the prompt?        | 1-5 scale with explicit anchors                               | A "5" should feel ready to ship with minimal editing                              | Partial answers, generic advice, missing the actual task |
-| Policy or safety compliance       | Does the output stay inside the allowed behavior for the product?               | Pass/fail with escalation notes                               | One clear violation should fail the sample even if the answer is otherwise strong | Harmful advice, privacy leaks, policy evasions           |
-| Tone and communication            | Is the answer clear, appropriately scoped, and aligned with the expected voice? | Lightweight 1-3 scale                                         | Use a narrow scale so raters do not confuse style with factual quality            | Rambling, robotic phrasing, unnecessary hedging          |
-| Ship decision between two outputs | Which answer would I actually publish or show to a user?                        | Pairwise comparison                                           | Force a winner unless the outputs are functionally tied                           | Raters rewarding verbosity instead of actual usefulness  |
+## Use humans where automation cannot protect the SLA
 
-## Decision rule
-
-Use human evaluation whenever the release decision depends on qualities machines still score badly: usefulness, nuance, tone, safety judgment, or comparative preference. If you cannot afford blind review, clear rubrics, and periodic agreement checks, do not pretend you have a gold-standard eval. You have anecdotes with spreadsheets.
+I would not pay humans to label what a parser can reject in milliseconds. Keep automated checks for deterministic constraints, and spend human time on usefulness, safety judgment in ambiguous cases, tone, and close preferences between candidate answers. If a release can change revenue, safety, or support load, I want a blinded sample with at least two calibrated raters before I trust the number enough to ship.

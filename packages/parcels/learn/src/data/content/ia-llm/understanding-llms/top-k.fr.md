@@ -7,51 +7,65 @@ publishedAt: 2026-06-01
 updatedAt: 2026-06-01
 ---
 
-On baisse la température, le modèle sort quand même un token absurde, et d’un coup le bug prend un air paranormal. Je tombe plus souvent sur ce problème avec des petits modèles auto-hébergés, donc je prends le top-k avant de faire semblant d’être subtil.
+On baisse la température, la réponse attrape quand même un token absurde, et tout le run prend soudain un air maudit. Quand ça arrive, je ne veux pas d’un curseur de créativité un peu plus doux. Je veux une barrière nette.
 
-## Le top-k répond au problème “il y a trop de mauvaises options”
+## Le top-k sert justement de barrière nette
 
-Le top-k ne garde que les `k` tokens suivants les plus probables. Un `top_k` à `1`, c’est pratiquement du décodage glouton, et des valeurs plus hautes élargissent le pool pas à pas, comme l’expliquent les [docs Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/adjust-parameter-values). J’aime ce réglage parce qu’il est volontairement brutal: le décodeur n’a tout simplement plus le droit de fouiller toute la traîne.
+Dans [Vertex sampling](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/adjust-parameter-values), le top-k ne garde que les `k` tokens suivants les plus probables, puis `topP` peut encore raccourcir cette shortlist, et la température décide à quel point le choix final favorise les premiers de la file. C’est pour ça que je traite le top-k comme un coupe-traîne, pas comme un synonyme plus chic de contrôle.
 
-Cette brutalité compte quand “moins d’aléatoire” n’est pas assez précis. Dans [Transformers](https://huggingface.co/docs/transformers/en/main_classes/text_generation), `top_k` est un paramètre d’échantillonnage, donc il ne sert à quelque chose que si l’on active `do_sample=True`. Oubliez ce détail et vous pouvez perdre dix minutes à régler un bouton qui ne fait strictement rien.
+[Transformers](https://huggingface.co/docs/transformers/en/main_classes/text_generation) rappelle l’autre point crucial : `top_k` est un réglage de sampling, donc il compte quand `do_sample=True`. Si le sampling est coupé, `top_k` devient un simple décor. Presque tout le monde se fait avoir une fois, donc si c’est déjà votre cas, bienvenue au club.
 
-Avant d’aller plus loin, je pars souvent d’un réglage comme celui-ci.
+Si vous voulez voir le pipeline en un coup d’œil, c’est le schéma mental que j’utilise.
+
+```mermaid
+flowchart LR
+    A[Scores des tokens] --> B[Plafond top-k]
+    B --> C[Filtre top-p]
+    C --> D[Pondération par température]
+    D --> E[Token suivant]
+```
+
+Avant de comparer les fournisseurs, j’aime bien isoler l’effet dans le plus petit script qui tourne vraiment.
 
 ```py
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2")
-model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2")
+tokenizer = AutoTokenizer.from_pretrained("openai-community/gpt2")
+model = AutoModelForCausalLM.from_pretrained("openai-community/gpt2")
 
 inputs = tokenizer("Explain photosynthesis in one paragraph.", return_tensors="pt")
 outputs = model.generate(
     **inputs,
-    do_sample=True,     # top-k ne s'applique qu'en sampling
-    temperature=0.7,    # garde un peu de variété
-    top_k=40,           # plafond dur sur les tokens candidats
-    max_new_tokens=120, # borne coût et latence
+    do_sample=True,      # le sampling doit être actif sinon top_k est ignoré
+    temperature=0.7,     # garde un peu de variété sans ouvrir les vannes
+    top_p=1.0,           # laisse le nucleus sampling neutre pendant le test du top-k
+    top_k=30,            # ne garde que les 30 tokens suivants les plus probables
+    max_new_tokens=120,  # borne le run pendant le réglage
 )
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 ```
 
-| `top_k`               | Pool de candidats               | Ce que je vois en général                                                           | Quand je l’utilise                                                       |
-| --------------------- | ------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `1`                   | Un seul token, le plus probable | Décodage quasi glouton, très rigide, presque sans surprise                          | Extraction, routage strict, sortie sensible au format                    |
-| `10`–`20`             | Shortlist très étroite          | Sortie surtout prévisible, avec de rares petits écarts                              | Petits modèles qui ont surtout besoin de structure                       |
-| `20`–`40`             | Shortlist intermédiaire         | Bon équilibre entre contrôle et variation utile                                     | Mon point de départ par défaut sur un modèle instruct auto-hébergé       |
-| `50`–`100`            | Shortlist large                 | Plus d’aisance, mais aussi plus de chances de laisser revenir des déchets de traîne | Modèles locaux plus gros ou plus stables qui peuvent encaisser davantage |
-| `0` ou `-1` dans vLLM | Aucun plafond                   | Top-k désactivé, donc un autre réglage d’échantillonnage doit faire le travail      | Seulement si je veux m’appuyer sur `top_p` ou la température à la place  |
+## Le piège suivant, c’est le support côté fournisseur
 
-## Pourquoi je le préfère sur les modèles auto-hébergés
+Là, je prends clairement position : je ne construirais pas autour du top-k tant que le fournisseur ne l’expose pas explicitement pour le modèle que j’appelle.
 
-Quand un petit modèle part sans cesse dans le décor, je veux un plafond fixe avant de commencer à débattre de masse de probabilité. Les [sampling params de vLLM](https://docs.vllm.ai/en/latest/api/vllm/sampling_params.html) permettent même de désactiver le filtre avec `top_k=0` ou `-1`, ce qui raconte très bien l’intention du réglage: soit on borne l’ensemble des candidats, soit on ne le borne pas.
+| Environnement                                                                                 | Paramètre | Support aujourd’hui                                                    | Ce que je choisirais                                     |
+| --------------------------------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------- | -------------------------------------------------------- |
+| Transformers                                                                                  | `top_k`   | Intégré pour la génération en sampling                                 | Mon premier arrêt sur des modèles locaux                 |
+| Anthropic [Messages API](https://docs.anthropic.com/en/api/messages)                          | `top_k`   | Exposé, mais documenté pour des cas avancés                            | Je commencerais par la température                       |
+| Google [GenerationConfig](https://ai.google.dev/api/generate-content#v1beta.GenerationConfig) | `topK`    | Dépend du modèle ; certains modèles Gemini n’autorisent pas ce réglage | Vérifier la capacité du modèle avant de copier un preset |
+| OpenAI [Responses API](https://platform.openai.com/docs/api-reference/responses/create)       | aucun     | Expose `temperature` et `top_p`, pas `top_k`                           | Ne pas prévoir de top-k de ce côté-là                    |
 
-Cette préférence vient aussi d’un vrai mode d’échec. Le [papier de Holtzman](https://arxiv.org/abs/1904.09751) montre que la stratégie de décodage, à elle seule, peut changer fortement la qualité du texte, et les queues de distribution fragiles sont souvent l’endroit où commencent les continuations répétitives ou bizarres. Sur un modèle nerveux, je préfère clôturer la traîne plutôt que d’espérer qu’elle se comporte bien.
+Ce tableau explique aussi pourquoi je continue à voir le top-k surtout comme un outil d’auto-hébergement. Dans les [params vLLM](https://docs.vllm.ai/en/latest/api/vllm/sampling_params.html), `top_k=0` ou `-1` désactive complètement le plafond, et j’aime bien cette franchise : soit on clôture l’ensemble des candidats, soit on ne le fait pas.
 
-## Là où on le survend
+Quand le modèle le supporte vraiment, je pars plus étroit que ce que la plupart des gens imaginent.
 
-Je ne vendrais pas le top-k comme un bouton universel des API. La [référence Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference) expose `temperature` et `top_p`, mais pas `top_k`, donc je traite le top-k d’abord comme un outil d’auto-hébergement, ensuite comme une attente éventuelle côté API hébergée.
+| Situation                                                   | `top_k` que je testerais | Pourquoi                                                                |
+| ----------------------------------------------------------- | ------------------------ | ----------------------------------------------------------------------- |
+| Extraction stricte ou routage                               | `1`                      | Presque glouton, avec très peu d’espace pour dériver sur le format      |
+| Petit modèle instruct local qui attrape des tokens poubelle | `20` à `40`              | Souvent assez d’air pour la formulation sans rouvrir la longue traîne   |
+| Modèle local plus gros qui sonne trop raide                 | `40` à `80`              | Le desserrer doucement au lieu de sauter directement vers aucun plafond |
 
-Je ne le vendrais pas non plus comme un contrôle de sécurité. Les recommandations [Responsible AI](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/responsible-ai) de Google donnent le bon réflexe: filtres de sécurité, tests et monitoring pour les sorties risquées. Le top-k peut rendre une génération moins chaotique, mais il peut très bien laisser des candidats dangereux dans l’ensemble restant.
+Si vous êtes tenté de vendre le top-k comme un réglage de sécurité, je ne le ferais pas. [Responsible AI](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/responsible-ai) donne le meilleur réflexe : garder les filtres de sécurité, l’évaluation et le monitoring séparés des réglages de sampling.
 
-Si vous appelez un modèle hébergé en boucle, les retries mangent quand même votre quota et votre budget de rate limits, comme le rappelle la page [Azure OpenAI quotas](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/quotas-limits). Si le modèle est petit, local ou juste pénible à stabiliser, commencez autour de `top_k: 20` à `40`, et ne bougez que si vous savez nommer la panne que vous corrigez.
+Ma règle par défaut est simple : sur une API hébergée, je commence par la température et je laisse le top-k tranquille tant que la doc de ce modèle précis ne dit pas qu’il existe ; sur un petit modèle auto-hébergé, je démarre autour de `20` à `40`. Si vous changez `top_k` et `top_p` dans la même expérience, arrêtez-vous là et choisissez d’abord quel problème de traîne vous essayez vraiment de corriger.

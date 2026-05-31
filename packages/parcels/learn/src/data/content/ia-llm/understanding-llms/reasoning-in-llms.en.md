@@ -7,25 +7,36 @@ publishedAt: 2026-06-01
 updatedAt: 2026-06-01
 ---
 
-The most annoying LLM failure mode is not nonsense. It is a polished, step-by-step answer that feels convincing and is still wrong. That is why I do not treat “reasoning” as a vibe or a marketing badge. I treat it as a capability you have to buy, prompt, and verify carefully.
+You know the feeling: the model sounds like the smartest person in the room, then misses one key step and quietly drags your code, spreadsheet, or decision off course. When that happens, I do not ask for “more intelligence” first. I ask whether I need more facts, more budget, or a different tool.
 
-## Reasoning is budget, not magic
+## Do not buy more thinking first
 
-A model reasons well when three things line up: the base model has the latent capability, the prompt exposes the task structure, and the runtime budget leaves enough room for intermediate steps. The original [Chain-of-Thought](https://arxiv.org/abs/2201.11903) paper showed that large models can improve on multi-step tasks when prompted to produce intermediate reasoning. That result mattered, but it also trained people into a bad reflex: asking every model to “think step by step” even when the task is trivial.
+I would start by assuming the model is missing evidence, not depth. The [OpenAI guide](https://developers.openai.com/api/docs/guides/reasoning) says reasoning models spend extra reasoning tokens before answering, [Anthropic docs](https://platform.claude.com/docs/en/build-with-claude/extended-thinking) expose extended thinking with adaptive or budgeted modes, and [Gemini docs](https://ai.google.dev/gemini-api/docs/thinking) describe similar controls through thinking levels and thinking budgets. The shared lesson is useful precisely because it is unglamorous: more thinking costs more, takes longer, and only helps when the task is genuinely multi-step.
 
-I would not do that by default. OpenAI’s [reasoning guide](https://platform.openai.com/docs/guides/reasoning) says higher reasoning effort trades speed and token usage for quality, and Anthropic’s [extended thinking](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking) docs describe the same tradeoff with thinking depth and token budgets. If the task is short or easy to verify, extra thinking is often just a slower invoice.
+Older tutorials still talk about o1 and o3. Keep that in mind for maintenance work, but do not build a new default around them. The [o3 page](https://developers.openai.com/api/docs/models/o3) now labels o3 as a reasoning model succeeded by GPT-5, so I would follow current model guidance instead of copying old screenshots from the internet.
 
-## When I would pay for it
+| Provider  | Current control                                               | What it changes                                                                                                                                | Thought visibility                                                                              | My pick                                                                                       |
+| --------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| OpenAI    | `reasoning.effort`                                            | How much deliberation the model spends before answering; available values depend on the model                                                  | Summaries are opt-in through `reasoning.summary`; raw reasoning is not exposed                  | Start at `low` or `medium`, then raise only after evals fail                                  |
+| Anthropic | `thinking.type` plus `effort` on newer Claude models          | Adaptive thinking on newer models; manual `budget_tokens` is deprecated on Claude Opus 4.6 and Sonnet 4.6, and rejected on newer Opus releases | Claude returns `thinking` blocks or summarized thinking depending on model and display settings | Use adaptive thinking first; manual budgets are for legacy compatibility, not my first choice |
+| Gemini    | `thinkingLevel` for Gemini 3, `thinkingBudget` for Gemini 2.5 | Depth or token budget for internal thinking                                                                                                    | `includeThoughts` returns thought summaries                                                     | Use Gemini 3 levels for latency tuning; use 2.5 budgets only when you need hard caps          |
 
-Prompting starts to earn its keep when the task is genuinely multi-step and the final answer can be checked. The [self-consistency](https://arxiv.org/abs/2203.11171) paper is the clearest version of that idea: sample multiple reasoning paths, then keep the consensus answer. I would reserve that for math, symbolic tasks, or expensive decisions because you are literally buying several attempts to get one answer.
+That leads to the question that actually matters: when do you escalate, and when do you switch to tools instead? When I have to choose quickly, I use this path:
 
-That still leaves the harder problem: what if the model is missing facts, not deliberation? In that case I would stop asking it to think harder and switch to tools. The [ReAct](https://arxiv.org/abs/2210.03629) paper got this right: reason a little, fetch evidence, continue. That pattern is usually more reliable than a long monologue trying to infer data it does not have.
+```mermaid
+flowchart TD
+    A[Task arrives] --> B{Missing facts?}
+    B -->|Yes| C[Use tools or retrieval]
+    B -->|No| D[Start with low or medium thinking]
+    D --> E{Passes checks?}
+    E -->|Yes| F[Keep the cheaper setting]
+    E -->|No| G[Raise budget or model tier]
+    G --> H[Keep it only if eval gains beat cost and latency]
+```
 
-## A practical default
+## A production default
 
-I start with low or medium reasoning, require citations or tool output, and only raise the budget after I see failures that look like missing deliberation rather than missing data. This is also where throughput gets ugly: OpenAI’s [rate limits](https://platform.openai.com/docs/guides/rate-limits) are tracked on both requests and tokens, so a “safer” prompt can still kill capacity if it expands the response too much.
-
-Here is the kind of baseline I would actually ship before paying for more thinking:
+If you want a baseline that is boring in a good way, I would ship something like this first:
 
 ```python
 from openai import OpenAI
@@ -33,20 +44,20 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.responses.create(
-    model="gpt-5.5",  # reasoning-capable model
-    reasoning={"effort": "low"},  # start cheap, raise only after evals fail
-    input=[
-        {
-            "role": "user",
-            "content": "Compute the VAT due on €420 at 20%. Return only the number.",
-        }
-    ],
-    max_output_tokens=80,  # cap cost and keep the answer terse
+    model="gpt-5.5",  # current default starting point for OpenAI reasoning work
+    reasoning={
+        "effort": "low",     # begin cheap; increase only after measured failures
+        "summary": "auto",   # request a summary for debugging, not raw hidden reasoning
+    },
+    input="Compute VAT on €420 at 20%. Return JSON: {\"vat\": number}.",  # keep the task narrow
+    max_output_tokens=120,  # cap answer size and reasoning spend
 )
 
 print(response.output_text)
 ```
 
-If prompts can contain secrets, customer data, or internal policy text, I would not expose raw reasoning to end users just because the provider can return it. Anthropic exposes thinking as separate content blocks, which is exactly why I treat it as something to gate, log carefully, or omit.
+I like this pattern because it gives you one cheap pass, one bounded output, and one debugging hook. Then I would add tools or retrieval before I jump to `high` or `xhigh`. Reasoning is great at planning around facts it has. It is lousy at inventing facts it never saw. That distinction saves money.
 
-My rule is simple: pay for extra reasoning only when the task is multi-step, externally checkable, and costly enough that a slower answer is still cheaper than a wrong one.
+There is one more trap here: debug visibility can turn into data leakage. Anthropic can return thinking blocks, Gemini can return thought summaries, and OpenAI can return reasoning summaries, so I would treat any of that output like privileged telemetry. Keep it out of end-user UI, scrub it from logs when prompts contain sensitive text, and review access controls before your security team reviews them for you.
+
+Costs bite twice. OpenAI’s [rate limits](https://developers.openai.com/api/docs/guides/rate-limits) apply to both requests and tokens, Gemini counts thinking tokens in usage metadata, and Anthropic bills the full thinking tokens even when you only receive a summary. I would not pay for higher reasoning unless the task is externally checkable and your evals show that the accuracy gain is worth the extra latency bill.

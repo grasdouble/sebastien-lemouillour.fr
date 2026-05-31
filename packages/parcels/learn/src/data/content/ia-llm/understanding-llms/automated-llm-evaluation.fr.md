@@ -7,52 +7,50 @@ publishedAt: 2026-06-01
 updatedAt: 2026-06-01
 ---
 
-Si tu ne relis que dix sorties à la main, des régressions partent en prod. Si tu remplaces ça par un score de juge automatique et que tu appelles ça de la science, des régressions partent quand même. Une évaluation automatisée ne commence à payer que quand le volume grimpe et que le rythme de release compte. Mal utilisée, elle industrialise juste la fausse confiance.
+La barrière de release est verte, le diff est petit, et les tickets support montent quand même après le déploiement. Dans la vraie vie, cela veut souvent dire que la suite d'eval a mesuré quelque chose de facile au lieu de mesurer ce qui comptait. L'évaluation automatisée ne vaut vraiment son loyer que quand le volume grimpe et que le dispositif reste honnête sur ses biais, sa dérive et son coût. Si tout cela vous paraît encore péniblement glissant, c'est normal. Les modèles juges sont utiles, mais ils font partie du système, ce ne sont pas des arbitres neutres.
 
-Quand je dois expliquer le pipeline à une équipe, je dessine d’abord le flux avant de débattre des métriques:
+Quand je dois expliquer le pipeline à une équipe, je dessine d'abord le flux avant de débattre des métriques:
 
 ```mermaid
 flowchart TD
-  A[Générer la sortie du modèle sur le jeu d’eval] --> B[Lancer les contrôles déterministes]
-  B --> C[Le modèle juge note selon une rubrique]
-  C --> D[Pairwise A/B puis B/A — neutralise le biais de position]
-  D --> E[Suite de régression sur cas figés et récents]
+  A[Générer les sorties sur le jeu d'eval] --> B[Lancer les contrôles déterministes]
+  B --> C[Juger avec une rubrique]
+  C --> D[Pairwise A-B puis B-A, réduire le biais de position]
+  D --> E[Rejouer des cas figés et frais]
   E --> F{Barrière de release}
   F -->|Passe| G[Livrer]
   F -->|Échoue| H[Corriger prompt, modèle ou données]
 ```
 
-## Commence par les contrôles durs
+Chaque nœud répond à un mode d'échec différent, donc la pile la plus sûre est volontairement stratifiée.
 
-Pour tout ce qui touche à une barrière de release, je commencerais par des contrôles déterministes. [OpenAI Evals](https://platform.openai.com/docs/guides/evals) est conçu autour de jeux de données rejouables et d'exécutions répétables, et [OpenAI graders](https://platform.openai.com/docs/guides/graders) pose clairement la différence entre vérifications exactes, similarité textuelle et juges par modèle. C'est le bon ordre. Utilise d'abord des contrôles de chaîne, de schéma et d'appel d'outils pour les exigences dures. Ne sors un juge LLM qu'après avoir déjà filtré les échecs objectifs et bon marché.
+## Les anciennes métriques cassent d'abord
 
-## Les juges LLM ont besoin de rubriques, pas de feeling
+Avant d'ajouter un juge, il faut reconnaître ce qui a déjà échoué. [G-Eval](https://arxiv.org/abs/2303.16634) commence par rappeler à quel point BLEU et ROUGE suivent mal le jugement humain sur de la génération ouverte, et c'est précisément pour cela que je ne mettrais pas un score lexical unique dans une release gate d'assistant moderne. Le point de départ le plus sûr reste un dataset rejouable avec des contrôles déterministes. [OpenAI Evals](https://developers.openai.com/api/docs/guides/evals) formalise aujourd'hui cela avec `data_source_config` et `testing_criteria`, et [OpenAI graders](https://platform.openai.com/docs/guides/graders) sépare les contrôles durs entre vérifications de chaînes, similarité textuelle, score-model graders et exécution Python. Mon réflexe par défaut est volontairement un peu ennuyeux: schéma, chaînes exactes et validation des appels d'outils d'abord, puis jugement subjectif seulement pour ce que les règles ne voient pas.
 
-Si les équipes utilisent autant le pattern LLM-as-judge, c'est simple : l'utilité, le respect des instructions et la qualité comparative se scorent mal avec des règles brutes. [G-Eval](https://arxiv.org/abs/2303.16634) reste la preuve la plus propre qu'une grille structurée améliore l'alignement avec les notes humaines. La leçon, ce n'est pas que le juge est intelligent. La leçon, c'est que la rubrique fait le vrai travail. Si tu ne peux pas écrire une grille qu'un autre reviewer suivrait de la même façon, n'automatise pas encore ce jugement.
+## Les modèles juges ont besoin d'une rubrique, pas d'intuition
 
-## Le pairwise bat les notes absolues
+Les contrôles durs stoppent les échecs bon marché, mais ils ne savent pas dire si une réponse était vraiment utile. C'est là qu'une bonne rubrique gagne sa place. G-Eval reste le rappel le plus net que le chain-of-thought combiné à des critères de form-filling bat l'intuition brute du juge. Puis arrive la partie pénible: [MT-Bench](https://arxiv.org/abs/2306.05685) a montré des biais de position, de verbosité et d'auto-préférence chez les juges LLM, même quand l'accord avec des humains restait correct. Donc je préfère presque toujours un pairwise A-B puis B-A avec une raison écrite à une jolie échelle de 1 à 5. Le pairwise coûte plus cher, oui, mais la fausse précision coûte plus cher encore en production.
 
-Dès qu'un juge entre dans la boucle, je choisirais une comparaison par paires plutôt qu'une note de 1 à 5 presque à chaque fois. [MT-Bench](https://arxiv.org/abs/2306.05685) montre que des juges puissants peuvent suivre assez correctement la préférence humaine, tout en exposant des biais de position, de verbosité et d'auto-préférence. C'est précisément pour ça qu'un pairwise avec ordre des réponses inversé est plus sûr qu'un joli dashboard scalaire. Un match nul avec une raison écrite vaut plus qu'un 4,2 faussement précis.
+## Le RAG est l'endroit où un score unique cache le bug
 
-## Le RAG est l'endroit où les evals bâclées mentent
+Dès qu'un juge existe, les équipes sont tentées d'écraser tout cela dans un seul chiffre. C'est là que le débogage devient cher. [Ragas](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/) garde séparées la qualité de retrieval et la qualité de réponse avec des métriques comme context precision, context recall, response relevancy et faithfulness. Je garderais les métriques de retrieval et les métriques de réponse côte à côte dans la même revue, parce qu'une réponse fluide avec de mauvaises preuves et une réponse maladroite avec de bonnes preuves ne se corrigent pas de la même façon.
 
-Un système RAG casse à deux endroits : la récupération et la génération de réponse. Si tu écrases ça dans un score unique, tu n'apprends presque rien. [Ragas metrics](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/) sépare la pertinence de la réponse, la précision du contexte, le rappel du contexte et la fidélité parce que ces modes d'échec sont différents et utiles en exploitation. Je suivrais les métriques de retrieval et les métriques de réponse côte à côte, puis j'inspecterais les désaccords au lieu de les moyenner dans un chiffre taillé pour un slide.
+## Les release gates ont besoin d'une baseline et d'une voie d'audit
 
-## En production, la suite pourrit
+Même une bonne suite se dégrade. Les prompts bougent, les modèles juges changent, les datasets vieillissent, et l'équipe apprend discrètement à plaire à la métrique. [Braintrust compare](https://www.braintrust.dev/docs/evaluate/compare-experiments) est utile ici parce qu'il traite les expériences comme des comparaisons contre une baseline et met les régressions en évidence cas par cas, et c'est exactement le pattern que je recopierais dans n'importe quelle stack. Puis il faut garder une seconde voie pour les humains. [Braintrust review](https://www.braintrust.dev/docs/annotate/human-review) dit explicitement que le feedback humain sert à construire le ground truth, valider les scorers automatisés et faire remonter les cas limites ratés par le scoreur. Ma règle de prod est simple: laisser l'automatisation tout scorer, laisser des humains recontrôler un échantillon de victoires, d'échecs et de cas serrés, puis suivre la latence et le coût des juges comme des métriques de release à part entière.
 
-L'eval elle-même dérive. Les prompts changent, les modèles juges sont mis à jour, le dataset vieillit, et l'équipe apprend discrètement à plaire à la métrique. Donc garde un jeu figé et arbitré pour les tendances, un jeu tournant issu des échecs récents, et un minimum d'observabilité sur le taux de réussite par tâche, le taux de désaccord du juge et les variations de score après chaque changement de modèle ou de prompt. Si tu ne regardes pas ces trois signaux, le dashboard est un décor.
+Quand je dois défendre le dispositif sur un seul écran, j'utilise un tableau comme celui-ci:
 
-Quand je veux toute la pile sur un seul écran, c’est ce résumé que j’utilise:
-
-| Méthode                 | Comment ça marche                                                            | Point fort                                                       | Limite                                              |
-| ----------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------- |
-| Contrôles déterministes | Vérifient des chaînes exactes, un schéma ou le comportement d’appel d’outils | Peu coûteux, rejouables, faciles à brancher sur une release gate | Ratent les questions de qualité plus floues         |
-| Score par rubrique      | Note la sortie selon des critères explicites                                 | Interprétable et plus simple à auditer                           | Une mauvaise grille donne une fausse rigueur        |
-| Modèle juge             | Un LLM applique la rubrique à grande échelle                                 | Couvre des qualités que des règles brutes ratent                 | Les biais du juge et la dérive du modèle restent là |
-| Comparaison pairwise    | Classe deux sorties l’une contre l’autre, idéalement avec ordre inversé      | Signal de préférence fort avec moins de fausse précision         | Ne donne pas de score absolu                        |
-| Métriques RAG séparées  | Suit séparément la qualité de retrieval et celle de la réponse               | Dit où le système casse vraiment                                 | Ajoute des métriques à maintenir et interpréter     |
-| Suite de régression     | Rejoue des cas figés et tournants avant chaque release                       | Attrape les régressions dans le temps                            | Demande une curation et un arbitrage continus       |
+| Couche                            | Ce à quoi je lui fais confiance                                          | Pourquoi je la garde                                     | Là où elle casse                                   |
+| --------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------- | -------------------------------------------------- |
+| Contrôles déterministes           | Exigences dures comme le schéma, les chaînes exactes et l'usage d'outils | Peu coûteux, rejouables et faciles à brancher dans la CI | Aveugles à l'utilité et à la nuance                |
+| Juge à rubrique                   | Qualité subjective avec critères explicites                              | Auditable si la rubrique est claire                      | Une rubrique floue donne une fausse rigueur        |
+| Juge pairwise                     | Choisir entre deux sorties candidates                                    | Moins de fausse précision qu'un score scalaire           | Plus d'appels au juge et plus de coût              |
+| Métriques RAG séparées            | Séparer les bugs de retrieval des bugs de réponse                        | Indique quel sous-système a bougé                        | Plus de tableaux de bord à maintenir               |
+| Suite de régression avec baseline | Voir ce qui a empiré avant release                                       | Rend les régressions visibles cas par cas                | Des datasets trop vieux l'affaiblissent en silence |
+| Voie d'audit humain               | Calibrer le juge et repérer ses angles morts                             | Garde l'automatisation honnête                           | Lente et coûteuse si elle déborde                  |
 
 ## Règle de décision
 
-Automatise tout ce que tu peux rejouer à faible coût et expliquer clairement. Utilise des juges LLM seulement quand une rubrique écrite existe, que l'ordre des réponses est randomisé et que des humains auditent encore un échantillon. Si tu ne peux pas dire quel mode d'échec a bougé et pourquoi, l'eval n'est pas prête à protéger un SLA.
+Ne mettez sur le chemin du SLA que des métriques rejouables et clairement explicables. Si des humains continuent de contredire le juge sur votre tranche d'audit, ou si un score ne permet pas de dire quel mode d'échec a bougé, cette métrique n'est pas prête à protéger une release.

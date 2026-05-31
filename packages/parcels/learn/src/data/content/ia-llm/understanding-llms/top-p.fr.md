@@ -7,13 +7,26 @@ publishedAt: 2026-06-01
 updatedAt: 2026-06-01
 ---
 
-Quand un modèle est globalement bon mais qu’une réponse sur quelques-unes attrape un mot bizarre et entraîne tout le ton avec lui, baisser la température donne souvent l’impression de punir toute la réponse pour un seul mauvais token de queue. C’est là que je prends le top-p.
+Quand un modèle est presque bon mais qu’un mot bizarre vient parfois détourner toute la phrase, baisser la température peut donner l’impression d’éteindre toute la personnalité juste pour corriger un token de queue. C’est exactement là que je prends le top-p.
 
-## Le top-p coupe la queue de probabilité, pas toute l’ambiance
+## Utiliser le top-p quand le vrai souci est dans la queue
 
-Le [papier Holtzman](https://arxiv.org/abs/1904.09751) a introduit le nucleus sampling pour couper la queue peu fiable de la distribution du token suivant. Dans les [docs Transformers](https://huggingface.co/docs/transformers/en/main_classes/text_generation), `top_p` conserve seulement le plus petit ensemble de tokens dont la probabilité cumulée atteint `p`, donc le pool de candidats rétrécit quand le modèle est confiant et s’élargit quand il ne l’est pas. C’est pour ça que je le préfère au top-k sur les APIs hébergées: le seuil s’adapte à l’étape au lieu de prétendre que chaque position de token mérite le même budget.
+[Holtzman et al.](https://arxiv.org/abs/1904.09751) ont introduit le nucleus sampling pour couper la partie peu fiable de la distribution du token suivant. Les docs des principaux providers se rejoignent sur l’essentiel: les [docs OpenAI](https://platform.openai.com/docs/api-reference/parameter-details) documentent `top_p` comme un réglage entre `0` et `1` et recommandent de modifier soit `top_p`, soit `temperature`, pas les deux; les [docs Anthropic](https://docs.anthropic.com/en/api/messages) exposent `top_p` comme le contrôle de nucleus sampling et donnent le même conseil d’un seul levier; les [docs Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/content-generation-parameters) décrivent `topP` de la même façon et documentent une plage de `0.0` à `1.0`. C’est pour ça que je m’en sers pour nettoyer les détours bizarres de queue au lieu d’aplatir toute la réponse avec la température.
 
-Quand je veux moins de risque dans la queue sans tuer le ton, je pars d’une requête comme celle-ci.
+C’est le petit schéma mental que je garde en tête quand je le règle.
+
+```mermaid
+flowchart LR
+  A[Logits du modèle] --> B[Température]
+  B --> C[Probabilités]
+  C --> D[Coupure top-p]
+  D --> E[Tokens autorisés]
+  E --> F[Token suivant]
+```
+
+Le point un peu agaçant, c’est que les docs ne sont pas symétriques sur tous les détails, donc je garde une méthode volontairement simple: je change un seul levier d’échantillonnage, j’observe la sortie, puis j’arrête dès que le problème a disparu. C’est moins flatteur pour l’ego, mais franchement meilleur pour déboguer.
+
+Quand le vrai problème vient de la queue, je pars d’une requête comme celle-ci.
 
 ```ts
 import OpenAI from 'openai';
@@ -23,29 +36,29 @@ const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const response = await client.responses.create({
   model: 'gpt-4.1-mini',
   input: 'Écris 5 slogans pour une application de budget.',
-  temperature: 0.7, // garde un ton vivant
-  top_p: 0.9, // coupe les tokens peu probables dans la queue
-  max_output_tokens: 80, // limite le coût de revue
+  temperature: 0.7, // garde le niveau de créativité qui fonctionne déjà
+  top_p: 0.9, // coupe la queue peu probable sans casser le ton
+  max_output_tokens: 80, // limite le coût pendant les essais et la relecture
 });
 
 console.log(response.output_text);
 ```
 
-## Quand je le change, et quand je le laisse tranquille
+## Comment je le règle en vrai
 
-Le guide [text generation](https://platform.openai.com/docs/guides/text-generation) d’OpenAI et le [parameter guide](https://docs.anthropic.com/claude/docs/guide-to-parameters) d’Anthropic présentent tous les deux `top_p` comme un contrôle d’échantillonnage, et Anthropic recommande explicitement de modifier soit `temperature`, soit `top_p`, pas les deux. Je suis ce conseil. Si le niveau global de créativité est déjà bon, je laisse la température tranquille et j’utilise le top-p pour nettoyer les détours lexicaux bizarres ou les formulations instables. Si toute la réponse est trop folle ou trop plate, la température reste le meilleur premier levier.
+Si toute la réponse est trop folle ou trop plate, la température reste le meilleur premier levier. Si la réponse est globalement bonne et que seul le détour occasionnel est bizarre, le top-p est plus propre.
 
-| `top_p`             | Ce qui passe encore                                  | Ce que ça donne en pratique                                                    | Mon choix par rapport à la température                                                                |
-| ------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `1`                 | Toute la distribution reste disponible               | Aucun filtre nucleus; seule la température façonne vraiment le ton             | Je garde ça tant que j’évalue encore le niveau global de créativité                                   |
-| `0.95`–`0.9`        | On coupe surtout le bout le plus faible de la traîne | Même voix d’ensemble, avec moins de détours bizarres                           | Mon réglage par défaut quand la réponse est bonne mais qu’un mot de temps en temps part de travers    |
-| `0.9`–`0.8`         | Nucleus sensiblement plus serré                      | Formulation plus tenue, moins de flottement lexical, encore un peu d’énergie   | Je tente ça avant de baisser la température si je veux garder la même ambiance                        |
-| En dessous de `0.8` | Coupure agressive                                    | Sortie plus sage, plus plate, et plus susceptible de masquer un autre problème | Seulement pour un vrai problème de traîne; si toute la réponse est mauvaise, je change la température |
+| `top_p`             | Ce qui change            | Ce que j’attends en pratique                                     | Ce que je ferais                                                 |
+| ------------------- | ------------------------ | ---------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `1.0`               | Aucune coupure nucleus   | Variété complète, y compris le détour étrange                    | Je garde ça tant que j’évalue la créativité naturelle du modèle  |
+| `0.9`               | Coupe légère de la queue | Même voix, avec moins de choix de mots bizarres                  | Mon point de départ par défaut sur les API hébergées             |
+| `0.8`               | Coupure plus ferme       | Formulation plus tenue, moins de flottement, un peu moins d’élan | J’essaie ça avant de baisser la température                      |
+| En dessous de `0.8` | Coupure lourde           | Sortie plus plate qui peut masquer un problème de prompt         | Je ne fais ça que si je peux nommer exactement le souci de queue |
 
-Ça rend aussi le débogage plus propre. Chaque retry supplémentaire consomme plus de tokens face aux [rate limits](https://platform.openai.com/docs/guides/rate-limits) du provider et ajoute du travail de revue, donc je préfère un seul changement d’échantillonnage bien contrôlé à trois réglages empilés puis une après-midi à deviner lequel a aidé.
+Ça économise aussi du budget et de la marge côté rate limits. Trois retries avec trois réglages d’échantillonnage différents, ça achète surtout plus de tokens à relire et rarement beaucoup plus de clarté.
 
-## L’erreur que je vois encore
+## Ne pas le traiter comme une sécurité
 
-Beaucoup de gens traitent un `top_p` plus bas comme un interrupteur de sécurité. Ce n’est pas le cas. Ça resserre le pool de candidats, mais ça ne vérifie ni les faits, ni le contenu risqué, ni un workflow qui ne peut pas tolérer une mauvaise réponse. Si une mauvaise sortie coûte cher, gardez une modération ou une validation en aval; le [Moderation guide](https://platform.openai.com/docs/guides/moderation) existe pour une raison.
+Je n’utiliserais pas `top_p` comme politique de sécurité. Les [docs Moderation](https://platform.openai.com/docs/guides/moderation) existent justement parce que la modération et l’échantillonnage ne règlent pas le même problème: l’échantillonnage change le prochain token choisi, alors que les contrôles de sécurité décident si la réponse est acceptable pour votre workflow.
 
-Ma position: sur les APIs hébergées, j’essaie en général `top_p: 0.9` avant de toucher à la température. Si vous avez envie de passer sous `0.8`, assurez-vous de corriger un vrai problème de queue et pas de masquer un problème de prompt, de contexte ou de sécurité.
+Ma règle est simple: si toute la réponse semble mauvaise, je change la température. Si un détour peu probable revient encore, je commence à `top_p: 0.9`. Si vous voulez descendre sous `0.8`, vous devriez pouvoir nommer précisément l’échec que vous êtes en train de couper.

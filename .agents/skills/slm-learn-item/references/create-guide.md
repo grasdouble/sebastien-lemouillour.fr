@@ -79,9 +79,9 @@ python3 {skill-root}/scripts/inventory-snapshot.py
 3. **`categoryKey`** — one of `ia-llm`, `tooling`, `architecture`. If none fits, propose a new one (kebab-case) and confirm.
 4. **`catalogId`** — which existing catalog should this guide belong to? List the existing catalogs. If none fits, propose creating a new one (load `{workflow.ref_create_catalog}` first).
 5. **`difficulty`** — `beginner`, `intermediate`, or `advanced`. Infer from topic if obvious, confirm.
-   - `beginner` → Découvreur: analogies, define every term on first use, explicit limits. ✅ End with "what next" path. ❌ No unexplained code blocks.
-   - `intermediate` → Développeur: working code with commented parameters, mention costs/rate limits/security. ❌ No purely theoretical content.
-   - `advanced` → Architecte: tradeoffs, observability, production patterns, SLAs. ❌ Don't explain basics (tokens, temperature).
+   - `beginner` → Analogies, define every term on first use, explicit limits. ✅ End with "what next" path. ❌ No unexplained code blocks.
+   - `intermediate` → Working code with commented parameters, mention costs/rate limits/security. ❌ No purely theoretical content.
+   - `advanced` → Tradeoffs, observability, production patterns, SLAs. ❌ Don't explain basics (tokens, temperature).
 6. **`order`** — integer position within the catalog (e.g. `1`, `2`, `3`…). Check existing guides in the catalog to determine the right position. Guides are displayed in ascending order within a catalog. **Always set this** — guides without `order` fall to the end.
 7. **`tags`** — 2–5 tags. PascalCase for proper nouns/tools (`React`, `Vite`, `TypeScript`), lowercase for concepts (`monorepo`, `performance`).
 8. **Title** — EN and FR versions (short, descriptive).
@@ -94,8 +94,8 @@ If drafting content, write substantive markdown — introduction, key concepts, 
 
 > **Load both asset files before drafting:**
 >
-> - `{skill-root}/assets/content-quality-rules.md` — narrative arc, persona alignment, project-agnosticism, official documentation links, link anchor text
-> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, tone calibration by difficulty, antipatterns, reformulation examples
+> - `{skill-root}/assets/content-quality-rules.md` — narrative arc, difficulty-specific content requirements, project-agnosticism, official documentation links, link anchor text
+> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, unified Découvreur voice, antipatterns, reformulation examples
 >
 > Apply all rules from both files without exception.
 

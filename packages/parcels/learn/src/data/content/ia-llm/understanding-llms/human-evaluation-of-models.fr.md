@@ -3,46 +3,51 @@ id: human-evaluation-of-models
 order: 29
 difficulty: advanced
 tags: [evaluation, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-Quand la qualité compte vraiment, les évaluations automatisées cessent d'être suffisantes très vite. Elles ratent le ton, l'utilité réelle, la sûreté, et cette catégorie pénible de réponses que les utilisateurs décrivent comme « techniquement correctes, mais mauvaises ». L'évaluation humaine sert précisément à voir cet écart. Elle devient aussi du déchet dès que l'opérationnel est bâclé. Une mauvaise évaluation humaine, c'est du bruit coûteux avec une apparence d'autorité.
+Quand un dashboard a l'air rassurant mais que les tickets support disent encore "la réponse était techniquement juste et pourtant inutile", tu as un problème d'évaluation humaine. Les contrôles automatisés excellent pour attraper un schéma cassé ou un appel d'outil manquant. Ils sont beaucoup moins bons pour attraper le ton, la préférence comparative et cette forme de mauvaise réponse qui agace un vrai utilisateur en trente secondes.
 
-## Commence par la grille, pas par les annotateurs
+Si ça te frustre, c'est normal. Tu ne rates pas une métrique secrète. Tu arrives simplement à l'endroit de la qualité où il faut encore des humains.
 
-La plupart des échecs d'évaluation commencent avant même qu'une personne lise un exemple. Si la grille est vague, les annotateurs improvisent. Si les consignes mélangent plusieurs critères, les scores se transforment en impression générale. De bonnes guidelines d'annotation définissent chaque critère, donnent des exemples positifs et négatifs, et expliquent les cas de départage. Des conseils pratiques comme le [guide Label Studio](https://labelstud.io/guide/quality.html) vont dans ce sens : la qualité commence par des consignes claires et des boucles de revue, pas par l'espoir que tout le monde partage la même intuition.
+## Écris la grille avant d'agrandir l'équipe
 
-Mon biais est de garder des rubriques plus étroites que ce que les équipes veulent au départ. Sépare la factualité de l'utilité. Sépare la conformité aux politiques du ton. Sépare la qualité de la réponse finale de la qualité du processus. Plus tu entasses de dimensions dans une seule question, moins le score reste interprétable.
+Si la grille est floue, ajouter plus d'annotateurs achète juste une confusion plus bruyante. Le [guidebook HF](https://github.com/huggingface/evaluation-guidebook/blob/main/contents/human-evaluation/using-human-annotators.md) recommande de consacrer un vrai temps à la conception des consignes, à l'annotation itérative et à l'estimation de qualité, et [Human Signal](https://docs.humansignal.com/guide/quality) martèle le même point côté opérationnel : revue, arbitrage et suivi de l'accord font partie du travail, pas du nettoyage après coup. Je partirais sur une grille plus étroite que ce que la plupart des équipes veulent. Sépare la factualité, l'utilité, la sécurité et le ton pour que le désaccord dise enfin ce qui casse.
 
-## Choisis l'échelle adaptée au jugement
+Quand une équipe se perd, je dessine la boucle avant de toucher au dashboard :
 
-Beaucoup d'équipes prennent des notes de 1 à 5 parce que c'est familier. L'[échelle de Likert](https://archive.org/details/likert-1932-technique-for-measurement-of-attitudes) d'origine fonctionne pour des jugements scalaires rapides quand le critère est simple et les ancres explicites. Ce n'est pas mon premier choix quand les différences sont subtiles ou que deux sorties sont proches en qualité.
+```mermaid
+flowchart TD
+  A[Définir la grille] --> B[Calibrer sur des exemples communs]
+  B --> C[Notation en aveugle]
+  C --> D[Vérifier l'accord]
+  D --> E[Arbitrer les désaccords]
+  E --> F{Release ou reprise}
+  F -->|Release| G[Suivre la dérive]
+  F -->|Reprise| A
+```
 
-Pour classer des sorties de modèles nuancées, la comparaison par paires est souvent meilleure. Elle réduit l'hésitation des annotateurs et force une préférence concrète. Des modèles statistiques comme [Bradley-Terry](https://projecteuclid.org/euclid.aoms/1177729694) existent pour une raison : les jugements comparatifs sont souvent plus stables que les jugements absolus. Si la vraie décision produit est « quelle réponse met-on en ligne », le format par paires est généralement plus honnête.
+## Choisis le format qui colle à la décision produit
 
-## L'accord sert de diagnostic, pas de trophée
+Si tu veux juste un tri rapide sur une seule dimension, un [item Likert](https://www.qualtrics.com/experience-management/research/likert-scales/) convient tant que chaque question mesure une seule chose et que les ancres sont explicites. Si la vraie question de release est "quelle sortie est-ce que je montrerais vraiment à un utilisateur", je passerais tôt à une comparaison pairwise de style [Bradley-Terry](https://www.jstor.org/stable/2334029). Ça coûte plus cher par exemple, mais ça donne souvent un signal plus propre que de faire semblant que des annotateurs peuvent défendre la différence entre un 3 et un 4 toute la journée sans dériver.
 
-Les équipes adorent afficher l'accord inter-annotateurs comme si un grand chiffre prouvait que l'évaluation est bonne. Ce n'est pas le cas. L'accord dit surtout si la grille produit des jugements cohérents, pas si ces jugements sont les bons. Des mesures comme le [kappa de Cohen](https://www.jstor.org/stable/2529310) et [alpha](https://repository.upenn.edu/asc_papers/43/) sont utiles parce qu'elles révèlent l'ambiguïté, la dérive des annotateurs et les critères qu'il faut réécrire.
+Quand je dois trancher vite, c'est ce tableau de compromis que j'utilise :
 
-Le mode d'échec classique, c'est d'utiliser l'accord comme un outil punitif. Si des annotateurs ne sont pas d'accord, la première question devrait être de savoir si les exemples ou la grille sont sous-spécifiés. Un certain désaccord est sain quand les prompts sont réellement ambigus. Forcer le consensus peut effacer précisément les cas limites que tu as besoin de comprendre.
+| Format    | Idéal pour                                    | Ce que tu gagnes                                                | Ce que ça coûte                                                         | Ce que je choisirais                                         |
+| --------- | --------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Pass/fail | Contraintes dures de sécurité ou de politique | Décisions rapides et escalade claire                            | Cache les presque ratés                                                 | Mon défaut pour les contraintes non négociables              |
+| 1-5 ancré | Tri sur une seule dimension                   | Suivi de tendance peu coûteux                                   | Les annotateurs compressent le milieu et lisent les ancres différemment | Bien pour trier une file, pas pour décider une mise en ligne |
+| Pairwise  | Préférence de type release ou non             | Signal de préférence plus propre avec moins de fausse précision | Plus de comparaisons et un débit plus lent                              | Mon choix quand deux sorties sont proches                    |
 
-## Ce qu'il faut pour une évaluation humaine digne de la production
+## Traite l'accord comme un diagnostic
 
-Les revues à l'aveugle comptent. L'ordre aléatoire compte. L'échantillonnage compte. Si les annotateurs savent quel modèle a produit quelle réponse, ou si tu ne fais relire que des prompts faciles, tu construis un récit de performance, pas une évaluation. Les sessions de calibration comptent aussi plus que beaucoup d'équipes ne veulent l'admettre. Une courte revue hebdomadaire des désaccords peut améliorer la qualité des données davantage que l'embauche de nouveaux annotateurs.
+Un gros chiffre d'accord n'est pas une médaille. Le [kappa de Cohen](https://doi.org/10.1177/001316446002000104) reste le choix classique pour deux annotateurs sur des labels nominaux. L'[alpha de Krippendorff](https://repository.upenn.edu/asc_papers/43/) est celui que je prendrais dès qu'il y a plus de deux annotateurs, des jugements manquants ou plusieurs niveaux de mesure. Le but n'est pas d'impressionner qui que ce soit avec un coefficient. Le but est de trouver la partie de la grille que ton équipe interprète encore de trois façons différentes.
 
-Je garderais aussi un petit jeu arbitré qui ne change pas à la légère. Pas parce qu'il serait sacré, mais parce que les courbes de tendance ont besoin d'un minimum de stabilité. Ensuite, je renouvellerais agressivement l'échantillon plus large pour que l'évaluation reste connectée au comportement utilisateur actuel.
+## La fatigue est la façon discrète dont la qualité s'écroule
 
-Si je devais transformer tout cela en vraie feuille d'annotation, j'irais plutôt vers quelque chose comme ça :
+C'est la partie que les équipes sous-budgetent sans cesse parce qu'elle a l'air ennuyeuse jusqu'au moment où elle casse tout. La récente [synthèse qualité annotation](https://aclanthology.org/2024.cl-3.1/) est très claire : la qualité des consignes, l'arbitrage, l'organisation de la revue et la gestion des annotateurs façonnent directement la qualité finale des données. En pratique, je raccourcirais les sessions, je ferais tourner les exemples les plus durs dans des réunions de calibration, et je suivrais le taux de désaccord dans le temps, pas seulement la note moyenne. Si le désaccord grimpe en fin de session, c'est un signal d'exploitation, pas un défaut de caractère.
 
-| Dimension                        | Ce que l'annotateur doit juger                                                        | Format que je choisirais                                                | Ancre ou règle de décision                                                                  | Échec fréquent à surveiller                                          |
-| -------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Factualité                       | Est-ce que les affirmations sont correctes, étayées, et sans détails inventés ?       | Échelle de 1 à 5 pour les cas simples, ou pass/fail en domaine critique | Je ne mets une note haute que si la réponse est matériellement correcte, pas juste crédible | Hallucinations, fausses sources, erreurs dites avec assurance        |
-| Utilité                          | Est-ce que la réponse accomplit vraiment le travail demandé par l'utilisateur ?       | Échelle de 1 à 5 avec ancres explicites                                 | Un « 5 » devrait ressembler à quelque chose de publiable avec très peu d'édition            | Réponse partielle, conseils génériques, vraie demande ratée          |
-| Conformité sécurité ou politique | Est-ce que la sortie reste dans le cadre autorisé par le produit ?                    | Pass/fail avec note d'escalade                                          | Une violation claire doit faire échouer l'exemple, même si le reste est bon                 | Conseil dangereux, fuite de données, contournement de politique      |
-| Ton et communication             | Est-ce que la réponse est claire, bien calibrée, et cohérente avec la voix attendue ? | Petite échelle de 1 à 3                                                 | Je garde une échelle courte pour éviter de mélanger le style et la qualité factuelle        | Réponse verbeuse, formulation robotique, prudence excessive          |
-| Choix entre deux sorties         | Laquelle des deux réponses est-ce que je publierais vraiment ?                        | Comparaison par paires                                                  | Je force un gagnant sauf si les deux sorties sont réellement équivalentes                   | Annotateurs qui récompensent la longueur au lieu de l'utilité réelle |
+## Mets des humains là où l'automatisation ne protège pas le SLA
 
-## Règle de décision
-
-Utilise l'évaluation humaine dès qu'une décision de release dépend de qualités que les machines scorent encore mal : utilité, nuance, ton, jugement de sécurité, ou préférence comparative. Si tu ne peux pas financer des revues à l'aveugle, des rubriques claires et des vérifications régulières de l'accord, ne prétends pas avoir une évaluation de référence. Tu as des anecdotes dans un tableur.
+Je ne paierais pas des humains pour labelliser ce qu'un parseur peut rejeter en quelques millisecondes. Garde les contrôles automatisés pour les contraintes déterministes, et réserve le temps humain à l'utilité, au jugement de sécurité dans les cas ambigus, au ton et aux préférences serrées entre deux réponses candidates. Si une release peut toucher le revenu, la sécurité ou la charge support, je veux un échantillon en aveugle avec au moins deux annotateurs calibrés avant de faire assez confiance au chiffre pour livrer.

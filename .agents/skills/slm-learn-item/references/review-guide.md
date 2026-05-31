@@ -35,8 +35,8 @@ If more than one guide is in scope, use sub-agents (see the batch orchestration 
 
 > **Load both asset files before reviewing:**
 >
-> - `{skill-root}/assets/content-quality-rules.md` — the authoritative source for link counts, anchor text, project-agnosticism, and narrative arc
-> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, tone calibration by difficulty, antipatterns, reformulation examples
+> - `{skill-root}/assets/content-quality-rules.md` — the authoritative source for link counts, anchor text, project-agnosticism, narrative arc, and difficulty-specific content requirements
+> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, unified Découvreur voice, antipatterns, reformulation examples
 >
 > The checklist below applies both files. Apply all rules without exception.
 
@@ -90,7 +90,7 @@ For each guide, verify:
 - [ ] One natural transition sentence before every code block
 - [ ] Closes with a decision rule, a caveat, or a threshold — not a summary
 - [ ] Takes a clear stance at least once: states what it would recommend and why, not just neutral options
-- [ ] Tone matches the difficulty: warm/reassuring for `beginner`, peer-to-peer for `intermediate`, blunt for `advanced`
+- [ ] Tone is warm and reassuring (Découvreur) regardless of difficulty — normalizes confusion, never blunt or coldly authoritative
 - [ ] EN and FR match in voice: same opinions, stance, humor — FR is not a reduced version
 
 ## Pre-pass — Structural validation

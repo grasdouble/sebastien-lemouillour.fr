@@ -7,58 +7,81 @@ publishedAt: 2026-06-01
 updatedAt: 2026-06-01
 ---
 
-Quand un flux d’extraction commence à sortir de jolies petites surprises, on accuse le prompt. Moi, j’accuse d’abord la température. J’ai vu de bons modèles avoir l’air téméraires simplement parce que quelqu’un avait laissé `temperature: 1` sur une tâche qui demandait une réponse prévisible et répétable.
+Quand le même prompt d’extraction vous donne trois formes de JSON différentes, le prompt n’est probablement pas le premier suspect. Moi, je vérifie la température avant de tout réécrire, parce qu’un défaut oublié suffit à faire passer un workflow soigneux pour quelque chose de bancal.
 
-## La température change l’échantillonnage, pas la qualité du modèle
+## Traiter la température comme un budget de risque
 
-Dans [Transformers](https://huggingface.co/docs/transformers/en/main_classes/text_generation), la température modifie les probabilités du token suivant utilisées pour l’échantillonnage. Le guide [text generation](https://platform.openai.com/docs/guides/text-generation) d’OpenAI rappelle aussi que la sortie d’un modèle reste non déterministe, donc je traite la température comme un budget de risque, pas comme un curseur magique d’intelligence.
+Les [docs OpenAI](https://platform.openai.com/docs/api-reference/parameter-details) placent `temperature` sur une échelle de `0` à `2` et recommandent de modifier soit `temperature`, soit `top_p`, pas les deux. Les [docs Anthropic](https://docs.anthropic.com/en/api/messages) utilisent `0.0` à `1.0` avec une valeur par défaut de `1.0`. Les [docs Gemini](https://ai.google.dev/api/generate-content) utilisent aussi `0.0` à `2.0`, mais la valeur par défaut dépend du modèle, donc recopier `1.0` d’un provider à l’autre, c’est une très bonne façon de déboguer le mauvais problème.
 
-Des valeurs basses gardent le modèle proche de sa continuation la plus probable. Des valeurs hautes laissent entrer des candidats plus faibles. Ça peut aider pour l’idéation. Ça ne transforme pas une chaîne de raisonnement faible en bonne réponse.
+Je pars bas dès que la réponse sera parsée, routée ou utilisée pour appeler un outil. Ce n’est pas très glamour, mais les validateurs et les retries coûtent plus cher qu’un modèle un peu moins créatif.
 
-Si j’ai besoin d’une sortie structurée, je commence par quelque chose comme ça.
+Avant de bricoler le prompt, j’aime bien poser le choix sur une carte simple.
+
+```mermaid
+flowchart LR
+  A[Besoin d'une sortie] --> B{Quel type de tâche ?}
+  B -->|Sortie parsée ou appel d'outil| C[Commencer entre 0 et 0.2]
+  B -->|Assistant généraliste| D[Commencer entre 0.2 et 0.5]
+  B -->|Idéation| E[Commencer entre 0.7 et 1.0]
+  C --> F[Valider le résultat]
+  D --> F
+  E --> F
+```
+
+Avant de toucher au prompt, je vérifie en général que les règles du provider collent bien au travail demandé.
+
+| Provider      | Plage documentée | Valeur par défaut documentée | Ce que je ferais                                                                                      |
+| ------------- | ---------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------- |
+| OpenAI        | `0` à `2`        | `1`                          | Je démarre quand même à `0.1` pour l’extraction, et je ne monte que si je veux de la variation exprès |
+| Anthropic     | `0.0` à `1.0`    | `1.0`                        | Même habitude, avec juste une échelle qui plafonne plus tôt                                           |
+| Google Gemini | `0.0` à `2.0`    | Dépend du modèle             | Je regarde d’abord les métadonnées du modèle et je n’imagine pas que `1.0` est universel              |
+
+Pour une sortie structurée, je commencerais par une requête volontairement un peu ennuyeuse.
 
 ```ts
+import OpenAI from 'openai';
+
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
 const response = await client.responses.create({
   model: 'gpt-4.1-mini',
   input: 'Extract the company name and country as JSON.',
-  temperature: 0.1, // garde un échantillonnage serré
-  top_p: 1, // régler un seul contrôle stochastique d’abord
-  max_output_tokens: 80, // laisser assez de place pour un JSON valide
+  temperature: 0.1, // garde un échantillonnage serré pour une sortie facile à parser
+  top_p: 1, // laisse le second levier d’échantillonnage tranquille
+  max_output_tokens: 80, // limite le coût tout en laissant la place pour un JSON valide
 });
+
+console.log(response.output_text);
 ```
 
-## Là où je la règle vraiment
+## Comparer un seul levier à la fois
 
-Pour l’extraction, la classification, le routage ou les appels d’outils, je pars entre `0` et `0.2`. Je veux du prévisible. Le prévisible coûte moins cher que des relances, des validateurs et une réponse incohérente qui passe en production.
+L’erreur que je vois encore, c’est changer le prompt, `temperature` et `top_p` dans la même après-midi, puis accuser le modèle avec beaucoup d’assurance. Je changerais un seul contrôle d’échantillonnage à la fois et je garderais le reste fixe pour que la comparaison veuille dire quelque chose.
 
-Pour un assistant généraliste, je reste le plus souvent entre `0.2` et `0.5`. Au-dessus, je continue seulement si la variation est le but. Le [papier Holtzman](https://arxiv.org/abs/1904.09751) reste pour moi le meilleur rappel que les choix de décodage peuvent ruiner la qualité même quand le modèle lui-même tient la route.
-
-Pour des titres ou du brainstorming, je monte la température, mais seulement avec une boucle d’évaluation et des exemples conservés. Une température plus haute ne change pas le prix par token, mais elle augmente souvent le nombre d’échantillons qu’on compare ou qu’on jette, et les retries répétés vous rapprochent plus vite des [rate limits](https://platform.openai.com/docs/guides/rate-limits) du fournisseur. C’est un vrai coût, même si la ligne de facture paraît identique.
-
-| Plage       | Ce que j’obtiens en général                                 | Bon usage                                               | Niveau de risque |
-| ----------- | ----------------------------------------------------------- | ------------------------------------------------------- | ---------------- |
-| `0`–`0.2`   | Sortie très serrée, répétitive et facile à valider          | Extraction, classification, routage, appels d’outils    | ✅ Faible        |
-| `0.2`–`0.5` | Un peu de variété dans la formulation sans trop dériver     | Assistant généraliste, résumés, reformulations          | 🟡 Moyen         |
-| `0.5`–`0.8` | Plus de variation, avec parfois des écarts spéculatifs      | Aide créative, brouillons de titres, idéation relue     | 🟠 Plus élevé    |
-| `0.8`–`1`   | De gros écarts entre bonnes trouvailles et déchets évidents | Brainstorming uniquement, avec ranking ou boucle d’éval | 🔴 Élevé         |
-
-## L’erreur que je vois encore
-
-Les équipes changent la température et `top_p` en même temps, puis passent l’après-midi à débattre du prompt. L’[API Messages](https://docs.anthropic.com/en/api/messages) d’Anthropic recommande explicitement de modifier soit `temperature`, soit `top_p`, pas les deux, et je trouve que ce conseil évite beaucoup de faux debugging.
-
-Si vous voulez comparer des réglages proprement, je garderais le reste de la requête fixe comme ceci.
+Quand j’ai besoin de plus de variation, je le teste comme une expérience, pas comme une humeur du moment.
 
 ```ts
-const response = await client.responses.create({
-  model: 'gpt-4.1-mini',
-  input: 'Give me 6 headline options for a note-taking app.',
-  temperature: 0.8, // augmenter la variété volontairement
-  top_p: 1, // laisser le nucleus sampling tranquille
-  seed: 42, // si votre fournisseur le prend en charge
-  max_output_tokens: 120, // plafonner le coût de revue
-});
+import OpenAI from 'openai';
+
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+const prompt = 'Give me 6 headline options for a note-taking app.';
+
+for (const temperature of [0.2, 0.8]) {
+  const response = await client.responses.create({
+    model: 'gpt-4.1-mini',
+    input: prompt,
+    temperature, // change une seule variable par essai
+    top_p: 1, // garde le nucleus sampling fixe pour comparer proprement
+    max_output_tokens: 120, // borne le coût de relecture pendant le test
+  });
+
+  console.log(`temperature=${temperature}`);
+  console.log(response.output_text);
+}
 ```
 
-Ne confondez pas `temperature: 0` avec un déterminisme parfait. Le guide [reproducible output](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/reproducible-output) d’Azure dit que le déterminisme n’est pas garanti, même avec un seed, et cette réserve compte encore plus quand les sorties s’allongent. Je garde donc une validation côté serveur autour des appels d’outils, parce qu’une faible part d’aléatoire n’est pas un système de sécurité.
+## Une faible température n’est pas une sécurité
 
-Si une mauvaise réponse coûte cher, restez entre `0` et `0.2`. Si vous ne savez pas expliquer pourquoi vous avez besoin de plus de variation, vous n’en avez probablement pas besoin.
+Les [docs Azure](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/reproducible-output) sont assez claires sur la reproductibilité: même avec un seed, le déterminisme n’est pas garanti, et les sorties longues dérivent davantage. C’est pour ça que je valide encore les arguments d’outils et les données structurées côté serveur. Une faible part d’aléatoire aide, mais ce n’est pas une frontière de sécurité.
+
+Si une mauvaise réponse coûte cher, restez entre `0` et `0.2`. Si vous êtes incapable de nommer le bénéfice de la variation avant de monter, laissez ce levier tranquille.

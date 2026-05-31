@@ -7,32 +7,49 @@ publishedAt: 2026-06-01
 updatedAt: 2026-06-01
 ---
 
-A model picks up three leaderboard points and suddenly people want to sign the contract. Then it misses your extraction schema, drops a tool call, or blows the latency budget. That is the trap. Public benchmarks are useful for triage. They are terrible at making the final production decision for you.
+A vendor demo lands with a shiny benchmark chart, and suddenly the room acts like the decision is made. Then the pilot misses your schema, retries the wrong tool, or burns the latency budget. If that whiplash feels familiar, you are not behind. Benchmarks are useful. They just get dangerous the moment you treat them as a production verdict.
 
-## What each benchmark really gives you
+## The signal each classic benchmark still gives
 
-[MMLU](https://arxiv.org/abs/2009.03300) is still good for one thing: broad multiple-choice knowledge. If I want a quick read on how much academic and professional knowledge a model retains, I look at it. If I want to predict messy multi-turn work, I ignore it.
+| Benchmark                                     | Real signal                                                                          | Why I limit it                                                                                      | My 2026 use                                                                            |
+| --------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [MMLU](https://arxiv.org/abs/2009.03300)      | Breadth across 57 multiple-choice subjects                                           | It gets overread as general intelligence, even though it is mostly a recall and test-taking signal  | Quick screen for broad knowledge, never my final tie-breaker                           |
+| [HumanEval](https://arxiv.org/abs/2107.03374) | Narrow code synthesis scored with pass@k on hidden tests                             | It says far too little about editing a live codebase, using tools, or recovering from ambiguity     | Useful for code generation only when the workflow is still close to isolated functions |
+| [MATH](https://arxiv.org/abs/2103.03874)      | Competition-style mathematical reasoning across 12,500 problems                      | It overweights olympiad-flavored reasoning compared with most business workflows                    | Worth keeping if math is central to the product, easy to overvalue otherwise           |
+| [GPQA](https://arxiv.org/abs/2311.12022)      | Expert-written, Google-proof science questions that are still hard for strong models | It is strong for deep science, but it does not stand in for ordinary support, ops, or content tasks | The one I still watch closely when scientific depth really matters                     |
+| [BIG-Bench](https://arxiv.org/abs/2206.04615) | A collaborative suite with more than 200 tasks                                       | It is too broad to collapse into one comforting number without losing the interesting failure modes | Good for finding odd capability gaps, bad for crowning a winner                        |
 
-[HumanEval](https://arxiv.org/abs/2107.03374) is the one I take seriously for narrow code synthesis because pass@k measures whether sampled solutions clear hidden tests. That still says almost nothing about editing a live codebase under ambiguity.
+What usually trips teams up is not the benchmark itself. It is the hope that one public score can answer a product question it was never designed to answer.
 
-[HELM](https://arxiv.org/abs/2211.09110) is the framework I trust more because it treats evaluation as a combination of scenario, metric, and adaptation, not one magic number. That is much closer to how real systems fail in production.
+## Why strong public scores still disappoint
 
-[Chatbot Arena](https://arxiv.org/abs/2403.04132) is useful when conversational preference matters, since it ranks models from blind human pairwise votes with Elo-style aggregation. I still would not pick a model based on Arena alone unless my product is basically open-ended chat.
+The first issue is benchmark gaming and saturation. After years of model tuning, prompt tuning, and leaderboard attention, small deltas on famous suites can look more decisive than they really are. I do not use classic public benchmarks to separate frontier models when money, SLAs, or user trust are on the line.
 
-## Why leaderboard wins keep failing in production
+The second issue is leakage risk. The [GPT-4 report](https://arxiv.org/abs/2303.08774) treats data overlap as a real evaluation concern, and that is enough for me to stay suspicious of any benchmark the whole industry has been optimizing against for years. If memorization can inflate the score, the score stops being a clean proxy for capability.
 
-The first problem is harness sensitivity. HELM makes this explicit: results depend on the scenario, the metrics, and the adaptation procedure, so prompt format and evaluation setup can move the score. Small deltas on a leaderboard often look precise long after they stopped mattering for a decision.
+The third issue is observability. Public suites almost never tell you schema-valid rate, tool-call success, review burden, p95 latency, or cost per accepted answer. Those are the numbers that decide whether an on-call week stays calm or becomes memorable for bad reasons.
 
-The second problem is operations. Public benchmarks rarely tell you whether the model can hold an SLA, keep tool use reliable, or stay cheap enough at your traffic level. The [latency guide](https://developers.openai.com/api/docs/guides/latency-optimization) exists because deployment constraints are a separate problem from benchmark wins. If you own latency, error budgets, or margin, that omission matters more than another decimal point on MMLU.
+## What I would actually run
 
-The third problem is contamination. The [GPT-4 report](https://arxiv.org/abs/2303.08774) treats data overlap as a real evaluation risk because benchmark items can leak into training data and inflate apparent capability. Treat every leaderboard as potentially skewed by memorization until proven otherwise.
+That leaves you with a better question: what evidence would make you trust the model inside your own workflow?
 
-## What I would do instead
+The [OpenAI evals guide](https://platform.openai.com/docs/guides/evals) makes the right recommendation here: evaluate the task you actually own. I would use public benchmarks to cut the market down to a shortlist, then build private evals around the real prompts, failure costs, and acceptance thresholds that matter to the team. If your agent needs structured outputs and reliable tool use, I would score those directly before I care about another leaderboard decimal.
 
-Use public benchmarks to cut the market down to a short list. Then build private evals that match your prompts, your failure modes, and your acceptance thresholds. The [OpenAI evals guide](https://platform.openai.com/docs/guides/evals) pushes the same habit: evaluate the task you actually own, not the one a public leaderboard made convenient.
+I would also instrument task pass rate, schema-valid rate, tool-call success, review escapes, p95 latency, and cost per accepted output, in that order. That set is less glamorous than a leaderboard screenshot, but it is the one that keeps procurement, product, and on-call reality in the same room.
 
-I would track two groups of metrics: task success for what users actually come for, and operational metrics for what your team has to keep running. If those two diverge, task realism wins.
+This is the filter I use before I let a public score influence a roadmap.
+
+```mermaid
+graph TD
+    A[Public score] --> B{Same task shape?}
+    B -- No --> C[Screen only]
+    B -- Yes --> D{Same failure cost?}
+    D -- No --> C
+    D -- Yes --> E[Run private evals]
+    E --> F[Check SLA and observability]
+    F --> G[Make the production call]
+```
 
 ## Decision rule
 
-Trust a benchmark in proportion to how closely it matches your task shape, risk, and operating constraints. If it is more than one abstraction layer away from production, use it for screening and nothing else.
+My rule is blunt on purpose: if a benchmark is more than one abstraction layer away from your real task, it can shortlist models and nothing more. I only let it influence a buying call after private evals clear the task threshold and stay inside SLA on a boring, representative workload.

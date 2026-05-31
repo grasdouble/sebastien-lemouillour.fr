@@ -110,8 +110,8 @@ Keep the existing structure (headings, sections) unless the user asks to reorgan
 
 > **Load both asset files before revising:**
 >
-> - `{skill-root}/assets/content-quality-rules.md` — narrative arc, persona alignment, project-agnosticism, official documentation links, link anchor text
-> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, tone calibration by difficulty, antipatterns, reformulation examples
+> - `{skill-root}/assets/content-quality-rules.md` — narrative arc, difficulty-specific content requirements, project-agnosticism, official documentation links, link anchor text
+> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, unified Découvreur voice, antipatterns, reformulation examples
 >
 > Apply all rules from both files without exception.
 
