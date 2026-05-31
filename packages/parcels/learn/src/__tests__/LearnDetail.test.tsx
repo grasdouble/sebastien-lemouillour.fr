@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type * as DesignSystem from '@grasdouble/lufa_design-system';
@@ -38,6 +38,12 @@ vi.mock('@grasdouble/lufa_design-system', async () => {
 
 vi.mock('@grasdouble/slm_shared', () => ({
   LangSwitcher: () => <div data-testid="lang-switcher" />,
+}));
+
+vi.mock('../components/MermaidBlock/MermaidBlock', () => ({
+  MermaidBlock: ({ chart }: { chart: string }) => (
+    <div data-testid="mermaid-block" data-chart={chart} role="img" aria-label="Diagram" />
+  ),
 }));
 
 const baseTutorial: Tutorial = {
@@ -131,5 +137,62 @@ describe('LearnDetail — language switcher', () => {
   it('renders the LangSwitcher component in the header', () => {
     render(<LearnDetail tutorial={baseTutorial} onClose={vi.fn()} />);
     expect(screen.getByTestId('lang-switcher')).toBeTruthy();
+  });
+});
+
+describe('LearnDetail — code block rendering', () => {
+  afterEach(cleanup);
+
+  it('renders a fenced code block inside a code-block container', () => {
+    const tutorial: Tutorial = {
+      ...baseTutorial,
+      content: '```js\nconsole.log("hello");\n```',
+    };
+
+    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+
+    expect(document.querySelector('pre')).not.toBeNull();
+    expect(document.querySelector('code')).not.toBeNull();
+  });
+
+  it('renders a mermaid block using the MermaidBlock component', async () => {
+    const tutorial: Tutorial = {
+      ...baseTutorial,
+      content: '```mermaid\ngraph TD\nA-->B\n```',
+    };
+
+    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('mermaid-block')).toBeTruthy();
+    });
+  });
+
+  it('wraps the mermaid block in a centered container', async () => {
+    const tutorial: Tutorial = {
+      ...baseTutorial,
+      content: '```mermaid\ngraph TD\nA-->B\n```',
+    };
+
+    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('mermaid-wrapper')).toBeTruthy();
+    });
+  });
+});
+
+describe('LearnDetail — table rendering', () => {
+  afterEach(cleanup);
+
+  it('renders a GFM table as an HTML table element', () => {
+    const tutorial: Tutorial = {
+      ...baseTutorial,
+      content: '| A | B |\n|---|---|\n| 1 | 2 |',
+    };
+
+    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+
+    expect(document.querySelector('table')).not.toBeNull();
   });
 });

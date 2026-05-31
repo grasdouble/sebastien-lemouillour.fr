@@ -33,4 +33,27 @@ If the job is to produce new text, images, or audio, you are in **generative AI*
 
 This is where the hype lives, but I would treat it as a last stop, not a default. If your task has one right answer that you can score, a classifier or regressor is usually the saner first bet.
 
-If your next question is less “which family?” and more “which provider?”, read the guide on open-source vs proprietary models next. My threshold is simple: if success can be measured with a clear correct answer, start with classification or regression; only jump to a generator when the job is truly open-ended.
+If I had to translate all that theory into actual product choices, this is the comparison table I would keep nearby:
+
+| Model type                  | What it outputs                                                     | Typical inputs                                                 | Example use cases                                              |
+| --------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------- |
+| Classification model        | One label from a fixed set                                          | Structured features, text, or signals paired with known labels | Spam detection, fraud flags, ticket routing                    |
+| Regression model            | One numerical value                                                 | Historical examples with measurable outcomes                   | Price estimation, delivery-time prediction, demand forecasting |
+| Clustering model            | Groups or segments                                                  | Unlabeled examples described by comparable features            | Customer segmentation, anomaly grouping, dataset exploration   |
+| Embedding model             | A numerical vector                                                  | Text, images, or other content you want to compare by meaning  | Semantic search, recommendations, deduplication                |
+| Text generation model (LLM) | New text                                                            | Prompts, instructions, conversation history, documents         | Drafting, summarization, rewriting, extraction with guardrails |
+| Image generation model      | New images                                                          | Text prompts, reference images, style cues                     | Concept art, marketing visuals, mockups                        |
+| Multimodal model            | Text, structured answers, or actions grounded in several modalities | A mix of text, images, audio, or video                         | Image Q&A, document understanding, visual agents               |
+
+Here is a summary of the six families to keep the full picture in view:
+
+| Family                 | Output type               | Concrete example      | When to choose                                                         |
+| ---------------------- | ------------------------- | --------------------- | ---------------------------------------------------------------------- |
+| Classification         | Discrete label            | Spam filter           | The answer is one category from a fixed set                            |
+| Regression             | Numerical value           | Price estimate        | The answer is a continuous number                                      |
+| Clustering             | Groups                    | Customer segmentation | No labels, you are looking for hidden structure                        |
+| Embeddings             | Numerical vector          | Semantic search       | Similarity, recommendation, dimension reduction                        |
+| Reinforcement learning | Action in an environment  | AlphaGo               | The task is interactive with rewards and penalties                     |
+| Generative AI          | New text, image, or audio | ChatGPT, DALL-E       | The output is open-ended and cannot be scored against one right answer |
+
+If your next question is less "which family?" and more "which provider?", read the guide on open-source vs proprietary models next. My threshold is simple: if success can be measured with a clear correct answer, start with classification or regression; only jump to a generator when the job is truly open-ended.

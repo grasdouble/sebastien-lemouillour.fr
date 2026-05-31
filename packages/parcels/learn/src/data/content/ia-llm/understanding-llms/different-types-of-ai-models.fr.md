@@ -33,4 +33,27 @@ Si le travail consiste à produire un nouveau texte, une image ou de l'audio, vo
 
 C'est là que tout le bruit médiatique se concentre, mais je le traiterais comme un dernier recours, pas comme le choix par défaut. Si votre tâche a une seule bonne réponse que vous pouvez mesurer, un classificateur ou un régresseur est en général le pari le plus raisonnable.
 
+Si je devais traduire toute cette théorie en vrais choix produit, c'est ce tableau de comparaison que je garderais sous la main :
+
+| Type de modèle                      | Ce qu'il produit                                                                   | Entrées typiques                                                                | Cas d'usage typiques                                                     |
+| ----------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Modèle de classification            | Une étiquette parmi un ensemble fermé                                              | Des variables structurées, du texte ou des signaux associés à des labels connus | Détection de spam, signalement de fraude, routage de tickets             |
+| Modèle de régression                | Une valeur numérique                                                               | Des exemples historiques avec un résultat mesurable                             | Estimation de prix, prédiction de délai, prévision de demande            |
+| Modèle de clustering                | Des groupes ou segments                                                            | Des exemples non étiquetés décrits par des caractéristiques comparables         | Segmentation clients, regroupement d'anomalies, exploration de dataset   |
+| Modèle d'embeddings                 | Un vecteur numérique                                                               | Du texte, des images ou d'autres contenus qu'on veut comparer par le sens       | Recherche sémantique, recommandations, déduplication                     |
+| Modèle de génération de texte (LLM) | Un nouveau texte                                                                   | Des prompts, des instructions, un historique de conversation, des documents     | Rédaction, résumé, reformulation, extraction avec garde-fous             |
+| Modèle de génération d'images       | De nouvelles images                                                                | Des prompts textuels, des images de référence, des indications de style         | Concept art, visuels marketing, maquettes                                |
+| Modèle multimodal                   | Du texte, des réponses structurées ou des actions appuyées sur plusieurs modalités | Un mélange de texte, d'images, d'audio ou de vidéo                              | Questions-réponses sur image, compréhension de documents, agents visuels |
+
+Voici un résumé des six familles pour garder la vue d'ensemble :
+
+| Famille                        | Type de sortie                | Exemple concret      | Choisir quand                                                         |
+| ------------------------------ | ----------------------------- | -------------------- | --------------------------------------------------------------------- |
+| Classification                 | Étiquette discrète            | Filtre anti-spam     | La réponse est une catégorie parmi un ensemble fixe                   |
+| Régression                     | Valeur numérique              | Estimation de prix   | La réponse est un nombre continu                                      |
+| Clustering                     | Groupes                       | Segmentation clients | Pas d'étiquettes, on cherche une structure cachée                     |
+| Embeddings                     | Vecteur numérique             | Recherche sémantique | Similarité, recommandation, réduction de dimensions                   |
+| Apprentissage par renforcement | Action dans un environnement  | AlphaGo              | La tâche est interactive avec récompenses et pénalités                |
+| IA générative                  | Texte, image ou audio nouveau | ChatGPT, DALL-E      | La sortie est ouverte et ne se mesure pas par une seule bonne réponse |
+
 Si votre prochaine question ressemble moins à « quelle famille ? » qu'à « quel fournisseur ? », le bon enchaînement est le guide sur les modèles open-source et propriétaires. Mon seuil est simple : si la réussite se mesure avec une réponse clairement correcte, commencez par la classification ou la régression ; ne passez à un générateur que si la tâche est vraiment ouverte.

@@ -65,9 +65,15 @@ function getInitialTheme(): string {
 void loadThemeCss(getInitialTheme());
 
 // Load new theme CSS whenever data-theme changes (user switches themes).
+// After the CSS is applied, notify Mermaid diagrams (and any other consumers)
+// that they can safely re-read DS tokens via the `lufa-theme-ready` event.
 new MutationObserver(() => {
   const theme = document.documentElement.getAttribute('data-theme');
-  if (theme) void loadThemeCss(theme);
+  if (theme) {
+    void loadThemeCss(theme).then(() => {
+      document.dispatchEvent(new CustomEvent('lufa-theme-ready', { detail: { theme } }));
+    });
+  }
 }).observe(document.documentElement, { attributeFilter: ['data-theme'] });
 
 initializeGoogleAnalytics(import.meta.env.VITE_GOOGLE_ANALYTICS_ID);

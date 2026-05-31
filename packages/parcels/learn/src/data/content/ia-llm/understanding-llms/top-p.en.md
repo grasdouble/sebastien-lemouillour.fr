@@ -35,6 +35,13 @@ console.log(response.output_text);
 
 OpenAI’s [text generation](https://platform.openai.com/docs/guides/text-generation) guide and Anthropic’s [parameter guide](https://docs.anthropic.com/claude/docs/guide-to-parameters) both treat `top_p` as a sampling control, and Anthropic explicitly recommends changing either `temperature` or `top_p`, not both. I follow that advice. If the model is already at the right creativity level, I leave temperature alone and use top-p to clean up odd lexical detours or unstable phrasing. If the whole answer is too wild or too dull, temperature is the better first move.
 
+| `top_p`      | What gets through                  | What it feels like                                               | My move vs temperature                                                                  |
+| ------------ | ---------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `1`          | Full distribution stays available  | No nucleus filter at all; only temperature is shaping tone       | Use this when I am still judging overall creativity                                     |
+| `0.95`–`0.9` | Only the weakest tail gets trimmed | Same general voice, fewer weird token detours                    | My default when the answer is fine but one word every so often goes off-course          |
+| `0.9`–`0.8`  | A noticeably smaller nucleus       | Tighter phrasing, less lexical wobble, still some energy         | I use this before lowering temperature if I want to keep the same mood                  |
+| Below `0.8`  | Aggressive cutoff                  | Safer-sounding, flatter, and more likely to hide another problem | Only for a named tail issue; if the whole answer is wrong, I change temperature instead |
+
 That also keeps debugging cleaner. Every extra retry burns more tokens against provider [rate limits](https://platform.openai.com/docs/guides/rate-limits) and adds review work, so I would rather make one controlled sampling change than stack three knobs and guess which one helped.
 
 ## The mistake I still see

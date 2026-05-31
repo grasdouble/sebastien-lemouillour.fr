@@ -15,6 +15,16 @@ Les valeurs par défaut sont des choix produit, pas des bonnes pratiques univers
 
 C’est pour ça que je traite les paramètres de génération comme une partie du contrat de l’application. Si la tâche sert à extraire, router ou appeler des outils, je veux une requête ennuyeuse volontairement. Si la tâche sert à produire des idées, alors j’achète de la variation consciemment au lieu de la laisser entrer par défaut.
 
+Quand j’ai besoin d’un pense-bête rapide sur le décodage, c’est ce tableau que je garde en tête avant de toucher à quoi que ce soit :
+
+| Paramètre           | Ce qu’il contrôle                          | Recommandé pour les tâches structurées                                                                 | Recommandé pour les tâches créatives                                         |
+| ------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| `temperature`       | Le niveau d’aléatoire de l’échantillonnage | `0` à `0.2`                                                                                            | `0.7` à `0.9`                                                                |
+| `top_p`             | La taille du noyau de sampling             | `1` — je n’y touche pas tant que je ne peux pas nommer un vrai problème de queue                       | `1` — je change d’abord la température                                       |
+| `top_k`             | Le nombre maximum de tokens candidats      | N/A sur la plupart des API hébergées, donc je n’en fais pas un levier de base                          | `20` à `40` seulement sur des stacks auto-hébergées qui l’exposent           |
+| `max_output_tokens` | La longueur de la sortie                   | Assez serré pour éviter de bavarder, assez large pour éviter la coupe                                  | Assez large pour laisser plusieurs idées se terminer                         |
+| `stop`              | Les séquences d’arrêt                      | Utile pour garder le contrôle du format, mais je préfère toujours un schéma pour une structure stricte | Rarement nécessaire, sauf si je dois couper la sortie sur un marqueur précis |
+
 ## Régler un seul bouton d’aléatoire avant le reste
 
 Ma position est simple : je change d’abord `temperature` et je laisse `top_p` à `1` tant que je ne peux pas décrire un vrai problème de queue de distribution. L’[API Responses](https://platform.openai.com/docs/api-reference/responses/create) d’OpenAI documente `temperature`, `top_p`, `max_output_tokens` et `stop`, et présente `top_p` comme une alternative à la température, pas comme son compagnon obligatoire.

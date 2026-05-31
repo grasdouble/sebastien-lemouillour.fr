@@ -25,6 +25,13 @@ This is the first distinction I would keep in mind if you are new: AI does not a
 
 A traditional program follows rules written directly by a developer. Think of a thermostat: if the temperature crosses a threshold, do the next thing. Many AI systems work differently. They use **training data**, meaning examples used during learning to fit the model, as defined by [Google Cloud](https://cloud.google.com/vertex-ai/docs/glossary#training-data), instead of hand-writing every rule one by one.
 
+|                          | Traditional Software         | AI System                           |
+| ------------------------ | ---------------------------- | ----------------------------------- |
+| Logic source             | Rules written by a developer | Patterns learned from training data |
+| Behavior                 | Deterministic                | Statistical / probabilistic         |
+| Adapts from new examples | ✗                            | ✓ (via retraining)                  |
+| Example                  | Thermostat                   | Spam filter                         |
+
 That answer matters because it explains the weirdness people notice next. If a system learns patterns from examples, it can be brilliant on Tuesday and baffling on Wednesday. The [NIST](https://www.nist.gov/artificial-intelligence) approach is helpful here because it treats AI as something to measure, evaluate, and manage for risk, not as a mysterious digital brain.
 
 ### The stance I think is safest
@@ -32,3 +39,19 @@ That answer matters because it explains the weirdness people notice next. If a s
 When a product says it uses AI, I assume "specialized pattern-finding system" until proven otherwise. I think that is the healthiest default. It cuts through hype, and it leads to better questions: what task is this system trained for, what data shaped it, and who checks whether the result is good enough?
 
 That mindset also prepares you for the next guide. The next useful step is learning the difference between AI, machine learning, and deep learning, because that is where the umbrella finally starts to split into named methods. If a tool is sold as AI but nobody can tell you the task, the data, and the person responsible for checking the output, treat the label as marketing first.
+
+### A map of the territory
+
+The three terms you will see most often — AI, Machine Learning, and Deep Learning — are nested, not separate. Here is a first look at how they fit together before the next guide unpacks each one.
+
+```mermaid
+graph TD
+  AI["🤖 Artificial Intelligence"]
+  RBS["📋 Rule-based Systems"]
+  ML["📊 Machine Learning"]
+  DL["🧠 Deep Learning"]
+
+  AI --> RBS
+  AI --> ML
+  ML --> DL
+```

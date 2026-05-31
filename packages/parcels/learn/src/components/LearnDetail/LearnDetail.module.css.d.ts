@@ -13,5 +13,6 @@ declare const styles: {
   readonly ['content-list-ordered']: string;
   readonly ['inline-code']: string;
   readonly ['markdown-body']: string;
+  readonly ['mermaid-wrapper']: string;
 };
 export default styles;

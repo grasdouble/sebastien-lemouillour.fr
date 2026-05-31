@@ -15,11 +15,33 @@ L'**intelligence artificielle**, ou **IA**, est la catégorie la plus large. Le 
 
 C'est là que le vrai besoin apparaît : si l'IA est la grande boîte, de quel outil précis les gens parlent-ils la plupart du temps ?
 
+```mermaid
+graph TD
+  AI["🤖 Intelligence Artificielle"]
+  RBS["📋 Systèmes à règles"]
+  ML["📊 Machine Learning\n(apprend à partir de données)"]
+  DL["🧠 Deep Learning\n(réseaux de neurones)"]
+
+  AI --> RBS
+  AI --> ML
+  ML --> DL
+```
+
 ### Le machine learning est l'outil de base
 
 Le **machine learning**, ou **apprentissage automatique**, est la partie de l'IA où un système s'améliore à partir de données au lieu de suivre uniquement des règles écrites à la main. Stanford HAI place aussi le **deep learning** à l'intérieur du machine learning, comme la branche fondée sur des réseaux de neurones à plusieurs couches, et c'est exactement l'emboîtement qu'un débutant doit garder en tête ([Stanford HAI](https://hai.stanford.edu/policy/brief-definitions-of-key-terms-in-ai)). Un **modèle** est le système mathématique qui réalise la tâche, et l'**entraînement** est le processus d'ajustement qui le rend meilleur.
 
 L'analogie que je garderais est celle de la cuisine. Un logiciel classique, c'est une recette écrite ligne par ligne. Le machine learning, c'est montrer à la machine beaucoup de plats déjà classés « spam » ou « pas spam » jusqu'à ce qu'elle repère elle-même le motif. C'est puissant, mais c'est aussi pour cela que le résultat est souvent plus difficile à expliquer avec des règles humaines simples.
+
+Voici le tableau que j'aurais aimé avoir plus tôt, parce que l'idée de poupées russes devient vraiment claire quand on compare ce que chaque niveau fait concrètement.
+
+|                     | IA (au sens large)                                                                      | Machine Learning                                                   | Deep Learning                                                               |
+| ------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| Définition          | Catégorie générale des systèmes qui simulent certains aspects de l'intelligence humaine | Sous-ensemble de l'IA qui apprend des motifs à partir de données   | Sous-ensemble du ML qui utilise des réseaux de neurones à plusieurs couches |
+| Manière d'apprendre | Règles, recherche, optimisation, ou apprentissage à partir de données                   | Motifs statistiques appris à partir d'exemples                     | Représentations apprises directement à partir de grands volumes de données  |
+| Données nécessaires | Très variable, de presque aucune à des volumes énormes                                  | En général un volume modéré à important                            | En général de grands volumes de données                                     |
+| Exemple             | Moteur d'échecs ou calculateur d'itinéraire                                             | Filtre anti-spam ou modèle de prédiction de churn                  | Reconnaissance d'images ou transcription vocale                             |
+| Limite              | L'étiquette est trop large pour expliquer la méthode                                    | Demande souvent un vrai travail de features et des données propres | Coûteux en calcul et plus difficile à interpréter                           |
 
 ### Le deep learning sert surtout quand l'entrée est brouillonne
 

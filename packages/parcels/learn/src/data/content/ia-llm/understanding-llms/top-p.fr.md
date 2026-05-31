@@ -35,6 +35,13 @@ console.log(response.output_text);
 
 Le guide [text generation](https://platform.openai.com/docs/guides/text-generation) d’OpenAI et le [parameter guide](https://docs.anthropic.com/claude/docs/guide-to-parameters) d’Anthropic présentent tous les deux `top_p` comme un contrôle d’échantillonnage, et Anthropic recommande explicitement de modifier soit `temperature`, soit `top_p`, pas les deux. Je suis ce conseil. Si le niveau global de créativité est déjà bon, je laisse la température tranquille et j’utilise le top-p pour nettoyer les détours lexicaux bizarres ou les formulations instables. Si toute la réponse est trop folle ou trop plate, la température reste le meilleur premier levier.
 
+| `top_p`             | Ce qui passe encore                                  | Ce que ça donne en pratique                                                    | Mon choix par rapport à la température                                                                |
+| ------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `1`                 | Toute la distribution reste disponible               | Aucun filtre nucleus; seule la température façonne vraiment le ton             | Je garde ça tant que j’évalue encore le niveau global de créativité                                   |
+| `0.95`–`0.9`        | On coupe surtout le bout le plus faible de la traîne | Même voix d’ensemble, avec moins de détours bizarres                           | Mon réglage par défaut quand la réponse est bonne mais qu’un mot de temps en temps part de travers    |
+| `0.9`–`0.8`         | Nucleus sensiblement plus serré                      | Formulation plus tenue, moins de flottement lexical, encore un peu d’énergie   | Je tente ça avant de baisser la température si je veux garder la même ambiance                        |
+| En dessous de `0.8` | Coupure agressive                                    | Sortie plus sage, plus plate, et plus susceptible de masquer un autre problème | Seulement pour un vrai problème de traîne; si toute la réponse est mauvaise, je change la température |
+
 Ça rend aussi le débogage plus propre. Chaque retry supplémentaire consomme plus de tokens face aux [rate limits](https://platform.openai.com/docs/guides/rate-limits) du provider et ajoute du travail de revue, donc je préfère un seul changement d’échantillonnage bien contrôlé à trois réglages empilés puis une après-midi à deviner lequel a aidé.
 
 ## L’erreur que je vois encore

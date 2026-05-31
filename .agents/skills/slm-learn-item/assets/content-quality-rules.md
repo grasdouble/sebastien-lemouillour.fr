@@ -51,6 +51,53 @@ Anchor text must be **concise** — it names the resource, feature, or key term 
 - ❌ `[OpenAI recommends evals to track behavior as prompts and models change](url)`
 - ❌ `[Google documents temperature as a randomness control and lists 1.0 as the default](url)`
 
+## Visual elements — Tables and Diagrams
+
+Use tables and Mermaid diagrams to make abstract relationships immediately scannable. Both are fully supported by the render pipeline.
+
+### Tables (GFM Markdown)
+
+Use a table when comparing two or more options across the same set of dimensions.
+
+- ✅ Feature comparison, before/after, concept matrix (e.g. traditional software vs AI system)
+- ❌ Long prose lists that would read better as paragraphs
+- ❌ A table with a single column — use a bullet list instead
+
+Syntax: GFM pipe tables. Omit the header cell of the first column when using it as a row-label column:
+
+```md
+|       | Option A | Option B |
+| ----- | -------- | -------- |
+| Speed | Fast     | Slow     |
+| Cost  | Low      | High     |
+```
+
+Always translate every cell in FR. Mirror the column order and row count exactly — a table that differs in structure between EN and FR is a consistency error. Use `✓` / `✗` for boolean cells.
+
+### Mermaid diagrams
+
+Use a Mermaid diagram when the relationship between concepts cannot be expressed as a table (hierarchy, flow, dependency).
+
+Syntax: a fenced code block with the `mermaid` language tag:
+
+````md
+```mermaid
+graph TD
+  A["Label A"]
+  B["Label B"]
+  A --> B
+```
+````
+
+Guidelines:
+
+- Prefer `graph TD` (top-down) for hierarchies, `flowchart LR` (left-right) for pipelines
+- Translate only the **quoted label text** between EN and FR — the graph structure (node IDs, arrows) must be identical in both files
+- Keep diagrams simple: **4–8 nodes maximum**; a diagram that needs a legend to be understood should be split or replaced with prose
+- Always add an introductory sentence before the diagram to frame what it shows
+- Emoji in node labels are optional — they aid scannability; use consistently if used at all
+- The diagram is centered and scales to full width automatically
+
 ## Verify before writing
 
 Check API shapes, configuration option names, and defaults against official docs. Mention the version when behavior is version-specific.

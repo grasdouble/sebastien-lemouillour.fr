@@ -29,6 +29,19 @@ C’est là que les modèles open-weight deviennent intéressants. Meta indique 
 
 Il faut quand même dire la partie moins glamour : open-weight ne veut ni dire gratuit, ni dire simple. Il faut encore assez de matériel, assez de temps d’ingénierie, et assez de patience pour surveiller la qualité. Je n’auto-hébergerais pas juste pour me sentir indépendant. Je le ferais seulement quand les contraintes de confidentialité, le besoin de répétabilité, ou une facture API qui grossit rendent ce travail supplémentaire moins coûteux que la dépendance.
 
+Voici la comparaison rapide que j'utiliserais vraiment avant de trancher :
+
+| Dimension                        | Modèle open-weight                                                                 | API propriétaire                                                                                 |
+| -------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Effort de départ                 | Il me faut du matériel, du serving et de la supervision dès le début               | J'ai un endpoint, une clé API et un prototype très vite                                          |
+| Structure des coûts              | Coût d'infrastructure plus fixe, intéressant si le volume reste élevé              | Coût d'entrée faible, mais la facture grimpe avec chaque prompt et réponse                       |
+| Périmètre de confidentialité     | Les prompts, les logs et le trafic modèle peuvent rester chez moi                  | Je dépends des règles de conservation, de journalisation et de région du fournisseur             |
+| Contrôle du modèle               | Je peux figer une version, régler l'inférence, et parfois fine-tuner en profondeur | J'ai peu de leviers et je subis les changements côté fournisseur                                 |
+| Options de déploiement           | Cloud, on-premise, voire hors ligne si le matériel tient                           | L'accès Internet et la disponibilité du fournisseur font partie du contrat                       |
+| Charge de maintenance            | Mon équipe porte l'uptime, les patchs, les régressions et les évaluations          | Le fournisseur héberge le modèle, mais je garde les bugs d'intégration et la qualité des prompts |
+| Niveau de performance accessible | Cela varie beaucoup selon le modèle choisi et le budget infra                      | C'est le chemin le plus simple vers des modèles de pointe                                        |
+| Je le choisis quand              | La confidentialité, la répétabilité ou un gros volume priment sur la commodité     | La vitesse, la simplicité et l'apprentissage rapide priment sur le contrôle                      |
+
 ## Ma règle
 
 Mon choix par défaut est simple : pour apprendre, faire des démos, et sortir la première version d’un produit, commencez par une API propriétaire. Ne basculez que si l’une de ces trois conditions devient vraie : vos données ne doivent pas sortir de votre périmètre, vous devez figer une version précise du modèle pour obtenir un comportement reproductible, ou votre usage mensuel devient assez élevé pour que louer du matériel soit plus logique que payer au token. Si vous ne savez pas encore nommer ce seuil, restez hébergé pour l’instant, puis lisez le guide suivant sur les tokens pour que les coûts et les limites de contexte deviennent enfin concrets.

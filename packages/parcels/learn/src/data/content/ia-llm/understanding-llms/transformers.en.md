@@ -15,6 +15,26 @@ Recurrent models read one token after another. That feels intuitive until you tr
 
 That solved the training bottleneck, but it created the next practical question: what kind of transformer are you actually holding? The family split into shapes that are genuinely useful in practice: encoder-only models like [BERT](https://arxiv.org/abs/1810.04805) for representation-heavy work, decoder-only models like [GPT-3](https://arxiv.org/abs/2005.14165) for next-token generation, and encoder-decoder models like [T5](https://arxiv.org/abs/1910.10683) when the task is better framed as input-to-output transformation.
 
+If I need the thirty-second mental model, I sketch it like this:
+
+```mermaid
+graph TD
+  Input["Input Tokens"] --> Embed["Token + Positional Embedding"]
+  Embed --> Encoder["Encoder Block (×N)<br/>Self-Attention + FFN"]
+  Encoder --> Decoder["Decoder Block (×N)<br/>Masked Self-Attention + Cross-Attention + FFN"]
+  Decoder --> Output["Output Probabilities (softmax)"]
+```
+
+And for the product trade-off, this table helps me faster than another round of architecture lore:
+
+| Dimension               | RNN / LSTM                                       | Transformer                                                   |
+| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------- |
+| Processing order        | Strictly sequential                              | Parallel within each layer                                    |
+| Long-range dependencies | Degrade as distance grows                        | Attention connects distant tokens directly                    |
+| Training speed          | Slower on modern accelerators                    | Faster when batch and sequence work parallelize well          |
+| Memory / context cost   | Compact hidden state, but limited context access | Attention cost grows with sequence length                     |
+| Best fit                | Short streams, constrained online decoding       | Long context, large-scale pretraining, modern text generation |
+
 ## What I check before trusting the label
 
 That taxonomy helps, but “it’s a transformer” is still too vague for a product decision. I check four things.

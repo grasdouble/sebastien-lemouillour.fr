@@ -9,6 +9,19 @@ updatedAt: 2026-05-31
 
 If you only spot-check ten outputs, regressions ship. If you replace that with one judge score and call it science, regressions still ship. Automated eval only starts paying rent when volume is high and release speed matters. Used badly, it just industrializes false confidence.
 
+When I need to explain the pipeline to a team, I draw the flow before I argue about metrics:
+
+```mermaid
+flowchart TD
+  A[Generate model output on eval set] --> B[Run deterministic checks]
+  B --> C[Judge model scores with rubric]
+  C --> D[Pairwise review with swapped order]
+  D --> E[Regression suite on frozen and fresh cases]
+  E --> F{Release gate}
+  F -->|Pass| G[Ship]
+  F -->|Fail| H[Fix prompt, model, or data]
+```
+
 ## Start with hard checks
 
 For anything tied to a release gate, I would start with deterministic checks. [OpenAI Evals](https://platform.openai.com/docs/guides/evals) is built around replayable datasets and repeatable runs, and [OpenAI graders](https://platform.openai.com/docs/guides/graders) make the split explicit between exact checks, similarity checks, and score-model graders. That is the right order. Use string, schema, and tool-call checks for hard requirements first. Reach for a judge model only after the cheap objective failures are already filtered out.
@@ -28,6 +41,17 @@ RAG systems break in two places: retrieval and answer generation. If you collaps
 ## Production is where the suite rots
 
 The eval itself drifts. Prompts change, judge models get upgraded, the dataset goes stale, and the team quietly learns how to please the metric. So keep one frozen adjudicated set for trend lines, one rotating set from fresh failures, and basic observability on pass rate by task, judge disagreement rate, and score shifts after every model or prompt change. If you are not watching those three signals, the dashboard is decoration.
+
+When I need the whole stack on one screen, this is the summary I actually use:
+
+| Method               | How it works                                                    | Strength                                          | Limitation                                 |
+| -------------------- | --------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------ |
+| Deterministic checks | Enforce exact strings, schema shape, or tool-call behavior      | Cheap, repeatable, easy to gate releases with     | Misses softer quality questions            |
+| Rubric-based scoring | Grade outputs against explicit criteria                         | Interpretable and easier to audit                 | A weak rubric gives you fake rigor         |
+| Judge model          | An LLM applies the rubric at scale                              | Covers fuzzy qualities rules miss                 | Bias and model drift still leak in         |
+| Pairwise comparison  | Rank two outputs against each other, ideally with swapped order | Strong preference signal with less fake precision | Does not give an absolute score            |
+| RAG split metrics    | Track retrieval quality and answer quality separately           | Tells you where the system is actually failing    | More dashboards to maintain and interpret  |
+| Regression suite     | Re-run frozen and rotating cases before release                 | Catches regressions over time                     | Needs continuous curation and adjudication |
 
 ## Decision rule
 

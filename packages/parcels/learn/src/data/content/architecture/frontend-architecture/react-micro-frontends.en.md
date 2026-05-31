@@ -4,12 +4,28 @@ order: 1
 difficulty: advanced
 tags: [micro-frontend, architecture]
 publishedAt: 2026-05-10
-updatedAt: 2026-05-30
+updatedAt: 2026-05-31
 ---
 
 You're in a release meeting because three teams touched the same frontend, one found a bug late, and now nobody knows whether to ship or freeze. Everybody waits. Again.
 
 That is the failure mode micro-frontends are supposed to solve: turning one fragile frontend into deployable boundaries.
+
+```mermaid
+graph TD
+  Shell["🐚 Shell\n(single-spa root config)"]
+  IM["🗺️ Import Map\n(versioned URL per package)"]
+  MFE1["📦 Parcel Home — team A"]
+  MFE2["📦 Parcel About — team B"]
+  Shared["⚛️ React shared"]
+
+  Shell --> IM
+  IM -->|"deployed independently"| MFE1
+  IM -->|"deployed independently"| MFE2
+  IM --> Shared
+  MFE1 --> Shared
+  MFE2 --> Shared
+```
 
 ## The actual bet
 

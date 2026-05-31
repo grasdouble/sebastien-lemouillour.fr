@@ -25,4 +25,29 @@ C'est le point que je ferais retenir en premier à un débutant : le modèle opt
 
 Vous pouvez encore vous demander pourquoi le même prompt peut produire des formulations différentes. Pendant la génération, le système peut prendre le token le plus probable ou échantillonner parmi plusieurs candidats, et le [guide de génération](https://huggingface.co/docs/transformers/main/en/generation_strategies) montre ces choix en pratique. Un réglage important est la **température**, c'est-à-dire le paramètre qui rend cet échantillonnage plus prudent ou plus audacieux : une température basse est plus stable, une température haute est plus risquée. Pour un usage débutant, je choisirais une température basse dès que l'exactitude compte plus que le style.
 
-Si vous voulez une suite utile, lisez ensuite le guide sur les différents types de modèles IA. Ma règle est simple : quand une question devrait avoir une seule bonne réponse, traitez le modèle comme une machine à brouillon et vérifiez l'affirmation vous-même.
+Le moyen le plus rapide que je connaisse pour rendre ces réglages concrets, c'est de comparer les grandes options de décodage côte à côte.
+
+| Stratégie / réglage                      | Ce que ça fait                                            | Ce que vous gagnez                              | Ce que vous risquez                              | Quand je l'utiliserais                                                                   |
+| ---------------------------------------- | --------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Décodage glouton                         | Prend toujours le token suivant le plus probable          | Sortie stable et reproductible                  | Formulation plate et erreurs locales fréquentes  | Extraction, classification, ou tâches très cadrées                                       |
+| Température basse                        | Accentue l'écart de probabilité entre les premiers tokens | Réponses plus cohérentes                        | Peut devenir rigide et répétitif                 | Prompts où la précision passe avant le style                                             |
+| Température plus haute + échantillonnage | Pioche dans un ensemble plus large de tokens plausibles   | Plus de variété et de créativité                | Plus de dérive et plus de risque d'hallucination | Brainstorming ou exploration de style                                                    |
+| Top-k / top-p                            | Réduit le groupe de candidats avant l'échantillonnage     | De la variété sans tomber dans le chaos complet | Plus de réglages à ajuster                       | Quand le glouton est trop raide mais que l'échantillonnage libre part dans tous les sens |
+
+Si vous voulez une suite utile, lisez ensuite le guide sur les différents types de modèles IA.
+
+### La boucle de génération en un coup d'œil
+
+```mermaid
+flowchart TD
+  A["Prompt reçu"] --> B["Tokenizer\n(texte → tokens)"]
+  B --> C["Modèle lit les tokens existants"]
+  C --> D["Prédit le token suivant\n(distribution de probabilités)"]
+  D --> E["Échantillonnage\n(température, top-k…)"]
+  E --> F["Token ajouté à la séquence"]
+  F --> G{Token de fin\natteint ?}
+  G -- Non --> C
+  G -- Oui --> H["Réponse finale"]
+```
+
+Ma règle est simple : quand une question devrait avoir une seule bonne réponse, traitez le modèle comme une machine à brouillon et vérifiez l'affirmation vous-même.

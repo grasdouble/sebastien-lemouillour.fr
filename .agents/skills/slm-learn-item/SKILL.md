@@ -141,6 +141,17 @@ updatedAt: YYYY-MM-DD
 
 > Both `.en.md` and `.fr.md` must have identical frontmatter (same `id`, `order`, `difficulty`, `tags`, `publishedAt`, `updatedAt`).
 
+### Supported Markdown features
+
+The `learn` renderer supports full GFM (GitHub Flavored Markdown) plus Mermaid diagrams. Use these to make abstract content scannable — see `{skill-root}/assets/content-quality-rules.md` for detailed usage rules.
+
+| Feature         | Syntax                          | When to use                                 |
+| --------------- | ------------------------------- | ------------------------------------------- |
+| GFM table       | `\| col \| col \|` pipe syntax  | Comparisons, feature matrices, before/after |
+| Mermaid diagram | ` ```mermaid ``` ` fenced block | Hierarchies, flows, dependencies            |
+
+Both elements are **centered automatically** by the renderer. Mermaid is **lazy-loaded** — it has no impact on initial page load.
+
 ### i18n key shape for guides (en.json / fr.json)
 
 ```json
