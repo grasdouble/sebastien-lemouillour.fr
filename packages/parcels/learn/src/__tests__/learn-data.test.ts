@@ -35,14 +35,18 @@ describe('learn data', () => {
       expect(typeof catalog.order).toBe('number');
       expect(Number.isFinite(catalog.order)).toBe(true);
       expect(Array.isArray(catalog.guideIds)).toBe(true);
+      expect(catalog.translations.fr.title).toBeTruthy();
+      expect(catalog.translations.fr.description).toBeTruthy();
+      expect(catalog.translations.en.title).toBeTruthy();
+      expect(catalog.translations.en.description).toBeTruthy();
     }
   });
 
-  it('ensures every discovered catalog is listed in CATALOG_ORDER', () => {
+  it('ensures every discovered catalog is listed in its category order.json', () => {
     for (const catalog of RAW_CATALOGS) {
       expect(
         Number.isFinite(catalog.order),
-        `Catalog "${catalog.id}" is not listed in CATALOG_ORDER — add it to learn.ts to avoid it appearing last with a dev warning`
+        `Catalog "${catalog.id}" is not listed in its category order.json — add it to content/<categoryKey>/order.json`
       ).toBe(true);
     }
   });

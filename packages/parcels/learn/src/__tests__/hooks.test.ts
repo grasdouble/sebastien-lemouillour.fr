@@ -50,9 +50,10 @@ describe('learn hooks', () => {
     expect(Object.keys(result.current.groupedCatalogs).length).toBeGreaterThan(0);
 
     for (const catalog of result.current.catalogs) {
+      const raw = RAW_CATALOGS.find((r) => r.id === catalog.id)!;
       expect(catalog.category).toBe(`translated:categories.${catalog.categoryKey}`);
-      expect(catalog.title).toBe(`translated:catalogs.items.${catalog.id}.title`);
-      expect(catalog.description).toBe(`translated:catalogs.items.${catalog.id}.description`);
+      expect(catalog.title).toBe(raw.translations.fr.title);
+      expect(catalog.description).toBe(raw.translations.fr.description);
     }
 
     for (const group of Object.values(result.current.groupedCatalogs)) {
@@ -70,9 +71,41 @@ describe('learn hooks', () => {
     const expectedTags = [...new Set(publishedItems.flatMap((item) => item.tags))].sort();
     expect(result.current.tutorials).toHaveLength(publishedItems.length);
     expect(result.current.tutorials[0]?.content).toBe(publishedItems[0]?.content.en);
+
+    const firstItem = publishedItems[0];
+    const catalog = RAW_CATALOGS.find((c) => c.id === firstItem?.catalogId)!;
+    expect(result.current.tutorials[0]?.title).toBe(catalog.translations.en.guides[firstItem.id]?.title);
+    expect(result.current.tutorials[0]?.description).toBe(catalog.translations.en.guides[firstItem.id]?.description);
+
     expect(result.current.categoryOrder).toEqual(CATEGORY_KEYS.map((key) => `translated:categories.${key}`));
     expect(result.current.allTags).toEqual(expectedTags);
     expect(result.current.allDifficulties).toEqual(DIFFICULTIES);
+  });
+
+  it('uses english catalog metadata for en-US locale', () => {
+    i18nState.language = 'en-US';
+    i18nState.resolvedLanguage = 'en-US';
+
+    const { result } = renderHook(() => useCatalogs());
+
+    for (const catalog of result.current.catalogs) {
+      const raw = RAW_CATALOGS.find((r) => r.id === catalog.id)!;
+      expect(catalog.title).toBe(raw.translations.en.title);
+      expect(catalog.description).toBe(raw.translations.en.description);
+    }
+  });
+
+  it('falls back to french catalog metadata for unsupported languages', () => {
+    i18nState.language = 'es';
+    i18nState.resolvedLanguage = 'es';
+
+    const { result } = renderHook(() => useCatalogs());
+
+    for (const catalog of result.current.catalogs) {
+      const raw = RAW_CATALOGS.find((r) => r.id === catalog.id)!;
+      expect(catalog.title).toBe(raw.translations.fr.title);
+      expect(catalog.description).toBe(raw.translations.fr.description);
+    }
   });
 
   it('falls back to french content for unsupported languages', () => {
@@ -81,7 +114,11 @@ describe('learn hooks', () => {
 
     const { result } = renderHook(() => useLearn());
 
-    expect(result.current.tutorials[0]?.content).toBe(RAW_LEARN_ITEMS[0]?.content.fr);
+    const firstItem = RAW_LEARN_ITEMS[0];
+    const catalog = RAW_CATALOGS.find((c) => c.id === firstItem?.catalogId)!;
+    expect(result.current.tutorials[0]?.content).toBe(firstItem.content.fr);
+    expect(result.current.tutorials[0]?.title).toBe(catalog.translations.fr.guides[firstItem.id]?.title);
+    expect(result.current.tutorials[0]?.description).toBe(catalog.translations.fr.guides[firstItem.id]?.description);
   });
 });
 

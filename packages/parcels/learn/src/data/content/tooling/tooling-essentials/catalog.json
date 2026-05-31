@@ -1,0 +1,30 @@
+{
+  "fr": {
+    "title": "Tooling moderne",
+    "description": "Maîtriser les outils essentiels d'un projet JavaScript moderne : builds rapides avec Vite et gestion de monorepo avec pnpm workspaces",
+    "guides": {
+      "pnpm-workspaces": {
+        "title": "Monorepo avec pnpm workspaces",
+        "description": "Structurer et gérer un monorepo JavaScript/TypeScript avec pnpm workspaces, le protocole workspace, les changesets et les scripts partagés."
+      },
+      "vite-tooling": {
+        "title": "Vite : le build tool moderne",
+        "description": "Découvrez Vite, ses avantages par rapport à Webpack et comment configurer un projet React/TypeScript avec des variables d'environnement et des alias de chemins."
+      }
+    }
+  },
+  "en": {
+    "title": "Modern Tooling",
+    "description": "Master the essential tools of a modern JavaScript project: fast builds with Vite and monorepo management with pnpm workspaces",
+    "guides": {
+      "pnpm-workspaces": {
+        "title": "Monorepo with pnpm workspaces",
+        "description": "Structure and manage a JavaScript/TypeScript monorepo with pnpm workspaces, workspace protocol, changesets and shared scripts."
+      },
+      "vite-tooling": {
+        "title": "Vite: the modern build tool",
+        "description": "Discover Vite, its advantages over Webpack, and how to configure a React/TypeScript project with env variables and path aliases."
+      }
+    }
+  }
+}

@@ -11,28 +11,31 @@ type UseCatalogsResult = {
 };
 
 export function useCatalogs(): UseCatalogsResult {
-  const { t } = useTranslation('learn');
+  const { t, i18n } = useTranslation('learn');
   const showUnpublished = useShowUnpublished();
 
-  const catalogs = useMemo<Catalog[]>(
-    () =>
-      RAW_CATALOGS.filter((raw) => {
-        if (showUnpublished) return true;
-        const firstGuideId = raw.guideIds[0];
-        if (!firstGuideId) return false;
-        const firstGuide = RAW_LEARN_ITEMS.find((item) => item.id === firstGuideId);
-        return firstGuide ? isPublished(firstGuide.publishedAt) : false;
-      }).map((raw) => ({
+  const catalogs = useMemo<Catalog[]>(() => {
+    const lang = (i18n.resolvedLanguage ?? i18n.language).split('-')[0] as 'fr' | 'en';
+
+    return RAW_CATALOGS.filter((raw) => {
+      if (showUnpublished) return true;
+      const firstGuideId = raw.guideIds[0];
+      if (!firstGuideId) return false;
+      const firstGuide = RAW_LEARN_ITEMS.find((item) => item.id === firstGuideId);
+      return firstGuide ? isPublished(firstGuide.publishedAt) : false;
+    }).map((raw) => {
+      const localizedTranslations = raw.translations[lang] ?? raw.translations.fr;
+      return {
         id: raw.id,
         categoryKey: raw.categoryKey,
         category: t(`categories.${raw.categoryKey}`),
         order: raw.order,
-        title: t(`catalogs.items.${raw.id}.title`),
-        description: t(`catalogs.items.${raw.id}.description`),
+        title: localizedTranslations.title,
+        description: localizedTranslations.description,
         guideIds: raw.guideIds,
-      })),
-    [t, showUnpublished]
-  );
+      };
+    });
+  }, [t, i18n.language, i18n.resolvedLanguage, showUnpublished]);
 
   const groupedCatalogs = useMemo<Record<string, Catalog[]>>(() => {
     const groups: Record<string, Catalog[]> = {};

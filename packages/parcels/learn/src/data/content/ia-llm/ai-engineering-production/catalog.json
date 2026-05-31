@@ -1,0 +1,206 @@
+{
+  "fr": {
+    "title": "Ingénierie IA & Production",
+    "description": "Construire et opérer des systèmes IA en production",
+    "guides": {
+      "agent-traces": {
+        "title": "Traces d'agents",
+        "description": "Instrumenter les agents IA avec du tracing distribué pour observer leur exécution et déboguer les échecs"
+      },
+      "ai-application-scalability": {
+        "title": "Scalabilité des applications IA",
+        "description": "Scaler les applications IA pour gérer un trafic élevé avec du cache, un équilibrage de charge et le parallélisme de modèles"
+      },
+      "ai-application-testing": {
+        "title": "Tests d'applications IA",
+        "description": "Tester les applications IA avec des tests unitaires déterministes, des assertions probabilistes et l'évaluation sur des jeux de données de référence"
+      },
+      "ai-cost-optimization": {
+        "title": "Optimisation des coûts IA",
+        "description": "Réduire les coûts d'infrastructure IA grâce au cache, à la sélection de modèles, au batching et aux stratégies d'optimisation"
+      },
+      "ai-engineering": {
+        "title": "Ingénierie IA",
+        "description": "Comprendre la discipline de l'ingénierie IA : faire le pont entre la recherche ML et le développement logiciel en production"
+      },
+      "ai-governance": {
+        "title": "Gouvernance IA",
+        "description": "Établir des cadres de gouvernance IA couvrant la responsabilité, l'auditabilité et les pratiques IA responsables"
+      },
+      "ai-logs": {
+        "title": "Logs IA",
+        "description": "Mettre en place une journalisation structurée pour les applications IA afin de suivre les requêtes, réponses, latences et erreurs"
+      },
+      "ai-system-architecture": {
+        "title": "Architecture de systèmes IA",
+        "description": "Concevoir des architectures de systèmes IA scalables gérant les appels LLM, les pipelines de données et la coordination des agents"
+      },
+      "api-vs-local-models": {
+        "title": "API vs modèles locaux",
+        "description": "Comparer les APIs LLM cloud et les modèles hébergés localement : compromis de coût, latence, confidentialité et contrôle"
+      },
+      "choosing-a-model": {
+        "title": "Choisir un modèle",
+        "description": "Apprendre à sélectionner le bon LLM pour votre cas d'usage selon les performances, le coût et les contraintes de déploiement"
+      },
+      "continuous-evaluation": {
+        "title": "Évaluation continue",
+        "description": "Implémenter des pipelines d'évaluation continue pour évaluer automatiquement la qualité du modèle à chaque release"
+      },
+      "cost-of-using-an-llm": {
+        "title": "Coût d'utilisation d'un LLM",
+        "description": "Comprendre les modèles de tarification LLM, les coûts en tokens et les stratégies pour optimiser votre budget IA"
+      },
+      "data-privacy": {
+        "title": "Confidentialité des données",
+        "description": "Comprendre les risques de confidentialité lors de l'utilisation des APIs LLM et comment protéger les informations sensibles"
+      },
+      "fine-tuning": {
+        "title": "Fine-tuning",
+        "description": "Comprendre le fine-tuning : quand il en vaut la peine, en quoi il diffère du prompting et le processus d'entraînement de base"
+      },
+      "gpu-and-vram": {
+        "title": "GPU et VRAM",
+        "description": "Comprendre le rôle des GPUs et de la VRAM dans l'inférence LLM et comment estimer les besoins en mémoire"
+      },
+      "guardrails": {
+        "title": "Garde-fous",
+        "description": "Implémenter des garde-fous pour contraindre les sorties LLM : filtrage de contenu, application de format et vérifications de sécurité"
+      },
+      "inference": {
+        "title": "Inférence",
+        "description": "Comprendre le processus d'inférence LLM : comment un modèle génère une réponse et ce qui affecte sa vitesse"
+      },
+      "llm-monitoring": {
+        "title": "Monitoring LLM",
+        "description": "Surveiller les applications LLM en production : suivre les métriques de qualité, détecter les dégradations et configurer des alertes"
+      },
+      "lora": {
+        "title": "LoRA",
+        "description": "Comprendre comment le Low-Rank Adaptation permet un fine-tuning efficace des grands modèles avec un minimum de calcul"
+      },
+      "peft": {
+        "title": "PEFT",
+        "description": "Explorer les techniques de fine-tuning à efficacité paramétrique qui adaptent les grands modèles avec une fraction du coût d'entraînement"
+      },
+      "prompt-injection": {
+        "title": "Injection de prompt",
+        "description": "Comprendre ce que sont les attaques par injection de prompt et comment défendre vos applications IA contre elles"
+      },
+      "quantization": {
+        "title": "Quantification",
+        "description": "Réduire la taille du modèle et le coût d'inférence grâce aux techniques de quantification sans trop sacrifier la qualité"
+      },
+      "securing-ai-applications": {
+        "title": "Sécuriser les applications IA",
+        "description": "Appliquer les bonnes pratiques de sécurité aux applications IA : validation des entrées, assainissement des sorties et contrôle d'accès"
+      },
+      "serving": {
+        "title": "Serving",
+        "description": "Apprendre à servir les LLMs efficacement : batching, streaming, serveurs de modèles et patterns de déploiement"
+      }
+    }
+  },
+  "en": {
+    "title": "AI Engineering & Production",
+    "description": "Build and operate AI systems in production",
+    "guides": {
+      "agent-traces": {
+        "title": "Agent traces",
+        "description": "Instrument AI agents with distributed tracing to observe their execution and debug failures"
+      },
+      "ai-application-scalability": {
+        "title": "AI application scalability",
+        "description": "Scale AI applications to handle high traffic with caching, load balancing, and model parallelism"
+      },
+      "ai-application-testing": {
+        "title": "AI application testing",
+        "description": "Test AI applications with deterministic unit tests, probabilistic assertions, and golden dataset evaluation"
+      },
+      "ai-cost-optimization": {
+        "title": "AI cost optimization",
+        "description": "Reduce AI infrastructure costs through caching, model selection, batching, and prompt optimization strategies"
+      },
+      "ai-engineering": {
+        "title": "AI engineering",
+        "description": "Understand the discipline of AI engineering: bridging ML research and production software development"
+      },
+      "ai-governance": {
+        "title": "AI governance",
+        "description": "Establish AI governance frameworks covering accountability, auditability, and responsible AI practices"
+      },
+      "ai-logs": {
+        "title": "AI logs",
+        "description": "Set up structured logging for AI applications to track requests, responses, latency, and errors"
+      },
+      "ai-system-architecture": {
+        "title": "AI system architecture",
+        "description": "Design scalable AI system architectures that handle LLM calls, data pipelines, and agent coordination"
+      },
+      "api-vs-local-models": {
+        "title": "API vs local models",
+        "description": "Compare cloud LLM APIs and locally hosted models: cost, latency, privacy, and control trade-offs"
+      },
+      "choosing-a-model": {
+        "title": "Choosing a model",
+        "description": "Learn how to select the right LLM for your use case based on performance, cost, and deployment constraints"
+      },
+      "continuous-evaluation": {
+        "title": "Continuous evaluation",
+        "description": "Implement continuous evaluation pipelines to automatically assess model quality on every release"
+      },
+      "cost-of-using-an-llm": {
+        "title": "Cost of using an LLM",
+        "description": "Understand LLM pricing models, token costs, and strategies to optimize your AI budget"
+      },
+      "data-privacy": {
+        "title": "Data privacy",
+        "description": "Understand data privacy risks when using LLM APIs and how to protect sensitive information"
+      },
+      "fine-tuning": {
+        "title": "Fine-tuning",
+        "description": "Understand fine-tuning: when it is worth it, how it differs from prompting, and the basic training process"
+      },
+      "gpu-and-vram": {
+        "title": "GPU and VRAM",
+        "description": "Understand the role of GPUs and VRAM in LLM inference and how to estimate memory requirements"
+      },
+      "guardrails": {
+        "title": "Guardrails",
+        "description": "Implement guardrails to constrain LLM outputs: content filtering, format enforcement, and safety checks"
+      },
+      "inference": {
+        "title": "Inference",
+        "description": "Understand the LLM inference process: how a model generates a response and what affects its speed"
+      },
+      "llm-monitoring": {
+        "title": "LLM monitoring",
+        "description": "Monitor LLM applications in production: track quality metrics, detect degradation, and set up alerts"
+      },
+      "lora": {
+        "title": "LoRA",
+        "description": "Learn how Low-Rank Adaptation enables efficient fine-tuning of large models with minimal compute"
+      },
+      "peft": {
+        "title": "PEFT",
+        "description": "Explore Parameter-Efficient Fine-Tuning techniques that adapt large models with a fraction of the training cost"
+      },
+      "prompt-injection": {
+        "title": "Prompt injection",
+        "description": "Learn what prompt injection attacks are and how to defend your AI applications against them"
+      },
+      "quantization": {
+        "title": "Quantization",
+        "description": "Reduce model size and inference cost using quantization techniques without sacrificing too much quality"
+      },
+      "securing-ai-applications": {
+        "title": "Securing AI applications",
+        "description": "Apply security best practices to AI applications: input validation, output sanitization, and access control"
+      },
+      "serving": {
+        "title": "Serving",
+        "description": "Learn how to serve LLMs efficiently: batching, streaming, model servers, and deployment patterns"
+      }
+    }
+  }
+}

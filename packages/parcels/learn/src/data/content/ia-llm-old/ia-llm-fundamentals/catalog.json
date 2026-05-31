@@ -1,0 +1,30 @@
+{
+  "fr": {
+    "title": "Fondamentaux IA & LLM",
+    "description": "Les bases pour comprendre l'IA générative : fonctionnement des LLMs, tokens, context window et maîtrise du prompt engineering",
+    "guides": {
+      "intro-ia-generative": {
+        "title": "Introduction à l'IA générative",
+        "description": "Comprendre l'IA générative et les LLMs : concepts clés (tokens, context window, temperature), fonctionnement des transformers et introduction aux embeddings et au RAG."
+      },
+      "prompt-engineering": {
+        "title": "Prompt Engineering",
+        "description": "Maîtriser le prompt engineering avec le zero-shot, few-shot, chain-of-thought, role prompting, les system prompts et le structured output."
+      }
+    }
+  },
+  "en": {
+    "title": "AI & LLM Fundamentals",
+    "description": "The essentials to understand generative AI: how LLMs work, tokens, context window, and mastering prompt engineering",
+    "guides": {
+      "intro-ia-generative": {
+        "title": "Introduction to Generative AI",
+        "description": "Understand generative AI and LLMs: key concepts (tokens, context window, temperature), how transformers work, and an introduction to embeddings and RAG."
+      },
+      "prompt-engineering": {
+        "title": "Prompt Engineering",
+        "description": "Master prompt engineering with zero-shot, few-shot, chain-of-thought, role prompting, system prompts and structured output."
+      }
+    }
+  }
+}
