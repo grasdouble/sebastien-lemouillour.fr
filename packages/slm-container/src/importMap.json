@@ -1,9 +1,9 @@
 {
   "imports": {
-    "@grasdouble/slm_parcel_header-bar": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_header-bar@1.0.7",
-    "@grasdouble/slm_parcel_landing-page": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_landing-page@1.2.9",
-    "@grasdouble/slm_parcel_professional-experience": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_professional-experience@1.0.7",
-    "@grasdouble/slm_parcel_learn": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_learn@1.1.1",
+    "@grasdouble/slm_parcel_header-bar": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_header-bar@1.0.8",
+    "@grasdouble/slm_parcel_landing-page": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_landing-page@1.2.10",
+    "@grasdouble/slm_parcel_professional-experience": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_professional-experience@1.0.8",
+    "@grasdouble/slm_parcel_learn": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_learn@1.2.0",
     "@grasdouble/lufa_design-system": "https://cdn.sebastien-lemouillour.fr/@grasdouble/lufa_design-system@3.4.0"
   }
 }

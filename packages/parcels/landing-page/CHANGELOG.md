@@ -1,5 +1,15 @@
 # @grasdouble/slm_parcel_landing-page
 
+## 1.2.10
+
+### Patch Changes
+
+- f19544d: refactor: remove duplicate LangSwitcher and ThemeSelector components from landing-page.
+  LangSwitcher was already in @grasdouble/slm_shared; ThemeSelector was dead code (unused in this parcel).
+- f19544d: chore: bump lufa_design-system to 3.4.0 and lufa_design-system-themes to 1.1.7 in container and learn parcel.
+- Updated dependencies [f19544d]
+  - @grasdouble/slm_shared@1.1.0
+
 ## 1.2.9
 
 ### Patch Changes

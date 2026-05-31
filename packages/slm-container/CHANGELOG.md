@@ -1,5 +1,13 @@
 # @grasdouble/slm-container
 
+## 1.2.4
+
+### Patch Changes
+
+- f19544d: chore: bump lufa_design-system to 3.4.0 and lufa_design-system-themes to 1.1.7 in container and learn parcel.
+- Updated dependencies [f19544d]
+  - @grasdouble/slm_shared@1.1.0
+
 ## 1.2.3
 
 ### Patch Changes

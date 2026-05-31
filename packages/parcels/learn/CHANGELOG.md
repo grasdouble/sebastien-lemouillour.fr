@@ -1,5 +1,28 @@
 # @grasdouble/slm_parcel_learn
 
+## 1.2.0
+
+### Minor Changes
+
+- f19544d: feat: move LangSwitcher component to shared package for reuse across parcels.
+  fix: update i18next plural keys to CLDR v4 format (key_one/key_other) in learn parcel.
+  refactor: header-bar LangSwitcher is now a re-export from @grasdouble/slm_shared.
+  feat: add LangSwitcher to LearnDetail modal header.
+  fix: header-bar now listens to lufa:lang-change event so its language syncs when another parcel changes it.
+- f19544d: feat: add AI and LLM Training catalog (4 catalogs, 101 guides — understanding-llms, building-with-llms, rag-vector-search, ai-engineering-production) with full bilingual EN/FR content.
+  refactor: split ia-llm category from 4 catalogs into 6 — extract prompting, agents-orchestration, and fine-tuning-optimization from building-with-llms and ai-engineering-production; align, dpo, pre-training, rlhf and inference/serving moved to fine-tuning-optimization; agentic-rag moved to agents-orchestration.
+  feat: add Copilot & AI Agents catalog with 6 bilingual guides covering Copilot setup, AGENTS.md best practices, skills, MCP, and custom agents.
+  feat: add Modern Tooling catalog with 2 bilingual guides (pnpm workspaces, Vite).
+  feat: add Front-end Architecture catalog with 1 bilingual guide (micro-frontends with React and single-spa).
+  feat: highlight unpublished guide cards with a dashed border, reduced opacity, and a "Draft" badge.
+
+### Patch Changes
+
+- f19544d: fix: review all learn guides for factual accuracy, voice, and official doc links — catalogs: understanding-llms, building-with-llms, rag-vector-search, ai-engineering-production.
+- f19544d: chore: bump lufa_design-system to 3.4.0 and lufa_design-system-themes to 1.1.7 in container and learn parcel.
+- Updated dependencies [f19544d]
+  - @grasdouble/slm_shared@1.1.0
+
 ## 1.1.1
 
 ### Patch Changes
