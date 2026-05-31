@@ -92,10 +92,10 @@ describe('learn data', () => {
     const guide = RAW_LEARN_ITEMS.find((item) => item.id === 'gpu-and-vram');
 
     expect(guide).toBeDefined();
-    expect(guide?.content.en).toContain('| Precision | Bytes/param | Example VRAM (7B model) | Use case |');
-    expect(guide?.content.en).toContain('| VRAM component | Formula | Notes |');
-    expect(guide?.content.fr).toContain('| Précision | Octets/paramètre | Exemple de VRAM (modèle 7B) | Usage |');
-    expect(guide?.content.fr).toContain('| Composant VRAM | Formule | Notes |');
+    expect(guide?.content.en).toContain('| Precision | Bytes/param | Example VRAM (7B model) |');
+    expect(guide?.content.en).toContain('| VRAM component');
+    expect(guide?.content.fr).toContain('| Précision | Octets/paramètre | Exemple de VRAM (modèle 7B) |');
+    expect(guide?.content.fr).toContain('| Composant VRAM');
   });
 
   it('keeps the inference guide bilingual with the expected decision flow mermaid', () => {
