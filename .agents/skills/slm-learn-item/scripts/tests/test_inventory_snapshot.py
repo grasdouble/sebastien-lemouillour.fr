@@ -27,7 +27,8 @@ def load_module(name: str):
 def write_guide(root: str, cat: str, catalog: str, filename: str, frontmatter: str) -> None:
     folder = os.path.join(root, "packages/parcels/learn/src/data/content", cat, catalog)
     os.makedirs(folder, exist_ok=True)
-    open(os.path.join(folder, filename), "w").write(frontmatter + "\n\n## Body\n")
+    with open(os.path.join(folder, filename), "w", encoding="utf-8") as f:
+        f.write(frontmatter + "\n\n## Body\n")
 
 
 GOOD_FM = textwrap.dedent("""\

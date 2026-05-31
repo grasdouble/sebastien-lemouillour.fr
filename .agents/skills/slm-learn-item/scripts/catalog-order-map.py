@@ -18,7 +18,8 @@ import sys
 
 def parse_frontmatter(path: str) -> dict:
     try:
-        content = open(path, encoding="utf-8").read()
+        with open(path, encoding="utf-8") as f:
+            content = f.read()
     except OSError as e:
         print(f"Error reading {path}: {e}", file=sys.stderr)
         sys.exit(2)

@@ -151,9 +151,11 @@ class TestConsistencyCheck(unittest.TestCase):
         )
         # Rebuild cleanly but remove the guide from en.json manually
         i18n_path = os.path.join(self._tmp, "packages/parcels/learn/src/i18n/locales/en.json")
-        data = json.load(open(i18n_path))
+        with open(i18n_path, encoding="utf-8") as f:
+            data = json.load(f)
         data["items"] = {}
-        json.dump(data, open(i18n_path, "w"))
+        with open(i18n_path, "w", encoding="utf-8") as f:
+            json.dump(data, f)
         result = self._run()
         self.assertIn("orphan-guide", result["items"]["in_files_not_in_en"])
 

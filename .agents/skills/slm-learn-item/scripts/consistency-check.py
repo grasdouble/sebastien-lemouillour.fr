@@ -22,7 +22,8 @@ fr_path = "packages/parcels/learn/src/i18n/locales/fr.json"
 
 def read_file(path: str) -> str:
     try:
-        return open(path, encoding="utf-8").read()
+        with open(path, encoding="utf-8") as f:
+            return f.read()
     except OSError as e:
         print(f"Error reading {path}: {e}", file=sys.stderr)
         sys.exit(1)

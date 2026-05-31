@@ -81,7 +81,8 @@ def slugify(text: str) -> str:
 
 def parse_frontmatter(path: str) -> dict:
     try:
-        content = open(path, encoding="utf-8").read()
+        with open(path, encoding="utf-8") as f:
+            content = f.read()
     except OSError:
         return {}
     parts = content.split("---", 2)
@@ -311,7 +312,8 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        prd_text = open(args.prd_file, encoding="utf-8").read()
+        with open(args.prd_file, encoding="utf-8") as prd_f:
+            prd_text = prd_f.read()
     except OSError as e:
         print(f"Error reading PRD file: {e}", file=sys.stderr)
         sys.exit(1)

@@ -37,7 +37,8 @@ def write_guide(root: str, cat: str, catalog: str, filename: str, order: int, gu
         updatedAt: 2025-01-01
         ---
     """)
-    open(os.path.join(folder, filename), "w").write(fm + "\n## Body\n")
+    with open(os.path.join(folder, filename), "w", encoding="utf-8") as f:
+        f.write(fm + "\n## Body\n")
 
 
 class TestCatalogOrderMap(unittest.TestCase):

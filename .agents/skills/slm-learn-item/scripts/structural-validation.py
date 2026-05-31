@@ -41,7 +41,8 @@ ANCHOR_WORD_LIMIT = 5
 
 def parse_fm_and_body(path: str) -> tuple[dict, str]:
     try:
-        content = open(path, encoding="utf-8").read()
+        with open(path, encoding="utf-8") as f:
+            content = f.read()
     except OSError as e:
         print(f"Error reading {path}: {e}", file=sys.stderr)
         sys.exit(1)

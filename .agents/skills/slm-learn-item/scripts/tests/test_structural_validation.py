@@ -37,7 +37,8 @@ def write_guide(root: str, cat: str, catalog: str, lang: str, guide_id: str, fm_
     if fm_overrides:
         defaults.update(fm_overrides)
     lines = ["---"] + [f"{k}: {v}" for k, v in defaults.items()] + ["---", "", body or "## Body content", ""]
-    open(os.path.join(folder, f"{guide_id}.{lang}.md"), "w").write("\n".join(lines))
+    with open(os.path.join(folder, f"{guide_id}.{lang}.md"), "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
 
 
 class TestStructuralValidation(unittest.TestCase):
