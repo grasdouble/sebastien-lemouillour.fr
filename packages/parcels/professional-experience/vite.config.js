@@ -11,11 +11,10 @@ export default defineConfig({
     cssInjectedByJsPlugin(),
     sitemapPlugin({ urls: [{ loc: '/experience', changefreq: 'monthly', priority: '0.8' }] }),
     externalizeDeps({
-      deps: true,
+      deps: false,
       devDeps: false,
       optionalDeps: false,
-      peerDeps: false,
-      except: ['@grasdouble/slm_shared'],
+      peerDeps: true,
       nodeBuiltins: true,
     }),
   ],

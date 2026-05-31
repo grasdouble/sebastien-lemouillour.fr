@@ -47,27 +47,9 @@ importers:
 
   packages/parcels/header-bar:
     dependencies:
-      '@grasdouble/lufa_design-system':
-        specifier: ^3.4.0
-        version: 3.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_shared':
         specifier: workspace:*
         version: link:../../shared
-      i18next:
-        specifier: ^26.3.0
-        version: 26.3.0(typescript@6.0.3)
-      i18next-browser-languagedetector:
-        specifier: ^8.2.1
-        version: 8.2.1
-      react:
-        specifier: ^19.2.6
-        version: 19.2.6
-      react-dom:
-        specifier: ^19.2.6
-        version: 19.2.6(react@19.2.6)
-      react-i18next:
-        specifier: ^17.0.8
-        version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
     devDependencies:
       '@grasdouble/lufa_config_eslint':
         specifier: ^0.1.9
@@ -81,6 +63,9 @@ importers:
       '@grasdouble/lufa_config_vitest':
         specifier: ^1.0.2
         version: 1.0.2(vitest@4.1.7)
+      '@grasdouble/lufa_design-system':
+        specifier: ^3.4.0
+        version: 3.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -120,9 +105,24 @@ importers:
       happy-dom:
         specifier: ^20.9.0
         version: 20.9.0
+      i18next:
+        specifier: ^26.3.0
+        version: 26.3.0(typescript@6.0.3)
+      i18next-browser-languagedetector:
+        specifier: ^8.2.1
+        version: 8.2.1
       prettier:
         specifier: ^3.8.3
         version: 3.8.3
+      react:
+        specifier: ^19.2.6
+        version: 19.2.6
+      react-dom:
+        specifier: ^19.2.6
+        version: 19.2.6(react@19.2.6)
+      react-i18next:
+        specifier: ^17.0.8
+        version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
       sort-package-json:
         specifier: ^3.6.1
         version: 3.6.1
@@ -147,30 +147,9 @@ importers:
 
   packages/parcels/landing-page:
     dependencies:
-      '@grasdouble/lufa_design-system':
-        specifier: ^3.4.0
-        version: 3.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_shared':
         specifier: workspace:*
         version: link:../../shared
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      i18next:
-        specifier: ^26.3.0
-        version: 26.3.0(typescript@6.0.3)
-      i18next-browser-languagedetector:
-        specifier: ^8.2.1
-        version: 8.2.1
-      react:
-        specifier: ^19.2.6
-        version: 19.2.6
-      react-dom:
-        specifier: ^19.2.6
-        version: 19.2.6(react@19.2.6)
-      react-i18next:
-        specifier: ^17.0.8
-        version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
     devDependencies:
       '@grasdouble/lufa_config_eslint':
         specifier: ^0.1.9
@@ -184,6 +163,9 @@ importers:
       '@grasdouble/lufa_config_vitest':
         specifier: ^1.0.2
         version: 1.0.2(vitest@4.1.7)
+      '@grasdouble/lufa_design-system':
+        specifier: ^3.4.0
+        version: 3.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -223,12 +205,27 @@ importers:
       happy-dom:
         specifier: ^20.9.0
         version: 20.9.0
+      i18next:
+        specifier: ^26.3.0
+        version: 26.3.0(typescript@6.0.3)
+      i18next-browser-languagedetector:
+        specifier: ^8.2.1
+        version: 8.2.1
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
       prettier:
         specifier: ^3.8.3
         version: 3.8.3
+      react:
+        specifier: ^19.2.6
+        version: 19.2.6
+      react-dom:
+        specifier: ^19.2.6
+        version: 19.2.6(react@19.2.6)
+      react-i18next:
+        specifier: ^17.0.8
+        version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
       sort-package-json:
         specifier: ^3.6.1
         version: 3.6.1
@@ -253,36 +250,9 @@ importers:
 
   packages/parcels/learn:
     dependencies:
-      '@grasdouble/lufa_design-system':
-        specifier: ^3.4.0
-        version: 3.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_shared':
         specifier: workspace:*
         version: link:../../shared
-      '@tanstack/react-router':
-        specifier: ^1.170.8
-        version: 1.170.8(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      i18next:
-        specifier: ^26.3.0
-        version: 26.3.0(typescript@6.0.3)
-      i18next-browser-languagedetector:
-        specifier: ^8.2.1
-        version: 8.2.1
-      mermaid:
-        specifier: ^11.15.0
-        version: 11.15.0
-      react:
-        specifier: ^19.2.6
-        version: 19.2.6
-      react-dom:
-        specifier: ^19.2.6
-        version: 19.2.6(react@19.2.6)
-      react-i18next:
-        specifier: ^17.0.8
-        version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.2.15)(react@19.2.6)
@@ -302,12 +272,18 @@ importers:
       '@grasdouble/lufa_config_vitest':
         specifier: ^1.0.2
         version: 1.0.2(vitest@4.1.7)
+      '@grasdouble/lufa_design-system':
+        specifier: ^3.4.0
+        version: 3.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.8.3)
+      '@tanstack/react-router':
+        specifier: ^1.170.8
+        version: 1.170.8(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -341,12 +317,30 @@ importers:
       happy-dom:
         specifier: ^20.9.0
         version: 20.9.0
+      i18next:
+        specifier: ^26.3.0
+        version: 26.3.0(typescript@6.0.3)
+      i18next-browser-languagedetector:
+        specifier: ^8.2.1
+        version: 8.2.1
+      mermaid:
+        specifier: ^11.15.0
+        version: 11.15.0
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
       prettier:
         specifier: ^3.8.3
         version: 3.8.3
+      react:
+        specifier: ^19.2.6
+        version: 19.2.6
+      react-dom:
+        specifier: ^19.2.6
+        version: 19.2.6(react@19.2.6)
+      react-i18next:
+        specifier: ^17.0.8
+        version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
       sort-package-json:
         specifier: ^3.6.1
         version: 3.6.1
@@ -371,30 +365,9 @@ importers:
 
   packages/parcels/professional-experience:
     dependencies:
-      '@grasdouble/lufa_design-system':
-        specifier: ^3.4.0
-        version: 3.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_shared':
         specifier: workspace:*
         version: link:../../shared
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      i18next:
-        specifier: ^26.3.0
-        version: 26.3.0(typescript@6.0.3)
-      i18next-browser-languagedetector:
-        specifier: ^8.2.1
-        version: 8.2.1
-      react:
-        specifier: ^19.2.6
-        version: 19.2.6
-      react-dom:
-        specifier: ^19.2.6
-        version: 19.2.6(react@19.2.6)
-      react-i18next:
-        specifier: ^17.0.8
-        version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
     devDependencies:
       '@grasdouble/lufa_config_eslint':
         specifier: ^0.1.9
@@ -408,6 +381,9 @@ importers:
       '@grasdouble/lufa_config_vitest':
         specifier: ^1.0.2
         version: 1.0.2(vitest@4.1.7)
+      '@grasdouble/lufa_design-system':
+        specifier: ^3.4.0
+        version: 3.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@grasdouble/slm_plugin_vite_sitemap-generator':
         specifier: workspace:*
         version: link:../../plugins/vite/sitemap-generator
@@ -447,12 +423,27 @@ importers:
       happy-dom:
         specifier: ^20.9.0
         version: 20.9.0
+      i18next:
+        specifier: ^26.3.0
+        version: 26.3.0(typescript@6.0.3)
+      i18next-browser-languagedetector:
+        specifier: ^8.2.1
+        version: 8.2.1
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
       prettier:
         specifier: ^3.8.3
         version: 3.8.3
+      react:
+        specifier: ^19.2.6
+        version: 19.2.6
+      react-dom:
+        specifier: ^19.2.6
+        version: 19.2.6(react@19.2.6)
+      react-i18next:
+        specifier: ^17.0.8
+        version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
       sort-package-json:
         specifier: ^3.6.1
         version: 3.6.1

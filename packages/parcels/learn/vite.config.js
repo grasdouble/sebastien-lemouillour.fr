@@ -13,11 +13,10 @@ export default defineConfig({
     cssInjectedByJsPlugin(),
     sitemapPlugin({ urls: buildLearnUrls }),
     externalizeDeps({
-      deps: true,
+      deps: false,
       devDeps: false,
       optionalDeps: false,
-      peerDeps: false,
-      except: ['react-markdown', 'remark-gfm', '@grasdouble/slm_shared'],
+      peerDeps: true,
       nodeBuiltins: true,
     }),
   ],

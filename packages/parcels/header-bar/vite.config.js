@@ -11,11 +11,10 @@ export default defineConfig({
     cssInjectedByJsPlugin(),
     sitemapPlugin({ urls: [] }),
     externalizeDeps({
-      deps: true,
+      deps: false,
       devDeps: false,
       optionalDeps: false,
-      peerDeps: false,
-      except: ['@grasdouble/slm_shared'],
+      peerDeps: true,
       nodeBuiltins: true,
     }),
   ],
