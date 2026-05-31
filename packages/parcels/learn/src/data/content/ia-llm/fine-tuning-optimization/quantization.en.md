@@ -17,6 +17,44 @@ If 8-bit still does not fit, 4-bit is the escape hatch, but I only trust it afte
 
 When the target is laptop, CPU, or edge deployment, I switch to [GGUF](https://github.com/ggml-org/ggml/blob/master/docs/gguf.md). The format is built for single-file inference artifacts and fast loading, and [llama.cpp](https://github.com/ggml-org/llama.cpp) is the runtime I would pick when portability matters more than training convenience.
 
+That is why I keep a rough comparison table in front of me before I start arguing about kernels and benchmarks.
+
+| Format  | Bits | VRAM Saving | Quality Loss  | Best For                                                               |
+| ------- | ---- | ----------- | ------------- | ---------------------------------------------------------------------- |
+| fp16    | 16   | None        | None          | Baseline GPU inference when I want the cleanest reference output       |
+| int8    | 8    | ~50%        | Low           | My first production downgrade on GPU cloud                             |
+| int4    | 4    | ~70-75%     | Medium        | When 8-bit still does not fit and I am willing to re-evaluate the task |
+| GGUF Q4 | 4    | ~70-75%     | Medium        | Local CPU, laptop, and edge deployments that need to fit first         |
+| GGUF Q8 | 8    | ~50%        | Low           | Local inference when I can spend more RAM to keep output cleaner       |
+| AWQ     | 4    | ~70%        | Low to medium | Latency-sensitive GPU serving with careful calibration                 |
+
+When I need to choose fast, I reduce it to a deployment question instead of a purity debate.
+
+```mermaid
+flowchart TD
+    A{Need max quality?}
+    A -->|Yes| B{Deployment target?}
+    A -->|No| C{Deployment target?}
+    B -->|GPU cloud| D{Latency sensitive?}
+    B -->|Local CPU| E{Latency sensitive?}
+    B -->|Edge| F{Latency sensitive?}
+    C -->|GPU cloud| G{Latency sensitive?}
+    C -->|Local CPU| H{Latency sensitive?}
+    C -->|Edge| I{Latency sensitive?}
+    D -->|Yes| J[Recommend int8]
+    D -->|No| K[Recommend fp16]
+    E -->|Yes| L[Recommend GGUF Q8]
+    E -->|No| L
+    F -->|Yes| M[Recommend GGUF Q8 if it fits]
+    F -->|No| M
+    G -->|Yes| N[Recommend AWQ]
+    G -->|No| O[Recommend int4]
+    H -->|Yes| P[Recommend GGUF Q4]
+    H -->|No| P
+    I -->|Yes| Q[Recommend GGUF Q4]
+    I -->|No| Q
+```
+
 The trap most guides skip is evaluation scope. A short demo prompt can look fine while long context, repeated tool calls, JSON extraction, and multilingual output quietly get worse. That is how a memory win turns into support cost.
 
 This is the loading pattern I keep around so the quantization choice stays explicit instead of leaking into random call sites.

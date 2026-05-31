@@ -15,6 +15,27 @@ If overlap between requests is the real problem, I would start with [vLLM optimi
 
 That is the mental model I keep: long prompts hurt first-token latency, overlapping requests punish weak batching, and VRAM limits turn into cost fast. I treat those as separate failure modes because the fix is different for each one.
 
+When I need to choose a path quickly, I sketch the serving decision before I touch benchmarks, because half the bad calls come from mixing latency, batching, and hardware constraints into one fuzzy debate.
+
+```mermaid
+flowchart LR
+    A[Request] --> B{Batch size high?}
+    B -->|No| C{Latency budget OK?}
+    B -->|Yes| D{Latency budget OK?}
+    C -->|No, keep TTFT low| E[Streaming]
+    C -->|Yes, throughput matters more| F[Batched]
+    D -->|No, users feel every ms| E
+    D -->|Yes, queueing dominates| F
+    E --> G{Quantized?}
+    F --> G
+    G -->|Yes + enough VRAM| H[Local GPU]
+    G -->|No + shared traffic| I[API]
+    G -->|Yes + tiny box| J[Edge]
+    H --> K[Response]
+    I --> K
+    J --> K
+```
+
 Before picking an engine, I like to force the trade-off into code.
 
 ```ts

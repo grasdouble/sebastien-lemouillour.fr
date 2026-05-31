@@ -15,7 +15,24 @@ Ce choix ne règle pourtant que le premier problème : obtenir une réponse HTTP
 
 J'évite aussi de coupler trop tôt le serving et la logique applicative. Une fine couche autour d'un serveur existant suffit généralement pour la première version, et les serveurs qui suivent la [Models API](https://platform.openai.com/docs/api-reference/models/list) me permettent de commencer par un health check peu coûteux avant d'ajouter une vraie sonde de génération. C'est beaucoup moins sexy que de construire d'entrée de jeu un gateway custom, un routeur, un registre de prompts et une couche de failover multi-modèles, mais c'est la voie que je choisirais tant que le trafic ne me prouve pas le contraire.
 
-Je commence en général par le plus petit check qui prouve que le process répond vite et que mon wrapper peut basculer sans drame.
+Je commence en général par le plus petit check qui prouve que le process répond vite et que mon wrapper peut basculer sans drame. Quand je dessine le chemin du trafic, je veux que le scénario de panne soit aussi lisible que le scénario nominal.
+
+```mermaid
+flowchart LR
+    A[Requête] --> B[Load balancer]
+    B --> C[Health check]
+    C --> D{Le primaire est sain ?}
+    D -->|oui| E[Stack de serving primaire]
+    D -->|non| F[Rerouter vers le fallback]
+    F --> G[Stack de serving de secours]
+    E --> H[Inférence du modèle]
+    G --> H
+    H --> I[Réponse]
+    I --> J[Logs]
+    E -. Panne du primaire .-> K[Health check en échec]
+    K --> F
+    K --> L[Alerte]
+```
 
 ```ts
 const providers = [

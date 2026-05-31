@@ -13,6 +13,13 @@ That second step works because a hosted API such as [Cohere API](https://docs.co
 
 The budget problem appears immediately, so I keep the contract narrow. A reranker that sees every retrieved chunk is just a slow retriever in disguise, and managed services will happily remind you with latency or billing.
 
+| Approach              | Latency        | Cost                  | Quality                                                                             | When to Use                                                                                                 |
+| --------------------- | -------------- | --------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| No reranking          | Lowest         | Lowest                | Good enough only when retrieval already puts the right chunk in the first few spots | Keep it simple when top-k is already clean and your evals do not improve with an extra pass                 |
+| BM25 rerank           | Low            | Low                   | Better lexical precision on exact terms, weak on semantic nuance                    | Add a cheap second pass when wording overlap matters more than paraphrase handling                          |
+| Cross-encoder (local) | Medium to high | Fixed infra cost      | Usually the best quality you can control tightly                                    | Use it when data cannot leave your stack or you need predictable throughput after the initial shortlist     |
+| Hosted API reranker   | Medium         | Variable, usage-based | Strong quality with minimal ops work                                                | Use it when you want fast integration, can cap candidate counts, and the privacy/budget story is acceptable |
+
 Before I wire it into a framework, I usually prove the shape with a tiny function like this:
 
 ```python

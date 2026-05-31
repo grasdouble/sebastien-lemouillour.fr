@@ -49,6 +49,42 @@ for (let hop = 0; hop < MAX_TOOL_HOPS; hop += 1) {
 throw new Error('Too many tool hops');
 ```
 
+```mermaid
+sequenceDiagram
+  participant User as Utilisateur
+  participant App as Orchestrateur
+  participant Model as Modèle
+  participant Validator as Couche de validation
+  participant Human as Relecteur humain
+  participant Tool as Outil
+  participant Logger as Journalisation
+
+  User->>App: Entrée utilisateur
+  App->>Model: Envoi des messages + définitions d’outils
+
+  loop Jusqu’à la réponse finale ou la limite de sauts
+    Model-->>App: Tour assistant + éventuels appels d’outils
+    alt Aucun appel d’outil
+      App-->>User: Réponse finale
+    else Appel d’outil demandé
+      App->>Validator: Vérifier l’outil autorisé + valider les arguments
+      Validator-->>App: Appel validé
+      opt Outil d’écriture risqué
+        App->>Human: Demander une approbation
+        Human-->>App: Approuver ou refuser
+      end
+      App->>Tool: Exécuter avec un timeout
+      Tool-->>App: Résultat de l’outil
+      App->>Logger: Journaliser l’outil, la latence, le résultat
+      App->>Model: Renvoyer tool_result + messages mis à jour
+    end
+  end
+
+  opt Limite de sauts atteinte
+    App-->>User: Erreur : trop de sauts d’outils
+  end
+```
+
 Quelques habitudes de prod rentabilisent l’effort très vite. Mets une limite dure sur le nombre de sauts, parce qu’un modèle confus peut tourner en rond avec ton budget. Garde les outils d’écriture idempotents, parce qu’un échec partiel adore rejouer la même action. Loggue le nom de l’outil, sa latence et son résultat à chaque saut, parce que “l’agent a été bizarre” n’aide personne. Et si un outil peut bouger de l’argent, contacter des clients ou modifier des données, ajoute une approbation humaine avant exécution.
 
 Ma règle est simple : j’utilise le tool calling quand le modèle a besoin d’un état frais ou doit choisir entre plusieurs actions externes. Si tu sais déjà quel service appeler, saute le cérémonial et appelle-le toi-même. Moins de boucles, moins de surprises.

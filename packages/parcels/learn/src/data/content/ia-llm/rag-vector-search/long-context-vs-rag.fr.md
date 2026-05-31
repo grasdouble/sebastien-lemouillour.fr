@@ -17,6 +17,17 @@ La plupart des systèmes n'ont pas ce luxe. La couche de retrieval existe parce 
 
 Le prompt caching amortit le coût des longs prompts, mais il ne sauve pas de mauvaises décisions de pertinence. Le [cache OpenAI](https://platform.openai.com/docs/guides/prompt-caching) exige un préfixe identique et fonctionne surtout quand le contenu statique reste au début; le [cache Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) documente la même logique avec des points de cache. C'est utile pour des préfixes répétés, pas pour décider quelles preuves doivent entrer dans la requête.
 
+Si quelqu'un veut le comparatif sans le discours, voilà celui que j'ai en tête:
+
+| Dimension                           | Long contexte                                                                                      | RAG                                                                                                                        |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Coût                                | Devient vite cher parce que chaque requête repaie la relecture de documents entiers                | En général moins cher, car l'embedding se paie surtout à l'ingestion et l'inférence ne voit qu'une shortlist               |
+| Latence                             | Plus élevée et moins prévisible à mesure que le prompt grossit                                     | Plus basse si le retrieval est propre, même si le reranking ajoute parfois une étape                                       |
+| Fraîcheur                           | Correcte seulement si le prompt est reconstruit à partir de sources fraîches à chaque requête      | Plus robuste par défaut, car on peut réindexer ou requêter des données qui changent sans refaire tout le contrat de prompt |
+| Précision sur de gros documents     | Bonne si les bons documents sont déjà connus, faible si la réponse est noyée dans une grosse masse | Meilleure quand la preuve est clairsemée, parce que la sélection est faite avant la génération                             |
+| Dépendance à la fenêtre de contexte | Dépend entièrement de la taille de fenêtre et du pricing du modèle                                 | Beaucoup moins dépendant, car le retrieval réduit la charge avant la génération                                            |
+| Scalabilité                         | S'écroule dès que le corpus ou le nombre de documents par requête continue de grossir              | Passe mieux à l'échelle, car la recherche réduit le corpus avant de payer le raisonnement du modèle                        |
+
 Quand je dois trancher vite, je réduis la décision à cette règle:
 
 ```yaml

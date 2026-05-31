@@ -13,6 +13,29 @@ Pure agent loops are nice right until someone asks for predictability. Fully det
 
 That split is where operations stop being hand-wavy. I want SLAs, approval gates, and failure paths in code, not buried in prompt poetry. The [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) makes the same bet with a managed agent loop, tool execution, guardrails, and resumable runs. [Semantic Kernel Process Framework](https://learn.microsoft.com/en-us/semantic-kernel/frameworks/process/process-framework) pushes the Microsoft version of the argument: event-driven steps, repeatable control, and auditability around AI-enabled processes.
 
+This is the control flow I expect before anyone tells me the workflow is “resilient”:
+
+```mermaid
+graph TD
+    A[Run workflow step] --> B{Result valid and within SLA?}
+    B -->|Timeout| C[Retry under explicit policy]
+    C --> D{Retry succeeded?}
+    D -->|No| E[Escalate to error branch or human]
+    D -->|Yes| F[Checkpoint or continue]
+    B -->|Schema or policy failure| E
+    B -->|Yes| F
+    F --> G{Need checkpoint?}
+    G -->|Yes| H[Persist state and resume]
+    G -->|No| I[Continue to next node]
+    H --> I
+    I --> J{Approval gate required?}
+    J -->|Yes| K[Pause for approval]
+    J -->|No| L[Produce output]
+    K --> M{Approved?}
+    M -->|No| N[Stop or reject action]
+    M -->|Yes| L
+```
+
 This is the kind of node wrapper I want before an LLM touches the graph:
 
 ```python

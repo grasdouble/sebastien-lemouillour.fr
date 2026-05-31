@@ -15,6 +15,28 @@ La base portable, c'est [OpenTelemetry traces](https://opentelemetry.io/docs/con
 
 L'erreur que je vois partout, c'est de tracer trop peu. Des équipes créent un seul span `agent.run`, y accrochent la latence totale, puis appellent ça de l'observabilité. C'est décoratif. Je veux des spans enfants pour la planification, chaque appel modèle, chaque appel d'outil, chaque hop de retrieval et chaque couche de validation. Je veux aussi des attributs qui expliquent la surface de décision : outil choisi, nombre de retries, usage de tokens, estimation de coût, et aperçu sûr des inputs et outputs. Garde ces aperçus courts : le texte complet des prompts fait exploser ton volume d'export et peut déclencher les limites de débit de ton backend de traces plus vite que tu ne le penses. Pour le nommage des attributs, les [conventions sémantiques GenAI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) (encore en développement) définissent un schéma standard pour les spans modèle et agent ; les adopter maintenant garantit que tes dashboards survivent à un changement de backend.
 
+Voilà la forme minimale que je veux voir avant de croire un postmortem.
+
+```mermaid
+flowchart TD
+  A["span racine<br/>agent.run"] --> B["span appel LLM<br/>llm.plan"]
+  B --> C["span appel d'outil<br/>tool.docs.search"]
+  C --> D["span réponse<br/>agent.response"]
+```
+
+Et voilà les attributs que j'exige dès le premier jour, pas après le premier incident.
+
+| Attribut         | Ce que ça m'apprend                                                | Exemple            |
+| ---------------- | ------------------------------------------------------------------ | ------------------ |
+| `trace_id`       | Relie toute la requête à travers services et retries               | `9f7c0f3a5b1d4a2e` |
+| `span_id`        | Identifie exactement cette étape dans l'arbre de trace             | `7a13c2de91bb4f06` |
+| `parent_span_id` | Me dit quelle étape amont a engendré ce span                       | `3cc5ef4497d9f1a0` |
+| `latency_ms`     | Montre si le temps part dans le plan, l'outil ou le modèle         | `842`              |
+| `model`          | Confirme quel modèle a réellement traité l'appel                   | `gpt-4.1-mini`     |
+| `tokens_in`      | Explique la pression côté coût et latence du prompt                | `2450`             |
+| `tokens_out`     | Explique la pression côté coût et latence de la réponse            | `312`              |
+| `status`         | Sépare un span sain d'un timeout, d'une erreur ou d'une annulation | `ok`               |
+
 Ça devient encore plus important dès que tu ajoutes des fallbacks. Un appel modèle qui semble sain pris seul peut très bien faire partie d'une trace cassée parce que l'agent a choisi le mauvais outil, a retry avec un contexte périmé, puis a renvoyé une jolie réponse fausse. Les logs capturent des fragments. Les traces capturent la séquence.
 
 J'aime modéliser les spans au plus près du workflow, pour que l'instrumentation reflète réellement le graphe de l'agent au lieu de vivre dans un wrapper HTTP générique.

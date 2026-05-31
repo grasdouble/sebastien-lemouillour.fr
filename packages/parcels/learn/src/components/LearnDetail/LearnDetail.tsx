@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -20,6 +20,8 @@ import { LangSwitcher } from '@grasdouble/slm_shared';
 
 import type { Tutorial } from '../../data/learn';
 import styles from './LearnDetail.module.css';
+
+const MermaidBlock = lazy(() => import('../MermaidBlock/MermaidBlock').then((m) => ({ default: m.MermaidBlock })));
 
 type LearnDetailProps = {
   tutorial: Tutorial;
@@ -167,6 +169,16 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
                         </li>
                       ),
                       code: ({ children, className }) => {
+                        const language = className?.replace('language-', '') ?? '';
+                        if (language === 'mermaid') {
+                          return (
+                            <div data-testid="mermaid-wrapper" className={styles['mermaid-wrapper']}>
+                              <Suspense fallback={<pre aria-busy="true">{children}</pre>}>
+                                <MermaidBlock chart={typeof children === 'string' ? children : ''} />
+                              </Suspense>
+                            </div>
+                          );
+                        }
                         const isBlock = className?.startsWith('language-');
                         if (isBlock) {
                           const language = className?.replace('language-', '') ?? '';

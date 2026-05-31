@@ -13,19 +13,33 @@ Traitez le modèle comme une dépendance, pas comme l'application. L'[architectu
 
 Il y a quatre boîtes que je veux voir dessinées séparément. D'abord, une couche d'entrée qui authentifie, applique la limitation de débit et tague les requêtes. Ensuite, une couche d'orchestration qui construit le contexte et décide quelles capacités peuvent s'exécuter. Puis des exécuteurs d'outils isolés, avec deadlines et idempotence. Le [tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) d'Anthropic rend cette frontière explicite : c'est l'application qui exécute les outils client, pas le modèle. Enfin, une couche d'accès modèle, souvent via [LiteLLM](https://docs.litellm.ai/) ou une autre passerelle, pour éviter que le routage et le failover soient câblés dans les parcours produit. Si vous auto-hébergez, [vLLM](https://docs.vllm.ai/) appartient à la couche de serving, pas au code d'orchestration.
 
-Avant que ça tourne à la fan fiction d'architecture, imposez un budget de latence dans le design. C'est la forme minimale à laquelle je fais confiance.
+Si votre schéma ne montre pas le chemin chaud en 10 secondes, il est trop flou. Voilà le trajet minimal que je veux voir affiché.
 
-```yaml
-request_budget_ms: 4000
-stages:
-  auth_and_routing: 150
-  retrieval: 600
-  orchestration: 300
-  model_inference: 2400
-  tool_calls: 400
-  output_validation: 150
-fallback: cached-answer-or-human
+```mermaid
+flowchart LR
+    client[Client] --> gateway[Gateway]
+    gateway --> orchestrator[Orchestrateur]
+    orchestrator --> llm[LLM]
+    orchestrator --> tools[Exécuteurs d'outils]
+    orchestrator --> memory[Mémoire de conversation]
+    orchestrator --> vectordb[Base vectorielle]
+    llm --> assembler[Assembleur de réponse]
+    tools --> assembler
+    memory --> assembler
+    vectordb --> assembler
+    assembler --> client
 ```
+
+Avant que ça tourne à la fan fiction d'architecture, imposez un budget de latence dans le design. Je ne veux pas d'une moyenne optimiste planquée dans un slide. Je veux un budget explicite, avec une réaction prévue quand une étape explose.
+
+| Composant                    | Cible p50 | Cible p99 | Action si dépassement                                                                                                  |
+| ---------------------------- | --------: | --------: | ---------------------------------------------------------------------------------------------------------------------- |
+| Auth et gateway              |    150 ms |    300 ms | Écrémer la charge, resserrer le rate limiting et servir des refus en cache sur les chemins abusifs                     |
+| Orchestrateur                |    300 ms |    700 ms | Alléger l'assemblage du prompt, paralléliser les appels sûrs et couper l'enrichissement optionnel                      |
+| Retrieval / base vectorielle |    600 ms |   1200 ms | Renvoyer moins de documents, basculer sur du contexte en cache ou bypasser le retrieval pour les requêtes peu risquées |
+| Exécuteurs d'outils          |    400 ms |    900 ms | Imposer des deadlines, retomber sur des réponses partielles et déclencher les circuit breakers des outils instables    |
+| Inférence modèle             |   2400 ms |   5000 ms | Router vers un modèle de secours plus petit ou une politique de génération plus courte                                 |
+| Assemblage et validation     |    150 ms |    300 ms | Sauter le post-traitement non critique et renvoyer le minimum validé                                                   |
 
 Ce budget compte parce que chaque saut supplémentaire vole du temps à l'inférence et augmente le fan-out des pannes. Si vous avez vraiment besoin d'un travail qui dure plusieurs minutes, mettez-le en file d'attente et interrogez son statut ; le [background mode](https://platform.openai.com/docs/guides/background) existe précisément pour cette forme d'exécution. Les frontières de sécurité doivent aussi être dans le schéma, pas dans un ticket de nettoyage. Si le modèle peut influencer les paramètres d'outils ou consommer des documents non fiables, le [Top 10 OWASP LLM](https://genai.owasp.org/llm-top-10/) doit façonner les frontières d'interface dès le premier jour.
 

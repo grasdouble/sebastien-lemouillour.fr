@@ -15,6 +15,23 @@ I default to boring choices here because boring survives traffic. If a model onl
 
 The first estimate I trust is rough on purpose, and I keep the cache term explicit because it changes with architecture, cache dtype, and serving settings. If you use [vLLM](https://docs.vllm.ai/en/latest/configuration/optimization/) or tune [engine args](https://docs.vllm.ai/en/latest/configuration/engine_args.html), this is the line that decides whether you get steady throughput or preemption under load.
 
+When I need to sanity-check a deployment fast, I reduce the problem to two boring tables: what one parameter costs at each precision, then which memory terms actually pile up at runtime.
+
+| Precision | Bytes/param | Example VRAM (7B model) | Use case                                                                               |
+| --------- | ----------: | ----------------------: | -------------------------------------------------------------------------------------- |
+| fp32      |           4 |                ~26.1 GB | Debugging, numerical checks, or old training code paths that have not been modernized  |
+| bf16      |           2 |                ~13.0 GB | My default for training on recent GPUs when the hardware supports it                   |
+| fp16      |           2 |                ~13.0 GB | Mixed-precision training or inference on hardware that is happier with fp16 than bf16  |
+| int8      |           1 |                 ~6.5 GB | Quick inference compression when I want to keep quality loss modest                    |
+| int4      |         0.5 |                 ~3.3 GB | Aggressive local or edge deployment where fitting the box matters more than perfection |
+
+| VRAM component   | Formula                                                 | Notes                                                                                                         |
+| ---------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Model weights    | `params × bytes_per_param`                              | The minimum footprint; this is the term people see in model cards and then underestimate everything else from |
+| Optimizer states | `params × optimizer_multiplier × state_bytes`           | Training only; Adam-style optimizers usually cost more than the weights themselves                            |
+| Gradients        | `params × gradient_bytes`                               | Training only; usually same shape as the weights, so they become expensive fast                               |
+| Activations      | `batch × sequence × hidden × layers × activation_bytes` | The least stable term; it explodes with long contexts, large batches, and no checkpointing                    |
+
 Before I touch allocator flags, I run a back-of-the-envelope estimate like this:
 
 ```ts

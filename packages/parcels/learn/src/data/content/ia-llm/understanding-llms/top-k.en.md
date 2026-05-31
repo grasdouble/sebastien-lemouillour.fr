@@ -34,6 +34,14 @@ outputs = model.generate(
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 ```
 
+| `top_k`             | Candidate pool                    | What I usually see                                             | When I use it                                                    |
+| ------------------- | --------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `1`                 | Only the single most likely token | Effectively greedy, very rigid, almost no surprises            | Extraction, strict routing, format-sensitive output              |
+| `10`–`20`           | Very narrow shortlist             | Mostly predictable output with the occasional small wobble     | Small models that need structure more than style                 |
+| `20`–`40`           | Moderate shortlist                | Good balance between control and usable variation              | My default starting range on self-hosted instruct models         |
+| `50`–`100`          | Wide shortlist                    | More expressive, but more chances to let tail junk back in     | Larger or steadier local models that still need some range       |
+| `0` or `-1` in vLLM | No cap at all                     | Top-k disabled, so another sampling control has to do the work | Only when I intentionally rely on `top_p` or temperature instead |
+
 ## Why I prefer it on self-hosted models
 
 When a smaller model keeps wandering into junk, I want a fixed ceiling before I start debating probability mass. The [vLLM params](https://docs.vllm.ai/en/latest/api/vllm/sampling_params.html) even let you disable the filter with `top_k=0` or `-1`, which tells you exactly what this knob is for: you either cap the candidate set or you do not.

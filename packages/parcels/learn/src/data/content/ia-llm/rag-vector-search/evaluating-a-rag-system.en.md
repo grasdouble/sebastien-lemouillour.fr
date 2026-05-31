@@ -15,6 +15,17 @@ For offline regression work, I would pick [Ragas faithfulness](https://docs.raga
 
 Once the dataset is hostile enough, screenshots stop being useful. [TruLens tracing](https://www.trulens.org/component_guides/instrumentation/) is the right move when you need to inspect retrieved context, intermediate steps, and evaluation targets inside the same execution flow. Pair that with [OTel GenAI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) so latency, token usage, and failure spans are captured with standard conventions instead of whatever your current vendor happens to expose.
 
+When I need the release contract on one screen, this is the scorecard I actually want to see:
+
+| Metric                | What it measures                                                    | Target                                                  | Tool                                            |
+| --------------------- | ------------------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------- |
+| `recall@k`            | Whether the right evidence shows up somewhere in the top-k          | High enough that gold chunks usually appear by `k=10`   | Labeled retrieval evals, Ragas, vendor KB evals |
+| `precision@k`         | How much of the top-k list is actually useful                       | Keep the top 5 mostly relevant so context is not wasted | Ragas, labeled retrieval set                    |
+| `faithfulness`        | Whether the answer is supported by retrieved context                | Never drop below the agreed release floor               | Ragas, DeepEval, rubric-based judge             |
+| `answer relevance`    | Whether the answer addresses the user question directly             | Stable or improving on the hard eval set                | Ragas, LLM judge                                |
+| `context utilization` | Whether the model uses the supplied evidence instead of freelancing | Investigate any answer that ignores retrieved context   | TruLens traces, manual trace review             |
+| `latency`             | End-to-end speed under realistic load                               | Keep p95 inside the SLA                                 | OTel GenAI, tracing backend                     |
+
 Before you argue about release readiness, write the contract down:
 
 ```yaml

@@ -11,6 +11,18 @@ You asked for a short answer and got a TED Talk. Then you added "be concise plea
 
 Most bad prompts fail for boring reasons, not mystical ones. The useful part is that the official docs from [OpenAI](https://developers.openai.com/api/docs/guides/prompting), [Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies), and [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/prompt-engineering) keep repeating the same thing: give the model a clear task, enough context, and constraints it can actually follow.
 
+Here is the fast diagnostic I use when a prompt keeps producing fluff instead of useful work.
+
+| Mistake                           | Why it fails                                                                                  | Better approach                                                                              |
+| --------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Too vague                         | The model has to guess what “better” means, so it invents its own target.                     | Use an action verb and a goal: `Rewrite this email to sound warmer for a hesitant prospect.` |
+| Missing context                   | The answer drifts because the audience, stakes, or constraints never made it into the prompt. | Add the real setup: audience, deadline, tone, product, or decision criteria.                 |
+| Asking for five things at once    | Competing goals produce muddy output that is half-summary, half-rewrite, half-chaos.          | Split the work into steps or rank priorities: analysis first, rewrite second.                |
+| No output format                  | Even a good answer becomes annoying if it comes back in the wrong shape.                      | Ask for bullets, a table, JSON, or `exactly 3 suggestions` up front.                         |
+| No examples                       | Abstract instructions leave too much room for interpretation.                                 | Show a short example of the tone, structure, or label format you want.                       |
+| Role not set                      | The model defaults to a generic assistant voice, which is often too broad.                    | Set a useful role: `Act as a support triage assistant for a SaaS team.`                      |
+| Treating the first reply as final | The first draft is often directionally right but operationally messy.                         | Iterate once or twice, then rewrite the prompt instead of patching endlessly.                |
+
 ### Mistake 1: asking for vibes instead of a task
 
 "Make this better" is not really a task. Better how, for whom, and by what standard? The model will happily invent a goal if you do not provide one.

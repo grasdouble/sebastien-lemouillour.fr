@@ -29,6 +29,19 @@ This is the moment when open-weight models become attractive. Meta says [Llama 3
 
 There is a catch, and beginners should hear it plainly: open-weight does not mean free or easy. You still need enough hardware, enough engineering time, and enough patience to monitor quality. I would not self-host just to feel independent. I would self-host only when privacy rules, repeatability needs, or a growing API bill make the extra work cheaper than the dependency.
 
+Here is the quick comparison I would actually use before picking a side:
+
+| Dimension              | Open-weight model                                                     | Proprietary API                                                                |
+| ---------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Upfront effort         | I need hardware, serving, and monitoring from day one                 | I get an endpoint, an API key, and a working prototype fast                    |
+| Cost shape             | More fixed infrastructure cost, which can pay off at sustained volume | Low setup cost, but the bill grows with every prompt and response              |
+| Privacy boundary       | Prompts, logs, and model traffic can stay inside my own perimeter     | I depend on the provider's retention, logging, and regional controls           |
+| Model control          | I can pin a version, tune inference, and sometimes fine-tune deeply   | I get limited knobs and must accept provider-side changes                      |
+| Deployment options     | Cloud, on-prem, or even offline if my hardware can handle it          | Internet access and provider availability are part of the deal                 |
+| Maintenance burden     | My team owns uptime, patches, regressions, and evals                  | The vendor runs the model, but I still own prompt quality and integration bugs |
+| Quality ceiling        | Varies a lot by model choice and infrastructure budget                | Easiest path to frontier models and strong default performance                 |
+| I would choose it when | Privacy, repeatability, or heavy usage matters more than convenience  | Speed, simplicity, and fast learning matter more than control                  |
+
 ## My rule
 
 My default choice is simple: for learning, demos, and the first version of a product, start with a proprietary API. Switch only when one of three things becomes true: your data should not leave your boundary, you must pin one model version for repeatable behavior, or your monthly usage is high enough that renting hardware is easier to justify than paying per token. If you cannot name that threshold yet, stay hosted for now, then read the next guide on tokens so pricing and context limits stop feeling mysterious.

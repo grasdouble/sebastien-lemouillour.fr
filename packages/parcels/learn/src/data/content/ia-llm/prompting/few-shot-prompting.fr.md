@@ -21,6 +21,18 @@ Le few-shot marche parce qu'il apprend au modèle où se trouvent les limites du
 
 Les exemples doivent être cohérents dans leur format et variés dans leur contenu. La cohérence du format enseigne la structure. La variété du contenu enseigne la règle. Si tous les exemples se ressemblent trop, le modèle risque de mémoriser des formulations de surface au lieu du vrai motif.
 
+Quand je relis un prompt few-shot, je fais souvent ce contrôle rapide avant de chipoter sur la formulation.
+
+| Motif                         | Exemple                                                                     | Pourquoi ça marche / pourquoi ça rate                                                                                   |
+| ----------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Bon : format cohérent         | `Exemple 1 : Message ... Label ...` répété de la même manière à chaque fois | Ça marche parce que le modèle apprend une structure stable au lieu de devoir deviner un nouvel emballage à chaque shot. |
+| Bon : exemples variés         | Message de satisfaction, problème, question, puis cas ambigu                | Ça marche parce que la variété montre où passe la frontière de la règle, pas juste une tournure de phrase.              |
+| Bon : labels clairement posés | `Label : Problem` plutôt qu'une phrase floue                                | Ça marche parce que la sortie cible est limpide et facile à reproduire.                                                 |
+| Mauvais : format incohérent   | Premier exemple en prose, deuxième en puces, troisième en JSON              | Ça rate parce que le modèle gaspille son attention à comprendre l'habillage au lieu de la tâche.                        |
+| Mauvais : trop d'exemples     | 15 mini-shots pour une tâche qui devrait se stabiliser avec 3 à 5           | Ça rate parce que le prompt s'allonge, devient pénible à maintenir, et le signal finit par se diluer.                   |
+| Mauvais : exemples biaisés    | Tous les `Problem` sont agressifs, tous les `Praise` sont enthousiastes     | Ça rate parce que le modèle risque d'apprendre des stéréotypes de ton au lieu de la vraie règle de classification.      |
+| Mauvais : labels erronés      | Un message clairement négatif étiqueté `Praise`                             | Ça rate parce qu'un seul exemple mal étiqueté peut contaminer tout le motif.                                            |
+
 C'est le genre de configuration que j'aime pour une tâche de classification accessible aux débutants.
 
 ```text

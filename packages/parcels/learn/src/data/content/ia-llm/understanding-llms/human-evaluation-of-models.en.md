@@ -33,6 +33,16 @@ Blind reviews matter. Randomized order matters. Sampling matters. If raters know
 
 I would also keep a small adjudicated set that does not change casually. Not because it is sacred, but because trend lines need some stability. Then refresh the broader sample aggressively so the evaluation stays connected to current user behavior.
 
+If I had to turn all of that into an actual annotation sheet, it would look more like this:
+
+| Dimension                         | What the rater should assess                                                    | Format I would use                                            | Anchor or decision rule                                                           | Common failure to watch                                  |
+| --------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Factuality                        | Are the claims correct, supported, and free of invented details?                | 1-5 scale for simple tasks, or pass/fail for critical domains | Only score high if the answer is materially correct, not just plausible           | Hallucinations, fake citations, confident errors         |
+| Usefulness                        | Did the answer solve the user's job, not just answer part of the prompt?        | 1-5 scale with explicit anchors                               | A "5" should feel ready to ship with minimal editing                              | Partial answers, generic advice, missing the actual task |
+| Policy or safety compliance       | Does the output stay inside the allowed behavior for the product?               | Pass/fail with escalation notes                               | One clear violation should fail the sample even if the answer is otherwise strong | Harmful advice, privacy leaks, policy evasions           |
+| Tone and communication            | Is the answer clear, appropriately scoped, and aligned with the expected voice? | Lightweight 1-3 scale                                         | Use a narrow scale so raters do not confuse style with factual quality            | Rambling, robotic phrasing, unnecessary hedging          |
+| Ship decision between two outputs | Which answer would I actually publish or show to a user?                        | Pairwise comparison                                           | Force a winner unless the outputs are functionally tied                           | Raters rewarding verbosity instead of actual usefulness  |
+
 ## Decision rule
 
 Use human evaluation whenever the release decision depends on qualities machines still score badly: usefulness, nuance, tone, safety judgment, or comparative preference. If you cannot afford blind review, clear rubrics, and periodic agreement checks, do not pretend you have a gold-standard eval. You have anecdotes with spreadsheets.

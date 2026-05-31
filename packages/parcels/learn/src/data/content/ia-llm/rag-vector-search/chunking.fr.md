@@ -13,7 +13,21 @@ Moi, je découpe d'abord par structure, ensuite par budget de tokens. En Markdow
 
 Le piège dans lequel je suis tombé, c'était de traiter Markdown, HTML, transcription et texte OCR comme un seul blob générique. Ce n'est pas le même travail. Les [node parsers LlamaIndex](https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/) héritent déjà des attributs du document vers les nœuds enfants, donc le chunking orienté format fait partie du modèle d'ingestion. Je normalise d'abord, puis je choisis le splitter le moins coûteux qui préserve encore la frontière qu'un humain juge importante.
 
-Cette décision devient simple à tenir avec un petit dispatcher avant même de brancher une abstraction de framework.
+Cette décision devient simple à tenir avec un petit dispatcher avant même de brancher une abstraction de framework. Dans ma tête, le pipeline ressemble à ça.
+
+```mermaid
+flowchart LR
+  A[Document brut] --> B[Nettoyer / normaliser]
+  B --> C{Stratégie de découpe}
+  C --> D[Fenêtre fixe]
+  C --> E[Par phrases]
+  C --> F[Sémantique / structure]
+  D --> G[Chunks]
+  E --> G
+  F --> G
+  G --> H[Embedder]
+  H --> I[Stocker en base vectorielle]
+```
 
 ```ts
 type SourceKind = 'markdown' | 'html' | 'transcript' | 'plain';

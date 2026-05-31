@@ -15,6 +15,28 @@ Cette séparation ne sert à rien si vous êtes incapables de bloquer une régre
 
 Une passerelle a quand même besoin d'une implémentation ennuyeuse. [LiteLLM](https://docs.litellm.ai/) devient utile quand il faut du routage, des retries et du contrôle de dépense entre fournisseurs. Je n'auto-hébergerais rien pour me donner un air malin. [vLLM](https://docs.vllm.ai/) devient rationnel quand le débit, la latence ou la localisation des données justifient la facture opérationnelle.
 
+Quand je dois expliquer vite la stack de production, je la dessine comme ça.
+
+```mermaid
+flowchart TD
+  A["Couche données\névénements bruts, documents, features"] --> B["Couche modèle\nmodèles de base, adapters, jeux d'evals"]
+  B --> C["Couche API et orchestration\npasserelle, routage, outils, retries"]
+  C --> D["Couche application\nparcours produit, permissions, UX"]
+  D --> E["Couche monitoring\ntraces, evals, coût, signaux d'incident"]
+```
+
+Le monitoring apparaît à la fin du schéma, mais en vrai il doit surveiller toutes les couches, sinon la stack vous raconte des histoires.
+
+Je veux aussi des frontières de rôle claires avant que l'organigramme ne se mêle de la technique.
+
+| Rôle              | Ce que j'attends qu'il porte                                                                         | Ce que je ne veux pas lui laisser                                         |
+| ----------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| AI Engineer       | Contrats de prompt, orchestration, branchement des evals, garde-fous et comportement en prod         | Pipelines de données brutes ou priorisation produit                       |
+| ML Engineer       | Choix des modèles, fine-tuning ou adapters, méthode d'évaluation hors ligne et arbitrages de qualité | Permissions applicatives, parcours UX ou contrôle des coûts provider      |
+| Data Engineer     | Pipelines d'ingestion, fraîcheur documentaire, feature stores et qualité des données de retrieval    | Itération sur les prompts ou sémantique d'outils propre à chaque provider |
+| Platform Engineer | Fiabilité de la passerelle, secrets, quotas, traces, déploiement et rollback                         | Formulation du cas d'usage, critères d'acceptation ou texte de policy     |
+| Product           | Impact utilisateur, niveau d'automatisation, niveau de revue et attentes sur le kill switch          | Détails SDK, logique de retry ou tuning d'index vectoriel                 |
+
 Avant que le deuxième modèle n'arrive, verrouillez le contrat sur quelque chose que les équipes produit ne peuvent pas contourner par accident.
 
 ```ts

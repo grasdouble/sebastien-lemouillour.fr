@@ -34,6 +34,14 @@ outputs = model.generate(
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 ```
 
+| `top_k`               | Pool de candidats               | Ce que je vois en général                                                           | Quand je l’utilise                                                       |
+| --------------------- | ------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `1`                   | Un seul token, le plus probable | Décodage quasi glouton, très rigide, presque sans surprise                          | Extraction, routage strict, sortie sensible au format                    |
+| `10`–`20`             | Shortlist très étroite          | Sortie surtout prévisible, avec de rares petits écarts                              | Petits modèles qui ont surtout besoin de structure                       |
+| `20`–`40`             | Shortlist intermédiaire         | Bon équilibre entre contrôle et variation utile                                     | Mon point de départ par défaut sur un modèle instruct auto-hébergé       |
+| `50`–`100`            | Shortlist large                 | Plus d’aisance, mais aussi plus de chances de laisser revenir des déchets de traîne | Modèles locaux plus gros ou plus stables qui peuvent encaisser davantage |
+| `0` ou `-1` dans vLLM | Aucun plafond                   | Top-k désactivé, donc un autre réglage d’échantillonnage doit faire le travail      | Seulement si je veux m’appuyer sur `top_p` ou la température à la place  |
+
 ## Pourquoi je le préfère sur les modèles auto-hébergés
 
 Quand un petit modèle part sans cesse dans le décor, je veux un plafond fixe avant de commencer à débattre de masse de probabilité. Les [sampling params de vLLM](https://docs.vllm.ai/en/latest/api/vllm/sampling_params.html) permettent même de désactiver le filtre avec `top_k=0` ou `-1`, ce qui raconte très bien l’intention du réglage: soit on borne l’ensemble des candidats, soit on ne le borne pas.

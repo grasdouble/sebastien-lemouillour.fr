@@ -15,6 +15,17 @@ Ce que les tutos racontent moins, c’est le mode de panne. Dès qu’un prompt 
 
 Je garde aussi les entrées utilisateur dans des variables bien délimitées. L’[article OpenAI sur la prompt injection](https://openai.com/index/prompt-injections/) rappelle bien que cette séparation limite les collisions accidentelles et simplifie les audits, mais qu’elle ne rend pas un texte hostile inoffensif par magie.
 
+Quand je relis un template réutilisable, je veux voir tout de suite ses briques :
+
+| Élément du template | À quoi ça sert                                               | Exemple                                                   |
+| ------------------- | ------------------------------------------------------------ | --------------------------------------------------------- |
+| Rôle                | Dire au modèle quel “métier” il doit jouer pour cette tâche  | `Tu es un analyste support`                               |
+| Contexte            | Injecter les faits, entrées ou sources dont il a besoin      | `Produit : Acme Support ; plan : Pro`                     |
+| Tâche               | Formuler le travail exact à exécuter                         | `Classifie le ticket et rédige une réponse`               |
+| Contraintes         | Borner le comportement pour éviter l’improvisation métier    | `N’accorde aucun remboursement hors allowlist`            |
+| Format de sortie    | Rendre la réponse exploitable par du code ou simple à relire | `Retourne un JSON valide avec les clés : category, reply` |
+| Exemples            | Montrer le pattern attendu quand la forme compte             | `Entrée : souci de facturation -> Sortie : {...}`         |
+
 Voici le genre de setup que j’aime vraiment garder en prod :
 
 ```py
@@ -29,6 +40,18 @@ prompt = template.render(
     user_message=user_message,
     tone="concise and warm",
 )
+```
+
+Et quand le template grossit, j’aime garder un ordre d’assemblage bête et réutilisable :
+
+```mermaid
+flowchart LR
+  A["Définir le rôle"] --> B["Injecter le contexte"]
+  B --> C["Préciser la tâche"]
+  C --> D["Ajouter les contraintes"]
+  D --> E["Fixer le format de sortie"]
+  E --> F["Injecter des exemples"]
+  F --> G["Prompt final"]
 ```
 
 Le template lui-même doit rester assez lisible pour qu’un reviewer voie un changement risqué en un diff. Si j’ai besoin de boucles, de conditionnels et d’inclusions, très bien. Si j’ai besoin de commentaires pour expliquer ce que le template essaye de penser, c’est que j’ai déjà poussé trop de logique dans la mauvaise couche.

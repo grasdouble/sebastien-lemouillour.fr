@@ -13,6 +13,15 @@ Je pars d'un overlap modeste parce que zéro reste la manière la plus rapide de
 
 Mon point de départ est 10 à 15 % de la taille du chunk. C'est suffisant pour des docs où une idée déborde sur le paragraphe suivant, sans noyer les résultats de recherche sous des clones. Je descends quand le document a déjà une structure solide, avec des titres, des sections d'API ou des tours de parole nets. Je monte seulement pour de l'OCR sale ou des transcriptions brouillonnes où les frontières sont peu fiables. Si tu as besoin d'un overlap énorme sur un contenu propre, je corrigerais le splitter avant de retoucher le pourcentage.
 
+Si tu veux la version terrain, voilà comment les pourcentages se comportent le plus souvent :
+
+| Overlap % | Tokens recouverts                           | Continuité                       | Risque de duplication | Je le recommande pour                                                     |
+| --------- | ------------------------------------------- | -------------------------------- | --------------------- | ------------------------------------------------------------------------- |
+| 0 %       | 0                                           | Faible aux frontières des chunks | Nul                   | Docs très structurés avec des coupures naturelles évidentes               |
+| 5–10 %    | ~50 à 100 tokens par chunk de 1 000 tokens  | Souvent suffisant                | Faible                | Docs bien structurés, références d'API, notes avec tours de parole clairs |
+| 10–15 %   | ~100 à 150 tokens par chunk de 1 000 tokens | Bon réglage par défaut           | Modéré                | La plupart des documents rédigés, contenus support, docs internes         |
+| 20 % et + | 200+ tokens par chunk de 1 000 tokens       | Très forte                       | Élevé                 | OCR sale, transcriptions ou sources aux frontières peu fiables            |
+
 Ce choix mène au piège que la plupart des guides sautent : la déduplication après le retrieval. L'overlap peut améliorer le rappel, mais il augmente aussi la probabilité que tes premiers résultats soient quatre variantes du même passage. Je préfère dédupliquer les hits qui se recouvrent avant d'assembler le prompt plutôt que d'augmenter `topK` et de payer pour du contexte répété.
 
 Voici le helper que je sors dès que l'overlap commence à produire des clones.

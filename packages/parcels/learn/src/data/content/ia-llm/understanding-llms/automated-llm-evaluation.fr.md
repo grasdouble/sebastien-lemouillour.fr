@@ -9,6 +9,19 @@ updatedAt: 2026-05-31
 
 Si tu ne relis que dix sorties à la main, des régressions partent en prod. Si tu remplaces ça par un score de juge automatique et que tu appelles ça de la science, des régressions partent quand même. Une évaluation automatisée ne commence à payer que quand le volume grimpe et que le rythme de release compte. Mal utilisée, elle industrialise juste la fausse confiance.
 
+Quand je dois expliquer le pipeline à une équipe, je dessine d’abord le flux avant de débattre des métriques:
+
+```mermaid
+flowchart TD
+  A[Générer la sortie du modèle sur le jeu d’eval] --> B[Lancer les contrôles déterministes]
+  B --> C[Le modèle juge note selon une rubrique]
+  C --> D[Revue pairwise avec ordre inversé]
+  D --> E[Suite de régression sur cas figés et récents]
+  E --> F{Barrière de release}
+  F -->|Passe| G[Livrer]
+  F -->|Échoue| H[Corriger prompt, modèle ou données]
+```
+
 ## Commence par les contrôles durs
 
 Pour tout ce qui touche à une barrière de release, je commencerais par des contrôles déterministes. [OpenAI Evals](https://platform.openai.com/docs/guides/evals) est conçu autour de jeux de données rejouables et d'exécutions répétables, et [OpenAI graders](https://platform.openai.com/docs/guides/graders) pose clairement la différence entre vérifications exactes, similarité textuelle et juges par modèle. C'est le bon ordre. Utilise d'abord des contrôles de chaîne, de schéma et d'appel d'outils pour les exigences dures. Ne sors un juge LLM qu'après avoir déjà filtré les échecs objectifs et bon marché.
@@ -28,6 +41,17 @@ Un système RAG casse à deux endroits : la récupération et la génération de
 ## En production, la suite pourrit
 
 L'eval elle-même dérive. Les prompts changent, les modèles juges sont mis à jour, le dataset vieillit, et l'équipe apprend discrètement à plaire à la métrique. Donc garde un jeu figé et arbitré pour les tendances, un jeu tournant issu des échecs récents, et un minimum d'observabilité sur le taux de réussite par tâche, le taux de désaccord du juge et les variations de score après chaque changement de modèle ou de prompt. Si tu ne regardes pas ces trois signaux, le dashboard est un décor.
+
+Quand je veux toute la pile sur un seul écran, c’est ce résumé que j’utilise:
+
+| Méthode                 | Comment ça marche                                                            | Point fort                                                       | Limite                                              |
+| ----------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------- |
+| Contrôles déterministes | Vérifient des chaînes exactes, un schéma ou le comportement d’appel d’outils | Peu coûteux, rejouables, faciles à brancher sur une release gate | Ratent les questions de qualité plus floues         |
+| Score par rubrique      | Note la sortie selon des critères explicites                                 | Interprétable et plus simple à auditer                           | Une mauvaise grille donne une fausse rigueur        |
+| Modèle juge             | Un LLM applique la rubrique à grande échelle                                 | Couvre des qualités que des règles brutes ratent                 | Les biais du juge et la dérive du modèle restent là |
+| Comparaison pairwise    | Classe deux sorties l’une contre l’autre, idéalement avec ordre inversé      | Signal de préférence fort avec moins de fausse précision         | Ne donne pas de score absolu                        |
+| Métriques RAG séparées  | Suit séparément la qualité de retrieval et celle de la réponse               | Dit où le système casse vraiment                                 | Ajoute des métriques à maintenir et interpréter     |
+| Suite de régression     | Rejoue des cas figés et tournants avant chaque release                       | Attrape les régressions dans le temps                            | Demande une curation et un arbitrage continus       |
 
 ## Règle de décision
 

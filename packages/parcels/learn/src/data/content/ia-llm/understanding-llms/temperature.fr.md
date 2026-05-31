@@ -35,6 +35,13 @@ Pour un assistant généraliste, je reste le plus souvent entre `0.2` et `0.5`. 
 
 Pour des titres ou du brainstorming, je monte la température, mais seulement avec une boucle d’évaluation et des exemples conservés. Une température plus haute ne change pas le prix par token, mais elle augmente souvent le nombre d’échantillons qu’on compare ou qu’on jette, et les retries répétés vous rapprochent plus vite des [rate limits](https://platform.openai.com/docs/guides/rate-limits) du fournisseur. C’est un vrai coût, même si la ligne de facture paraît identique.
 
+| Plage       | Ce que j’obtiens en général                                 | Bon usage                                               | Niveau de risque |
+| ----------- | ----------------------------------------------------------- | ------------------------------------------------------- | ---------------- |
+| `0`–`0.2`   | Sortie très serrée, répétitive et facile à valider          | Extraction, classification, routage, appels d’outils    | ✅ Faible        |
+| `0.2`–`0.5` | Un peu de variété dans la formulation sans trop dériver     | Assistant généraliste, résumés, reformulations          | 🟡 Moyen         |
+| `0.5`–`0.8` | Plus de variation, avec parfois des écarts spéculatifs      | Aide créative, brouillons de titres, idéation relue     | 🟠 Plus élevé    |
+| `0.8`–`1`   | De gros écarts entre bonnes trouvailles et déchets évidents | Brainstorming uniquement, avec ranking ou boucle d’éval | 🔴 Élevé         |
+
 ## L’erreur que je vois encore
 
 Les équipes changent la température et `top_p` en même temps, puis passent l’après-midi à débattre du prompt. L’[API Messages](https://docs.anthropic.com/en/api/messages) d’Anthropic recommande explicitement de modifier soit `temperature`, soit `top_p`, pas les deux, et je trouve que ce conseil évite beaucoup de faux debugging.

@@ -36,8 +36,39 @@ class ExecutionPlan(BaseModel):
 
 If `sum(subtask.max_tokens)` exceeds `total_token_budget`, reject the plan. If a subtask has no `done_when`, reject the plan. If two subtasks depend on each other, reject the plan. Planning is not a vibe check. It is admission control.
 
+I also want the execution loop visible, because the moment the plan disappears into prose, the agent starts improvising again.
+
+```mermaid
+flowchart TD
+    A[Receive goal] --> B[Decompose into subtasks]
+    B --> C[Build dependency graph]
+    C --> D[Validate budgets, dependencies, and done_when]
+    D --> E[Execute ready task]
+    E --> F{Task done and graph still valid?}
+    F -->|yes| G{More ready tasks?}
+    G -->|yes| E
+    G -->|no| H{Objective complete?}
+    H -->|yes| I[Finish task]
+    H -->|no| J[Pause and replan]
+    F -->|no| J
+    J --> B
+```
+
 After that, run the graph with state, not with a giant growing transcript. [LangGraph](https://langchain-ai.github.io/langgraph/) is useful here because it forces you to think in nodes, edges, and checkpoints instead of one endless loop. Persist the result of each node, compress the signal that matters, and pass only that forward. Raw tool output should not keep following the agent around like luggage.
 
 Replanning is necessary, but only once in a while. If a node discovers a missing dependency or blows the estimated scope by 30%, pause and replan. If you are replanning every few steps, your top-level goal is underspecified and no clever prompt is going to save it.
+
+And because I do not trust vague planning rules, I keep the hard limits in a checklist instead of rediscovering them mid-run.
+
+| Constraint           | Rule I enforce                                                                       | Why it matters                                               | What I do when it breaks                                               |
+| -------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| Tool access          | No tool call before I can validate the graph                                         | It stops the agent from improvising its way into scope creep | Reject the draft plan and rewrite it                                   |
+| Node budgets         | `sum(subtask.max_tokens)` must stay within `total_token_budget`                      | It prevents silent token bleed across the whole run          | Reject the plan before execution                                       |
+| Completion criteria  | Every node needs a `done_when`                                                       | I need an objective stop condition, not vibes                | Reject the node and force the author to define it                      |
+| Dependencies         | No cyclic dependency; a missing dependency discovered at runtime triggers replanning | Cycles stall execution and hidden prerequisites burn retries | Reject cycles up front; pause and replan when a new dependency appears |
+| Retries              | Cap retries per node with `max_retries` (default 2)                                  | Loops should not masquerade as persistence                   | Fail the node, then replan or escalate                                 |
+| Replanning threshold | Replan only when a dependency is missing or scope grows by more than 30%             | Replanning should stay exceptional                           | Pause execution and rebuild the graph                                  |
+| Graph size           | If plans regularly exceed 12 nodes, the task is too big                              | Large graphs usually hide fuzzy objectives                   | Split the objective into smaller tasks                                 |
+| Staging signal       | More than 20% replans in staging means the task definition is wrong                  | Replan churn is a spec problem, not an intelligence problem  | Tighten scope before shipping                                          |
 
 My rule is blunt: if the task graph regularly exceeds 12 nodes, or staging shows more than 20% replans, stop making the agent smarter and make the task smaller.

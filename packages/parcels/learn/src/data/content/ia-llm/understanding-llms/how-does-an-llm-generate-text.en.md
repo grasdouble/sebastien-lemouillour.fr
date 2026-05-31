@@ -25,4 +25,29 @@ This is the point I think beginners should memorize: the model is optimizing for
 
 You might still wonder why the same prompt can produce different wording. During generation, the system can either take the top token or sample from several candidates, and the [generation guide](https://huggingface.co/docs/transformers/main/en/generation_strategies) walks through those choices. One important setting is **temperature**, which controls how adventurous that sampling becomes: lower temperature is steadier, higher temperature is riskier. For beginner use, I would keep temperature low whenever accuracy matters more than style.
 
-If you want a practical next step, read the guide on the different types of AI models after this one. My rule is simple: when a question should have one correct answer, treat the model like a rough-draft machine and verify the claim yourself.
+The quickest way I know to make those knobs feel concrete is to compare the main decoding choices side by side.
+
+| Strategy / setting            | What it does                                    | What you gain               | What you risk                          | When I would use it                                    |
+| ----------------------------- | ----------------------------------------------- | --------------------------- | -------------------------------------- | ------------------------------------------------------ |
+| Greedy decoding               | Always picks the single most likely next token  | Stable, repeatable output   | Flat wording and easy local mistakes   | Extraction, classification, or other tight tasks       |
+| Low temperature               | Sharpens the probability gap between top tokens | More consistent answers     | Can become rigid and repetitive        | Accuracy-first prompts                                 |
+| Higher temperature + sampling | Samples from a wider set of plausible tokens    | More variety and creativity | More drift and more hallucination risk | Brainstorming or style exploration                     |
+| Top-k / top-p sampling        | Restricts the candidate pool before sampling    | Variety without total chaos | More tuning complexity                 | When greedy feels too stiff but free sampling is messy |
+
+If you want a practical next step, read the guide on the different types of AI models after this one.
+
+### The generation loop at a glance
+
+```mermaid
+flowchart TD
+  A["Prompt received"] --> B["Tokenizer\n(text → tokens)"]
+  B --> C["Model reads existing tokens"]
+  C --> D["Predicts next token\n(probability distribution)"]
+  D --> E["Sampling\n(temperature, top-k…)"]
+  E --> F["Token appended to sequence"]
+  F --> G{End token\nreached?}
+  G -- No --> C
+  G -- Yes --> H["Final answer"]
+```
+
+My rule is simple: when a question should have one correct answer, treat the model like a rough-draft machine and verify the claim yourself.

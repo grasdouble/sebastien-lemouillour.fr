@@ -49,6 +49,19 @@ export async function runSupportReplyWorkflow(ticket: Ticket) {
 }
 ```
 
+```mermaid
+flowchart TD
+  A["Ticket reçu"] --> B["Classifier le ticket\n(modèle peu cher, schéma strict)"]
+  B --> C{"Besoin d’un humain ?"}
+  C -- Oui --> D["Escalade avec le motif"]
+  C -- Non --> E["Récupérer la documentation\n(produit, sujet, max 4)"]
+  E --> F["Rédiger la réponse\n(ton clair)"]
+  F --> G["Vérifier la réponse\n(citations obligatoires)"]
+  G --> H{"Approuvée ?"}
+  H -- Oui --> I["Sortie : brouillon prêt"]
+  H -- Non --> J["Sortie : revue"]
+```
+
 Quelques patterns gardent un workflow sain. Persiste le résultat de chaque étape pour que les retries repartent du dernier checkpoint valide au lieu de rejouer toute la chaîne. Donne à chaque étape son propre timeout et son propre fallback, parce qu’un problème de recherche documentaire et un problème de modèle ne sont pas le même échec. Ajoute une revue humaine explicite pour les branches à risque, comme les remboursements, le juridique, ou le médical. Et si le workflow tape les limites du fournisseur, expose ça comme un état normal plutôt que comme un “AI error” qui fait peur ; le [guide rate limits](https://developers.openai.com/api/docs/guides/rate-limits) rappelle bien que ces limites font partie du comportement normal de l’API, pas d’une panne mystique.
 
 Ma règle est brutale : si tu peux dessiner le chemin sur un seul tableau blanc, prends un workflow. Sors l’agent uniquement quand l’étape suivante dépend vraiment d’observations que tu ne peux pas prévoir à l’avance.

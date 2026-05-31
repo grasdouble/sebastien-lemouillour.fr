@@ -13,6 +13,15 @@ I pick a vector database by operational friction, not by benchmark screenshots. 
 
 The part people skip is the unglamorous part. Can you upsert the same chunk without creating duplicates? Can you filter by tenant, language, and version in one query? Can you delete a document cleanly when a policy page changes? If those answers are vague, the database is already taxing your retrieval quality.
 
+| DB       | Index Types                                           | Filtering                                                 | Deployment                                        | Best For                                                                              |
+| -------- | ----------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Pinecone | Managed ANN indexes behind a hosted service           | Solid metadata filters, but inside a managed box          | Fully managed cloud                               | Teams that want the least ops work and accept a vendor bill for it                    |
+| Weaviate | HNSW plus hybrid search features                      | Strong structured filters and expressive query API        | Managed or self-hosted                            | Products that want semantic search plus a richer API surface out of the box           |
+| Qdrant   | HNSW with payload-aware search                        | Excellent payload filtering, very retrieval-centric       | Managed or self-hosted                            | Multi-tenant or filter-heavy retrieval where filtering quality is part of the product |
+| pgvector | IVFFlat or HNSW inside Postgres                       | Whatever SQL and JSONB can express, which is often enough | Self-hosted Postgres or existing managed Postgres | Teams that already trust Postgres and want vectors next to transactional data         |
+| Chroma   | Lightweight local vector indexes                      | Basic metadata filters                                    | Local-first and developer-friendly                | Prototypes, notebooks, and small systems where speed of setup matters most            |
+| Milvus   | IVF, HNSW, DiskANN, and other large-scale ANN options | Good metadata filtering, tuned for bigger search systems  | Self-hosted or managed via Zilliz Cloud           | High-scale workloads that justify a dedicated vector stack                            |
+
 Before debating vendors for weeks, this is the SQL shape I would ship first on Postgres.
 
 ```sql

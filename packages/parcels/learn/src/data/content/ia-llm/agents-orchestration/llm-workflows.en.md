@@ -49,6 +49,19 @@ export async function runSupportReplyWorkflow(ticket: Ticket) {
 }
 ```
 
+```mermaid
+flowchart TD
+  A["Ticket received"] --> B["Classify ticket\n(cheap model, strict schema)"]
+  B --> C{"Needs human?"}
+  C -- Yes --> D["Escalate with reason"]
+  C -- No --> E["Retrieve docs\n(product, topic, max 4)"]
+  E --> F["Draft reply\n(clear tone)"]
+  F --> G["Verify reply\n(require citations)"]
+  G --> H{"Approved?"}
+  H -- Yes --> I["Output: ready draft"]
+  H -- No --> J["Output: review"]
+```
+
 A few patterns keep workflows sane. Persist every step result so retries restart from the last good checkpoint instead of replaying the whole chain. Give each step its own timeout and fallback, because retrieval problems and model problems are different failures. Add explicit human review for high-risk branches like refunds, legal language, or medical content. And if the workflow hits provider throttling, surface it as a normal state instead of a spooky “AI error”; the [rate limits guide](https://developers.openai.com/api/docs/guides/rate-limits) makes it clear those limits are part of normal API behavior, not some mystical outage.
 
 My rule is blunt: if you can draw the path on one whiteboard, use a workflow. Reach for an agent only when the next step genuinely depends on observations you cannot predict up front.

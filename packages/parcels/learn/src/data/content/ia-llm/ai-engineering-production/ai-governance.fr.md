@@ -13,6 +13,28 @@ La vraie gouvernance, ce n'est pas un comité qui collectionne des slides. Ce so
 
 Je garderais le groupe de revue petit, avec un vrai pouvoir de décision. Le produit porte l'impact utilisateur. La sécurité porte les scénarios d'abus. Le juridique ou la conformité portent les contraintes réglementaires. La plateforme porte l'accès aux modèles, la journalisation et le rollback. Ce groupe doit revoir les familles de modèles, les classes de données, les niveaux d'automatisation et les actions irréversibles. Il ne doit pas perdre une semaine à approuver des retouches de prompts.
 
+Si la gouvernance est réelle, le chemin entre l'idée et la prod doit être explicite au point d'en devenir banal.
+
+```mermaid
+flowchart TD
+  A["Proposition de modèle"] --> B["Évaluation du risque"]
+  B --> C["Contrôle de conformité"]
+  C --> D{"Approuvé ?"}
+  D -- Oui --> E["Déploiement"]
+  D -- Non --> F["Rejet ou reprise"]
+  E --> G["Piste d'audit et revue périodique"]
+```
+
+Je veux aussi des noms sur les responsabilités, pas un vague théâtre de l'accountability.
+
+| Rôle                       | Ce que j'attends qu'il porte                                                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Responsable gouvernance IA | Porte le rythme des revues, le registre des modèles, les mises à jour de policy et le dossier de preuves demandé en audit                 |
+| Responsable risques        | Note les risques d'abus, d'automatisation, les seuils de revue humaine et l'exposition aux actions irréversibles                          |
+| Responsable conformité     | Traduit réglementation, contrats, policy provider et règles de rétention en contraintes de livraison concrètes                            |
+| Engineering                | Implémente les contrôles d'accès, les logs, les kill switches, les chemins de rollback et la frontière des modèles approuvés dans le code |
+| Product                    | Porte le cas d'usage, l'analyse du préjudice utilisateur, le périmètre de déploiement et l'arbitrage bénéfice-risque                      |
+
 Cette politique doit survivre au réel. Si elle n'existe pas dans la configuration et dans les logs, c'est du théâtre. Un registre de modèles, c'est banal. Très bien. Le banal survit aux audits.
 
 ```yaml

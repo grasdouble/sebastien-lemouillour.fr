@@ -13,6 +13,15 @@ I start with a small overlap because zero is the fastest way to lose boundary co
 
 My default is 10 to 15 percent of chunk size. That is enough for docs where one idea spills into the next paragraph, but still small enough that search results do not come back as clones. I go lower when the document already has strong structure, such as headings, API sections, or clear speaker turns. I go higher only for messy OCR or transcripts where boundaries are unreliable. If you need a huge overlap on clean content, I would fix the splitter before I touch the percentage again.
 
+If you want the practical version, this is how the percentages usually behave in production:
+
+| Overlap % | Tokens Overlap                     | Continuity               | Duplication Risk | Recommended For                                                      |
+| --------- | ---------------------------------- | ------------------------ | ---------------- | -------------------------------------------------------------------- |
+| 0%        | 0                                  | Weak at chunk boundaries | None             | Cleanly structured docs with obvious section breaks                  |
+| 5–10%     | ~50–100 tokens per 1k-token chunk  | Usually enough           | Low              | Well-structured docs, API references, meeting notes with clear turns |
+| 10–15%    | ~100–150 tokens per 1k-token chunk | Strong default           | Moderate         | Most prose documents, support content, internal docs                 |
+| 20%+      | 200+ tokens per 1k-token chunk     | Very high                | High             | Messy OCR, transcripts, or sources with unreliable boundaries        |
+
 That leads to the trap most guides skip: deduplication after retrieval. Overlap can lift recall, but it also increases the odds that your top results are four versions of the same passage. I would rather dedupe overlapping hits before prompt assembly than crank `topK` and pay for repeated context.
 
 Here is the helper I reach for when overlap starts producing clones.

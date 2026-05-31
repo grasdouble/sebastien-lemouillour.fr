@@ -33,6 +33,16 @@ ROUTES = {
 }
 ```
 
+Voici le tableau de référence que je garderais à côté de la config du routeur, parce qu'une fois que le trafic monte je n'ai pas envie de reconstruire la politique à partir de littéraux Python.
+
+| Classe de tâche | Condition de déclenchement                                                                  | Alias primaire    | Alias de fallback | Budget de latence | Plafond de coût d'entrée / 1 M de tokens | Plancher de qualité |
+| --------------- | ------------------------------------------------------------------------------------------- | ----------------- | ----------------- | ----------------- | ---------------------------------------- | ------------------- |
+| Classification  | Prompts courts, labellisation, filtrage ou décisions type modération avec forte concurrence | `fast-classifier` | `deep-generalist` | 500 ms            | 0,40 $                                   | 0.88                |
+| Extraction      | Capture de champs structurés dans du texte bruité quand je veux quand même une bonne recall | `fast-extractor`  | `deep-generalist` | 800 ms            | 0,60 $                                   | 0.90                |
+| Synthèse        | Génération longue ou réponses qui demandent plus de raisonnement que de vitesse             | `deep-generalist` | Aucun             | 4000 ms           | 8,00 $                                   | 0.94                |
+
+Si une route rate durablement ces chiffres, je ne commence pas par tripoter les prompts. Je reclassifie la tâche, j'élargis le budget de latence, ou j'accepte que le modèle bon marché n'était pas à la hauteur.
+
 Une fois la politique écrite, gardez la couche de transport sous laisse. LiteLLM documente déjà les fallbacks ordonnés dans son [guide de fiabilité](https://docs.litellm.ai/docs/proxy/reliability) et le routage entre déploiements dans son [guide de load balancing](https://docs.litellm.ai/docs/proxy/load_balancing). Parfait. La couche transport peut exécuter la politique, mais elle ne doit pas inventer la politique.
 
 Voilà la séparation que je mettrais en prod.
@@ -66,6 +76,22 @@ def run_route(task_class: str, messages: list[dict]) -> str:
     spec = ROUTES[task_class]
     response = router.completion(model=spec.primary_alias, messages=messages)
     return response.choices[0].message.content
+```
+
+```mermaid
+flowchart TD
+    A[Classifier la tâche entrante] --> B{Classe de tâche}
+    B -->|classification| C[Router vers fast-classifier]
+    B -->|extraction| D[Router vers fast-extractor]
+    B -->|synthèse| E[Router vers deep-generalist]
+    C --> F{Le primaire tient le SLA ?}
+    D --> F
+    E --> G[Retourner la réponse]
+    F -->|oui| G
+    F -->|non| H[Basculer vers deep-generalist]
+    H --> I{Trafic vers le fallback > 30 %<br/>pendant 7 jours ?}
+    I -->|non| G
+    I -->|oui| J[Reclassifier la tâche<br/>Élargir le budget de latence<br/>Payer le plus gros modèle]
 ```
 
 Le routage se dégrade plus vite que ce que les équipes aiment admettre. Le [guide OpenAI sur les evals](https://developers.openai.com/api/docs/guides/evals) dit explicitement que les evals sont essentielles quand on change ou qu'on teste de nouveaux modèles, et c'est exactement pour ça que je veux des evals par route sur une cadence fixe au lieu de dépendre de l'intuition de quelqu'un dans Slack. Si un fournisseur refresh un modèle et que qualité ou latence bougent, la table doit changer dans la même semaine.

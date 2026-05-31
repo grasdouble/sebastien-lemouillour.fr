@@ -13,7 +13,20 @@ Je ne passe au Graph RAG que quand la recherche sémantique, les filtres de mét
 
 La partie sale, c'est l'ingestion, pas le prompting. Si tu ne peux pas garder des identifiants d'entités stables, contraindre l'extraction des relations et réindexer sans transformer un seul client en trois quasi-doublons, le graphe va pourrir plus vite que les documents dont il vient. [PropertyGraphIndex](https://docs.llamaindex.ai/en/stable/module_guides/indexing/lpg_index_guide/) est utile parce qu'il expose les `kg_extractors`, la validation stricte du schéma et plusieurs retrievers au lieu de faire semblant que l'extraction est réglée. Pour le stockage et la récupération, je préfère une pile graphe maintenue par l'éditeur plutôt que d'en bricoler une, et [Neo4j GraphRAG](https://neo4j.com/docs/neo4j-graphrag-python/current/) détaille clairement ses composants RAG et knowledge-graph builder.
 
-Quand je le mets en prod, le chemin d'exécution reste banal et mesurable :
+Quand je le mets en prod, je veux voir le chemin d’exécution avant que quelqu’un se mette à parler de « magie graphe » :
+
+```mermaid
+flowchart TD
+  A[Question utilisateur] --> B[Extraction d'entités]
+  B --> C[Recherche dans le graphe]
+  C --> D[Expansion du sous-graphe]
+  D --> E[Classement des chemins]
+  E --> F[Assemblage du contexte]
+  F --> G[LLM]
+  G --> H[Réponse]
+```
+
+Ensuite seulement, l’implémentation a le droit de rester banale et mesurable :
 
 ```ts
 async function answerWithGraph(question: string) {

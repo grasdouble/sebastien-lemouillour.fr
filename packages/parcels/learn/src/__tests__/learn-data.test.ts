@@ -88,6 +88,26 @@ describe('learn data', () => {
     }
   });
 
+  it('keeps the gpu-and-vram guide bilingual with the expected VRAM tables', () => {
+    const guide = RAW_LEARN_ITEMS.find((item) => item.id === 'gpu-and-vram');
+
+    expect(guide).toBeDefined();
+    expect(guide?.content.en).toContain('| Precision | Bytes/param | Example VRAM (7B model) |');
+    expect(guide?.content.en).toContain('| VRAM component');
+    expect(guide?.content.fr).toContain('| Précision | Octets/paramètre | Exemple de VRAM (modèle 7B) |');
+    expect(guide?.content.fr).toContain('| Composant VRAM');
+  });
+
+  it('keeps the inference guide bilingual with the expected decision flow mermaid', () => {
+    const guide = RAW_LEARN_ITEMS.find((item) => item.id === 'inference');
+
+    expect(guide).toBeDefined();
+    expect(guide?.content.en).toContain('```mermaid');
+    expect(guide?.content.en).toContain('Latency budget OK?');
+    expect(guide?.content.fr).toContain('```mermaid');
+    expect(guide?.content.fr).toContain('Latence acceptable ?');
+  });
+
   it('exposes a unique sorted list of tags', () => {
     expect(ALL_TAGS.length).toBeGreaterThan(0);
     expect(ALL_TAGS).toEqual([...ALL_TAGS].sort());

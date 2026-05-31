@@ -29,4 +29,14 @@ batch_if_latency_budget_seconds_gte: 300
 human_handoff_if_cost_usd_gt: 0.08
 ```
 
+I also keep one brutally simple table next to that policy, because cost debates get vague the moment nobody writes down the bargain.
+
+| Optimization lever | Typical saving                                  | Trade-off                                                         |
+| ------------------ | ----------------------------------------------- | ----------------------------------------------------------------- |
+| Model downgrade    | 30–80% on eligible traffic                      | Lower reasoning quality and more careful routing thresholds       |
+| Prompt compression | 10–40% on input-token spend                     | Higher risk of dropping context that quietly mattered             |
+| Caching            | 50–90% on repeated prefixes or repeated answers | Invalidation, stale responses, and lower freshness                |
+| Batching           | Up to 50% on offline or delay-tolerant jobs     | Worse turnaround time and less control over urgent work           |
+| Quantization       | 20–60% on self-hosted serving cost              | Possible quality loss plus more evaluation and serving complexity |
+
 That kind of policy is boring, which is why it works. It forces the real questions: which flows deserve premium reasoning, which ones should reuse cached prefixes, and which ones can wait in an async queue. For offline jobs, I would choose the [Batch API](https://platform.openai.com/docs/guides/batch) before I touch the prompt again, because OpenAI states the discount is 50% and the contract is explicit: asynchronous processing with a 24-hour turnaround. If your weekly review does not separate interactive traffic from batchable traffic and from self-hosted traffic, ignore fancy optimization ideas until that split exists.

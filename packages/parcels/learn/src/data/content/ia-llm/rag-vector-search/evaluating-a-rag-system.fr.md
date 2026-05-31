@@ -15,6 +15,17 @@ Pour les régressions offline, je choisirais d’abord [Ragas faithfulness](http
 
 Une fois que le dataset devient assez hostile, les captures d’écran ne servent plus à rien. [TruLens tracing](https://www.trulens.org/component_guides/instrumentation/) est le bon choix quand il faut inspecter le contexte récupéré, les étapes intermédiaires et les cibles d’évaluation dans le même flux d’exécution. Je le couple avec [OTel GenAI](https://opentelemetry.io/docs/specs/semconv/gen-ai/) pour standardiser la latence, l’usage de tokens et les spans d’échec au lieu de dépendre de ce que le vendeur du moment expose.
 
+Quand j’ai besoin de voir le contrat de release d’un seul coup d’œil, voilà le tableau que je veux sous les yeux :
+
+| Métrique              | Ce qu’elle mesure                                               | Cible                                                                       | Outil                                           |
+| --------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------- |
+| `recall@k`            | Si la bonne preuve apparaît quelque part dans le top-k          | Assez haut pour que les chunks gold sortent en général avant `k=10`         | Evals de retrieval annotés, Ragas, evals vendor |
+| `precision@k`         | Quelle part du top-k est vraiment utile                         | Garder un top 5 majoritairement pertinent pour ne pas gaspiller le contexte | Ragas, jeu de retrieval annoté                  |
+| `faithfulness`        | Si la réponse est bien soutenue par le contexte récupéré        | Ne jamais passer sous le seuil de release convenu                           | Ragas, DeepEval, juge à grille                  |
+| `answer relevance`    | Si la réponse traite vraiment la question posée                 | Stable ou en hausse sur le jeu d’eval difficile                             | Ragas, juge LLM                                 |
+| `context utilization` | Si le modèle exploite les preuves fournies au lieu d’improviser | Inspecter toute réponse qui ignore le contexte récupéré                     | Traces TruLens, revue manuelle des traces       |
+| `latency`             | La vitesse de bout en bout sous charge réaliste                 | Garder la p95 dans le SLA                                                   | OTel GenAI, backend de tracing                  |
+
 Avant de discuter d’une mise en prod, écris le contrat noir sur blanc :
 
 ```yaml

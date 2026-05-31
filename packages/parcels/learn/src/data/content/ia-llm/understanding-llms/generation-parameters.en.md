@@ -15,6 +15,16 @@ Defaults are product choices, not universal best practices. In Anthropic’s [Me
 
 That is why I treat generation parameters as part of the app contract. If the task is extraction, routing, or tool calling, I want a boring request on purpose. If the task is ideation, then I buy variation knowingly instead of letting a default sneak it in.
 
+When I need a fast decoding cheat sheet, this is the table I actually keep in mind before touching anything:
+
+| Parameter           | Controls                     | Recommended for structured tasks                                           | Recommended for creative tasks                              |
+| ------------------- | ---------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `temperature`       | Randomness of sampling       | `0` to `0.2`                                                               | `0.7` to `0.9`                                              |
+| `top_p`             | Nucleus size for sampling    | `1` — I leave it untouched unless I can name a tail problem                | `1` — I change temperature first                            |
+| `top_k`             | Hard cap on candidate tokens | N/A in most hosted APIs, so I do not plan around it                        | `20` to `40` only on self-hosted stacks that expose it      |
+| `max_output_tokens` | Output length                | Tight enough to avoid rambling, loose enough to avoid clipping             | Generous enough to let multiple ideas finish                |
+| `stop`              | Stop sequences               | Useful for format control, but I still prefer schemas for strict structure | Rarely needed unless I must cut output at a specific marker |
+
 ## Tune one randomness knob before anything else
 
 My stance is simple: change `temperature` first and leave `top_p` at `1` unless you can describe a tail problem. OpenAI’s [Responses API](https://platform.openai.com/docs/api-reference/responses/create) documents `temperature`, `top_p`, `max_output_tokens`, and `stop`, and it frames `top_p` as an alternative to temperature, not a mandatory companion.

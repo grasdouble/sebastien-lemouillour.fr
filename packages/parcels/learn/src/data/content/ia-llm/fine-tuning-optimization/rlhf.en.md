@@ -15,11 +15,33 @@ The recipe in the [InstructGPT paper](https://arxiv.org/abs/2203.02155) is simpl
 
 That structure answers the real product problem. Most painful failures are preference failures. "Helpful but calibrated." "Refuse the dangerous request, not the harmless adjacent one." "Use tools when they help, not to show off." Pairwise judgments capture those tradeoffs better than pretending you have perfect labels.
 
+When I explain RLHF to a team, I draw the loop because the important part is not the acronym. It is the operational conveyor belt you just signed up to run.
+
+```mermaid
+flowchart LR
+    A[SFT on demonstrations] --> B[Train reward model on ranked outputs]
+    B --> C[PPO policy optimization]
+    C --> D[Alignment evaluation]
+    D --> E{Good enough in production?}
+    E -->|Iterate| F[Collect new preferences and failure cases]
+    F --> B
+    E -->|Deploy| G[Deploy updated policy]
+```
+
 ## Why teams still pay the RLHF tax
 
 Once the model is in production, static datasets stop being enough. New abuse patterns show up, refusal style drifts, and raters find edge cases your offline evals never touched. RLHF gives you a loop to turn those judgments into behavior updates. If you care about safety SLAs, escalation handling, or tool-use discipline, that loop is the product, not a training detail.
 
 That is also why I would not start here by default. RLHF is powerful, but it is ops-heavy on purpose. You need stable preference collection, rater calibration, disagreement reviews, reward-model drift checks, and rollback criteria after each tuning round. If you cannot run that machinery, you do not have an RLHF program. You have a one-off experiment.
+
+This is the trade-off table I would force into the kickoff doc before anyone says "we'll just add RLHF later."
+
+| Stage        | Data Required                                                    | Cost                 | Failure Mode                                                           |
+| ------------ | ---------------------------------------------------------------- | -------------------- | ---------------------------------------------------------------------- |
+| SFT          | High-quality demonstrations with the target tone and task style  | Medium               | The model copies surface style but misses the real preference boundary |
+| Reward model | Ranked or pairwise preference data with calibrated raters        | Medium to high       | The scorer learns annotator quirks instead of product quality          |
+| PPO          | Prompt set, reward model, reference policy, and rollback metrics | High                 | Reward hacking, verbosity inflation, and unstable policy updates       |
+| Evaluation   | Offline evals, production traces, and human review on edge cases | Medium and recurring | You measure the wrong thing and ship regressions with confidence       |
 
 ## Where RLHF gets expensive fast
 

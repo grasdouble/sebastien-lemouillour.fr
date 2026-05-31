@@ -15,6 +15,20 @@ That second layer is where bugs hide. A model can happily return `"priority": "u
 
 Most guides stop at “validate the object” and skip the annoying bit: control flow. Validation decides what happens next. Do you retry once with the exact validation error? Do you patch a harmless field locally? Do you drop the response and alert someone? Skip that part and you do not have a pipeline, you have a slot machine with great DX.
 
+When I need to explain that to a team, I draw the pipeline first so nobody confuses “invalid” with “we will just vibe it into prod anyway”:
+
+```mermaid
+flowchart TD
+  A["Generate response"] --> B["Schema check"]
+  B -->|Pass| C["Content check"]
+  B -->|Fail| D["Retry with correction prompt"]
+  C -->|Pass| E["Use output"]
+  C -->|Fail| D
+  D --> F{"Max retries reached?"}
+  F -->|No| A
+  F -->|Yes| G["Fallback, error, or human escalation"]
+```
+
 This is the TypeScript shape I would actually ship:
 
 ```ts
@@ -45,6 +59,16 @@ export function parseTicketSummary(rawText: string) {
   );
 }
 ```
+
+I also like keeping the validation menu explicit, because not every failure deserves the same hammer:
+
+| Strategy               | When to Use                                                                          | Tool/Method                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| JSON schema validation | The output must be machine-readable and downstream code depends on exact fields      | Structured Outputs, JSON Schema, Zod, Pydantic                      |
+| Regex                  | You only need to validate one narrow pattern such as an ID, date, or citation marker | Regex, anchored patterns, lightweight string checks                 |
+| LLM-as-judge           | Quality is fuzzy and you need a rubric for tone, helpfulness, or factual coverage    | Rubric-based evaluator prompt, pairwise judge, model grader         |
+| Rule-based checks      | Business rules are deterministic and cheap to encode in code                         | Allowlists, numeric bounds, profanity lists, cross-field assertions |
+| Human review           | The action is high-risk, ambiguous, or expensive to get wrong                        | Manual approval queue, support escalation, analyst review           |
 
 Then the practical rules. Keep schemas narrower than your instinct. Cap retries to one or two, because “just try again” is how you light tokens on fire and drift into rate-limit fun. Log the raw response when parsing fails, but scrub secrets before it hits observability. And if every field ends up optional, that is usually your prompt or task split telling you it hates you.
 

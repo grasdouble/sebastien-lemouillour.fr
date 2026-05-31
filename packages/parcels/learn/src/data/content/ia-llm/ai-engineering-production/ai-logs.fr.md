@@ -19,6 +19,20 @@ Le piège dans lequel je suis déjà tombé, c'est de logger les prompts bruts p
 
 Si tu veux une interface pour fouiller les traces, [Langfuse](https://langfuse.com/docs) est un bon complément. Je ne le laisserais quand même pas devenir la seule source de vérité. Les outils éditeur sont pratiques pour l'inspection ; la réponse à incident a encore besoin de logs normalisés que tu contrôles.
 
+Si je devais imposer un schéma minimal à toutes les équipes, je commencerais par ça.
+
+| Field         | Type                        | Example                            | Sensibilité | Rôle                                                                                             |
+| ------------- | --------------------------- | ---------------------------------- | ----------- | ------------------------------------------------------------------------------------------------ |
+| `request_id`  | UUID ou identifiant triable | `req_01JY7X2B9M2R4Q7C`             | Faible      | Corréler une requête visible côté utilisateur à ses retries, ses fallbacks et son ticket support |
+| `trace_id`    | Chaîne hexadécimale         | `4bf92f3577b34da6a3ce929d0e0e4736` | Faible      | Relier les logs aux traces et aux spans au lieu de reconstruire la chronologie au hasard         |
+| `user_id`     | Identifiant interne stable  | `usr_4821`                         | Moyenne     | Mesurer le rayon d'impact et enquêter sans logger de nom ni d'email                              |
+| `prompt_hash` | Empreinte SHA-256           | `8f14e45fceea167a5a36dedd4bea2543` | Faible      | Regrouper des prompts identiques sans recopier le prompt brut dans les index de recherche        |
+| `model`       | Chaîne de caractères        | `gpt-4.1-mini`                     | Faible      | Savoir quel modèle a vraiment tourné quand le routage ou les alias changent                      |
+| `latency_ms`  | Entier                      | `842`                              | Faible      | Suivre la dérive SLO et distinguer une retrieval lente d'une génération lente                    |
+| `tokens`      | Objet ou entiers séparés    | `input=1240, output=312`           | Faible      | Mesurer le coût, la saturation et voir si les retries brûlent le budget                          |
+| `error_code`  | Chaîne nullable             | `rate_limit_exceeded`              | Moyenne     | Regrouper les échecs pour l'alerte et le triage rapide                                           |
+| `environment` | Enum                        | `production`                       | Faible      | Éviter que le bruit de staging pollue l'analyse d'incident                                       |
+
 Avant le code, voici le raccourci que j'aurais aimé avoir plus tôt : calcule l'aperçu et le hash une seule fois, exactement là où tu normalises la réponse provider, pour que chaque retry et chaque fallback réutilise la même forme.
 
 ```typescript

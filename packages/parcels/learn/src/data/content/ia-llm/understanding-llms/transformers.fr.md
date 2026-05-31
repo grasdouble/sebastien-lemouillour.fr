@@ -15,6 +15,26 @@ Les modèles récurrents lisent un token après l’autre. L’intuition semble 
 
 Ça a réglé le goulot d’étranglement à l’entraînement, mais ça a créé la vraie question pratique: quel type de transformer avez-vous en main ? La famille s’est découpée en formes vraiment utiles: les modèles encodeur seul comme [BERT](https://arxiv.org/abs/1810.04805) pour le travail de représentation, les modèles décodeur seul comme [GPT-3](https://arxiv.org/abs/2005.14165) pour la génération du prochain token, et les modèles encodeur-décodeur comme [T5](https://arxiv.org/abs/1910.10683) quand le problème se formule mieux comme une transformation entrée-sortie.
 
+Si je dois garder le modèle mental en trente secondes, je le dessine comme ça:
+
+```mermaid
+graph TD
+  Input["Jetons d’entrée"] --> Embed["Embedding token + position"]
+  Embed --> Encoder["Bloc encodeur (×N)<br/>Auto-attention + FFN"]
+  Encoder --> Decoder["Bloc décodeur (×N)<br/>Auto-attention masquée + attention croisée + FFN"]
+  Decoder --> Output["Probabilités de sortie (softmax)"]
+```
+
+Et pour le compromis produit, ce tableau m’aide plus vite qu’un rappel d’architecture de plus:
+
+| Dimension               | RNN / LSTM                                         | Transformer                                                |
+| ----------------------- | -------------------------------------------------- | ---------------------------------------------------------- |
+| Ordre de traitement     | Strictement séquentiel                             | Parallèle dans chaque couche                               |
+| Dépendances lointaines  | Se dégradent avec la distance                      | L’attention relie directement les tokens éloignés          |
+| Vitesse d’entraînement  | Plus lente sur le matériel moderne                 | Meilleure quand le calcul se parallélise bien              |
+| Coût mémoire / contexte | État caché compact, mais accès limité au contexte  | Le coût de l’attention grimpe avec la longueur de séquence |
+| Meilleur usage          | Flux courts, streaming contraint, signaux continus | Contexte long, pré-entraînement massif, génération moderne |
+
 ## Ce que je vérifie avant de croire l’étiquette
 
 Cette taxonomie aide, mais “c’est un transformer” reste trop vague pour prendre une décision produit. J’en vérifie quatre.

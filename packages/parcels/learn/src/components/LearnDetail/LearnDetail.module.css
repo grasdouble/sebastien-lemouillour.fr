@@ -79,6 +79,45 @@
   margin-bottom: var(--lufa-semantic-ui-spacing-tight);
 }
 
+.markdown-body table {
+  border-collapse: collapse;
+  width: fit-content;
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  margin: 0 auto;
+}
+
+.mermaid-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.mermaid-wrapper svg {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--lufa-semantic-ui-border-default);
+  padding: var(--lufa-semantic-ui-spacing-tight) var(--lufa-semantic-ui-spacing-default);
+  text-align: left;
+}
+
+.markdown-body th {
+  background: var(--lufa-semantic-ui-background-page);
+  font-weight: 600;
+  color: var(--lufa-semantic-ui-text-primary);
+}
+
+.markdown-body td {
+  color: var(--lufa-semantic-ui-text-secondary);
+}
+
 @media (max-width: 767px) {
   .overlay {
     padding: 0;

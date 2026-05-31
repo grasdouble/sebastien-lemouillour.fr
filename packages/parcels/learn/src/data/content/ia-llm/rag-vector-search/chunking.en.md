@@ -13,7 +13,21 @@ I would chunk by document structure first and token budget second. For Markdown,
 
 The trap I fell into was treating Markdown, HTML, transcripts, and OCR text as one generic blob. They are not. [LlamaIndex node parsers](https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/) inherit document attributes into child nodes, so format-aware chunking is already part of the ingestion model. I normalize first, then pick the cheapest splitter that still preserves the boundary a human cares about.
 
-That choice is easier to enforce with one tiny dispatcher before I wire in any framework abstraction.
+That choice is easier to enforce with one tiny dispatcher before I wire in any framework abstraction. The pipeline I keep in my head looks like this.
+
+```mermaid
+flowchart LR
+  A[Raw document] --> B[Clean / normalize]
+  B --> C{Split strategy}
+  C --> D[Fixed window]
+  C --> E[Sentence-aware]
+  C --> F[Semantic / structure-aware]
+  D --> G[Chunks]
+  E --> G
+  F --> G
+  G --> H[Embed]
+  H --> I[Store in vector DB]
+```
 
 ```ts
 type SourceKind = 'markdown' | 'html' | 'transcript' | 'plain';

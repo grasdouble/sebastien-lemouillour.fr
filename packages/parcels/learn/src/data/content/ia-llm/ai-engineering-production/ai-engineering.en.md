@@ -15,6 +15,28 @@ That separation only matters if you can reject regressions before users find the
 
 A gateway still needs a boring implementation. [LiteLLM](https://docs.litellm.ai/) earns its keep when you need routing, retries, and spend controls across providers. I would not self-host just to feel sophisticated. [vLLM](https://docs.vllm.ai/) becomes rational when throughput, latency, or data locality justify the operational bill.
 
+If I need to explain the production stack fast, I draw it like this.
+
+```mermaid
+flowchart TD
+  A["Data layer\nraw events, documents, features"] --> B["Model layer\nfoundation models, adapters, eval sets"]
+  B --> C["API and orchestration layer\ngateway, routing, tools, retries"]
+  C --> D["Application layer\nproduct flows, permissions, UX"]
+  D --> E["Monitoring layer\ntraces, evals, cost, incident signals"]
+```
+
+Monitoring sits last in the drawing, but in reality it has to watch every layer above it or the stack will lie to you.
+
+I also want role boundaries to be obvious before the org chart gets political.
+
+| Role              | What I expect it to own                                                                          | What I do not want it to own                            |
+| ----------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| AI Engineer       | Prompt contracts, orchestration, eval wiring, guardrails, and production behavior                | Raw data pipelines or feature prioritization            |
+| ML Engineer       | Model selection, fine-tuning or adapters, offline evaluation method, and model quality tradeoffs | App permissions, UX flows, or provider billing controls |
+| Data Engineer     | Ingestion pipelines, document freshness, feature stores, and retrieval data quality              | Prompt iteration or per-provider tool semantics         |
+| Platform Engineer | Gateway reliability, secrets, quotas, tracing, deploy and rollback paths                         | Use-case wording, acceptance criteria, or policy copy   |
+| Product           | User impact, automation level, review bar, and kill-switch expectations                          | SDK details, retry logic, or vector index tuning        |
+
 Before the second model lands, lock the contract down to something feature teams cannot accidentally bypass.
 
 ```ts
