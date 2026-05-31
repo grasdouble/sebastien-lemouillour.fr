@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.8
+
+### Patch Changes
+
+- f19544d: feat: move LangSwitcher component to shared package for reuse across parcels.
+  fix: update i18next plural keys to CLDR v4 format (key_one/key_other) in learn parcel.
+  refactor: header-bar LangSwitcher is now a re-export from @grasdouble/slm_shared.
+  feat: add LangSwitcher to LearnDetail modal header.
+  fix: header-bar now listens to lufa:lang-change event so its language syncs when another parcel changes it.
+- f19544d: chore: bump lufa_design-system to 3.4.0 and lufa_design-system-themes to 1.1.7 in container and learn parcel.
+- Updated dependencies [f19544d]
+  - @grasdouble/slm_shared@1.1.0
+
 ## 1.0.7
 
 ### Patch Changes
