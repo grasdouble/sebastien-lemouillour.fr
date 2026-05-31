@@ -11,8 +11,8 @@
     "difficultyLabel": "Filtrer par difficulté",
     "clearFilters": "Effacer les filtres",
     "noResults": "Aucun guide ne correspond à vos filtres.",
-    "results": "{{count}} guide",
-    "results_plural": "{{count}} guides"
+    "results_one": "{{count}} guide",
+    "results_other": "{{count}} guides"
   },
   "detail": {
     "close": "Fermer",
@@ -45,8 +45,8 @@
   "catalogs": {
     "sectionTitle": "Catalogues",
     "sectionSubtitle": "Collections de guides autour d'un thème commun",
-    "guideCount": "{{count}} guide",
-    "guideCount_plural": "{{count}} guides",
+    "guideCount_one": "{{count}} guide",
+    "guideCount_other": "{{count}} guides",
     "back": "Retour à la liste",
     "comingSoon": {
       "title": "Bientôt disponible",
