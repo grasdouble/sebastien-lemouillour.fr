@@ -3,7 +3,7 @@ id: rlhf
 order: 24
 difficulty: advanced
 tags: [RLHF, alignement]
-publishedAt: 2026-05-30
+publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---
 

@@ -3,8 +3,8 @@ id: common-prompting-mistakes
 order: 3
 difficulty: beginner
 tags: [LLM, prompting, pitfalls, iteration]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 You asked for a short answer and got a TED Talk. Then you added "be concise please," and somehow the next answer got even stranger. Welcome to beginner prompting.

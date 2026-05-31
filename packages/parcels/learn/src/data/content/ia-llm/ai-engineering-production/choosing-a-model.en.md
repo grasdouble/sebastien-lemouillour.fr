@@ -3,7 +3,7 @@ id: choosing-a-model
 order: 3
 difficulty: beginner
 tags: [LLM, evaluation, latency, OpenAI, HuggingFace]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

@@ -3,8 +3,8 @@ id: agent-memory
 order: 18
 difficulty: advanced
 tags: [LLM, OpenAI, LangChain, memory, agents]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 You finally get the agent to behave, then the next session forgets the user’s preferences and asks the same question again. Bolt on the wrong memory layer and you do not get a smarter product. You get a compliance incident with a cheerful tone.

@@ -3,8 +3,8 @@ id: chain-of-thought
 order: 7
 difficulty: intermediate
 tags: [LLM, Prompting, reasoning]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 You've got a prompt that works right until the input sneaks in one exception and two numbers. Then the model blurts out an answer, skips the part that mattered, and you end up debugging a sentence like it just paged you at 2 a.m.

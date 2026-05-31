@@ -3,8 +3,8 @@ id: structured-outputs
 order: 12
 difficulty: intermediate
 tags: [LLM, JSON, schema, OpenAI]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Valid JSON feels like a victory until one missing enum takes down the next service. I learned that the annoying way: the parser was happy, TypeScript was happy, and the business rule still exploded because `"priority": "urgent-ish"` was not a value anybody had agreed to support.

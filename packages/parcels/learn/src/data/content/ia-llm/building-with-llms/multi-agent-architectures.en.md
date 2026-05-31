@@ -3,8 +3,8 @@ id: multi-agent-architectures
 order: 21
 difficulty: advanced
 tags: [agent, architecture, orchestration, observability, LangGraph]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 When one user request bounces through a planner, a researcher, a reviewer, and a formatter, your p95 latency blows up and nobody can explain which hop actually failed. Multi-agent architecture is usually that kind of self-inflicted pain.

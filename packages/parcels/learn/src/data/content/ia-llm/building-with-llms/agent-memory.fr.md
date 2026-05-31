@@ -3,8 +3,8 @@ id: agent-memory
 order: 18
 difficulty: advanced
 tags: [LLM, OpenAI, LangChain, memory, agents]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Tu finis enfin par calmer ton agent, puis la session suivante oublie les préférences du user et repose la même question. Si tu branches la mauvaise couche mémoire, tu n’obtiens pas un produit plus intelligent. Tu obtiens un incident de conformité avec un ton sympa.

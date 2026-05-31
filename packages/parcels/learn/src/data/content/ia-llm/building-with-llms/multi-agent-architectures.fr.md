@@ -3,8 +3,8 @@ id: multi-agent-architectures
 order: 21
 difficulty: advanced
 tags: [agent, architecture, orchestration, observability, LangGraph]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Quand une requête utilisateur rebondit entre un planner, un chercheur, un reviewer et un formatter, votre p95 explose et plus personne n'est capable d'expliquer quel saut a vraiment cassé. Une architecture multi-agents, c'est souvent ce genre de douleur qu'on s'inflige tout seul.

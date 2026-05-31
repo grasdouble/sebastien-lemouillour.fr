@@ -3,7 +3,7 @@ id: prompt-injection
 order: 5
 difficulty: beginner
 tags: [LLM, security, prompt-injection, OWASP, OpenAI]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

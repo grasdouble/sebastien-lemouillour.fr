@@ -3,8 +3,8 @@ id: structured-outputs
 order: 12
 difficulty: intermediate
 tags: [LLM, JSON, schema, OpenAI]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Un JSON valide ressemble à une victoire jusqu’au moment où un enum manquant fait tomber le service d’après. Je l’ai appris de la façon agaçante : le parseur était content, TypeScript aussi, et la règle métier explosait quand même parce que `"priority": "urgent-ish"` n’était une valeur prise en charge par personne.

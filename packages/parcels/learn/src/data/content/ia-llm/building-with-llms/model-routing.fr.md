@@ -3,8 +3,8 @@ id: model-routing
 order: 24
 difficulty: advanced
 tags: [routing, latency, cost, fallback, LiteLLM]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Quand votre chemin bon marché redirige en douce la moitié du trafic vers un plus gros modèle, vous n'avez pas du routage. Vous avez un bug de facturation avec un joli nom. La classification, l'extraction, la modération et la synthèse longue ne méritent pas le même profil de modèle, et faire semblant du contraire est une excellente façon de cramer le budget avant même d'avoir du volume.

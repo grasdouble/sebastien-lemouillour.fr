@@ -3,8 +3,8 @@ id: zero-shot-prompting
 order: 4
 difficulty: beginner
 tags: [LLM, prompting, zero-shot, instructions]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Sometimes you just need the model to stop being clever and do the job. No dataset, no curated examples, no afternoon to burn tuning prompts. Zero-shot is the first thing I would try.

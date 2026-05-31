@@ -3,7 +3,7 @@ id: chunk-size
 order: 11
 difficulty: intermediate
 tags: [RAG, chunking, context, OpenAI]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

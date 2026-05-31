@@ -3,8 +3,8 @@ id: tool-calling
 order: 15
 difficulty: intermediate
 tags: [LLM, Anthropic, OpenAI, tools, orchestration]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 You've wired your first LLM call, the demo works, then the model decides to search twice, retry a write, and ask for one more tool just to be safe. Congrats, your chat feature now has failure modes.

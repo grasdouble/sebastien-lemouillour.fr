@@ -3,8 +3,8 @@ id: prompt-chaining
 order: 9
 difficulty: intermediate
 tags: [LLM, Prompting, workflow]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 One giant prompt feels efficient until it has to classify the request, extract fields, call a tool, draft a response, and explain itself in one shot. Then one tiny change breaks everything and you have no clue which part actually failed.

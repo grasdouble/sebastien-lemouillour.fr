@@ -3,8 +3,8 @@ id: output-validation
 order: 13
 difficulty: intermediate
 tags: [LLM, Zod, Pydantic, validation, schema]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Le modèle renvoie du JSON 95 % du temps. Les 5 % restants, il t’emballe la charge utile dans un petit paragraphe poli et ton job de fond explose à 2 h du matin.

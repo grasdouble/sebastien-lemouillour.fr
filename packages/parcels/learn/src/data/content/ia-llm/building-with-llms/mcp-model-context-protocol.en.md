@@ -3,8 +3,8 @@ id: mcp-model-context-protocol
 order: 23
 difficulty: advanced
 tags: [MCP, protocol, security, portability, negotiation]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Your agent stack works, right up to the day you need the same tools in two hosts or two model runtimes. Then the hacks show up: one adapter for local files, another for internal APIs, a third for search, and a fourth because some SDK wanted a different shape. That pile rots fast.

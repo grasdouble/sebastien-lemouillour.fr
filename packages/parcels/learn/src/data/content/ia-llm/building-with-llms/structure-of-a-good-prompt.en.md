@@ -3,8 +3,8 @@ id: structure-of-a-good-prompt
 order: 2
 difficulty: beginner
 tags: [LLM, prompting, instructions, context]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 The blank chat box is a trap. It makes it look like one messy paragraph will do, then you wonder why the model confidently answers the question you meant to ask, not the one you actually wrote.

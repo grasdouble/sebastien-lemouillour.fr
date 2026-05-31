@@ -3,7 +3,7 @@ id: context-window
 order: 10
 difficulty: beginner
 tags: [LLM, contexte]
-publishedAt: 2026-05-31
+publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---
 

@@ -3,7 +3,7 @@ id: top-p
 order: 21
 difficulty: intermediate
 tags: [LLM, paramètres]
-publishedAt: 2026-05-30
+publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---
 

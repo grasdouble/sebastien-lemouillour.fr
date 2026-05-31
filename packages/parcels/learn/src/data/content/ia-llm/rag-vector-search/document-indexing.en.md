@@ -3,7 +3,7 @@ id: document-indexing
 order: 8
 difficulty: intermediate
 tags: [RAG, indexing, embeddings, OpenAI]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

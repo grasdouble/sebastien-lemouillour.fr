@@ -3,8 +3,8 @@ id: self-consistency
 order: 8
 difficulty: intermediate
 tags: [LLM, Prompting, reasoning, sampling]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Tu arrives enfin à stabiliser un prompt de raisonnement, puis la prod commence à renvoyer 42, 39, et « sans doute 41 » pour la même question. C’est là que tu arrêtes d’admirer le style et que tu recommences à exiger de la fiabilité.

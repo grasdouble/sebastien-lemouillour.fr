@@ -3,8 +3,8 @@ id: chain-of-thought
 order: 7
 difficulty: intermediate
 tags: [LLM, Prompting, reasoning]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Ton prompt tient la route jusqu’au moment où l’entrée glisse une exception et deux nombres. Là, le modèle balance une réponse trop vite, saute l’étape qui comptait, et tu te retrouves à déboguer une phrase comme à 2 h du matin.

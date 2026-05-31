@@ -3,7 +3,7 @@ id: reranking
 order: 15
 difficulty: intermediate
 tags: [RAG, reranking, Cohere, CrossEncoder]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

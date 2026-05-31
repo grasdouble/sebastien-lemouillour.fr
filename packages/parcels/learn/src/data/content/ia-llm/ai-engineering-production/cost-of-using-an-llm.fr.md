@@ -3,7 +3,7 @@ id: cost-of-using-an-llm
 order: 2
 difficulty: beginner
 tags: [LLM, cost, tokens, OpenAI, Anthropic]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

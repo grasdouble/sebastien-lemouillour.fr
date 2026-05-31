@@ -3,8 +3,8 @@ id: zero-shot-prompting
 order: 4
 difficulty: beginner
 tags: [LLM, prompting, zero-shot, instructions]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Parfois, vous avez juste besoin que le modèle arrête de faire le malin et fasse le boulot. Pas de dataset, pas d'exemples bien propres, pas une après-midi entière à peaufiner le prompt. Le zero-shot, c'est le premier réflexe que j'aurais.

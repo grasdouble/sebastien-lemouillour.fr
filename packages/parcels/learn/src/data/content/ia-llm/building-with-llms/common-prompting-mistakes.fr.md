@@ -3,8 +3,8 @@ id: common-prompting-mistakes
 order: 3
 difficulty: beginner
 tags: [LLM, prompting, pitfalls, iteration]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Vous avez demandé une réponse courte, et vous avez reçu une mini conférence. Puis vous avez ajouté « sois concis s'il te plaît », et la réponse suivante est devenue encore plus bizarre. Bienvenue dans le prompting débutant.

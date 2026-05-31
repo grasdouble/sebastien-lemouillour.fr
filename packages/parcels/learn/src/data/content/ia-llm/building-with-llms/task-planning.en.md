@@ -3,8 +3,8 @@ id: task-planning
 order: 19
 difficulty: advanced
 tags: [agent, planning, orchestration, budget, ReAct]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Your agent finished the task. Sort of. It took 47 tool calls, looped twice, and handed back a result that looked plausible until somebody checked it. That is usually blamed on the model. Most of the time, the model is not the real problem. The missing piece is planning.

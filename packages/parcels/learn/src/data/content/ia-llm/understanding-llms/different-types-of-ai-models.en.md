@@ -3,7 +3,7 @@ id: different-types-of-ai-models
 order: 6
 difficulty: beginner
 tags: [IA, LLM]
-publishedAt: 2026-05-31
+publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---
 

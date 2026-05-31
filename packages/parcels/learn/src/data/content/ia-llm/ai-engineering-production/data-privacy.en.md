@@ -3,7 +3,7 @@ id: data-privacy
 order: 4
 difficulty: beginner
 tags: [LLM, privacy, security, OpenAI, Anthropic]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

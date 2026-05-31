@@ -3,7 +3,7 @@ id: api-vs-local-models
 order: 1
 difficulty: beginner
 tags: [LLM, api, local, Ollama, HuggingFace]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

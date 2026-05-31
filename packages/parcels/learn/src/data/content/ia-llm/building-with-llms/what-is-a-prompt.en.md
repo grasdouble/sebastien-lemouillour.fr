@@ -3,8 +3,8 @@ id: what-is-a-prompt
 order: 1
 difficulty: beginner
 tags: [LLM, prompting, prompts]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 You've typed something into ChatGPT, hit enter, and gotten an answer so vague it was useless. Most of the time, that is not the model being dumb. It is the prompt being lazy.

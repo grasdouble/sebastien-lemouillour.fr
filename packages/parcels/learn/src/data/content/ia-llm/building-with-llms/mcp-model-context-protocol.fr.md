@@ -3,8 +3,8 @@ id: mcp-model-context-protocol
 order: 23
 difficulty: advanced
 tags: [MCP, protocol, security, portability, negotiation]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Votre stack d'agents marche, jusqu'au jour où il faut réutiliser les mêmes outils dans deux hosts ou deux runtimes de modèles. Là, les rustines débarquent : un adaptateur pour les fichiers locaux, un autre pour les API internes, un troisième pour la recherche, puis un quatrième parce qu'un SDK voulait une forme différente. Ce tas vieillit mal.

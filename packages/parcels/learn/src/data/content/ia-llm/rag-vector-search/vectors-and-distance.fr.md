@@ -3,7 +3,7 @@ id: vectors-and-distance
 order: 6
 difficulty: beginner
 tags: [RAG, LLM, vectors, cosine]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

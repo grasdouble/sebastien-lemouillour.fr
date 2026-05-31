@@ -3,8 +3,8 @@ id: what-is-an-ai-agent
 order: 17
 difficulty: advanced
 tags: [LLM, OpenAI, LangChain, agents, orchestration]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Appeler “agent” n’importe quelle feature de chat semble anodin, jusqu’au jour où l’équipe ops demande un SLA et que personne n’est capable d’expliquer ce que le système a le droit de faire à l’étape sept.

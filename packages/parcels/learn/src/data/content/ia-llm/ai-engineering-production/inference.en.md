@@ -3,7 +3,7 @@ id: inference
 order: 10
 difficulty: intermediate
 tags: [LLM, inference, vLLM, latency]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

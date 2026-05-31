@@ -3,7 +3,7 @@ id: what-is-artificial-intelligence
 order: 1
 difficulty: beginner
 tags: [IA]
-publishedAt: 2026-05-31
+publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---
 

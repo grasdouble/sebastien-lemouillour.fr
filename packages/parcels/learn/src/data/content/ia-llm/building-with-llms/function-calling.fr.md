@@ -3,8 +3,8 @@ id: function-calling
 order: 14
 difficulty: intermediate
 tags: [LLM, OpenAI, function-calling, schema]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Tu connais la version pénible des features IA : le modèle annonce fièrement “c’est fait”, et ton app n’a absolument rien fait.

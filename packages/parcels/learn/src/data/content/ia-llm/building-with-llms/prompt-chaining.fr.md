@@ -3,8 +3,8 @@ id: prompt-chaining
 order: 9
 difficulty: intermediate
 tags: [LLM, Prompting, workflow]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Un énorme prompt a l’air efficace jusqu’au moment où il doit classifier la demande, extraire des champs, appeler un outil, rédiger une réponse et se justifier dans le même appel. Ensuite, tu modifies une phrase, tout casse, et tu n’as aucune idée de l’étape qui a réellement raté.

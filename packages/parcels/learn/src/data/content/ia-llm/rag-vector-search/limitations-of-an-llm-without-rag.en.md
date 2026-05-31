@@ -3,7 +3,7 @@ id: limitations-of-an-llm-without-rag
 order: 3
 difficulty: beginner
 tags: [RAG, LLM, hallucinations, knowledge]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

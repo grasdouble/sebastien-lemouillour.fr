@@ -3,8 +3,8 @@ id: structure-of-a-good-prompt
 order: 2
 difficulty: beginner
 tags: [LLM, prompting, instructions, context]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 La boîte vide du chat est un piège. Elle donne l'impression qu'un paragraphe brouillon suffira, puis on se retrouve avec une réponse sûre d'elle à une question qu'on n'a même pas vraiment formulée.

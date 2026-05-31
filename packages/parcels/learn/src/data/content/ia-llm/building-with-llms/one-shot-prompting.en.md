@@ -3,8 +3,8 @@ id: one-shot-prompting
 order: 5
 difficulty: beginner
 tags: [LLM, prompting, one-shot, examples]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 You get your first LLM call working, then one reply comes back with an extra sentence, a weird label, or a tone you never asked for, and your neat little parser suddenly looks very optimistic. That is when I reach for one-shot prompting.

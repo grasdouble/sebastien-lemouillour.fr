@@ -3,7 +3,7 @@ id: lora
 order: 8
 difficulty: intermediate
 tags: [LLM, LoRA, fine-tuning, adapters]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

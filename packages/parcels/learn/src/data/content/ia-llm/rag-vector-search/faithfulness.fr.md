@@ -3,7 +3,7 @@ id: faithfulness
 order: 23
 difficulty: advanced
 tags: [RAG, évaluation, hallucination, FactScore]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

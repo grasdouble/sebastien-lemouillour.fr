@@ -3,8 +3,8 @@ id: human-evaluation-of-models
 order: 29
 difficulty: advanced
 tags: [LLM, évaluation]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-15
+updatedAt: 2026-05-31
 ---
 
 Quand la qualité compte vraiment, les évaluations automatisées cessent d'être suffisantes très vite. Elles ratent le ton, l'utilité réelle, la sûreté, et cette catégorie pénible de réponses que les utilisateurs décrivent comme « techniquement correctes, mais mauvaises ». L'évaluation humaine sert précisément à voir cet écart. Elle devient aussi du déchet dès que l'opérationnel est bâclé. Une mauvaise évaluation humaine, c'est du bruit coûteux avec une apparence d'autorité.

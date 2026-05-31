@@ -3,8 +3,8 @@ id: autonomous-agents
 order: 20
 difficulty: advanced
 tags: [agent, autonomy, monitoring, escalation, AutoGen]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 You gave an agent permission to clean stale records, and it wiped out half a table because nobody defined what stale meant. That is not a funny demo failure. That is what unbounded autonomy looks like in production.

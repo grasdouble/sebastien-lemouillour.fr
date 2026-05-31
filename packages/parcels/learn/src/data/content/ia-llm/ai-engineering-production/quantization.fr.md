@@ -3,7 +3,7 @@ id: quantization
 order: 13
 difficulty: intermediate
 tags: [LLM, quantization, optimization, BitsAndBytes, GGUF]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

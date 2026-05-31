@@ -3,8 +3,8 @@ id: agentic-workflows
 order: 22
 difficulty: advanced
 tags: [agent, workflow, deterministic, approval, LangGraph]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Si votre workflow rate son SLA dès que le modèle part de travers, vous n'avez pas un workflow. Vous avez une démo qui sait sourire.

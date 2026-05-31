@@ -3,8 +3,8 @@ id: what-is-a-prompt
 order: 1
 difficulty: beginner
 tags: [LLM, prompting, prompts]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Vous avez déjà tapé quelque chose dans ChatGPT, appuyé sur Entrée, puis reçu une réponse tellement vague qu'elle ne servait à rien. La plupart du temps, ce n'est pas le modèle qui est mauvais. C'est le prompt qui fait le paresseux.

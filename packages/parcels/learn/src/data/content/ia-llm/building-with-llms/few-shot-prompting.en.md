@@ -3,8 +3,8 @@ id: few-shot-prompting
 order: 6
 difficulty: beginner
 tags: [LLM, prompting, few-shot, examples]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 One example fixed the easy case, then the model face-planted on the weird ones. That is your signal that the task needs more than a hint.

@@ -3,7 +3,7 @@ id: attention-mechanism
 order: 17
 difficulty: intermediate
 tags: [Transformer, attention]
-publishedAt: 2026-05-31
+publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---
 

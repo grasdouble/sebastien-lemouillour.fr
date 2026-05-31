@@ -3,7 +3,7 @@ id: hybrid-search
 order: 14
 difficulty: intermediate
 tags: [RAG, retrieval, BM25, Pinecone]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

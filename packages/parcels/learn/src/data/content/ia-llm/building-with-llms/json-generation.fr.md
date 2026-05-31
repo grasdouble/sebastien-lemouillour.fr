@@ -3,8 +3,8 @@ id: json-generation
 order: 11
 difficulty: intermediate
 tags: [LLM, JSON, Prompting, validation]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Ton parseur ne casse jamais pendant la démo. Il casse trois semaines plus tard, quand le modèle ajoute « bien sûr, voici le JSON » avant la première accolade et que ton job en arrière-plan commence à lancer des exceptions à 2 heures du matin.

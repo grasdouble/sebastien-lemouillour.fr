@@ -3,8 +3,8 @@ id: human-evaluation-of-models
 order: 29
 difficulty: advanced
 tags: [LLM, évaluation]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-15
+updatedAt: 2026-05-31
 ---
 
 When quality really matters, automated evals stop being enough very quickly. They miss tone, usefulness, harmlessness, and the annoying class of answers users describe as "technically correct but bad." Human evaluation is how you catch that gap. It also becomes garbage the moment the operations are sloppy. Bad human eval is expensive noise with authority attached to it.

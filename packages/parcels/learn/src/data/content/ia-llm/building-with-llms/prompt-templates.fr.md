@@ -3,8 +3,8 @@ id: prompt-templates
 order: 10
 difficulty: intermediate
 tags: [LLM, Prompting, Jinja, templating]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 La première version d’un prompt vit dans un seul fichier. Deux semaines plus tard, il existe à cinq endroits, avec une petite variation à chaque fois, et plus personne ne sait quelle copie a introduit la régression. À ce stade, on n’est plus dans le prompting, on est dans la dérive de configuration avec une moustache collée.

@@ -3,7 +3,7 @@ id: llm-monitoring
 order: 16
 difficulty: intermediate
 tags: [LLM, monitoring, observability, OpenTelemetry, Prometheus]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

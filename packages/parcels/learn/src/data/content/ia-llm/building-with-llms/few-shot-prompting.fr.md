@@ -3,8 +3,8 @@ id: few-shot-prompting
 order: 6
 difficulty: beginner
 tags: [LLM, prompting, few-shot, examples]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Un exemple a corrigé le cas facile, puis le modèle s'est complètement emmêlé sur les cas bizarres. C'est le signal que la tâche a besoin de plus qu'un simple indice.

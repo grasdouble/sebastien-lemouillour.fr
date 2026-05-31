@@ -3,8 +3,8 @@ id: llm-workflows
 order: 16
 difficulty: intermediate
 tags: [LLM, workflows, orchestration, reliability]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 The first version is always one prompt. Then you ship it, one weird ticket lands, and suddenly that prompt is doing classification, retrieval, drafting, formatting, fallbacks, and damage control.

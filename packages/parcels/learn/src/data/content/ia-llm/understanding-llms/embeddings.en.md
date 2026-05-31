@@ -3,7 +3,7 @@ id: embeddings
 order: 11
 difficulty: beginner
 tags: [LLM, embeddings]
-publishedAt: 2026-05-31
+publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---
 

@@ -3,7 +3,7 @@ id: fine-tuning
 order: 7
 difficulty: intermediate
 tags: [LLM, fine-tuning, OpenAI, Transformers]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

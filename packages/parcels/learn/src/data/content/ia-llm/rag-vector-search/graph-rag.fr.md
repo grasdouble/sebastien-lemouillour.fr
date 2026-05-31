@@ -3,7 +3,7 @@ id: graph-rag
 order: 18
 difficulty: advanced
 tags: [RAG, architecture, graph, GraphRAG]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

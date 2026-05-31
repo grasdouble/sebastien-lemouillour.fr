@@ -3,8 +3,8 @@ id: llm-workflows
 order: 16
 difficulty: intermediate
 tags: [LLM, workflows, orchestration, reliability]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 La première version tient dans un seul prompt. Puis tu la déploies, un ticket un peu tordu arrive, et soudain ce prompt fait la classification, la recherche, la rédaction, le formatage, les fallbacks, et le service après-vente.

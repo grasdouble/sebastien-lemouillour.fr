@@ -3,7 +3,7 @@ id: evaluating-a-rag-system
 order: 24
 difficulty: advanced
 tags: [RAG, evaluation, observability, Ragas, TruLens]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

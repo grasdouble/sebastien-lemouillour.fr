@@ -3,7 +3,7 @@ id: generative-ai-definition-and-use-cases
 order: 3
 difficulty: beginner
 tags: [IA, LLM]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---
 

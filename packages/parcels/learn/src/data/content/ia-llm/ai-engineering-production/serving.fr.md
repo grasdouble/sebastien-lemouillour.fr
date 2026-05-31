@@ -3,7 +3,7 @@ id: serving
 order: 11
 difficulty: intermediate
 tags: [LLM, serving, vLLM, Ollama, deployment]
-publishedAt: 2099-12-31
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

@@ -3,8 +3,8 @@ id: self-consistency
 order: 8
 difficulty: intermediate
 tags: [LLM, Prompting, reasoning, sampling]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 You get a reasoning prompt to behave, then production starts returning 42, 39, and "probably 41" for the same question. That is when you stop caring about eloquence and start caring about reliability.

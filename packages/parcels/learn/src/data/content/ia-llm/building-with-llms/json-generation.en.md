@@ -3,8 +3,8 @@ id: json-generation
 order: 11
 difficulty: intermediate
 tags: [LLM, JSON, Prompting, validation]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Your parser never breaks in the demo. It breaks three weeks later, when the model adds “Sure, here’s the JSON” before the first brace and your background job starts throwing exceptions at 2 a.m.

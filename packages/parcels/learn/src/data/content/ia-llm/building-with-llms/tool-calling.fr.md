@@ -3,8 +3,8 @@ id: tool-calling
 order: 15
 difficulty: intermediate
 tags: [LLM, Anthropic, OpenAI, tools, orchestration]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Tu branches ton premier appel LLM, la démo marche, puis le modèle décide de lancer deux recherches, de retenter un write et de réclamer encore un outil juste au cas où. Bravo, ta feature de chat a maintenant des modes de panne.

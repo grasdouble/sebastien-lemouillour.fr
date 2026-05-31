@@ -3,8 +3,8 @@ id: agentic-workflows
 order: 22
 difficulty: advanced
 tags: [agent, workflow, deterministic, approval, LangGraph]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 If your workflow misses its SLA every time the model gets weird, you do not have a workflow. You have a demo that learned to smile.

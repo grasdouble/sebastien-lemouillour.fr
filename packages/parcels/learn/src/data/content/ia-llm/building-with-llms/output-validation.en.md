@@ -3,8 +3,8 @@ id: output-validation
 order: 13
 difficulty: intermediate
 tags: [LLM, Zod, Pydantic, validation, schema]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 The model returns JSON 95% of the time. The other 5%, it wraps the payload in a polite paragraph and your background job explodes at 2am.

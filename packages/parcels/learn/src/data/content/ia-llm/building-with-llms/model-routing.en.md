@@ -3,8 +3,8 @@ id: model-routing
 order: 24
 difficulty: advanced
 tags: [routing, latency, cost, fallback, LiteLLM]
-publishedAt: 2099-12-31
-updatedAt: 2026-05-30
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 When your cheap path silently punts half the traffic to a bigger model, you do not have routing. You have a billing bug with nice branding. Classification, extraction, moderation, and long-form synthesis do not deserve the same model profile, and pretending otherwise is how teams blow the budget before they even hit scale.

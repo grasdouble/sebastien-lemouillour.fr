@@ -3,8 +3,8 @@ id: autonomous-agents
 order: 20
 difficulty: advanced
 tags: [agent, autonomy, monitoring, escalation, AutoGen]
-publishedAt: 2099-12-31
-updatedAt: 2099-12-31
+publishedAt: 2026-05-31
+updatedAt: 2026-05-31
 ---
 
 Vous avez donné à un agent le droit de nettoyer des enregistrements obsolètes, et il a vidé la moitié d'une table parce que personne n'avait défini ce qu'obsolète voulait dire. Ce n'est pas un échec amusant de démo. C'est à ça que ressemble l'autonomie non bornée en production.
