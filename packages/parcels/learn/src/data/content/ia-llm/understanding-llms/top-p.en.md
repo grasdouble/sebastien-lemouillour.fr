@@ -3,8 +3,8 @@ id: top-p
 order: 21
 difficulty: intermediate
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 When a model is mostly good but every few answers it grabs one weird word and drags the whole reply off course, lowering temperature can feel like punishing the whole response for one bad tail token. I reach for top-p in that situation.

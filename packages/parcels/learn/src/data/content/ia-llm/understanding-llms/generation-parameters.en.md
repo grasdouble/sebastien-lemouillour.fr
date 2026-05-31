@@ -13,7 +13,7 @@ When a workflow flips from clean JSON to clipped nonsense, people rewrite the pr
 
 Defaults are product choices, not universal best practices. In Anthropic’s [Messages examples](https://docs.anthropic.com/en/api/messages-examples), Claude Opus 4.7 and later reject non-default `temperature`, `top_p`, and `top_k`, while [Transformers strategies](https://huggingface.co/docs/transformers/main/en/generation_strategies) documents greedy decoding as the default and sampling as something you turn on deliberately.
 
-That is why I treat generation parameters as part of the app contract. If the task is extraction, routing, or tool calling, I want a boring request on purpose. If the task is ideation, then I buy variation knowingly instead of letting a default sneak it in.
+That is why I treat generation parameters as part of the app contract. If the task is extraction, routing, or tool calling, I want a predictable request on purpose. If the task is ideation, then I buy variation knowingly instead of letting a default sneak it in.
 
 When I need a fast decoding cheat sheet, this is the table I actually keep in mind before touching anything:
 

@@ -3,11 +3,11 @@ id: temperature
 order: 20
 difficulty: intermediate
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-Quand un flux d’extraction commence à sortir de jolies petites surprises, on accuse le prompt. Moi, j’accuse d’abord la température. J’ai vu de bons modèles avoir l’air téméraires simplement parce que quelqu’un avait laissé `temperature: 1` sur une tâche qui demandait une réponse ennuyeuse et répétable.
+Quand un flux d’extraction commence à sortir de jolies petites surprises, on accuse le prompt. Moi, j’accuse d’abord la température. J’ai vu de bons modèles avoir l’air téméraires simplement parce que quelqu’un avait laissé `temperature: 1` sur une tâche qui demandait une réponse prévisible et répétable.
 
 ## La température change l’échantillonnage, pas la qualité du modèle
 
@@ -29,7 +29,7 @@ const response = await client.responses.create({
 
 ## Là où je la règle vraiment
 
-Pour l’extraction, la classification, le routage ou les appels d’outils, je pars entre `0` et `0.2`. Je veux quelque chose d’ennuyeux. L’ennui coûte moins cher que des retries, des validateurs et une sortie bizarre qui finit en production.
+Pour l’extraction, la classification, le routage ou les appels d’outils, je pars entre `0` et `0.2`. Je veux du prévisible. Le prévisible coûte moins cher que des relances, des validateurs et une réponse incohérente qui passe en production.
 
 Pour un assistant généraliste, je reste le plus souvent entre `0.2` et `0.5`. Au-dessus, je continue seulement si la variation est le but. Le [papier Holtzman](https://arxiv.org/abs/1904.09751) reste pour moi le meilleur rappel que les choix de décodage peuvent ruiner la qualité même quand le modèle lui-même tient la route.
 

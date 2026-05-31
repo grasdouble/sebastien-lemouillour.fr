@@ -3,11 +3,11 @@ id: llm-limitations
 order: 14
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-The frustrating part is not that an LLM gives bad answers all the time. It is that it can sound calm, helpful, and convincing right before it gets something important wrong. A **large language model (LLM)** is trained to predict likely next tokens, which are small chunks of text, one step at a time [GPT-3 paper](https://arxiv.org/abs/2005.14165). That training makes it excellent at producing language. It does not make it a built-in fact checker.
+The frustrating part is not that an LLM gives bad answers all the time. It is that it can sound calm, helpful, and convincing right before it gets something important wrong. A **large language model (LLM)** is trained to predict likely next tokens, which are small chunks of text, one step at a time ([GPT-3 paper](https://arxiv.org/abs/2005.14165)). That training makes it excellent at producing language. It does not make it a built-in fact checker.
 
 ## Fluent is not the same as reliable
 
@@ -23,7 +23,7 @@ I still would not assume a huge prompt solves the problem. A **context window** 
 
 ## Small prompt changes can change the result
 
-That leads to the last beginner shock: you ask twice and get two noticeably different answers. This is normal enough that providers tell you to test prompts empirically. The [OpenAI prompting](https://help.openai.com/en/articles/10032626-prompt-engineering-best-practices-for-chatgpt) guide recommends testing and iterating on prompts instead of assuming one wording is always best. So I would test the exact task I care about, not trust a model’s reputation or one lucky demo.
+That leads to the last beginner shock: you ask twice and get two noticeably different answers. This behavior is common enough that providers themselves recommend testing prompts on real examples. The [OpenAI prompting](https://help.openai.com/en/articles/10032626-prompt-engineering-best-practices-for-chatgpt) guide recommends testing and iterating on prompts instead of assuming one wording is always best. So I would test the exact use case I care about, rather than trusting a model's reputation or a demo that succeeded under ideal conditions.
 
 ## What I would choose in practice
 

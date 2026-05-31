@@ -3,8 +3,8 @@ id: top-k
 order: 22
 difficulty: intermediate
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 On baisse la température, le modèle sort quand même un token absurde, et d’un coup le bug prend un air paranormal. Je tombe plus souvent sur ce problème avec des petits modèles auto-hébergés, donc je prends le top-k avant de faire semblant d’être subtil.

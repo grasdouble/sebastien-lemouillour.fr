@@ -3,8 +3,8 @@ id: attention-mechanism
 order: 17
 difficulty: intermediate
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 If you hide the only sentence that matters in the middle of a long prompt, the model will often answer the fluff and miss the point. I stopped treating that as a “bad model” problem. Most of the time it is an attention problem: the model did not give the right tokens enough weight when predicting the next one.

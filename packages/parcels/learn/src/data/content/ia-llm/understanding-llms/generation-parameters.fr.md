@@ -13,7 +13,7 @@ Quand un workflow passe d’un JSON propre à un résultat coupé ou absurde, be
 
 Les valeurs par défaut sont des choix produit, pas des bonnes pratiques universelles. Dans les [Messages examples](https://docs.anthropic.com/en/api/messages-examples) d’Anthropic, Claude Opus 4.7 et les versions suivantes refusent `temperature`, `top_p` et `top_k` hors valeur par défaut, alors que [Transformers strategies](https://huggingface.co/docs/transformers/main/en/generation_strategies) documente le décodage greedy comme comportement par défaut et l’échantillonnage comme quelque chose qu’on active volontairement.
 
-C’est pour ça que je traite les paramètres de génération comme une partie du contrat de l’application. Si la tâche sert à extraire, router ou appeler des outils, je veux une requête ennuyeuse volontairement. Si la tâche sert à produire des idées, alors j’achète de la variation consciemment au lieu de la laisser entrer par défaut.
+C’est pour ça que je traite les paramètres de génération comme une partie du contrat de l’application. Si la tâche sert à extraire, router ou appeler des outils, je veux une requête prévisible volontairement. Si la tâche sert à produire des idées, alors j’achète de la variation consciemment au lieu de la laisser entrer par défaut.
 
 Quand j’ai besoin d’un pense-bête rapide sur le décodage, c’est ce tableau que je garde en tête avant de toucher à quoi que ce soit :
 

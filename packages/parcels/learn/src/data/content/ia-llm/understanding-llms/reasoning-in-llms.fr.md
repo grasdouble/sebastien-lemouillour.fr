@@ -3,8 +3,8 @@ id: reasoning-in-llms
 order: 19
 difficulty: intermediate
 tags: [reasoning, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 Le mode d’échec le plus agaçant d’un LLM, ce n’est pas le non-sens complet. C’est la réponse propre, détaillée, convaincante, et pourtant fausse. C’est pour ça que je ne traite pas le “raisonnement” comme une ambiance ou un badge marketing. Je le traite comme une capacité qu’il faut acheter, déclencher et vérifier avec soin.

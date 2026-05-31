@@ -3,8 +3,8 @@ id: how-to-evaluate-an-ai-response
 order: 15
 difficulty: beginner
 tags: [evaluation, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 The usual beginner mistake is accepting the first AI answer that sounds calm, polished, and confident. A smooth paragraph can still be wrong, incomplete, or useless for the job in front of you. If I had to teach one habit first, it would be this: stop asking whether the answer sounds smart. Ask whether it helps you make the next decision safely.
@@ -21,7 +21,7 @@ If that still feels vague, write a **rubric** first. A rubric is just a short sc
 
 This is also why [HELM](https://arxiv.org/abs/2211.09110) is such a useful benchmark, meaning a standard test used to compare systems. It treats model quality as several dimensions instead of one magic score. That is the stance I would copy.
 
-## Check hard facts before style
+## Hard checks before soft checks
 
 Once you have a rubric, the next problem appears: confidence can still fool you. The fix is to separate **hard checks** from **soft checks**. Hard checks are things you can verify, such as a calculation, a quoted source, a required format, or whether the answer actually followed the instruction. Soft checks are things like tone, helpfulness, or flow.
 

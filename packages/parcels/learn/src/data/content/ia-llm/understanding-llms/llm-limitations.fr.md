@@ -3,11 +3,11 @@ id: llm-limitations
 order: 14
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-Le plus agaçant, ce n’est pas qu’un LLM donne de mauvaises réponses tout le temps. C’est qu’il peut paraître calme, utile et convaincant juste avant de se tromper sur quelque chose d’important. Un **grand modèle de langage (LLM)** est entraîné à prédire les tokens probables suivants, c’est-à-dire de petits morceaux de texte, un pas après l’autre [GPT-3 paper](https://arxiv.org/abs/2005.14165). Cet entraînement le rend très bon pour produire du langage. Il n’en fait pas un vérificateur de faits intégré.
+Le plus agaçant, ce n’est pas qu’un LLM donne de mauvaises réponses tout le temps. C’est qu’il peut paraître calme, utile et convaincant juste avant de se tromper sur quelque chose d’important. Un **grand modèle de langage (LLM)** est entraîné à prédire les tokens probables suivants, c’est-à-dire de petits morceaux de texte, un pas après l’autre ([GPT-3 paper](https://arxiv.org/abs/2005.14165)). Cet entraînement le rend très bon pour produire du langage. Il n’en fait pas un vérificateur de faits intégré.
 
 ## La fluidité ne garantit pas la fiabilité
 
@@ -23,7 +23,7 @@ Je ne partirais quand même pas du principe qu’un énorme prompt règle le pro
 
 ## De petits changements de prompt peuvent changer le résultat
 
-C’est le dernier choc classique quand on débute : on pose presque deux fois la même question et on obtient deux réponses sensiblement différentes. C’est assez normal pour que les fournisseurs recommandent de tester les prompts de façon empirique. Le guide [OpenAI prompting](https://help.openai.com/en/articles/10032626-prompt-engineering-best-practices-for-chatgpt) recommande de tester et d’itérer sur les prompts au lieu de supposer qu’une seule formulation sera toujours la bonne. Donc moi, je testerais exactement la tâche qui m’intéresse, au lieu de faire confiance à la réputation du modèle ou à une démo chanceuse.
+C’est le dernier choc classique quand on débute : on pose presque deux fois la même question et on obtient deux réponses sensiblement différentes. Ce comportement est suffisamment courant pour que les fournisseurs eux-mêmes recommandent de tester les prompts sur des exemples concrets. Le guide [OpenAI prompting](https://help.openai.com/en/articles/10032626-prompt-engineering-best-practices-for-chatgpt) recommande de tester et d’itérer sur les prompts au lieu de supposer qu’une seule formulation sera toujours la bonne. Je testerais donc le cas précis qui m'intéresse, plutôt que de me fier à la réputation du modèle ou à une démonstration réussie en conditions idéales.
 
 ## Ce que je choisirais en pratique
 

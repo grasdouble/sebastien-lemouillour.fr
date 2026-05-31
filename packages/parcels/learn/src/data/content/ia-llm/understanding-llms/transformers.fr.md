@@ -3,13 +3,13 @@ id: transformers
 order: 16
 difficulty: intermediate
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 Balancez un long brief à un ancien modèle séquentiel et vous retrouvez le même échec agaçant: la réponse démarre avec assurance, puis oublie qui a fait quoi, perd les références et part ailleurs juste avant la partie utile. Les transformers ont réglé ce problème assez bien pour que les LLM modernes héritent encore de l’idée centrale du [papier](https://arxiv.org/abs/1706.03762).
 
-## Pourquoi la récurrence a plafonné
+## Pourquoi les modèles récurrents ont atteint leurs limites
 
 Les modèles récurrents lisent un token après l’autre. L’intuition semble propre jusqu’au moment où il faut entraîner ou servir ça à l’échelle. Le chemin entre deux tokens éloignés s’allonge, les dépendances longues deviennent fragiles, et le matériel accéléré passe trop de temps à attendre un traitement séquentiel. Le papier des transformers a pris le choix le plus direct: utiliser l’auto-attention pour que chaque token puisse regarder les autres dans la même couche, en parallèle.
 
@@ -27,7 +27,7 @@ graph TD
 
 Et pour le compromis produit, ce tableau m’aide plus vite qu’un rappel d’architecture de plus:
 
-| Dimension               | RNN / LSTM                                         | Transformer                                                |
+| Dimension               | Modèles récurrents (RNN / LSTM)                    | Transformer                                                |
 | ----------------------- | -------------------------------------------------- | ---------------------------------------------------------- |
 | Ordre de traitement     | Strictement séquentiel                             | Parallèle dans chaque couche                               |
 | Dépendances lointaines  | Se dégradent avec la distance                      | L’attention relie directement les tokens éloignés          |

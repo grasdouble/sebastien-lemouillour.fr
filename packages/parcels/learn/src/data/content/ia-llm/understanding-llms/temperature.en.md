@@ -3,11 +3,11 @@ id: temperature
 order: 20
 difficulty: intermediate
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-When an extraction flow starts returning cute little surprises, people blame the prompt. I blame temperature first. I have watched good models look reckless because somebody left `temperature: 1` on a task that needed one boring, repeatable answer.
+When an extraction flow starts returning cute little surprises, people blame the prompt. I blame temperature first. I have watched good models look reckless because somebody left `temperature: 1` on a task that needed one predictable, repeatable answer.
 
 ## Temperature changes sampling, not model quality
 
@@ -29,7 +29,7 @@ const response = await client.responses.create({
 
 ## Where I actually set it
 
-For extraction, classification, routing, or tool calls, I start between `0` and `0.2`. I want boring. Boring is cheap when the alternative is retries, validators, and one weird answer hitting production.
+For extraction, classification, routing, or tool calls, I start between `0` and `0.2`. I want predictable. Predictable is cheap when the alternative is retries, validators, and one incoherent answer hitting production.
 
 For a general assistant, I usually stay between `0.2` and `0.5`. Above that, I only continue if variation is the point. The [Holtzman paper](https://arxiv.org/abs/1904.09751) is still the best reminder that decoding choices can wreck quality even when the model itself is fine.
 

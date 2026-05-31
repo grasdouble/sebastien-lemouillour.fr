@@ -3,13 +3,13 @@ id: transformers
 order: 16
 difficulty: intermediate
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 Throw a long brief at an old sequence model and you get the same annoying failure pattern: the answer starts confidently, then forgets who did what, loses references, and drifts off before the useful part. Transformers fixed that well enough that modern LLMs still inherit the core idea from the original [paper](https://arxiv.org/abs/1706.03762).
 
-## Why recurrence hit a ceiling
+## Why recurrent models hit a ceiling
 
 Recurrent models read one token after another. That feels intuitive until you try to train or serve them at scale. The path between distant tokens gets longer, long-range dependencies get shaky, and accelerator hardware spends too much time waiting on sequential work. The transformer paper took the blunt trade: use self-attention so each token can look at the others in the same layer, in parallel.
 
@@ -27,7 +27,7 @@ graph TD
 
 And for the product trade-off, this table helps me faster than another round of architecture lore:
 
-| Dimension               | RNN / LSTM                                       | Transformer                                                   |
+| Dimension               | Recurrent models (RNN / LSTM)                    | Transformer                                                   |
 | ----------------------- | ------------------------------------------------ | ------------------------------------------------------------- |
 | Processing order        | Strictly sequential                              | Parallel within each layer                                    |
 | Long-range dependencies | Degrade as distance grows                        | Attention connects distant tokens directly                    |

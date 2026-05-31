@@ -3,8 +3,8 @@ id: embeddings
 order: 11
 difficulty: beginner
 tags: [embeddings, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 Vous cherchez « comment résilier un abonnement », mais la page dit « mettre fin à votre souscription ». La recherche par mots-clés hausse les épaules, et vous vous dites : « franchement, c’est la même idée ». Si le problème est « même sens, mots différents », un embedding est souvent le premier outil que je choisirais.
@@ -15,7 +15,7 @@ Le [guide embeddings](https://platform.openai.com/docs/guides/embeddings) d’Op
 
 Dit comme ça, c’est froid et très mathématique, donc je préfère l’image d’une carte. Les phrases de sens voisin vivent dans le même quartier. « Hôtel pas cher » et « logement à petit budget » ne tombent pas au même point, mais un bon modèle d’embeddings essaie de les garer dans la même zone.
 
-Cette astuce a des racines plus anciennes que beaucoup de débutants l’imaginent. Le [papier word2vec](https://arxiv.org/abs/1301.3781) a montré très tôt qu’on pouvait transformer le langage en vecteurs qui capturent des régularités utiles. Les modèles d’embeddings modernes font la même chose avec un contexte plus riche.
+L'idée de représenter le sens par des coordonnées est plus ancienne que beaucoup de débutants ne l'imaginent. Le [papier word2vec](https://arxiv.org/abs/1301.3781) a montré très tôt qu’on pouvait transformer le langage en vecteurs qui capturent des régularités utiles. Les modèles d’embeddings modernes font la même chose avec un contexte plus riche.
 
 ## Comment on les utilise vraiment
 

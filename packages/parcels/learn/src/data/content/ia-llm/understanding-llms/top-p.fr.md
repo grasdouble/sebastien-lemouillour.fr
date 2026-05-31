@@ -3,8 +3,8 @@ id: top-p
 order: 21
 difficulty: intermediate
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 Quand un modèle est globalement bon mais qu’une réponse sur quelques-unes attrape un mot bizarre et entraîne tout le ton avec lui, baisser la température donne souvent l’impression de punir toute la réponse pour un seul mauvais token de queue. C’est là que je prends le top-p.

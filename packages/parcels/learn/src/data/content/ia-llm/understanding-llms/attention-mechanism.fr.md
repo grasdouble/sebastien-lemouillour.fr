@@ -3,8 +3,8 @@ id: attention-mechanism
 order: 17
 difficulty: intermediate
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 Si vous cachez la seule phrase qui compte au milieu d’un long prompt, le modèle répondra souvent au remplissage et ratera l’essentiel. J’ai arrêté d’appeler ça un problème de “mauvais modèle”. La plupart du temps, c’est un problème d’attention: le modèle n’a pas donné assez de poids aux bons tokens au moment de prédire le suivant.

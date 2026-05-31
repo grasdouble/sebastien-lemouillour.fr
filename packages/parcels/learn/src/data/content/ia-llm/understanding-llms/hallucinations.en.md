@@ -3,8 +3,8 @@ id: hallucinations
 order: 12
 difficulty: beginner
 tags: [evaluation, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 You ask for a source, the model invents one, and you only notice when the article title leads nowhere. That is usually the moment beginners stop treating polished answers as proof. A **hallucination** is a response that looks confident but is false, unsupported, or made up, which is how OpenAI describes the problem in its [hallucinations guide](https://cookbook.openai.com/articles/hallucinations). If you remember one rule, make it this: smooth wording is a style signal, not a truth signal.

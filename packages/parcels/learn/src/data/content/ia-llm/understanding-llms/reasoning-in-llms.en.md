@@ -3,8 +3,8 @@ id: reasoning-in-llms
 order: 19
 difficulty: intermediate
 tags: [reasoning, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 The most annoying LLM failure mode is not nonsense. It is a polished, step-by-step answer that feels convincing and is still wrong. That is why I do not treat “reasoning” as a vibe or a marketing badge. I treat it as a capability you have to buy, prompt, and verify carefully.
