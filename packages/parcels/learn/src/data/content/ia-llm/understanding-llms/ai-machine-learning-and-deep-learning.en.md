@@ -2,7 +2,7 @@
 id: ai-machine-learning-and-deep-learning
 order: 2
 difficulty: beginner
-tags: [IA, MachineLearning]
+tags: [llm]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---

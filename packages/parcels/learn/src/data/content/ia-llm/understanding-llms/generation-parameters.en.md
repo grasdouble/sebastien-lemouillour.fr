@@ -2,7 +2,7 @@
 id: generation-parameters
 order: 23
 difficulty: intermediate
-tags: [LLM, paramètres]
+tags: [llm]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---

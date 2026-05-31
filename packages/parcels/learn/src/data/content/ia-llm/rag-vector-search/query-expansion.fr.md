@@ -2,7 +2,7 @@
 id: query-expansion
 order: 16
 difficulty: intermediate
-tags: [RAG, retrieval, HyDE, reformulation]
+tags: [rag]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

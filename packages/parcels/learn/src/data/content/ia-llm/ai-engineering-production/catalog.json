@@ -55,49 +55,21 @@
         "title": "Confidentialité des données",
         "description": "Comprendre les risques de confidentialité lors de l'utilisation des APIs LLM et comment protéger les informations sensibles"
       },
-      "fine-tuning": {
-        "title": "Fine-tuning",
-        "description": "Comprendre le fine-tuning : quand il en vaut la peine, en quoi il diffère du prompting et le processus d'entraînement de base"
-      },
-      "gpu-and-vram": {
-        "title": "GPU et VRAM",
-        "description": "Comprendre le rôle des GPUs et de la VRAM dans l'inférence LLM et comment estimer les besoins en mémoire"
-      },
       "guardrails": {
         "title": "Garde-fous",
         "description": "Implémenter des garde-fous pour contraindre les sorties LLM : filtrage de contenu, application de format et vérifications de sécurité"
-      },
-      "inference": {
-        "title": "Inférence",
-        "description": "Comprendre le processus d'inférence LLM : comment un modèle génère une réponse et ce qui affecte sa vitesse"
       },
       "llm-monitoring": {
         "title": "Monitoring LLM",
         "description": "Surveiller les applications LLM en production : suivre les métriques de qualité, détecter les dégradations et configurer des alertes"
       },
-      "lora": {
-        "title": "LoRA",
-        "description": "Comprendre comment le Low-Rank Adaptation permet un fine-tuning efficace des grands modèles avec un minimum de calcul"
-      },
-      "peft": {
-        "title": "PEFT",
-        "description": "Explorer les techniques de fine-tuning à efficacité paramétrique qui adaptent les grands modèles avec une fraction du coût d'entraînement"
-      },
       "prompt-injection": {
         "title": "Injection de prompt",
         "description": "Comprendre ce que sont les attaques par injection de prompt et comment défendre vos applications IA contre elles"
       },
-      "quantization": {
-        "title": "Quantification",
-        "description": "Réduire la taille du modèle et le coût d'inférence grâce aux techniques de quantification sans trop sacrifier la qualité"
-      },
       "securing-ai-applications": {
         "title": "Sécuriser les applications IA",
         "description": "Appliquer les bonnes pratiques de sécurité aux applications IA : validation des entrées, assainissement des sorties et contrôle d'accès"
-      },
-      "serving": {
-        "title": "Serving",
-        "description": "Apprendre à servir les LLMs efficacement : batching, streaming, serveurs de modèles et patterns de déploiement"
       }
     }
   },
@@ -157,49 +129,21 @@
         "title": "Data privacy",
         "description": "Understand data privacy risks when using LLM APIs and how to protect sensitive information"
       },
-      "fine-tuning": {
-        "title": "Fine-tuning",
-        "description": "Understand fine-tuning: when it is worth it, how it differs from prompting, and the basic training process"
-      },
-      "gpu-and-vram": {
-        "title": "GPU and VRAM",
-        "description": "Understand the role of GPUs and VRAM in LLM inference and how to estimate memory requirements"
-      },
       "guardrails": {
         "title": "Guardrails",
         "description": "Implement guardrails to constrain LLM outputs: content filtering, format enforcement, and safety checks"
-      },
-      "inference": {
-        "title": "Inference",
-        "description": "Understand the LLM inference process: how a model generates a response and what affects its speed"
       },
       "llm-monitoring": {
         "title": "LLM monitoring",
         "description": "Monitor LLM applications in production: track quality metrics, detect degradation, and set up alerts"
       },
-      "lora": {
-        "title": "LoRA",
-        "description": "Learn how Low-Rank Adaptation enables efficient fine-tuning of large models with minimal compute"
-      },
-      "peft": {
-        "title": "PEFT",
-        "description": "Explore Parameter-Efficient Fine-Tuning techniques that adapt large models with a fraction of the training cost"
-      },
       "prompt-injection": {
         "title": "Prompt injection",
         "description": "Learn what prompt injection attacks are and how to defend your AI applications against them"
       },
-      "quantization": {
-        "title": "Quantization",
-        "description": "Reduce model size and inference cost using quantization techniques without sacrificing too much quality"
-      },
       "securing-ai-applications": {
         "title": "Securing AI applications",
         "description": "Apply security best practices to AI applications: input validation, output sanitization, and access control"
-      },
-      "serving": {
-        "title": "Serving",
-        "description": "Learn how to serve LLMs efficiently: batching, streaming, model servers, and deployment patterns"
       }
     }
   }

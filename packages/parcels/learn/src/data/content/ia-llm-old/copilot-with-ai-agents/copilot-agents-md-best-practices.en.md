@@ -2,7 +2,7 @@
 id: copilot-agents-md-best-practices
 order: 3
 difficulty: intermediate
-tags: [copilot, agents-md, best-practices]
+tags: [agents, copilot]
 publishedAt: 2026-12-31
 updatedAt: 2026-12-31
 ---

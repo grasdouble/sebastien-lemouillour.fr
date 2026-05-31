@@ -2,7 +2,7 @@
 id: ai-governance
 order: 20
 difficulty: advanced
-tags: [LLM, governance, compliance, NIST]
+tags: [security, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

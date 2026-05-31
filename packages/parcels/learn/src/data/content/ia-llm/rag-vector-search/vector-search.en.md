@@ -2,7 +2,7 @@
 id: vector-search
 order: 5
 difficulty: beginner
-tags: [RAG, LLM, vectors, FAISS]
+tags: [rag, embeddings, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

@@ -2,7 +2,7 @@
 id: vectors-and-distance
 order: 6
 difficulty: beginner
-tags: [RAG, LLM, vectors, cosine]
+tags: [rag, embeddings, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

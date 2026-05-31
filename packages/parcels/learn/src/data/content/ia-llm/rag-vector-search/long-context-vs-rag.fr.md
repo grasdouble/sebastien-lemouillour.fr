@@ -2,7 +2,7 @@
 id: long-context-vs-rag
 order: 20
 difficulty: advanced
-tags: [RAG, long-context, architecture]
+tags: [rag]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

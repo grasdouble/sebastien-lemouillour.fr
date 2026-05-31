@@ -1,0 +1,118 @@
+{
+  "fr": {
+    "title": "Agents & Orchestration",
+    "description": "Concevoir et orchestrer des agents IA autonomes capables de planifier, utiliser des outils et collaborer",
+    "guides": {
+      "agent-memory": {
+        "title": "Mémoire des agents",
+        "description": "Explorer les différents types de mémoire disponibles pour les agents IA : en contexte, externe et épisodique"
+      },
+      "agentic-workflows": {
+        "title": "Workflows agentiques",
+        "description": "Construire des workflows agentiques de qualité production avec orchestration, gestion des erreurs et points de contrôle humains"
+      },
+      "autonomous-agents": {
+        "title": "Agents autonomes",
+        "description": "Concevoir et construire des agents IA autonomes capables d'exécuter des tâches en plusieurs étapes sans intervention humaine"
+      },
+      "function-calling": {
+        "title": "Appel de fonctions",
+        "description": "Permettre aux LLMs d'appeler des fonctions et des APIs externes en les décrivant dans le prompt"
+      },
+      "llm-workflows": {
+        "title": "Workflows LLM",
+        "description": "Concevoir des workflows LLM multi-étapes combinant plusieurs appels, outils et logique conditionnelle"
+      },
+      "mcp-model-context-protocol": {
+        "title": "MCP (Model Context Protocol)",
+        "description": "Comprendre le Model Context Protocol et comment il permet aux agents d'interagir avec des outils externes de manière standardisée"
+      },
+      "model-routing": {
+        "title": "Routage de modèles",
+        "description": "Implémenter des stratégies de routage de modèles pour sélectionner le bon LLM selon le coût, la latence et les capacités"
+      },
+      "multi-agent-architectures": {
+        "title": "Architectures multi-agents",
+        "description": "Architecturer des systèmes où plusieurs agents IA collaborent, délèguent et se coordonnent pour résoudre des problèmes complexes"
+      },
+      "prompt-chaining": {
+        "title": "Chaînage de prompts",
+        "description": "Construire des workflows complexes en chaînant plusieurs prompts, en passant les sorties comme entrées aux étapes suivantes"
+      },
+      "task-planning": {
+        "title": "Planification de tâches",
+        "description": "Comprendre comment les agents IA décomposent des objectifs complexes en étapes actionnables via des stratégies de planification"
+      },
+      "tool-calling": {
+        "title": "Appel d'outils",
+        "description": "Étendre les capacités des LLMs en les connectant à des outils : recherche web, exécution de code et requêtes de base de données"
+      },
+      "what-is-an-ai-agent": {
+        "title": "Qu'est-ce qu'un agent IA ?",
+        "description": "Comprendre ce qu'est un agent IA, en quoi il diffère d'un simple appel LLM et ce qui le rend autonome"
+      },
+      "agentic-rag": {
+        "title": "RAG agentique",
+        "description": "Construire des systèmes RAG qui utilisent des agents pour affiner itérativement les requêtes et raisonner sur les résultats"
+      }
+    }
+  },
+  "en": {
+    "title": "Agents & Orchestration",
+    "description": "Design and orchestrate autonomous AI agents capable of planning, using tools, and collaborating",
+    "guides": {
+      "agent-memory": {
+        "title": "Agent memory",
+        "description": "Explore the different types of memory available to AI agents: in-context, external, and episodic"
+      },
+      "agentic-workflows": {
+        "title": "Agentic workflows",
+        "description": "Build production-grade agentic workflows with orchestration, error handling, and human-in-the-loop checkpoints"
+      },
+      "autonomous-agents": {
+        "title": "Autonomous agents",
+        "description": "Design and build autonomous AI agents capable of executing multi-step tasks without human intervention"
+      },
+      "function-calling": {
+        "title": "Function calling",
+        "description": "Enable LLMs to call external functions and APIs by describing them in the prompt"
+      },
+      "llm-workflows": {
+        "title": "LLM workflows",
+        "description": "Design multi-step LLM workflows that combine multiple calls, tools, and conditional logic"
+      },
+      "mcp-model-context-protocol": {
+        "title": "MCP (Model Context Protocol)",
+        "description": "Understand the Model Context Protocol and how it enables agents to interact with external tools in a standardized way"
+      },
+      "model-routing": {
+        "title": "Model routing",
+        "description": "Implement model routing strategies to select the right LLM for each task based on cost, latency, and capability"
+      },
+      "multi-agent-architectures": {
+        "title": "Multi-agent architectures",
+        "description": "Architect systems where multiple AI agents collaborate, delegate, and coordinate to solve complex problems"
+      },
+      "prompt-chaining": {
+        "title": "Prompt chaining",
+        "description": "Build complex workflows by chaining multiple prompts, passing outputs as inputs to subsequent steps"
+      },
+      "task-planning": {
+        "title": "Task planning",
+        "description": "Learn how AI agents decompose complex goals into actionable steps using planning strategies"
+      },
+      "tool-calling": {
+        "title": "Tool calling",
+        "description": "Extend LLM capabilities by connecting them to tools: web search, code execution, and database queries"
+      },
+      "what-is-an-ai-agent": {
+        "title": "What is an AI agent?",
+        "description": "Understand what an AI agent is, how it differs from a simple LLM call, and what makes it autonomous"
+      },
+      "agentic-rag": {
+        "title": "Agentic RAG",
+        "description": "Build RAG systems that use agents to iteratively refine queries, retrieve, and reason over results"
+      }
+    }
+  }
+}

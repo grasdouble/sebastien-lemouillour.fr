@@ -2,7 +2,7 @@
 id: copilot-mcp
 order: 5
 difficulty: intermediate
-tags: [copilot, mcp, tools]
+tags: [tools, copilot]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-30
 ---

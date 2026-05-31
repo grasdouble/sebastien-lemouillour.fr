@@ -2,7 +2,7 @@
 id: tokens
 order: 8
 difficulty: beginner
-tags: [LLM, tokens]
+tags: [tokens, llm]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---

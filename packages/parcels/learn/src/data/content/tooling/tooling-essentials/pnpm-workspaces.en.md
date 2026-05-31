@@ -2,7 +2,7 @@
 id: pnpm-workspaces
 order: 2
 difficulty: intermediate
-tags: [tooling, monorepo, pnpm]
+tags: [tooling, monorepo]
 publishedAt: 2026-05-22
 updatedAt: 2026-05-30
 ---

@@ -2,7 +2,7 @@
 id: model-biases
 order: 13
 difficulty: beginner
-tags: [LLM, biais]
+tags: [llm]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---

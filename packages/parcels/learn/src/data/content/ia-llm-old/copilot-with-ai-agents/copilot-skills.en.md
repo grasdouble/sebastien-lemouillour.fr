@@ -2,7 +2,7 @@
 id: copilot-skills
 order: 4
 difficulty: intermediate
-tags: [copilot, skills, ai-agents]
+tags: [agents, copilot]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-30
 ---

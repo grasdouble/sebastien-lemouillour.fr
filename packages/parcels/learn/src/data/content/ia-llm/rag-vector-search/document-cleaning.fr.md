@@ -2,7 +2,7 @@
 id: document-cleaning
 order: 13
 difficulty: intermediate
-tags: [RAG, preprocessing, OCR]
+tags: [rag]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

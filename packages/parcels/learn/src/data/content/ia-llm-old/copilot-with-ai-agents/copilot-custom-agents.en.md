@@ -2,7 +2,7 @@
 id: copilot-custom-agents
 order: 6
 difficulty: advanced
-tags: [copilot, custom-agents, ai-agents]
+tags: [agents, copilot]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-30
 ---

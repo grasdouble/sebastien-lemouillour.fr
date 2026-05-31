@@ -2,7 +2,7 @@
 id: metadata
 order: 9
 difficulty: intermediate
-tags: [RAG, metadata, filtering, VectorDB]
+tags: [rag, embeddings]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

@@ -2,7 +2,7 @@
 id: securing-ai-applications
 order: 6
 difficulty: beginner
-tags: [LLM, security, guardrails, OpenAI, OWASP]
+tags: [security, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

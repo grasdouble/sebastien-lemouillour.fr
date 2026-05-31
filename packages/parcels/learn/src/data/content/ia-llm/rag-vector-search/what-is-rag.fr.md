@@ -2,7 +2,7 @@
 id: what-is-rag
 order: 1
 difficulty: beginner
-tags: [RAG, LLM, retrieval, embeddings]
+tags: [rag, embeddings, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

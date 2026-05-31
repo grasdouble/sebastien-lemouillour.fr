@@ -2,7 +2,7 @@
 id: multi-vector-rag
 order: 17
 difficulty: advanced
-tags: [RAG, architecture, ColBERT, retrieval]
+tags: [rag]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

@@ -2,7 +2,7 @@
 id: rag-fundamentals
 order: 2
 difficulty: intermediate
-tags: [IA, LLM, RAG, embeddings]
+tags: [rag, embeddings, llm]
 publishedAt: 2026-05-30
 updatedAt: 2026-05-30
 ---

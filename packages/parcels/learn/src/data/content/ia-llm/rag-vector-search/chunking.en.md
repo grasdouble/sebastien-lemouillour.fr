@@ -2,7 +2,7 @@
 id: chunking
 order: 10
 difficulty: intermediate
-tags: [RAG, chunking, LangChain, LlamaIndex]
+tags: [rag]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

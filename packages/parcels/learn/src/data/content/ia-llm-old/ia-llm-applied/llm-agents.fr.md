@@ -2,7 +2,7 @@
 id: llm-agents
 order: 3
 difficulty: advanced
-tags: [IA, LLM, agents, function-calling]
+tags: [agents, tools, llm]
 publishedAt: 2026-05-12
 updatedAt: 2026-05-30
 ---

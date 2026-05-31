@@ -2,7 +2,7 @@
 id: agent-traces
 order: 15
 difficulty: intermediate
-tags: [LLM, observability, tracing, LangSmith, Langfuse]
+tags: [observability, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

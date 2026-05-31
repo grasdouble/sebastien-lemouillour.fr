@@ -2,7 +2,7 @@
 id: llm-production
 order: 4
 difficulty: advanced
-tags: [IA, LLM, production, security, observability]
+tags: [security, observability, llm]
 publishedAt: 2026-05-30
 updatedAt: 2026-05-30
 ---

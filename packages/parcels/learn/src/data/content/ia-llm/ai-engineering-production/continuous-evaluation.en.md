@@ -2,7 +2,7 @@
 id: continuous-evaluation
 order: 17
 difficulty: advanced
-tags: [LLM, evaluation, CI, Braintrust, DeepEval]
+tags: [evaluation, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

@@ -2,7 +2,7 @@
 id: llm-limitations
 order: 14
 difficulty: beginner
-tags: [LLM]
+tags: [llm]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---

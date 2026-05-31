@@ -2,7 +2,7 @@
 id: why-use-rag
 order: 2
 difficulty: beginner
-tags: [RAG, LLM, grounding, retrieval]
+tags: [rag, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

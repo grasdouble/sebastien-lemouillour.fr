@@ -2,7 +2,7 @@
 id: precision
 order: 22
 difficulty: advanced
-tags: [RAG, evaluation, retrieval, precision]
+tags: [rag, evaluation]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

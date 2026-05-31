@@ -2,7 +2,7 @@
 id: copilot-agents-md-setup
 order: 2
 difficulty: beginner
-tags: [copilot, agents-md, configuration]
+tags: [agents, copilot]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-30
 ---

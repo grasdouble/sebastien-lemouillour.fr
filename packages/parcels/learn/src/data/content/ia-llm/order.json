@@ -1,1 +1,8 @@
-["understanding-llms", "building-with-llms", "rag-vector-search", "ai-engineering-production"]
+[
+  "understanding-llms",
+  "prompting",
+  "rag-vector-search",
+  "agents-orchestration",
+  "ai-engineering-production",
+  "fine-tuning-optimization"
+]

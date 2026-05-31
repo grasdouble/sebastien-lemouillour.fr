@@ -11,10 +11,6 @@
         "title": "IA, Machine Learning et Deep Learning",
         "description": "Comprendre la relation entre intelligence artificielle, machine learning et deep learning"
       },
-      "alignment": {
-        "title": "Alignement",
-        "description": "Explorer le défi de l'alignement IA : rendre les modèles sûrs, utiles et conformes aux valeurs humaines"
-      },
       "attention-mechanism": {
         "title": "Mécanisme d'attention",
         "description": "Plonger dans le mécanisme d'attention et comprendre comment il permet aux LLMs de se concentrer sur les parties pertinentes de l'entrée"
@@ -30,10 +26,6 @@
       "different-types-of-ai-models": {
         "title": "Les différents types de modèles IA",
         "description": "Explorer le paysage des modèles IA : modèles de langage, modèles d'image et modèles multimodaux"
-      },
-      "dpo": {
-        "title": "DPO",
-        "description": "Comprendre comment le Direct Preference Optimization simplifie l'entraînement d'alignement par rapport au RLHF"
       },
       "embeddings": {
         "title": "Embeddings",
@@ -75,17 +67,9 @@
         "title": "Modèles open-source vs propriétaires",
         "description": "Comparer les modèles IA open-source et propriétaires : compromis de coût, contrôle, performance et confidentialité"
       },
-      "pre-training": {
-        "title": "Pré-entraînement",
-        "description": "Comprendre comment les LLMs sont pré-entraînés sur de grands corpus de texte et ce que ce processus produit"
-      },
       "reasoning-in-llms": {
         "title": "Le raisonnement dans les LLMs",
         "description": "Explorer comment les LLMs abordent les tâches de raisonnement et où ils réussissent ou échouent"
-      },
-      "rlhf": {
-        "title": "RLHF",
-        "description": "Comprendre le Reinforcement Learning from Human Feedback et comment il aligne les LLMs sur les préférences humaines"
       },
       "temperature": {
         "title": "Température",
@@ -133,10 +117,6 @@
         "title": "AI, Machine Learning, and Deep Learning",
         "description": "Understand the relationship between artificial intelligence, machine learning, and deep learning"
       },
-      "alignment": {
-        "title": "Alignment",
-        "description": "Explore the challenge of AI alignment: making models behave in ways that are safe and beneficial"
-      },
       "attention-mechanism": {
         "title": "Attention mechanism",
         "description": "Dive into the attention mechanism and understand how it lets LLMs focus on relevant parts of the input"
@@ -152,10 +132,6 @@
       "different-types-of-ai-models": {
         "title": "Different types of AI models",
         "description": "Explore the landscape of AI models: language models, image models, and multimodal models"
-      },
-      "dpo": {
-        "title": "DPO",
-        "description": "Learn how Direct Preference Optimization simplifies alignment training compared to RLHF"
       },
       "embeddings": {
         "title": "Embeddings",
@@ -197,17 +173,9 @@
         "title": "Open-source vs proprietary models",
         "description": "Compare open-source and proprietary AI models: cost, control, performance, and privacy trade-offs"
       },
-      "pre-training": {
-        "title": "Pre-training",
-        "description": "Learn how LLMs are pre-trained on large text corpora and what this process produces"
-      },
       "reasoning-in-llms": {
         "title": "Reasoning in LLMs",
         "description": "Explore how LLMs approach reasoning tasks and where they succeed or fail"
-      },
-      "rlhf": {
-        "title": "RLHF",
-        "description": "Understand Reinforcement Learning from Human Feedback and how it aligns LLMs with human preferences"
       },
       "temperature": {
         "title": "Temperature",

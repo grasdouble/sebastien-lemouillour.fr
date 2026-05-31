@@ -2,7 +2,7 @@
 id: llm-api-patterns
 order: 1
 difficulty: intermediate
-tags: [IA, LLM, API]
+tags: [llm]
 publishedAt: 2026-05-12
 updatedAt: 2026-05-30
 ---

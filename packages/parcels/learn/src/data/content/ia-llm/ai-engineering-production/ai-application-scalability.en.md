@@ -2,7 +2,7 @@
 id: ai-application-scalability
 order: 23
 difficulty: advanced
-tags: [LLM, scalability, vLLM, LiteLLM]
+tags: [production, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

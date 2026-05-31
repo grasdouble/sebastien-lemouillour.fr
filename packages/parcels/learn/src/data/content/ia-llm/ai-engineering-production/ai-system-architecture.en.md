@@ -2,7 +2,7 @@
 id: ai-system-architecture
 order: 22
 difficulty: advanced
-tags: [LLM, architecture, orchestration, systems]
+tags: [agents, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

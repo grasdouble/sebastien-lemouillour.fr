@@ -2,7 +2,7 @@
 id: intro-ia-generative
 order: 1
 difficulty: beginner
-tags: [IA, LLM]
+tags: [llm]
 publishedAt: 2026-05-20
 updatedAt: 2026-05-30
 ---

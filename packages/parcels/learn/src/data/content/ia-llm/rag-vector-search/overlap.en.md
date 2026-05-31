@@ -2,7 +2,7 @@
 id: overlap
 order: 12
 difficulty: intermediate
-tags: [RAG, chunking, recall, LangChain]
+tags: [rag, evaluation]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

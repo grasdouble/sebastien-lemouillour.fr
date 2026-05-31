@@ -2,7 +2,7 @@
 id: ai-logs
 order: 14
 difficulty: intermediate
-tags: [LLM, observability, logs, OpenTelemetry]
+tags: [observability, llm]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---

@@ -2,7 +2,7 @@
 id: react-micro-frontends
 order: 1
 difficulty: advanced
-tags: [React, architecture, micro-frontend]
+tags: [micro-frontend, architecture]
 publishedAt: 2026-05-10
 updatedAt: 2026-05-30
 ---

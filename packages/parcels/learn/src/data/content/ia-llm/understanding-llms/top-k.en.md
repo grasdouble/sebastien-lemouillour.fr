@@ -2,7 +2,7 @@
 id: top-k
 order: 22
 difficulty: intermediate
-tags: [LLM, paramètres]
+tags: [llm]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-31
 ---

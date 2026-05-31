@@ -2,7 +2,7 @@
 id: copilot-intro
 order: 1
 difficulty: beginner
-tags: [copilot, ai-agents, github]
+tags: [agents, copilot, github]
 publishedAt: 2026-05-15
 updatedAt: 2026-05-30
 ---

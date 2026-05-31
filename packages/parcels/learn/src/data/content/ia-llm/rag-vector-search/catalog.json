@@ -3,10 +3,6 @@
     "title": "RAG & Recherche Vectorielle",
     "description": "Permettre à un LLM d'exploiter des connaissances externes grâce à la génération augmentée par récupération",
     "guides": {
-      "agentic-rag": {
-        "title": "RAG agentique",
-        "description": "Construire des systèmes RAG qui utilisent des agents pour affiner itérativement les requêtes et raisonner sur les résultats"
-      },
       "chunk-size": {
         "title": "Taille des chunks",
         "description": "Apprendre à choisir la bonne taille de chunk pour votre pipeline RAG et les compromis impliqués"
@@ -105,10 +101,6 @@
     "title": "RAG & Vector Search",
     "description": "Enable an LLM to use external knowledge through retrieval-augmented generation",
     "guides": {
-      "agentic-rag": {
-        "title": "Agentic RAG",
-        "description": "Build RAG systems that use agents to iteratively refine queries, retrieve, and reason over results"
-      },
       "chunk-size": {
         "title": "Chunk size",
         "description": "Learn how to choose the right chunk size for your RAG pipeline and the trade-offs involved"

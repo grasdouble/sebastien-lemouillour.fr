@@ -2,7 +2,7 @@
 id: prompt-engineering
 order: 2
 difficulty: intermediate
-tags: [IA, LLM, prompt]
+tags: [prompting, llm]
 publishedAt: 2026-05-20
 updatedAt: 2026-05-30
 ---

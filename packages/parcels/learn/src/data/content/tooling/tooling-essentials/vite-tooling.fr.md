@@ -2,7 +2,7 @@
 id: vite-tooling
 order: 1
 difficulty: beginner
-tags: [tooling, Vite, build]
+tags: [tooling]
 publishedAt: 2026-05-22
 updatedAt: 2026-05-30
 ---

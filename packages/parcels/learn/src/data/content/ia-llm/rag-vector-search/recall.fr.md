@@ -2,7 +2,7 @@
 id: recall
 order: 21
 difficulty: advanced
-tags: [RAG, evaluation, retrieval, recall, DeepEval, Ragas]
+tags: [rag, evaluation]
 publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
