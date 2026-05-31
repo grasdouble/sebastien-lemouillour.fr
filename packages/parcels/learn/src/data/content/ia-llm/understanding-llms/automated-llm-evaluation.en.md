@@ -3,8 +3,8 @@ id: automated-llm-evaluation
 order: 28
 difficulty: advanced
 tags: [evaluation, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 If you only spot-check ten outputs, regressions ship. If you replace that with one judge score and call it science, regressions still ship. Automated eval only starts paying rent when volume is high and release speed matters. Used badly, it just industrializes false confidence.
@@ -15,7 +15,7 @@ When I need to explain the pipeline to a team, I draw the flow before I argue ab
 flowchart TD
   A[Generate model output on eval set] --> B[Run deterministic checks]
   B --> C[Judge model scores with rubric]
-  C --> D[Pairwise review with swapped order]
+  C --> D[Pairwise A/B then B/A — neutralizes position bias]
   D --> E[Regression suite on frozen and fresh cases]
   E --> F{Release gate}
   F -->|Pass| G[Ship]

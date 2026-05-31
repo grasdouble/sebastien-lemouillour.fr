@@ -1,6 +1,6 @@
 ---
 id: temperature
-order: 20
+order: 21
 difficulty: intermediate
 tags: [llm]
 publishedAt: 2026-06-01

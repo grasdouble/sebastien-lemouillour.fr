@@ -1,6 +1,6 @@
 ---
 id: top-k
-order: 22
+order: 23
 difficulty: intermediate
 tags: [llm]
 publishedAt: 2026-06-01
