@@ -36,6 +36,17 @@ Contraintes :
 Sortie :
 ```
 
+Quand je veux éviter les erreurs bêtes, j'élargis mentalement ce squelette avec une grille un peu plus complète. Tâche / contexte / contraintes / sortie font l'essentiel du boulot. Le rôle et les exemples sont optionnels, mais c'est souvent eux qui font passer la réponse de « correcte » à « directement exploitable ».
+
+| Élément          | Rôle                                                                       | Mauvais exemple               | Bon exemple                                                                    |
+| ---------------- | -------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------ |
+| Rôle             | Donner le bon angle quand le niveau d'expertise ou la posture comptent.    | « Sois intelligent. »         | « Agis comme un staff engineer frontend en train de relire une pull request. » |
+| Tâche            | Dire clairement le travail attendu, de préférence avec un verbe.           | « Aide-moi avec le caching. » | « Explique le caching à un développeur frontend junior. »                      |
+| Contexte         | Fournir les infos que le modèle ne peut pas inventer proprement.           | « Tu connais déjà l'app. »    | « C'est une SPA React avec des pages produit lentes et aucun CDN. »            |
+| Contraintes      | Poser les garde-fous avant que le modèle improvise.                        | « Fais ça bien. »             | « Reste sous 150 mots, évite le jargon et n'invente pas de métriques. »        |
+| Format de sortie | Demander la forme exacte de la réponse.                                    | « Réponds comme tu veux. »    | « Retourne un paragraphe court puis 3 puces. »                                 |
+| Exemples         | Montrer le motif attendu quand la cohérence compte plus que la créativité. | « Tu vois l'idée. »           | « Utilise ce format : problème → cause probable → action suivante. »           |
+
 ### 4. Demandez une sortie précise
 
 Si vous connaissez la forme de la réponse, demandez-la. Un paragraphe, une liste à puces, un tableau, du JSON, trois options classées par confiance, peu importe, tant que cela vous aide à utiliser le résultat rapidement. [L'intro Gemini](https://ai.google.dev/gemini-api/docs/prompting-intro) recommande elle aussi d'indiquer les contraintes et le format de réponse, et je suivrais ce conseil presque à chaque fois sauf si la forme m'est complètement égale.

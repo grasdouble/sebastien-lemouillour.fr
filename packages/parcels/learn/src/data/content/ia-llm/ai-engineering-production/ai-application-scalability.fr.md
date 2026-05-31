@@ -13,6 +13,27 @@ Le premier correctif est ennuyeux, donc les équipes l'évitent. Le [guide de la
 
 Je scale les systèmes IA dans cet ordre. D'abord, supprimer les tokens inutiles. Ensuite, séparer le trafic selon la criticité métier. Puis mettre en cache ou batcher les chemins qui se répètent. Enfin, ajouter de la capacité. La plupart des équipes commencent à l'étape quatre parce qu'acheter de la capacité est politiquement plus simple que dire aux propriétaires des prompts qu'ils gaspillent la moitié du budget de latence. Elles évitent aussi le test de charge moche, celui avec des conversations longues, des tenants de tailles très différentes, des ratés de retrieval et des annulations côté client. C'est exactement là que la file commence à mentir.
 
+Si la personne d'astreinte ne peut pas dessiner le chemin chaud en dix secondes, l'architecture est déjà trop floue. Voilà le flux de requête que je veux voir sur le tableau blanc en premier.
+
+```mermaid
+flowchart LR
+  A[Client] --> B[Load balancer]
+  B --> C{Cache hit ?}
+  C -->|Oui| E[Réponse]
+  C -->|Non| D[Pool LLM]
+  D --> E
+```
+
+Et quand je dis « scaler le système », je parle de choisir la tactique la moins chère qui colle vraiment au goulot.
+
+| Tactique de scalabilité | Quand je l'utilise                                                                         | Le compromis que j'accepte                                                   |
+| ----------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| Horizontal scaling      | Quand les workers sont surtout stateless et que la douleur immédiate, c'est la concurrence | Plus de coût infra et davantage de coordination autour des limites partagées |
+| Caching                 | Quand prompts, préfixes ou réponses reviennent assez souvent pour que ça compte            | Risque de stale data et travail d'invalidation que personne n'aime faire     |
+| Batching                | Quand le débit compte plus que la réponse instantanée sur une classe de requêtes           | Plus de mise en file et un tail latency moins bon sur l'interactif           |
+| Async queues            | Quand l'utilisateur peut attendre et que le boulot est coûteux ou bursty                   | Plus de complexité produit autour du statut, des retries et des annulations  |
+| Model sharding          | Quand le trafic se découpe clairement par SLA, plafond de coût ou capacité modèle          | Plus de logique de routage et un vrai risque de capacité fragmentée          |
+
 Voici la forme de routage que je mettrais en production en premier.
 
 ```yaml

@@ -42,4 +42,15 @@ alerts:
     # Keep this split by tool name, not just one global error bucket.
 ```
 
+I also keep a dead-simple ops matrix next to those alerts, because sleepy on-call brains need defaults more than philosophy:
+
+| Metric             | Normal Range                         | Alert Threshold                     | On-Call Action                                                                          |
+| ------------------ | ------------------------------------ | ----------------------------------- | --------------------------------------------------------------------------------------- |
+| latency_p99        | Under 9s                             | Over 12s for 15m                    | Page on-call, check provider latency, and force fallback if the queue keeps growing     |
+| error_rate         | Under 1%                             | Over 5% for 10m                     | Page the owner, inspect tool and provider errors, and disable the broken path if needed |
+| token_usage        | Within +/- 15% of the 7-day baseline | More than 30% above baseline for 1h | Diff recent prompt changes, clamp context length, and sample bloated requests           |
+| cost_per_request   | Under $0.08                          | Over $0.12 for 1h                   | Switch to the cheaper model tier or cut prompt scope before finance asks questions      |
+| hallucination_rate | Under 5% on judged samples           | Over 10% for 30m                    | Roll back the latest prompt or model change and review bad outputs manually             |
+| cache_hit_rate     | Above 60%                            | Below 40% for 30m                   | Inspect cache keys, warm the hot paths, and check for retrieval drift                   |
+
 My rule is simple: if a metric cannot trigger a page, a rollback, or a weekly cost decision, it does not belong in the first dashboard.

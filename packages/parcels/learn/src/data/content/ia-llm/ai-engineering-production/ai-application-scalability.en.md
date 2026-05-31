@@ -13,6 +13,27 @@ The first fix is boring, which is why teams dodge it. The [latency guide](https:
 
 I scale AI systems in this order. First, remove useless tokens. Second, separate traffic by business criticality. Third, cache or batch the paths that repeat. Fourth, add capacity. Most teams start at step four because buying capacity is politically easier than telling prompt owners they are wasting half the latency budget. They also skip the ugly load test, the one with long conversations, mixed tenant sizes, retrieval misses, and client cancellations. That is exactly where the queue starts lying.
 
+If the on-call engineer cannot sketch the hot path in ten seconds, the architecture is already too fuzzy. This is the request flow I want on the whiteboard first.
+
+```mermaid
+flowchart LR
+  A[Client] --> B[Load balancer]
+  B --> C{Cache hit?}
+  C -->|Yes| E[Response]
+  C -->|No| D[LLM pool]
+  D --> E
+```
+
+And when I say "scale the system," I mean choosing the cheapest tactic that actually matches the bottleneck.
+
+| Scaling tactic     | When I use it                                                             | Trade-off I accept                                               |
+| ------------------ | ------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Horizontal scaling | When workers are mostly stateless and concurrency is the immediate pain   | Higher infra cost and more coordination around shared limits     |
+| Caching            | When prompts, prefixes, or answers repeat often enough to matter          | Staleness risk and invalidation work nobody enjoys               |
+| Batching           | When throughput matters more than instant response on a class of requests | More queueing and worse tail latency for interactive traffic     |
+| Async queues       | When the user can wait and the work is expensive or bursty                | More product complexity around status, retries, and cancellation |
+| Model sharding     | When traffic clearly splits by SLA, cost ceiling, or model capability     | More routing logic and a real risk of fragmented capacity        |
+
 This is the routing shape I would ship first.
 
 ```yaml

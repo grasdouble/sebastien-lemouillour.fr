@@ -15,7 +15,24 @@ That choice only solves the first problem though: getting a model to answer HTTP
 
 I also avoid coupling serving and application logic too early. A thin wrapper around an existing server is usually enough for version one, and servers that follow the [Models API](https://platform.openai.com/docs/api-reference/models/list) let me start with a cheap health pass before I add a real generation probe. That is much less exciting than building a custom gateway, router, prompt registry, and multi-model failover layer, but it is the route I would choose unless the traffic is already proving me wrong.
 
-I usually start with the smallest check that proves the process answers quickly and that my wrapper can fail over without drama.
+I usually start with the smallest check that proves the process answers quickly and that my wrapper can fail over without drama. When I sketch the traffic path, I want the failure path to be just as obvious as the happy path.
+
+```mermaid
+flowchart LR
+    A[Request] --> B[Load balancer]
+    B --> C[Health check]
+    C --> D{Primary stack healthy?}
+    D -->|yes| E[Primary serving stack]
+    D -->|no| F[Route to fallback]
+    F --> G[Fallback serving stack]
+    E --> H[Model inference]
+    G --> H
+    H --> I[Response]
+    I --> J[Logging]
+    E -. Primary stack failure .-> K[Health check fail]
+    K --> F
+    K --> L[Alert]
+```
 
 ```ts
 const providers = [

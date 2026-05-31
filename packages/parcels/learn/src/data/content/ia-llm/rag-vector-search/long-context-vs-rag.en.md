@@ -17,6 +17,17 @@ Most systems do not have that luxury. The retrieval layer exists because the [Re
 
 Prompt caching softens the cost of long prompts, but it does not rescue bad relevance decisions. [OpenAI caching](https://platform.openai.com/docs/guides/prompt-caching) requires exact prefix matches and works best when static material stays at the front; [Anthropic caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) documents the same idea with cache breakpoints. That is useful for repeated prefixes, not for deciding which evidence belongs in the request.
 
+If someone wants the blunt tradeoff instead of the speech, this is the table I keep in my head:
+
+| Dimension                 | Long Context                                                                                   | RAG                                                                                                                        |
+| ------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Cost                      | Expensive fast because every request pays to reread whole documents                            | Usually cheaper because you only embed once and send a shortlist at inference time                                         |
+| Latency                   | Higher and less predictable as prompts get fatter                                              | Lower if retrieval is tuned, though reranking adds a small extra hop                                                       |
+| Freshness                 | Fine only if the prompt payload is rebuilt from fresh sources every time                       | Stronger by default because you can re-index or retrieve against changing data without rewriting the whole prompt contract |
+| Accuracy on large docs    | Good when the right documents are already known, weak when one answer is buried in a huge pile | Better when the answer is sparse because retrieval does the selection work first                                           |
+| Context window dependency | Totally dependent on model window size and pricing tier                                        | Much less dependent because retrieval shrinks the payload before generation                                                |
+| Scalability               | Breaks down once corpus size or per-request document count keeps growing                       | Scales better because search narrows the corpus before the model does expensive reasoning                                  |
+
 When I need to force the call, I reduce it to this rule set:
 
 ```yaml

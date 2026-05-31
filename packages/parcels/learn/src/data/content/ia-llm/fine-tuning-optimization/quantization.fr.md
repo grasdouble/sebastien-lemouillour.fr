@@ -17,6 +17,44 @@ Si le 8 bits ne rentre toujours pas, le 4 bits devient l'échappatoire, mais je 
 
 Quand la cible est un laptop, du CPU, ou un déploiement edge, je passe à [GGUF](https://github.com/ggml-org/ggml/blob/master/docs/gguf.md). Le format est pensé pour des artefacts d'inférence en un seul fichier et pour un chargement rapide, et [llama.cpp](https://github.com/ggml-org/llama.cpp) reste le runtime que je choisirais quand la portabilité compte plus que le confort côté entraînement.
 
+C'est pour ça que je garde un tableau de comparaison sous les yeux avant de partir dans des débats de kernels et de benchmarks.
+
+| Format  | Bits | Gain VRAM | Perte qualité    | Idéal pour                                                                               |
+| ------- | ---- | --------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| fp16    | 16   | Aucun     | Aucune           | L'inférence GPU de référence quand je veux la sortie la plus propre                      |
+| int8    | 8    | ~50 %     | Faible           | Mon premier compromis en production sur GPU cloud                                        |
+| int4    | 4    | ~70-75 %  | Moyenne          | Quand le 8 bits ne rentre toujours pas et que j'accepte de tout réévaluer                |
+| GGUF Q4 | 4    | ~70-75 %  | Moyenne          | Les déploiements CPU locaux, laptop et edge où il faut d'abord rentrer                   |
+| GGUF Q8 | 8    | ~50 %     | Faible           | L'inférence locale quand je peux dépenser plus de RAM pour garder une sortie plus propre |
+| AWQ     | 4    | ~70 %     | Faible à moyenne | Le serving GPU sensible à la latence avec une bonne calibration                          |
+
+Quand je dois trancher vite, je ramène le sujet à une question de déploiement plutôt qu'à un débat de pureté.
+
+```mermaid
+flowchart TD
+    A{Tu veux la qualité max ?}
+    A -->|Oui| B{Cible de déploiement ?}
+    A -->|Non| C{Cible de déploiement ?}
+    B -->|GPU cloud| D{Latence sensible ?}
+    B -->|CPU local| E{Latence sensible ?}
+    B -->|Edge| F{Latence sensible ?}
+    C -->|GPU cloud| G{Latence sensible ?}
+    C -->|CPU local| H{Latence sensible ?}
+    C -->|Edge| I{Latence sensible ?}
+    D -->|Oui| J[Je recommande int8]
+    D -->|Non| K[Je recommande fp16]
+    E -->|Oui| L[Je recommande GGUF Q8]
+    E -->|Non| L
+    F -->|Oui| M[Je recommande GGUF Q8 si ça rentre]
+    F -->|Non| M
+    G -->|Oui| N[Je recommande AWQ]
+    G -->|Non| O[Je recommande int4]
+    H -->|Oui| P[Je recommande GGUF Q4]
+    H -->|Non| P
+    I -->|Oui| Q[Je recommande GGUF Q4]
+    I -->|Non| Q
+```
+
 Le piège que beaucoup de guides ratent, c'est le périmètre d'évaluation. Une démo courte peut sembler propre alors que le contexte long, les appels d'outils répétés, l'extraction JSON et la sortie multilingue se dégradent en silence. C'est comme ça qu'un gain mémoire se transforme en coût de support.
 
 Voici le patron de chargement que je garde sous la main pour que le choix de quantification reste explicite au lieu de fuir dans des appels dispersés.

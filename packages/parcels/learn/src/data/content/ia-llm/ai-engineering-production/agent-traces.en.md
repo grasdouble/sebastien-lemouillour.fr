@@ -15,6 +15,28 @@ The vendor-neutral foundation is [OpenTelemetry traces](https://opentelemetry.io
 
 The mistake I see all the time is tracing too little. Teams create one span called `agent.run`, attach total latency, and call it observability. That is decoration. I want child spans for planning, each model call, each tool call, each retrieval hop, and each validation layer. I also want attributes that explain the decision surface: selected tool, retry count, token usage, cost estimate, and a safe preview of inputs and outputs. Keep those previews short: full prompt text balloons your export volume and can trigger rate limits on your tracing backend faster than you expect. For attribute naming, the [GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) (currently in development) define a standard schema for model and agent spans; adopting them now means your dashboards survive a backend swap.
 
+This is the minimum trace shape I expect to see before I trust a postmortem.
+
+```mermaid
+flowchart TD
+  A["root span<br/>agent.run"] --> B["LLM call span<br/>llm.plan"]
+  B --> C["tool call span<br/>tool.docs.search"]
+  C --> D["response span<br/>agent.response"]
+```
+
+And these are the span attributes I want on day one, not after the first incident.
+
+| Attribute        | What it tells me                                                | Example            |
+| ---------------- | --------------------------------------------------------------- | ------------------ |
+| `trace_id`       | Groups the full request across services and retries             | `9f7c0f3a5b1d4a2e` |
+| `span_id`        | Identifies this exact step in the trace tree                    | `7a13c2de91bb4f06` |
+| `parent_span_id` | Tells me which upstream step created this span                  | `3cc5ef4497d9f1a0` |
+| `latency_ms`     | Shows whether the time burned in planning, tools, or the model  | `842`              |
+| `model`          | Confirms which model actually handled the call                  | `gpt-4.1-mini`     |
+| `tokens_in`      | Explains prompt-side cost and latency pressure                  | `2450`             |
+| `tokens_out`     | Explains answer-side cost and latency pressure                  | `312`              |
+| `status`         | Separates a healthy span from a timeout, error, or cancellation | `ok`               |
+
 This becomes even more important once you add fallback logic. A model call that looks healthy in isolation may still be part of a broken trace because the agent asked the wrong tool first, retried with stale context, then returned a polite lie. Logs catch fragments. Traces catch sequence.
 
 I like to model spans close to the workflow itself, so the instrumentation mirrors the agent graph instead of sitting in a generic HTTP wrapper.

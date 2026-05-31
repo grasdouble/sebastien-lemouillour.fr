@@ -36,8 +36,39 @@ class ExecutionPlan(BaseModel):
 
 Si `sum(subtask.max_tokens)` dépasse `total_token_budget`, rejet du plan. Si une sous-tâche n'a pas de `done_when`, rejet du plan. Si deux sous-tâches se dépendent mutuellement, rejet du plan. La planification n'est pas un contrôle d'ambiance. C'est du contrôle d'admission.
 
+Je veux aussi rendre la boucle d'exécution visible, parce qu'au moment où le plan disparaît dans de la prose, l'agent recommence à improviser.
+
+```mermaid
+flowchart TD
+    A[Recevoir l'objectif] --> B[Décomposer en sous-tâches]
+    B --> C[Construire le graphe de dépendances]
+    C --> D[Valider budgets, dépendances et done_when]
+    D --> E[Exécuter une tâche prête]
+    E --> F{Tâche terminée et graphe toujours valide ?}
+    F -->|oui| G{D'autres tâches sont prêtes ?}
+    G -->|oui| E
+    G -->|non| H{Objectif atteint ?}
+    H -->|oui| I[Terminer la tâche]
+    H -->|non| J[Mettre en pause et replanifier]
+    F -->|non| J
+    J --> B
+```
+
 Ensuite, exécutez le graphe avec un état, pas avec une transcription géante qui grossit sans fin. [LangGraph](https://langchain-ai.github.io/langgraph/) est utile ici parce qu'il force à penser en nœuds, arêtes et checkpoints plutôt qu'en boucle infinie. Persistez le résultat de chaque nœud, compressez le signal utile, et ne passez à la suite que ce qui compte. La sortie brute d'un outil ne doit pas traîner derrière l'agent comme une valise.
 
 Le replanning est parfois nécessaire, mais pas toutes les trois étapes. Si un nœud découvre une dépendance manquante ou dépasse l'estimation de scope de 30 %, on pause et on replanifie. Si vous replannifiez sans arrêt, votre objectif initial est mal spécifié et aucun prompt malin ne corrigera ça.
+
+Et comme je ne fais pas confiance aux règles de planification vagues, je garde les limites dures dans une checklist au lieu de les redécouvrir en plein run.
+
+| Contrainte          | Règle que j'applique                                                                                   | Pourquoi j'y tiens                                                          | Ce que je fais quand ça casse                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Accès aux outils    | Aucun appel d'outil tant que je n'ai pas validé le graphe                                              | Ça empêche l'agent d'improviser jusqu'au scope creep                        | Je rejette le brouillon de plan et je le réécris                                                       |
+| Budgets par nœud    | `sum(subtask.max_tokens)` doit rester dans `total_token_budget`                                        | Ça évite les fuites silencieuses de tokens sur tout le run                  | Je rejette le plan avant exécution                                                                     |
+| Critères de fin     | Chaque nœud doit avoir un `done_when`                                                                  | Je veux une condition d'arrêt objective, pas une ambiance                   | Je rejette le nœud et j'oblige l'auteur à le définir                                                   |
+| Dépendances         | Pas de dépendance cyclique ; une dépendance manquante découverte à l'exécution déclenche un replanning | Les cycles bloquent l'exécution et les prérequis cachés brûlent les retries | Je rejette les cycles d'entrée ; je mets en pause et je replanifie si une nouvelle dépendance apparaît |
+| Retries             | Je borne les retries par nœud avec `max_retries` (2 par défaut)                                        | Une boucle ne doit pas se déguiser en persévérance                          | Je fais échouer le nœud, puis je replanifie ou j'escalade                                              |
+| Seuil de replanning | Je replanifie seulement si une dépendance manque ou si le scope grossit de plus de 30 %                | Le replanning doit rester une exception                                     | Je mets l'exécution en pause et je reconstruis le graphe                                               |
+| Taille du graphe    | Si les plans dépassent régulièrement 12 nœuds, la tâche est trop grosse                                | Les gros graphes cachent presque toujours un objectif flou                  | Je découpe l'objectif en tâches plus petites                                                           |
+| Signal de staging   | Plus de 20 % de replans en staging signifie que la définition de tâche est mauvaise                    | Le churn de replanning est un problème de spec, pas d'intelligence          | Je resserre le scope avant la mise en prod                                                             |
 
 Ma règle est sèche : si votre graphe dépasse régulièrement 12 nœuds, ou si la phase de staging montre plus de 20 % de replans, arrêtez d'essayer de rendre l'agent plus malin et rendez la tâche plus petite.

@@ -13,6 +13,24 @@ I only reach for multiple agents when I can justify the tax in one of three ways
 
 The orchestrator is where architecture turns into theater. I do not want it doing business reasoning. I want it validating a plan, routing typed work, and rejecting unknown paths. If the orchestrator prompt is full of domain judgment, you hid product logic in the least testable place.
 
+This is the shape I trust: one coordinator, specialist agents doing narrow work, and trace data attached to every hop.
+
+```mermaid
+flowchart TD
+  Request[User request] --> Orchestrator[Orchestrator<br/>validate plan + route typed work]
+  Orchestrator -->|parallel subtask A| Researcher[Research agent]
+  Orchestrator -->|parallel subtask B| Specialist[Specialist executor]
+  Researcher -->|typed handoff| Reviewer[Reviewer agent]
+  Specialist -->|typed handoff| Reviewer
+  Reviewer -->|approved result| Formatter[Formatter agent]
+  Formatter --> Response[Final output]
+  Trace[(Trace ID, latency, tokens, status)] -.-> Orchestrator
+  Trace -.-> Researcher
+  Trace -.-> Specialist
+  Trace -.-> Reviewer
+  Trace -.-> Formatter
+```
+
 Before the handoff code, lock the contract down so failure is loud instead of polite.
 
 ```python
@@ -38,6 +56,15 @@ Observability is where the real bill shows up. [OpenTelemetry traces](https://op
 That gets even more concrete for agent systems. [OpenTelemetry GenAI agent spans](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/) define attributes such as `gen_ai.operation.name`, `gen_ai.agent.name`, `gen_ai.request.model`, and error data for agent and workflow spans. I would use those names before inventing my own schema, because custom telemetry vocabularies age like milk.
 
 The reliability math is still merciless: three hops at 95% success each gives you roughly 86% end-to-end before retries. Add approval gates, queueing, or tool calls and the tail gets uglier, not smarter.
+
+This is the role split I would keep if I had to defend the architecture in a design review.
+
+| Role                   | What I want it doing                                            | What I do not want it doing                                  | Why it exists                                      |
+| ---------------------- | --------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------- |
+| Orchestrator           | Validate the plan, route typed subtasks, reject unknown paths   | Hidden product judgment or improvising around missing agents | Keeps control flow explicit and testable           |
+| Specialist executor    | Do one narrow job such as research, pricing, or security review | Taking over global coordination                              | Preserves isolation and makes expertise deliberate |
+| Reviewer or gatekeeper | Check outputs, enforce policy, approve or fail loudly           | Quietly patching bad upstream work                           | Makes failure visible before it reaches users      |
+| Formatter or publisher | Package the final answer into the requested shape               | Re-deciding the substance of the answer                      | Keeps presentation separate from reasoning         |
 
 My cutoff is blunt: if you are not buying parallel throughput, isolation, or a real specialist boundary, keep one agent. If you are not hitting enough scale or risk to feel the tracing pain, ignore the multi-agent hype and spend your time on a better single-agent plan.
 

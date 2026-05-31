@@ -13,7 +13,20 @@ I would not reach for Graph RAG until semantic search, metadata filters, and a s
 
 The ugly part is ingestion, not prompting. If you cannot keep entity IDs stable, constrain relation extraction, and re-index without turning one customer into three near-duplicates, the graph will rot faster than the documents it came from. [PropertyGraphIndex](https://docs.llamaindex.ai/en/stable/module_guides/indexing/lpg_index_guide/) is useful because it exposes `kg_extractors`, strict schema validation, and multiple retrievers instead of pretending extraction is solved. For the storage and retrieval layer, I would rather use a first-party graph stack than invent one from scratch, and [Neo4j GraphRAG](https://neo4j.com/docs/neo4j-graphrag-python/current/) is explicit about its RAG and knowledge-graph builder components.
 
-When I do ship it, the runtime path stays boring and measurable:
+When I do ship it, I want the runtime path visible before anyone starts hand-waving about “graph intelligence”:
+
+```mermaid
+flowchart TD
+  A[User query] --> B[Entity extraction]
+  B --> C[Graph lookup]
+  C --> D[Subgraph expansion]
+  D --> E[Path ranking]
+  E --> F[Context assembly]
+  F --> G[LLM]
+  G --> H[Answer]
+```
+
+Then the implementation still has to stay boring and measurable:
 
 ```ts
 async function answerWithGraph(question: string) {

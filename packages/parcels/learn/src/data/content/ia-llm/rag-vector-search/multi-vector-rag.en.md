@@ -13,6 +13,22 @@ The architectural line matters. [ColBERT](https://github.com/stanford-futuredata
 
 That extra cost is why I separate two patterns that people lazily lump together. One is true late interaction. The other is application-level multi-representation indexing: several child vectors for one parent document, such as a summary, synthetic questions, and the original passage. [Qdrant's ColBERT guide](https://qdrant.tech/documentation/fastembed/fastembed-colbert/) makes the tradeoff blunt: late-interaction models buy precision, but they are often better used after an initial dense shortlist because speed and memory get ugly fast.
 
+This is the cheap version of the architecture I actually want teams to picture before they build it:
+
+```mermaid
+flowchart LR
+    A[Parent document] --> B[Chunking]
+    B --> C[Summary embedding]
+    B --> D[Chunk embeddings]
+    B --> E[Hypothetical question embeddings]
+    C --> F[Multi-index retrieval]
+    D --> F
+    E --> F
+    F --> G[Merge and deduplicate by parentId]
+    G --> H[Rerank]
+    H --> I[Final context]
+```
+
 When I do use the cheaper pattern, I make the parent-child contract impossible to ignore:
 
 ```ts

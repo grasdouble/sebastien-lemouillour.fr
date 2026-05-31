@@ -15,6 +15,17 @@ C'est pour ça que je vais vers les [docs NeMo Guardrails](https://docs.nvidia.c
 
 Un flux de prod minimal doit ressembler à une passerelle plus qu'à une surcouche de chat. Mettez le contrat dans le code, puis laissez le modèle évoluer à l'intérieur.
 
+Quand je dois expliquer la pile à un nouveau collègue, je commence par dessiner le trajet avant de discuter framework :
+
+```mermaid
+flowchart LR
+  A["Validation d’entrée"] --> B["Filtre de contenu"]
+  B --> C["LLM"]
+  C --> D["Validation de sortie"]
+  D --> E["Nettoyage PII"]
+  E --> F["Réponse"]
+```
+
 ```python
 policy = {
     "max_prompt_chars": 12000,
@@ -33,6 +44,17 @@ return validated.answer
 ```
 
 La partie que les équipes ratent, c'est le repli. Les listes de mots-clés sont rapides à livrer et coûteuses à croire. Les vrais garde-fous sont contextuels : ils savent quels outils sont exposés, quelles classes de données sont en jeu et quels échecs doivent déclencher une escalade au lieu d'un refus silencieux. Ils doivent aussi rester alignés sur les règles du fournisseur, par exemple le [guide sécurité d'OpenAI](https://platform.openai.com/docs/guides/safety-best-practices). Votre politique et celle du fournisseur sont deux barrières distinctes. Traitez-les comme telles.
+
+Quand une équipe me demande qui contrôle quoi, je sors un tableau très terre à terre :
+
+| Type de contrôle                          | Couche               | Exemple                                                                                 | Action si déclenché                                                                            |
+| ----------------------------------------- | -------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Vérification de schéma et de taille       | Validation d'entrée  | Le prompt n'a pas les champs attendus ou dépasse 12 000 caractères                      | Rejeter la requête avec une erreur exploitable côté produit                                    |
+| Allowlist de sources et de fichiers       | Validation d'entrée  | L'utilisateur envoie un type de fichier interdit ou un document privé du mauvais espace | Mettre l'entrée en quarantaine et demander une revue manuelle                                  |
+| Détection de prompt injection             | Filtre de contenu    | Le message dit « ignore les instructions précédentes » et réclame les règles système    | Bloquer, nettoyer ou escalader vers un humain                                                  |
+| Validation de sortie structurée           | Validation de sortie | Le modèle renvoie un JSON invalide ou oublie une clé obligatoire                        | Retenter une fois avec des consignes plus strictes, puis escalader                             |
+| Vérification de politique et de citations | Validation de sortie | Le brouillon propose une action interdite ou affirme un fait sans source                | Refuser la livraison et basculer vers une réponse plus sûre                                    |
+| Masquage des données sensibles            | Nettoyage PII        | La réponse contient un email, un numéro sensible ou un motif de clé API                 | Masquer la valeur, journaliser l'événement, puis continuer seulement si la réponse reste utile |
 
 Je me soucie plus de l'observabilité que de la marque du framework. Journalisez chaque action bloquée, chaque override, chaque échec de schéma. Revoyez les faux positifs chaque semaine, parce que des garde-fous que personne ne sait expliquer finiront contournés par l'astreinte à 2 h du matin.
 

@@ -13,6 +13,22 @@ La vraie ligne de fracture est architecturale. [ColBERT](https://github.com/stan
 
 C'est pour ce coût supplémentaire que je sépare deux patterns que beaucoup mélangent paresseusement. Le premier est la vraie interaction tardive. Le second est l'indexation multi-représentation au niveau applicatif : plusieurs vecteurs enfants pour un même document parent, par exemple un résumé, des questions synthétiques et le passage d'origine. Le [guide ColBERT de Qdrant](https://qdrant.tech/documentation/fastembed/fastembed-colbert/) dit l'essentiel sans détour : l'interaction tardive achète de la précision, mais elle sert souvent mieux après une première shortlist dense, parce que la vitesse et la mémoire se dégradent vite.
 
+Voilà le schéma minimal que je veux voir dans la tête des équipes avant qu'elles codent ça :
+
+```mermaid
+flowchart LR
+    A[Document parent] --> B[Découpage en chunks]
+    B --> C[Embedding du résumé]
+    B --> D[Embeddings des chunks]
+    B --> E[Embeddings de questions hypothétiques]
+    C --> F[Retrieval multi-index]
+    D --> F
+    E --> F
+    F --> G[Fusion et déduplication par parentId]
+    G --> H[Reranking]
+    H --> I[Contexte final]
+```
+
 Quand j'utilise le pattern le moins cher, je rends le contrat parent-enfant impossible à ignorer :
 
 ```ts

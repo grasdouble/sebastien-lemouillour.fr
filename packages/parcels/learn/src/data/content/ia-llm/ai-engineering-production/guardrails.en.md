@@ -15,6 +15,17 @@ That is why I reach for [NeMo Guardrails docs](https://docs.nvidia.com/nemo/guar
 
 A minimal production flow should look more like a gateway than a chat wrapper. Put the contract in code, then let the model operate inside it.
 
+If I need to explain the stack to a new teammate, I draw the path before I argue about frameworks:
+
+```mermaid
+flowchart LR
+  A["Input validation"] --> B["Content filter"]
+  B --> C["LLM"]
+  C --> D["Output validation"]
+  D --> E["PII scrubber"]
+  E --> F["Response"]
+```
+
 ```python
 policy = {
     "max_prompt_chars": 12000,
@@ -33,6 +44,17 @@ return validated.answer
 ```
 
 The part people get wrong is the fallback. Keyword blacklists are cheap to ship and expensive to trust. Real guardrails are contextual: they know which tools are exposed, which data classes are in play, and which failures must escalate instead of being silently refused. They also need to align with provider rules in docs such as the [OpenAI safety guide](https://platform.openai.com/docs/guides/safety-best-practices). Your policy and your vendor's policy are separate gates. Treat them that way.
+
+When a team asks me what actually runs where, I use a blunt control table like this:
+
+| Control type                 | Layer             | Example                                                                              | Action on trigger                                                             |
+| ---------------------------- | ----------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| Schema and size checks       | Input validation  | Prompt body is missing required fields or exceeds 12k chars                          | Reject the request and return a user-safe error                               |
+| Source and file allowlist    | Input validation  | User uploads an unsupported file type or a private document from the wrong workspace | Quarantine the input and require manual review                                |
+| Prompt-injection screening   | Content filter    | Message says “ignore previous instructions” and asks for hidden system rules         | Block, strip, or route to human review                                        |
+| Structured output validation | Output validation | Model returns invalid JSON or missing required keys                                  | Retry once with stricter instructions, then escalate                          |
+| Policy and citation checks   | Output validation | Draft includes a prohibited action or an uncited factual claim                       | Refuse delivery and fall back to a safer response                             |
+| Sensitive-data redaction     | PII scrubber      | Response contains an email, SSN, or API key pattern                                  | Redact the value, log the event, and continue only if the answer stays useful |
 
 I care more about observability than framework branding. Log every blocked action, every override, every schema failure. Review false positives every week, because guardrails that nobody can explain will get bypassed by the on-call team at 2 a.m.
 

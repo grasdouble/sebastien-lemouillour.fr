@@ -33,6 +33,16 @@ ROUTES = {
 }
 ```
 
+Here is the reference table I would keep next to the router config, because once traffic rises I do not want to reverse-engineer policy from Python literals.
+
+| Task class     | Trigger condition                                                                     | Primary alias     | Fallback alias    | Latency budget | Input cost ceiling / 1M tokens | Quality floor |
+| -------------- | ------------------------------------------------------------------------------------- | ----------------- | ----------------- | -------------- | ------------------------------ | ------------- |
+| Classification | Short prompts, labeling, gating, or moderation-style decisions at high concurrency    | `fast-classifier` | `deep-generalist` | 500 ms         | $0.40                          | 0.88          |
+| Extraction     | Structured field capture from messy text where I still need decent recall             | `fast-extractor`  | `deep-generalist` | 800 ms         | $0.60                          | 0.90          |
+| Synthesis      | Long-form generation or reasoning-heavy answers where quality matters more than speed | `deep-generalist` | None              | 4000 ms        | $8.00                          | 0.94          |
+
+If a route keeps missing those numbers, I do not tweak prompts first. I either reclassify the task, widen the latency budget, or admit the cheaper model was never good enough.
+
 Once the policy exists, keep transport on a leash. LiteLLM already documents ordered fallbacks in its [reliability guide](https://docs.litellm.ai/docs/proxy/reliability) and deployment-level routing in its [load balancing guide](https://docs.litellm.ai/docs/proxy/load_balancing). Good. Let the transport layer execute the policy, but do not let it invent the policy.
 
 This is the split I would actually ship.
@@ -66,6 +76,22 @@ def run_route(task_class: str, messages: list[dict]) -> str:
     spec = ROUTES[task_class]
     response = router.completion(model=spec.primary_alias, messages=messages)
     return response.choices[0].message.content
+```
+
+```mermaid
+flowchart TD
+    A[Classify incoming task] --> B{Task class}
+    B -->|classification| C[Route to fast-classifier]
+    B -->|extraction| D[Route to fast-extractor]
+    B -->|synthesis| E[Route to deep-generalist]
+    C --> F{Primary meets SLA?}
+    D --> F
+    E --> G[Return response]
+    F -->|yes| G
+    F -->|no| H[Fallback to deep-generalist]
+    H --> I{Fallback traffic > 30%<br/>for 7 days?}
+    I -->|no| G
+    I -->|yes| J[Reclassify task<br/>Widen latency budget<br/>Buy the bigger model]
 ```
 
 Routing rots faster than people admit. The [OpenAI evals guide](https://developers.openai.com/api/docs/guides/evals) explicitly calls evals essential when upgrading or trying new models, which is exactly why I want route-level evals on a schedule instead of relying on somebody's gut feeling in Slack. If a vendor refresh changes quality or latency, the table should move the same week.

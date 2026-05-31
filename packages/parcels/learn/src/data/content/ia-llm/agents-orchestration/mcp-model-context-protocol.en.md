@@ -15,6 +15,23 @@ The architecture is cleaner too: a host owns one client per server, servers expo
 
 Where teams usually get sloppy is initialization. MCP is stateful, starts with `initialize`, negotiates protocol version and capabilities, then moves to normal operation only after `notifications/initialized`. That handshake is not paperwork. It is what lets old and new components talk without pretending they support the same surface. [Lifecycle spec](https://modelcontextprotocol.io/specification/2025-03-26/basic/lifecycle)
 
+This is the lifecycle I want teams to keep in their heads, because it shows where the contract actually lives.
+
+```mermaid
+sequenceDiagram
+  participant Host as Host / MCP client
+  participant Server as MCP server
+  participant Surface as Tool or resource
+
+  Host->>Server: initialize(protocol version, capabilities)
+  Server-->>Host: server info + supported capabilities
+  Host->>Server: notifications/initialized
+  Host->>Server: tools/call or resources/read
+  Server->>Surface: execute tool or fetch resource
+  Surface-->>Server: structured result
+  Server-->>Host: response payload
+```
+
 If I were starting today, I would begin with a tiny stdio server, keep it local, and use the same `FastMCP(...); mcp.run(transport="stdio")` shape as the official quickstart, which also warns you not to write logs to stdout on stdio. [Server quickstart](https://modelcontextprotocol.io/quickstart/server)
 
 ```python
@@ -36,6 +53,14 @@ if __name__ == "__main__":
 That example is intentionally plain. The hard part is not the decorator. The hard part is refusing to leak transport concerns into business logic and refusing to hide contract changes behind “it still works on my machine”.
 
 Transport choice is where production reality starts. Stdio is the default I would pick for local integrations because it is simpler and the spec explicitly recommends client support for it. I move to Streamable HTTP only when I need remote deployment, shared infrastructure, or many clients on one server, and then I treat it like a real network service: validate `Origin`, bind locally when appropriate, and add proper auth. The transport spec is very explicit here for good reason. [Transport spec](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports)
+
+Here is the short version I would use when choosing a transport instead of arguing about vibes.
+
+| Option                                                              | What it is good at                                                                   | What it makes painful                                                  | My default use case                                       |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | --------------------------------------------------------- |
+| `stdio`                                                             | Local host-to-server integration, minimal setup, no extra network surface            | Shared access, remote deployment, anything that needs many clients     | Start here for one host and one local server process      |
+| Streamable HTTP                                                     | Remote deployment, shared infrastructure, multiple clients, service-style operations | Network hardening, auth, `Origin` validation, more production plumbing | Use it when MCP has to behave like a real network service |
+| Capability negotiation (`initialize` + `notifications/initialized`) | Making version and feature support explicit before real work starts                  | Pretending incompatible clients and servers are "close enough"         | Keep it mandatory, whatever transport you pick            |
 
 My rule is blunt: use MCP when the same tool surface must survive more than one host, more than one model runtime, or an actual SLA. If you have one app and a couple of helper functions, skip the ceremony. If portability, observability, and protocol-level contracts matter, adopt MCP before your adapter pile becomes a career-limiting event.
 

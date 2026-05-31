@@ -36,6 +36,17 @@ Constraints:
 Output:
 ```
 
+When I want fewer avoidable mistakes, I mentally expand that skeleton into a fuller checklist. Task / context / constraints / output do most of the work. Role and examples are optional, but they are often the difference between a decent answer and one you can actually reuse.
+
+| Component     | Purpose                                                         | Bad Example                 | Good Example                                                    |
+| ------------- | --------------------------------------------------------------- | --------------------------- | --------------------------------------------------------------- |
+| Role          | Set the model's angle when expertise or stance matters.         | "Be smart."                 | "Act as a staff frontend engineer reviewing a pull request."    |
+| Task          | Say what job must be done, ideally with a verb.                 | "Help me with caching."     | "Explain what caching is to a junior frontend developer."       |
+| Context       | Provide the facts the model cannot invent responsibly.          | "You know the app already." | "This is a React SPA with slow product pages and no CDN."       |
+| Constraints   | Add guardrails before the model improvises.                     | "Make it good."             | "Use under 150 words, avoid jargon, and do not invent metrics." |
+| Output Format | Ask for the shape you want to receive.                          | "Answer however you want."  | "Return one short paragraph and then 3 bullet points."          |
+| Examples      | Show the pattern when consistency matters more than creativity. | "You get the idea."         | "Use this format: issue → likely cause → next action."          |
+
 ### 4. Ask for a specific output
 
 If you know the shape of the answer, ask for it. A paragraph, a bullet list, a table, JSON, three options ranked by confidence, whatever helps you use the result quickly. [Gemini's intro](https://ai.google.dev/gemini-api/docs/prompting-intro) explicitly recommends naming constraints and response format, and I'd follow that advice every time unless I truly do not care what the answer looks like.

@@ -29,4 +29,14 @@ batch_if_latency_budget_seconds_gte: 300
 human_handoff_if_cost_usd_gt: 0.08
 ```
 
+Je garde aussi un tableau stupidement simple à côté de cette politique, parce que les débats sur les coûts deviennent flous dès que personne n'écrit noir sur blanc le compromis.
+
+| Levier d'optimisation | Gain typique                                            | Compromis                                                                           |
+| --------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Downgrade de modèle   | 30–80 % sur le trafic éligible                          | Qualité de raisonnement en baisse et seuils de routage à régler plus finement       |
+| Compression de prompt | 10–40 % sur la dépense en tokens d'entrée               | Risque plus élevé de couper un contexte qui comptait en silence                     |
+| Caching               | 50–90 % sur les préfixes ou réponses répétées           | Invalidation, réponses périmées et fraîcheur moindre                                |
+| Batching              | Jusqu'à 50 % sur les jobs offline ou tolérants au délai | Délai de retour moins bon et moins de contrôle sur l'urgent                         |
+| Quantization          | 20–60 % sur le coût de serving auto-hébergé             | Possible baisse de qualité, plus d'évaluation et davantage de complexité de serving |
+
 Ce genre de politique est ennuyeux, donc efficace. Elle force les vraies questions : quels flux méritent un raisonnement premium, lesquels doivent réutiliser des préfixes mis en cache, et lesquels peuvent attendre dans une file asynchrone. Pour les jobs offline, je choisirais la [Batch API](https://platform.openai.com/docs/guides/batch) avant de retoucher le prompt, parce qu'OpenAI annonce 50 % de remise et un contrat clair : traitement asynchrone avec un délai maximal de 24 heures. Si votre revue hebdomadaire ne sépare pas le trafic interactif, le trafic batchable et le trafic auto-hébergé, laissez tomber les optimisations sophistiquées jusqu'à ce que cette séparation existe.

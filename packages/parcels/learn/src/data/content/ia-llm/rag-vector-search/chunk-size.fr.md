@@ -13,7 +13,15 @@ Mon premier mauvais réflexe, c'était de partir de la limite du modèle. Je fai
 
 C'est pour ça que je choisis d'abord l'unité sémantique. Le [guide Cohere](https://docs.cohere.com/page/chunking-strategies) sépare bien les stratégies indépendantes du contenu et celles qui dépendent du contenu, et ça colle parfaitement à la prod. Une référence d'API demande souvent des sections courtes. Une transcription demande souvent de garder un tour de parole, ou un court échange, intact. Je n'augmente la taille que quand la réponse déborde vraiment d'une seule unité.
 
-Voici la table de profils que je brancherais avant d'indexer un corpus mixte.
+Voici la table de profils que je brancherais avant d'indexer un corpus mixte. Avant de figer ces valeurs, je fais toujours un passage par une table de compromis très terre à terre.
+
+| Taille de chunk | Tokens | Idéal pour                                                                                | Risque                                                                                   |
+| --------------- | -----: | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Minuscule       |   ~128 | Références d'API denses, FAQ courtes, faits très atomiques                                | Pas assez de contexte, donc les détails liés partent dans des chunks différents          |
+| Petite          |   ~256 | Sections de doc produit, how-to concis, un tour de parole                                 | Une explication un peu longue se casse vite en deux                                      |
+| Équilibrée      |   ~512 | Prose générale, base de connaissances, réglage RAG passe-partout                          | Des sous-sujets voisins commencent à se mélanger dans le même résultat                   |
+| Grande          |  ~1024 | Sections narratives longues qui ont vraiment besoin d'air                                 | Le budget de prompt fond plus vite et le retrieval devient moins précis                  |
+| Très grande     |  ~2048 | Solution de secours rare pour du juridique, de la conformité ou des blocs très structurés | Réindexation plus chère et beaucoup plus de chances de remonter la mauvaise sous-section |
 
 ```ts
 type ChunkProfile = {

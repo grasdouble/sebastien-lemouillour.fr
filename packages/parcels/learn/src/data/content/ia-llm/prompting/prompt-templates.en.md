@@ -15,6 +15,17 @@ What most tutorials miss is the failure mode. Once prompts become templates, dev
 
 I also keep user input in clearly delimited variables. OpenAI’s [prompt injection write-up](https://openai.com/index/prompt-injections/) is a good reminder that separation helps with accidental collisions and audits, but it does not make hostile input safe by itself.
 
+When I review a reusable template, I want to see the moving parts immediately:
+
+| Template Part | Purpose                                                    | Example                                        |
+| ------------- | ---------------------------------------------------------- | ---------------------------------------------- |
+| Role          | Tell the model who it is supposed to be for this task      | `You are a support analyst`                    |
+| Context       | Inject the facts, inputs, or source material it needs      | `Product: Acme Support; Plan: Pro`             |
+| Task          | State the exact job to perform                             | `Classify the ticket and draft a reply`        |
+| Constraints   | Narrow the behavior so the model does not improvise policy | `Do not offer refunds outside the allowlist`   |
+| Output format | Make the response shape machine- or reviewer-friendly      | `Return valid JSON with keys: category, reply` |
+| Examples      | Show the pattern when wording or structure matters         | `Input: billing issue -> Output: {...}`        |
+
 This is the kind of template setup I actually like:
 
 ```py
@@ -29,6 +40,18 @@ prompt = template.render(
     user_message=user_message,
     tone="concise and warm",
 )
+```
+
+And when the template grows, I like the assembly order to stay boring and reusable:
+
+```mermaid
+flowchart LR
+  A["Define role"] --> B["Inject context"]
+  B --> C["Specify task"]
+  C --> D["Add constraints"]
+  D --> E["Set output format"]
+  E --> F["Inject examples"]
+  F --> G["Final prompt"]
 ```
 
 The template itself should stay readable enough that a reviewer can spot a risky change in one diff. If I need loops, conditionals, and includes, fine. If I need comments to explain what the template is thinking, I have already pushed too much logic into the wrong layer.

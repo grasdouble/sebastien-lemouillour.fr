@@ -28,6 +28,20 @@ const draft = await draftReply({
 const finalReply = await validateReply(draft); // tone, policy, missing facts
 ```
 
+```mermaid
+flowchart TD
+  A["Prompt 1: classify ticket"] --> B["Output 1: intent JSON"]
+  B --> C{"Contract valid?"}
+  C -- No --> D["Typed failure / retry"]
+  C -- Yes --> E["Prompt 2: retrieve context\n(using ticket + intent)"]
+  E --> F["Output 2: context"]
+  F --> G["Delimiter + treat as\nuntrusted context"]
+  G --> H["Prompt 3: draft reply\n(using ticket + intent + context)"]
+  H --> I["Output 3: draft"]
+  I --> J["Prompt 4: validate reply\n(tone, policy, missing facts)"]
+  J --> K["Final output"]
+```
+
 The important part is not the syntax, it is the contract between steps. I usually make each boundary machine-checkable with JSON, because a typed failure is easier to recover from than a polite paragraph. OpenAI’s [structured outputs guide](https://platform.openai.com/docs/guides/structured-outputs) is useful here even if you are not building a full schema-first system, because it forces you to think about fields, enums, and required data before the chain grows teeth.
 
 There is one more trap: never feed raw tool output back into the next prompt like it is trusted truth. Search results, scraped pages, and user text should be clearly delimited and treated as untrusted context. Anthropic’s [guardrail guide](https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks) is pretty direct on this: layer validation and monitoring, because prompt injection will happily walk straight through a sloppy pipeline.

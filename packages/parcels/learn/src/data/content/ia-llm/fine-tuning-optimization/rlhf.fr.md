@@ -15,11 +15,33 @@ La recette du [papier InstructGPT](https://arxiv.org/abs/2203.02155) est simple 
 
 Cette structure répond au vrai problème produit. Les échecs les plus pénibles sont souvent des échecs de préférence. « Être utile mais calibré. » « Refuser la requête dangereuse, pas la requête voisine qui est inoffensive. » « Utiliser des outils quand ils aident, pas pour frimer. » Les jugements par paires capturent mieux ces compromis que l'illusion de labels parfaits.
 
+Quand j'explique le RLHF à une équipe, je dessine la boucle, parce que le point important n'est pas l'acronyme. C'est la chaîne opérationnelle que tu viens d'accepter de faire tourner.
+
+```mermaid
+flowchart LR
+    A[SFT sur des démonstrations] --> B[Entraîner le modèle de récompense sur des sorties classées]
+    B --> C[Optimisation PPO de la politique]
+    C --> D[Évaluation d'alignement]
+    D --> E{Assez bon en production ?}
+    E -->|Itérer| F[Collecter de nouvelles préférences et cas d'échec]
+    F --> B
+    E -->|Déployer| G[Déployer la politique mise à jour]
+```
+
 ## Pourquoi les équipes paient encore la taxe RLHF
 
 Une fois le modèle en production, les jeux statiques ne suffisent plus. De nouveaux abus apparaissent, le style de refus dérive, et les annotateurs tombent sur des cas limites que tes évaluations hors ligne n'avaient jamais touchés. Le RLHF te donne une boucle pour transformer ces jugements en mises à jour de comportement. Si tu tiens à des SLA de sécurité, à la gestion d'escalade, ou à une discipline d'usage des outils, cette boucle fait partie du produit.
 
 C'est aussi pour ça que je ne commencerais pas par là par défaut. Le RLHF est puissant, mais lourd en opérations par construction. Il faut une collecte de préférences stable, un calibrage des annotateurs, des revues de désaccords, des contrôles de dérive du modèle de récompense, et des critères de rollback après chaque ronde de réglage. Si tu ne peux pas faire tourner cette mécanique, tu n'as pas un programme RLHF. Tu as une expérience ponctuelle.
+
+C'est le tableau d'arbitrage que j'imposerais dans le doc de cadrage avant que quelqu'un dise « on ajoutera du RLHF plus tard ».
+
+| Étape                | Données nécessaires                                                                                 | Coût               | Mode d'échec                                                             |
+| -------------------- | --------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------ |
+| SFT                  | Des démonstrations de haute qualité avec le bon ton et le bon style de tâche                        | Moyen              | Le modèle imite la surface mais rate la vraie frontière de préférence    |
+| Modèle de récompense | Des préférences classées ou par paires avec des annotateurs calibrés                                | Moyen à élevé      | Le score apprend les biais des annotateurs au lieu de la qualité produit |
+| PPO                  | Un jeu de prompts, un modèle de récompense, une politique de référence et des métriques de rollback | Élevé              | Reward hacking, inflation de verbosité et mises à jour instables         |
+| Évaluation           | Des evals offline, des traces de prod et de la revue humaine sur les cas limites                    | Moyen et récurrent | Tu mesures la mauvaise chose et tu livres des régressions avec aplomb    |
 
 ## Là où le RLHF devient vite coûteux
 

@@ -19,6 +19,20 @@ The trap I fell into was logging raw prompts everywhere. The [OWASP Logging Chea
 
 If you want a UI for drilling into traces, [Langfuse](https://langfuse.com/docs) is a solid add-on. I still would not let it become the only source of truth. Vendor tooling is great for inspection; incident response still needs normalized logs you control.
 
+If I had to force a minimum schema on every team, it would start here.
+
+| Field         | Type                       | Example                            | Sensitivity | Purpose                                                                           |
+| ------------- | -------------------------- | ---------------------------------- | ----------- | --------------------------------------------------------------------------------- |
+| `request_id`  | UUID or sortable string    | `req_01JY7X2B9M2R4Q7C`             | Low         | Correlate one user-visible request across retries, fallbacks, and support tickets |
+| `trace_id`    | Hex string                 | `4bf92f3577b34da6a3ce929d0e0e4736` | Low         | Join logs with traces and spans instead of guessing timelines                     |
+| `user_id`     | Stable internal identifier | `usr_4821`                         | Medium      | Scope blast radius and investigate behavior without logging names or emails       |
+| `prompt_hash` | SHA-256 digest             | `8f14e45fceea167a5a36dedd4bea2543` | Low         | Correlate identical prompts without copying raw prompt text into search indexes   |
+| `model`       | String                     | `gpt-4.1-mini`                     | Low         | Know what actually ran when routing or provider aliases change                    |
+| `latency_ms`  | Integer                    | `842`                              | Low         | Track SLO drift and separate slow retrieval from slow generation                  |
+| `tokens`      | Object or split integers   | `input=1240, output=312`           | Low         | Measure cost, saturation, and whether retries are burning budget                  |
+| `error_code`  | Nullable string            | `rate_limit_exceeded`              | Medium      | Bucket failures for alerting and faster triage                                    |
+| `environment` | Enum                       | `production`                       | Low         | Keep staging noise out of incident analysis                                       |
+
 Before the code, here is the shortcut I wish I had earlier: derive the preview and the hash once, right where the provider response is normalized, so every retry and fallback uses the same shape.
 
 ```typescript

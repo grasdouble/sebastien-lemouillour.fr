@@ -15,7 +15,17 @@ Du coup, je choisis volontairement un pipeline très sobre : normaliser la sourc
 
 Les IDs stables ne sont pas négociables. Les [points Qdrant](https://qdrant.tech/documentation/manage-data/points/) acceptent des identifiants explicites, et les [upserts Pinecone](https://docs.pinecone.io/guides/data/upsert-data) écrasent les enregistrements existants avec le même ID tout en laissant remonter les métadonnées dans les résultats de recherche. C'est précisément pour ça que je garde des métadonnées utiles mais ennuyeuses : `documentId`, URL source, timestamps et empreintes de contenu. Je n'y mettrais jamais de secrets, de jetons bruts ou de notes privées.
 
-Voici la plus petite version que je mettrais en prod avant de toucher aux diffs au niveau chunk.
+Voici la plus petite version que je mettrais en prod avant de toucher aux diffs au niveau chunk. Si je dois expliquer le chemin d'ingestion à un collègue en trente secondes, je dessine ça.
+
+```mermaid
+flowchart LR
+  A[Document] --> B[Extraire le texte]
+  B --> C[Découper]
+  C --> D[Embedder]
+  D --> E[Ajouter les métadonnées]
+  E --> F[Upsert en base vectorielle]
+  F --> G[Index prêt]
+```
 
 ```ts
 import { createHash } from 'node:crypto';

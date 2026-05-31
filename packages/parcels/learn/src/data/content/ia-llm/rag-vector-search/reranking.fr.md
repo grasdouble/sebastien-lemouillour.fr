@@ -13,6 +13,13 @@ Cette deuxième étape marche parce qu'une API hébergée comme [Cohere API](htt
 
 Le problème de budget arrive tout de suite, donc je garde un contrat serré. Un reranker qui voit tous les chunks récupérés n'est qu'un retriever lent déguisé, et les services managés te le rappellent vite avec la latence ou la facture.
 
+| Approche                  | Latence          | Coût                | Qualité                                                                                  | Quand l'utiliser                                                                                                                 |
+| ------------------------- | ---------------- | ------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Pas de reranking          | Minimale         | Minimal             | Suffisante seulement si le bon chunk arrive déjà dans les premiers résultats             | Garde ça simple quand ton top-k est déjà propre et que tes métriques ne bougent pas avec une passe en plus                       |
+| Rerank BM25               | Faible           | Faible              | Meilleure précision lexicale sur les termes exacts, peu convaincante sur les paraphrases | Ajoute-le comme seconde passe bon marché quand le recouvrement de mots compte plus que la similarité sémantique                  |
+| Cross-encoder (local)     | Moyenne à élevée | Coût d'infra fixe   | Souvent la meilleure qualité quand tu veux garder la main                                | Choisis-le quand les données ne doivent pas sortir de ton stack ou que tu veux un débit plus prévisible sur une shortlist bornée |
+| Reranker via API hébergée | Moyenne          | Variable, à l'usage | Très bonne qualité avec peu d'opérations à gérer                                         | Prends cette voie quand tu veux intégrer vite, plafonner le nombre de candidats et que le sujet budget/confidentialité est clair |
+
 Avant de l'intégrer dans un framework, je valide souvent la forme avec une petite fonction comme celle-ci :
 
 ```python

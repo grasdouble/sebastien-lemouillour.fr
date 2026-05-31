@@ -15,7 +15,17 @@ That pushes me toward a boring pipeline on purpose: normalize the source, hash i
 
 Stable IDs are not optional. [Qdrant points](https://qdrant.tech/documentation/manage-data/points/) accept explicit point IDs, and [Pinecone upserts](https://docs.pinecone.io/guides/data/upsert-data) overwrite existing records with the same ID while letting metadata come back in search results. That is why I keep metadata useful but boring: `documentId`, source URL, timestamps, and content hashes. I would never put secrets, raw tokens, or private notes there.
 
-Here is the smallest version I would ship before touching chunk-level diffs.
+Here is the smallest version I would ship before touching chunk-level diffs. If I had to explain the ingestion path to a teammate in thirty seconds, I would sketch it like this.
+
+```mermaid
+flowchart LR
+  A[Document] --> B[Extract text]
+  B --> C[Chunk]
+  C --> D[Embed]
+  D --> E[Attach metadata]
+  E --> F[Upsert to vector DB]
+  F --> G[Index ready]
+```
 
 ```ts
 import { createHash } from 'node:crypto';

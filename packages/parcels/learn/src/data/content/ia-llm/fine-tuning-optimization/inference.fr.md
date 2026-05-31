@@ -15,6 +15,27 @@ Si le vrai problème vient du chevauchement entre requêtes, je commencerais par
 
 C'est le modèle mental que je garde : les prompts longs font mal à la latence du premier token, les requêtes qui se chevauchent punissent un batching faible, et les limites de VRAM se transforment très vite en coût. Je traite ces trois pannes séparément parce que la correction n'est pas la même.
 
+Quand je dois trancher vite, je dessine le chemin de serving avant d'ouvrir les benchmarks, parce qu'une bonne partie des mauvais choix vient du fait qu'on mélange latence, batching et contraintes matérielles dans une seule discussion floue.
+
+```mermaid
+flowchart LR
+    A[Requête] --> B{Batch important ?}
+    B -->|Non| C{Latence acceptable ?}
+    B -->|Oui| D{Latence acceptable ?}
+    C -->|Non, il faut sortir vite le 1er token| E[Streaming]
+    C -->|Oui, le débit compte plus| F[Batché]
+    D -->|Non, chaque ms se voit| E
+    D -->|Oui, la file d'attente domine| F
+    E --> G{Quantifié ?}
+    F --> G
+    G -->|Oui + VRAM suffisante| H[GPU local]
+    G -->|Non + trafic mutualisé| I[API]
+    G -->|Oui + petite machine| J[Edge]
+    H --> K[Réponse]
+    I --> K
+    J --> K
+```
+
 Avant de choisir un moteur, j'aime forcer le compromis dans un peu de code.
 
 ```ts

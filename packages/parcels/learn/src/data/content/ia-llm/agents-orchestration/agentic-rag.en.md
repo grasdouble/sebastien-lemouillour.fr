@@ -17,6 +17,21 @@ Most guides are too soft on operations. Every extra step increases latency, spen
 
 Then I force the pipeline to fail in CI before users do. [DeepEval](https://deepeval.com/docs/getting-started) is useful because it lets you run agent and RAG evals like tests instead of treating regressions as something you discover from support tickets.
 
+This is the minimum loop I want to see on paper before I trust the runtime:
+
+```mermaid
+graph TD
+    A[User query] --> B[Retrieve evidence]
+    B --> C{Enough context?}
+    C -->|Yes| D[Generate answer]
+    C -->|No| E[Expand query or switch source]
+    E --> F{Retry budget left?}
+    F -->|Yes| B
+    F -->|No| G[Fallback to answer_unknown]
+    D --> H[Return answer with citations]
+    G --> H
+```
+
 That pressure should show up in a hard contract, not a slide deck:
 
 ```yaml
@@ -36,5 +51,13 @@ observability:
   trace_tool_arguments: true
   trace_document_ids: true
 ```
+
+| Setting                                  | What I use it for                                                                                      |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `planner.max_steps: 4`                   | Caps the number of retrieval-planning turns before the agent starts burning latency for marginal gain. |
+| `planner.stop_if_confidence_below: 0.55` | Forces the loop to admit weak evidence instead of bluffing its way into generation.                    |
+| `guards.max_total_retrieved_chunks: 18`  | Prevents the planner from flooding the context window with low-value chunks.                           |
+| `guards.fallback: 'answer_unknown'`      | Makes failure explicit when the retry budget is gone or the evidence still looks thin.                 |
+| `guards.require_citations: true`         | Ensures the final answer stays tied to retrieved documents instead of unsupported synthesis.           |
 
 My rule is blunt: if a single-pass retriever plus reranker answers at least 85% of real production questions inside your SLA, stay there. Below that threshold, agentic RAG is justified. Above it, you are paying for self-inflicted latency.

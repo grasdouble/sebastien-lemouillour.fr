@@ -13,7 +13,15 @@ My first bad instinct was to size chunks from the model limit. I do the opposite
 
 That is why I choose the semantic unit first. Cohere's [chunking guide](https://docs.cohere.com/page/chunking-strategies) splits the problem into content-independent and content-dependent strategies, and that matches production nicely. API references usually want small sections. Transcripts usually need one speaker turn, or one short exchange, kept together. I only go larger when the answer genuinely spans more than one unit.
 
-Here is the profile map I would wire in before indexing a mixed corpus.
+Here is the profile map I would wire in before indexing a mixed corpus. Before I lock those defaults, I sanity-check them against a blunt trade-off table like this.
+
+| Chunk Size | Tokens | Best For                                                       | Risk                                                                  |
+| ---------- | -----: | -------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Tiny       |   ~128 | Dense API references, short FAQs, atomic facts                 | Too little context, so related details get split apart                |
+| Small      |   ~256 | Product docs sections, concise how-tos, single speaker turns   | Explanations can break across chunks if the source rambles            |
+| Balanced   |   ~512 | General prose, knowledge base articles, most RAG defaults      | Neighboring subtopics start bleeding into the same retrieval hit      |
+| Large      |  ~1024 | Long narrative sections that genuinely need more room          | Prompt budget disappears faster and retrieval gets less precise       |
+| Very large |  ~2048 | Rare fallback for legal, policy, or deeply structured material | Expensive to re-embed and much easier to surface the wrong subsection |
 
 ```ts
 type ChunkProfile = {

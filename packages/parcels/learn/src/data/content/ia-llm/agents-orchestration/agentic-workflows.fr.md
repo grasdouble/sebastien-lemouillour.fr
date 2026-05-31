@@ -13,6 +13,29 @@ Les boucles purement agentiques sont séduisantes jusqu'au moment où quelqu'un 
 
 C'est là que les opérations arrêtent de flotter dans le brouillard. Je veux des SLA, des portes d'approbation et des chemins d'échec dans le code, pas cachés dans de la poésie de prompt. Le [SDK OpenAI Agents](https://openai.github.io/openai-agents-python/) fait le même pari avec une boucle gérée, l'exécution d'outils, des guardrails et des reprises de run. Le [Process Framework de Semantic Kernel](https://learn.microsoft.com/en-us/semantic-kernel/frameworks/process/process-framework) pousse la version Microsoft du même argument : des étapes pilotées par événements, un contrôle répétable, et de l'auditabilité autour de processus enrichis par l'IA.
 
+C'est le flux de contrôle que j'attends avant que quelqu'un ose me vendre un workflow “résilient” :
+
+```mermaid
+graph TD
+    A[Exécuter une étape du workflow] --> B{Résultat valide et dans le SLA ?}
+    B -->|Timeout| C[Retenter selon une politique explicite]
+    C --> D{Le retry a réussi ?}
+    D -->|Non| E[Escalader vers une branche d'erreur ou un humain]
+    D -->|Oui| F[Checkpoint ou continuation]
+    B -->|Échec de schéma ou de politique| E
+    B -->|Oui| F
+    F --> G{Checkpoint nécessaire ?}
+    G -->|Oui| H[Persister l'état puis reprendre]
+    G -->|Non| I[Continuer vers le nœud suivant]
+    H --> I
+    I --> J{Porte d'approbation requise ?}
+    J -->|Oui| K[Mettre en pause pour approbation]
+    J -->|Non| L[Produire la sortie]
+    K --> M{Approuvé ?}
+    M -->|Non| N[Arrêter ou rejeter l'action]
+    M -->|Oui| L
+```
+
 C'est le type d'enveloppe que je veux autour d'un nœud avant qu'un LLM touche au graphe :
 
 ```python

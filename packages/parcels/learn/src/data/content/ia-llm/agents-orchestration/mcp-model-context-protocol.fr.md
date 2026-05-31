@@ -15,6 +15,23 @@ L'architecture est plus propre aussi : un host possède un client par serveur, l
 
 Là où les équipes deviennent brouillonnes, c'est à l'initialisation. MCP est stateful, commence par `initialize`, négocie la version du protocole et les capacités, puis ne passe en régime normal qu'après `notifications/initialized`. Ce handshake n'est pas de la paperasse. C'est ce qui permet à des composants anciens et nouveaux de dialoguer sans faire semblant de supporter la même surface. [Spec lifecycle](https://modelcontextprotocol.io/specification/2025-03-26/basic/lifecycle)
 
+C'est le cycle que je veux voir dans la tête des équipes, parce qu'il montre où le contrat vit vraiment.
+
+```mermaid
+sequenceDiagram
+  participant Host as Hôte / client MCP
+  participant Server as serveur MCP
+  participant Surface as Tool ou resource
+
+  Host->>Server: initialize(version du protocole, capacités)
+  Server-->>Host: infos serveur + capacités supportées
+  Host->>Server: notifications/initialized
+  Host->>Server: tools/call ou resources/read
+  Server->>Surface: exécute le tool ou lit la resource
+  Surface-->>Server: résultat structuré
+  Server-->>Host: payload de réponse
+```
+
 Si je devais démarrer aujourd'hui, je commencerais par un petit serveur stdio, local, avec la même forme `FastMCP(...); mcp.run(transport="stdio")` que dans le quickstart officiel, qui rappelle aussi de ne jamais écrire des logs sur stdout en stdio. [Quickstart serveur](https://modelcontextprotocol.io/quickstart/server)
 
 ```python
@@ -36,6 +53,14 @@ if __name__ == "__main__":
 Cet exemple est volontairement banal. Le sujet difficile n'est pas le décorateur. Le sujet difficile, c'est de refuser de mélanger les contraintes de transport avec la logique métier, et de refuser de masquer les ruptures de contrat derrière un “chez moi ça marche”.
 
 Le choix du transport, c'est le moment où la production rappelle qu'elle existe. Stdio est mon choix par défaut pour du local parce que c'est plus simple et que la spec recommande explicitement que les clients le supportent. Je ne passe à Streamable HTTP que si j'ai besoin de déploiement distant, d'infrastructure partagée ou de plusieurs clients sur un même serveur, et là je le traite comme un vrai service réseau : validation de `Origin`, binding local quand c'est approprié, et authentification sérieuse. La spec transport est très claire là-dessus, et elle a raison. [Spec transport](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports)
+
+Voilà le résumé que j'utiliserais pour choisir un transport au lieu de débattre dans le vide.
+
+| Option                                                                | Ce que ça fait bien                                                                                | Ce que ça complique                                                           | Mon cas d'usage par défaut                                         |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `stdio`                                                               | Intégration locale host-vers-serveur, mise en place minimale, aucune surface réseau supplémentaire | Accès partagé, déploiement distant, tout ce qui demande plusieurs clients     | Commencez ici pour un host et un processus serveur local           |
+| Streamable HTTP                                                       | Déploiement distant, infrastructure partagée, plusieurs clients, fonctionnement en mode service    | Durcissement réseau, auth, validation de `Origin`, plus de plomberie de prod  | Prenez-le quand MCP doit se comporter comme un vrai service réseau |
+| Négociation de capacités (`initialize` + `notifications/initialized`) | Rendre explicites la version et les features supportées avant le vrai travail                      | Faire semblant que des clients et serveurs incompatibles sont "assez proches" | Gardez-la obligatoire, quel que soit le transport choisi           |
 
 Ma règle est simple et un peu sèche : prenez MCP quand la même surface d'outils doit survivre à plus d'un host, plus d'un runtime de modèle, ou à un vrai SLA. Si vous avez une seule app et deux fonctions utilitaires, évitez le cérémonial. Si la portabilité, l'observabilité et les contrats au niveau protocole comptent, adoptez MCP avant que le tas d'adaptateurs ne devienne votre problème principal.
 

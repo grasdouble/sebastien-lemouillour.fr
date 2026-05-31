@@ -15,6 +15,23 @@ Je préfère les choix un peu ennuyeux, parce que les choix ennuyeux survivent a
 
 La première estimation à laquelle je fais confiance reste volontairement grossière, et je garde le terme du cache explicite parce qu'il dépend de l'architecture, du type de cache, et des réglages de serving. Si vous utilisez [vLLM](https://docs.vllm.ai/en/latest/configuration/optimization/) ou ses [engine args](https://docs.vllm.ai/en/latest/configuration/engine_args.html), c'est cette ligne qui décide si vous obtenez un débit stable ou de la préemption sous charge.
 
+Quand je veux valider un plan en deux minutes, je ramène le sujet à deux tableaux sans glamour : combien coûte un paramètre selon la précision, puis quels postes de mémoire s'empilent vraiment à l'exécution.
+
+| Précision | Octets/paramètre | Exemple de VRAM (modèle 7B) | Usage                                                                                                         |
+| --------- | ---------------: | --------------------------: | ------------------------------------------------------------------------------------------------------------- |
+| fp32      |                4 |                    ~26,1 Go | Debug, vérifications numériques, ou vieux chemins d'entraînement pas encore modernisés                        |
+| bf16      |                2 |                    ~13,0 Go | Mon choix par défaut pour l'entraînement sur des GPU récents qui le supportent bien                           |
+| fp16      |                2 |                    ~13,0 Go | Entraînement en précision mixte ou inférence sur du matériel plus à l'aise en fp16 qu'en bf16                 |
+| int8      |                1 |                     ~6,5 Go | Compression rapide pour l'inférence quand je veux limiter la casse sur la qualité                             |
+| int4      |              0.5 |                     ~3,3 Go | Déploiement local ou edge assez agressif, quand faire rentrer le modèle compte plus que la pureté du résultat |
+
+| Composant VRAM        | Formule                                                   | Notes                                                                                                                   |
+| --------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Poids du modèle       | `params × octets_par_paramètre`                           | Le minimum incompressible ; c'est le chiffre que tout le monde regarde sur la model card avant de sous-estimer le reste |
+| États de l'optimiseur | `params × multiplicateur_optimiseur × octets_état`        | Présents seulement en entraînement ; avec Adam, ils coûtent souvent plus cher que les poids eux-mêmes                   |
+| Gradients             | `params × octets_gradient`                                | Eux aussi réservés à l'entraînement ; même forme que les poids, donc la facture monte très vite                         |
+| Activations           | `batch × séquence × hidden × couches × octets_activation` | Le terme le moins stable ; il explose avec les contextes longs, les gros batches et l'absence de checkpointing          |
+
 Avant de toucher aux flags de l'allocator, je pose une estimation de coin de table comme celle-ci :
 
 ```ts

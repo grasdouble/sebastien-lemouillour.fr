@@ -13,6 +13,15 @@ Je choisis une base vectorielle sur la friction opérationnelle, pas sur des cap
 
 La partie que presque tout le monde saute est la moins glamour. Est-ce que tu peux upsert le même chunk sans créer de doublons ? Est-ce que tu peux filtrer par tenant, langue et version dans une seule requête ? Est-ce que tu peux supprimer proprement un document quand une page de politique change ? Si ces réponses restent floues, la base dégrade déjà ta qualité de retrieval.
 
+| Base     | Types d'index                                              | Filtrage                                                              | Déploiement                                            | Idéal pour                                                                                                       |
+| -------- | ---------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Pinecone | Index ANN managés derrière un service hébergé              | Bon filtrage de métadonnées, mais dans une boîte noire managée        | Cloud managé                                           | Les équipes qui veulent presque zéro ops et acceptent la facture fournisseur                                     |
+| Weaviate | HNSW plus fonctions de recherche hybride                   | Filtres structurés solides et API de requête expressive               | Managé ou auto-hébergé                                 | Les produits qui veulent de la recherche sémantique avec une API riche dès le départ                             |
+| Qdrant   | HNSW avec recherche pensée autour du payload               | Excellent filtrage sur le payload, très orienté retrieval             | Managé ou auto-hébergé                                 | Les usages multi-tenant ou très filtrés, où la qualité du filtrage fait partie du produit                        |
+| pgvector | IVFFlat ou HNSW dans Postgres                              | Tout ce que SQL et JSONB peuvent exprimer, et c'est souvent suffisant | Postgres auto-hébergé ou Postgres managé déjà en place | Les équipes qui font déjà confiance à Postgres et veulent garder les vecteurs près des données transactionnelles |
+| Chroma   | Index vectoriels légers en local                           | Filtres de métadonnées basiques                                       | Local-first, très simple à lancer                      | Les prototypes, notebooks et petits systèmes où la vitesse de mise en route prime                                |
+| Milvus   | IVF, HNSW, DiskANN et autres options ANN pour gros volumes | Bon filtrage de métadonnées, pensé pour des systèmes plus massifs     | Auto-hébergé ou managé via Zilliz Cloud                | Les charges à grande échelle qui justifient un stack vectoriel dédié                                             |
+
 Avant de débattre des fournisseurs pendant des semaines, voilà la forme SQL que je mettrais en production en premier sur Postgres.
 
 ```sql

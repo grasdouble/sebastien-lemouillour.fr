@@ -11,6 +11,18 @@ Vous avez demandé une réponse courte, et vous avez reçu une mini conférence.
 
 La plupart des mauvais prompts échouent pour des raisons très banales, pas pour des raisons mystérieuses. Ce qu'il y a de rassurant, c'est que la documentation officielle d'[OpenAI](https://developers.openai.com/api/docs/guides/prompting), de [Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies) et d'[Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/prompt-engineering) répète la même idée : donnez au modèle une tâche claire, assez de contexte, et des contraintes qu'il peut réellement suivre.
 
+Voici le tableau mental que j'utilise quand un prompt continue à produire du flou au lieu d'un résultat exploitable.
+
+| Erreur                                             | Pourquoi ça rate                                                                                             | Meilleure approche                                                                                                               |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Trop vague                                         | Le modèle doit deviner ce que « mieux » veut dire, donc il se fabrique sa propre cible.                      | Donnez un verbe d'action et un objectif : `Réécris cet email pour qu'il paraisse plus chaleureux auprès d'un prospect hésitant.` |
+| Contexte absent                                    | La réponse dérive parce que le public, l'enjeu ou les contraintes ne sont jamais écrits noir sur blanc.      | Ajoutez le vrai décor : audience, échéance, ton attendu, produit, critères de décision.                                          |
+| Trop de demandes à la fois                         | Des objectifs qui se battent entre eux donnent une sortie moitié résumé, moitié réécriture, moitié bouillie. | Découpez en étapes ou hiérarchisez : d'abord l'analyse, ensuite la réécriture.                                                   |
+| Aucun format de sortie                             | Même une bonne réponse devient pénible si elle arrive dans la mauvaise forme.                                | Demandez dès le départ des puces, un tableau, du JSON, ou `exactement 3 suggestions`.                                            |
+| Pas d'exemple                                      | Une consigne abstraite laisse beaucoup trop de place à l'interprétation.                                     | Montrez un exemple court du ton, de la structure ou du format de label attendu.                                                  |
+| Rôle non défini                                    | Le modèle retombe sur une posture d'assistant générique, souvent trop large pour être utile.                 | Donnez un rôle utile : `Agis comme un assistant de triage support pour une équipe SaaS.`                                         |
+| Prendre la première réponse pour la version finale | Le premier jet est souvent orienté dans la bonne direction, mais encore bancal.                              | Itérez une ou deux fois, puis réécrivez le prompt au lieu de le rafistoler sans fin.                                             |
+
 ### Erreur 1 : demander une ambiance au lieu d'une tâche
 
 « Améliore ça » n'est pas vraiment une tâche. Mieux comment, pour qui, et selon quel critère ? Le modèle inventera volontiers un objectif si vous ne lui en donnez pas.

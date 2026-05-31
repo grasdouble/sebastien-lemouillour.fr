@@ -17,6 +17,21 @@ La plupart des guides sont trop mous sur l’exploitation. Chaque étape supplé
 
 Ensuite, je force le pipeline à casser en CI avant que les utilisateurs s’en chargent. [DeepEval](https://deepeval.com/docs/getting-started) est utile parce qu’il permet d’exécuter les evals agent et RAG comme des tests, au lieu de découvrir les régressions via des tickets de support.
 
+C’est la boucle minimale que je veux voir sur papier avant de faire confiance au runtime :
+
+```mermaid
+graph TD
+    A[Requête utilisateur] --> B[Récupérer des preuves]
+    B --> C{Contexte suffisant ?}
+    C -->|Oui| D[Générer la réponse]
+    C -->|Non| E[Élargir la requête ou changer de source]
+    E --> F{Budget de retry restant ?}
+    F -->|Oui| B
+    F -->|Non| G[Basculer sur answer_unknown]
+    D --> H[Retourner une réponse avec citations]
+    G --> H
+```
+
 Cette pression doit se voir dans un contrat dur, pas dans un slide deck :
 
 ```yaml
@@ -36,5 +51,13 @@ observability:
   trace_tool_arguments: true
   trace_document_ids: true
 ```
+
+| Réglage                                  | Pourquoi je m’en sers                                                                                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `planner.max_steps: 4`                   | Limite le nombre de tours planification + récupération avant que l’agent ne gaspille de la latence pour un gain marginal. |
+| `planner.stop_if_confidence_below: 0.55` | Force la boucle à reconnaître que les preuves sont faibles au lieu de bluffer jusqu’à la génération.                      |
+| `guards.max_total_retrieved_chunks: 18`  | Empêche le planner de noyer la fenêtre de contexte sous des chunks peu utiles.                                            |
+| `guards.fallback: 'answer_unknown'`      | Rend l’échec explicite quand le budget de retry est épuisé ou que les preuves restent trop maigres.                       |
+| `guards.require_citations: true`         | Garantit que la réponse finale reste attachée aux documents récupérés au lieu d’une synthèse sans appui.                  |
 
 Ma règle est simple et sèche : si un retriever en un seul passage avec reranking répond à au moins 85 % des vraies questions de production dans la SLA, reste là. En dessous, le RAG agentique se justifie. Au-dessus, tu paies une latence que tu t’infliges toi-même.

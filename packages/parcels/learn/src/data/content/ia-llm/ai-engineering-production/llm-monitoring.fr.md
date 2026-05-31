@@ -42,4 +42,15 @@ alerts:
     # Garde ce calcul découpé par nom d'outil, pas dans un seau global.
 ```
 
-Ma règle est simple : si une métrique ne peut pas déclencher un page, un rollback, ou une décision hebdomadaire sur les coûts, elle n'a rien à faire sur le premier dashboard.
+Je garde aussi une matrice d'exploitation toute bête à côté de ces alertes, parce qu'une équipe d'astreinte fatiguée a besoin de réflexes par défaut, pas d'un grand discours :
+
+| Métrique           | Plage normale                                                | Seuil d'alerte                                    | Action d'astreinte                                                                                          |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| latency_p99        | Moins de 9 s                                                 | Plus de 12 s pendant 15 min                       | Pager l'astreinte, vérifier la latence fournisseur et forcer le fallback si la file gonfle encore           |
+| error_rate         | Moins de 1 %                                                 | Plus de 5 % pendant 10 min                        | Pager le responsable, inspecter les erreurs outil et fournisseur, puis couper le chemin cassé si nécessaire |
+| token_usage        | Dans une bande de +/- 15 % autour de la baseline sur 7 jours | Plus de 30 % au-dessus de la baseline pendant 1 h | Comparer les derniers prompts, resserrer la fenêtre de contexte et échantillonner les requêtes trop grosses |
+| cost_per_request   | Moins de 0,08 $                                              | Plus de 0,12 $ pendant 1 h                        | Basculer vers un modèle moins cher ou réduire le scope du prompt avant que la facture parle pour toi        |
+| hallucination_rate | Moins de 5 % sur les échantillons évalués                    | Plus de 10 % pendant 30 min                       | Revenir au dernier prompt ou modèle stable et relire manuellement les mauvaises sorties                     |
+| cache_hit_rate     | Plus de 60 %                                                 | Moins de 40 % pendant 30 min                      | Vérifier les clés de cache, réchauffer les chemins chauds et chercher une dérive du retrieval               |
+
+Ma règle est simple : si une métrique ne peut pas déclencher une alerte d'astreinte, un rollback, ou une décision hebdomadaire sur les coûts, elle n'a rien à faire sur le premier dashboard.

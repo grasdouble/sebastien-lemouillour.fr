@@ -13,6 +13,28 @@ Real governance is not a committee collecting slides. It is decision rights wire
 
 I would keep the review group small and give it authority. Product owns user impact. Security owns abuse cases. Legal or compliance owns regulated constraints. Platform owns model access, logging, and rollback. That group should review model families, data classes, automation levels, and irreversible actions. It should not waste a week approving prompt wording tweaks.
 
+If governance is real, the workflow from idea to deployment should be boringly explicit.
+
+```mermaid
+flowchart TD
+  A["Model proposal"] --> B["Risk assessment"]
+  B --> C["Compliance check"]
+  C --> D{"Approved?"}
+  D -- Yes --> E["Deployment"]
+  D -- No --> F["Reject or rework"]
+  E --> G["Audit trail and periodic review"]
+```
+
+I also want names, not vague accountability theater.
+
+| Role               | What I expect it to own                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| AI Governance Lead | Owns the review cadence, the model registry, the policy updates, and the evidence pack auditors will ask for |
+| Risk Officer       | Scores misuse risk, automation risk, human-review thresholds, and irreversible-action exposure               |
+| Compliance Officer | Maps regulation, contracts, provider policy, and retention rules to concrete release constraints             |
+| Engineering        | Enforces access controls, logging, kill switches, rollback paths, and the approved model boundary in code    |
+| Product            | Owns the use case, user harm analysis, rollout scope, and whether the business benefit justifies the risk    |
+
 That policy has to survive contact with production. If it is not in config and logs, it is theater. A model registry is boring. Good. Boring survives audits.
 
 ```yaml

@@ -13,6 +13,24 @@ Je ne sors plusieurs agents que si je peux justifier la taxe de trois façons : 
 
 C'est l'orchestrateur qui transforme l'architecture en théâtre. Je ne veux pas qu'il fasse du raisonnement métier. Je veux qu'il valide un plan, route du travail typé, et rejette les chemins inconnus. Si le prompt de l'orchestrateur déborde de jugement métier, vous avez caché la logique produit dans l'endroit le moins testable.
 
+C'est la forme que je considère saine : un coordinateur, des agents spécialistes qui font un travail étroit, et des données de trace attachées à chaque saut.
+
+```mermaid
+flowchart TD
+  Request[Requête utilisateur] --> Orchestrator[Orchestrateur<br/>valide le plan + route du travail typé]
+  Orchestrator -->|sous-tâche parallèle A| Researcher[Agent de recherche]
+  Orchestrator -->|sous-tâche parallèle B| Specialist[Exécuteur spécialiste]
+  Researcher -->|handoff typé| Reviewer[Agent de revue]
+  Specialist -->|handoff typé| Reviewer
+  Reviewer -->|résultat approuvé| Formatter[Agent de mise en forme]
+  Formatter --> Response[Sortie finale]
+  Trace[(Trace ID, latence, tokens, statut)] -.-> Orchestrator
+  Trace -.-> Researcher
+  Trace -.-> Specialist
+  Trace -.-> Reviewer
+  Trace -.-> Formatter
+```
+
 Avant le code de handoff, verrouillez le contrat pour que l'échec soit bruyant au lieu d'être poli.
 
 ```python
@@ -38,6 +56,15 @@ L'observabilité, c'est là que la facture devient réelle. [OpenTelemetry trace
 Pour les systèmes d'agents, c'est encore plus concret. [Les spans GenAI pour agents](https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/) définissent des attributs comme `gen_ai.operation.name`, `gen_ai.agent.name`, `gen_ai.request.model`, ainsi que les données d'erreur pour les spans d'agent et de workflow. Je reprendrais ces noms avant d'inventer mon propre schéma, parce qu'un vocabulaire de télémétrie maison vieillit très mal.
 
 Les maths restent cruelles : trois sauts à 95 % de succès chacun, ça donne à peine 86 % de fiabilité bout en bout avant les retries. Ajoutez des validations humaines, de la file d'attente, ou des appels d'outils et la queue de latence devient plus moche, pas plus intelligente.
+
+Voilà la répartition des rôles que je garderais si je devais défendre l'architecture en design review.
+
+| Rôle                   | Ce que je veux qu'il fasse                                                     | Ce que je ne veux pas qu'il fasse                                  | Pourquoi il existe                                        |
+| ---------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------ | --------------------------------------------------------- |
+| Orchestrateur          | Valider le plan, router des sous-tâches typées, rejeter les chemins inconnus   | Cacher du jugement produit ou improviser autour d'agents manquants | Garde le flux de contrôle explicite et testable           |
+| Exécuteur spécialiste  | Faire un travail étroit comme la recherche, le pricing ou la revue sécurité    | Prendre la coordination globale                                    | Préserve l'isolation et rend l'expertise volontaire       |
+| Reviewer ou gatekeeper | Contrôler les sorties, appliquer la politique, approuver ou échouer bruyamment | Réparer discrètement un travail mauvais en amont                   | Rend l'échec visible avant qu'il n'arrive à l'utilisateur |
+| Formatter ou publisher | Emballer la réponse finale dans la forme demandée                              | Redécider le fond de la réponse                                    | Sépare la présentation du raisonnement                    |
 
 Mon seuil est simple : si vous n'achetez pas du débit parallèle, de l'isolation, ou une vraie frontière de spécialisation, gardez un seul agent. Si vous n'avez pas encore assez d'échelle ou de risque pour sentir la douleur du tracing, ignorez le battage multi-agents et passez votre temps à construire un meilleur plan mono-agent.
 

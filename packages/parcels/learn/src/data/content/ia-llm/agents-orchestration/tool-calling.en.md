@@ -49,6 +49,42 @@ for (let hop = 0; hop < MAX_TOOL_HOPS; hop += 1) {
 throw new Error('Too many tool hops');
 ```
 
+```mermaid
+sequenceDiagram
+  participant User
+  participant App as Orchestrator
+  participant Model
+  participant Validator as Validation layer
+  participant Human as Human reviewer
+  participant Tool
+  participant Logger
+
+  User->>App: User input
+  App->>Model: Send messages + tool definitions
+
+  loop Until final answer or hop limit
+    Model-->>App: Assistant turn + possible tool calls
+    alt No tool calls
+      App-->>User: Final answer
+    else Tool call requested
+      App->>Validator: Check allowed tool + validate args
+      Validator-->>App: Validated call
+      opt Risky write tool
+        App->>Human: Request approval
+        Human-->>App: Approve or reject
+      end
+      App->>Tool: Execute with timeout
+      Tool-->>App: Tool result
+      App->>Logger: Log tool, latency, outcome
+      App->>Model: Return tool_result + updated messages
+    end
+  end
+
+  opt Hop limit reached
+    App-->>User: Error: too many tool hops
+  end
+```
+
 A few production habits pay for themselves fast. Cap the number of hops, because confused models can burn budget in circles. Keep write tools idempotent, because partial failures love replaying the same action. Log tool name, latency, and outcome on every hop, because “the agent got weird” is not a serious postmortem. If a tool can move money, contact customers, or change data, put a human approval step in front of it.
 
 My rule is simple: use tool calling when the model needs fresh state or has to choose between external actions. If you already know which service to call, skip the ceremony and call it yourself. Fewer loops, fewer surprises.

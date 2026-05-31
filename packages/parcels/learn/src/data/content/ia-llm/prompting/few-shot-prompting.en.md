@@ -21,6 +21,18 @@ Few-shot works because it teaches the model the boundaries of the pattern. One e
 
 The examples should be consistent in format and varied in content. Consistent format teaches the structure. Varied content teaches the rule. If every example is too similar, the model may memorize surface wording instead of the actual pattern.
 
+When I review a few-shot prompt, I usually sanity-check it with a table like this before I obsess over wording.
+
+| Pattern                     | Example                                                                      | Why it works / Why it fails                                                                                    |
+| --------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Good: consistent format     | `Example 1: Message ... Label ...` repeated the same way each time           | Works because the model learns one stable structure instead of reverse-engineering a new layout on every shot. |
+| Good: diverse examples      | Praise, complaint, question, and mixed-signal customer messages              | Works because variety teaches the boundary of the rule instead of one narrow wording pattern.                  |
+| Good: labels stated clearly | `Label: Problem` rather than a vague answer sentence                         | Works because the target output is obvious and easy to imitate.                                                |
+| Bad: inconsistent format    | First example is prose, second is bullets, third is JSON                     | Fails because the model spends attention guessing the wrapper instead of the task.                             |
+| Bad: too many examples      | 15 tiny shots for a task that should stabilize after 3 to 5                  | Fails because prompt length grows, maintenance gets worse, and signal starts turning into noise.               |
+| Bad: biased examples        | Every “problem” example sounds angry, every “praise” example sounds cheerful | Fails because the model may learn tone stereotypes instead of the actual classification rule.                  |
+| Bad: wrong labels           | An obviously negative message is labeled `Praise`                            | Fails because one mislabeled shot can poison the whole pattern.                                                |
+
 This is the kind of setup I like for a beginner-friendly classification task.
 
 ```text

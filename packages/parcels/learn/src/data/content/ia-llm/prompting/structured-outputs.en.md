@@ -41,6 +41,30 @@ const response = await client.responses.create({
 });
 ```
 
+When choosing an output format, I use a very boring rule: pick the weakest format that still gives me reliable parsing.
+
+| Format                | Use Case                                                          | Parsing Library                  | Risk                                                           |
+| --------------------- | ----------------------------------------------------------------- | -------------------------------- | -------------------------------------------------------------- |
+| JSON                  | Simple objects or arrays with light validation.                   | `JSON.parse` plus Zod or Valibot | Easy to parse, easy to trust too early.                        |
+| JSON Schema           | Strict contracts with enums, required fields, and nested objects. | Ajv                              | More setup, more provider coupling, but much safer boundaries. |
+| XML                   | Legacy integrations or mixed content with attributes.             | `fast-xml-parser`                | Verbose and surprisingly easy to get wrong in prompts.         |
+| Markdown              | Human-facing responses that still need lightweight structure.     | `remark`                         | Looks neat while hiding ambiguity in headings or lists.        |
+| CSV                   | Flat tabular rows you want to drop into spreadsheets or BI tools. | `csv-parse`                      | Breaks fast when commas, quoting, or multiline fields show up. |
+| plain text with regex | Tiny extraction tasks where failure is acceptable.                | native `RegExp`                  | Fragile by default; one wording change can kill the parser.    |
+
+And this is the operational loop I actually trust in production:
+
+```mermaid
+flowchart TD
+    A[Request with explicit format instruction] --> B[LLM response]
+    B --> C{Parse attempt}
+    C -->|Success| D[Use data]
+    C -->|Parse error| E[Retry with explicit correction]
+    E --> F{Parse attempt}
+    F -->|Success| D
+    F -->|Still broken| G[Fallback]
+```
+
 I still keep the prompt itself boring and explicit. OpenAI’s [prompt engineering guide](https://platform.openai.com/docs/guides/prompt-engineering) still applies: clear instructions and good examples matter even when the output is typed. A schema prevents structural drift, not semantic stupidity.
 
 The useful comparison is OpenAI’s [JSON mode guide](https://platform.openai.com/docs/guides/text-generation#json-mode). JSON mode solves parseability. Structured outputs solve parseability plus schema adherence. That extra guarantee costs some setup and some provider coupling, but it saves a lot of defensive code once your system starts depending on exact fields.

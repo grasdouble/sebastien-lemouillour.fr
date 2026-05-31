@@ -13,6 +13,14 @@ Je ne choisis pas la recherche hybride dès le premier jour. Je vérifie d'abord
 
 Quand ce motif apparaît vraiment, je veux un backend qui expose déjà les deux signaux. [Pinecone hybrid](https://docs.pinecone.io/guides/search/hybrid-search) combine recherche dense et lexicale, et [Weaviate hybrid](https://docs.weaviate.io/weaviate/search/hybrid) combine recherche vectorielle et BM25F. En revanche, je n'utilise pas la fusion par score pondéré comme choix par défaut, parce que les plages de scores dérivent d'un système à l'autre et Pinecone avertit explicitement que les valeurs denses et creuses ne sont pas normalisées sur la même échelle. Mon premier choix reste [RRF](https://www.elastic.co/guide/en/elasticsearch/reference/current/rrf.html), parce qu'il fusionne des positions de rang au lieu de faire semblant que les scores bruts sont comparables.
 
+Avant même de toucher à l’implémentation, je veux avoir le tableau des compromis sous les yeux :
+
+| Méthode                     | Forces                                                              | Faiblesses                                                                   | Idéal pour                                                         |
+| --------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| BM25                        | Excellent sur les termes exacts, identifiants, clauses et acronymes | Rate les paraphrases et la similarité sémantique                             | Codes d’erreur, SKU, clauses juridiques, jargon rare               |
+| Recherche vectorielle dense | Très bonne sur les paraphrases et la proximité conceptuelle         | Faible dès qu’il faut retrouver une aiguille exacte ou un identifiant opaque | Questions en langage naturel, formulations floues                  |
+| Hybride                     | Couvre à la fois les ratés lexicaux et sémantiques                  | Plus de pièces mobiles, scoring plus pénible, latence qui dérive vite        | Corpus mixtes où exact match et paraphrases comptent tous les deux |
+
 Voici la forme que je mettrais en prod d'abord, avant d'ajouter un reranker ou plus de réglages :
 
 ```ts
@@ -40,6 +48,18 @@ async function hybridSearch({ query, tenantId, limit = 8 }: HybridSearchArgs) {
 
   return merged.slice(0, limit);
 }
+```
+
+Et si quelqu’un dans l’équipe croit encore que « hybride » veut juste dire « faire une moyenne de deux scores », voilà le schéma que je dessine au tableau :
+
+```mermaid
+flowchart LR
+  A[Requête] --> B[Scores BM25]
+  A --> C[Scores denses]
+  B --> D[Fusion RRF ou pondérée]
+  C --> D
+  D --> E[Rerank]
+  E --> F[Résultats finaux]
 ```
 
 Garde un pool de candidats serré. Dès que tu pousses les deux retrievers à `topK=100`, tu le paies en latence, en coût de rerank et en temps de debug. Je considère aussi le filtrage au moment de la requête comme non négociable : [Pinecone filters](https://docs.pinecone.io/guides/search/filter-by-metadata) et [Weaviate filters](https://docs.weaviate.io/weaviate/search/filters) permettent tous deux d'appliquer les limites de tenant ou d'accès avant la fusion, ce qui est plus sûr qu'un filtrage après coup.
