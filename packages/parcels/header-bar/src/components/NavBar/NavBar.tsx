@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button, Cluster, Container, Divider, Flex, Text } from '@grasdouble/lufa_design-system';
+import { LangSwitcher } from '@grasdouble/slm_shared';
 
-import { LangSwitcher } from '../LangSwitcher';
 import { ThemeSelector } from '../ThemeSelector';
 import styles from './NavBar.module.css';
 

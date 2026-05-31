@@ -1,10 +1,17 @@
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 
+export type GuideTranslation = { title: string; description: string };
+export type CatalogTranslations = Record<
+  'fr' | 'en',
+  { title: string; description: string; guides: Record<string, GuideTranslation> }
+>;
+
 export type RawCatalog = {
   id: string;
   categoryKey: string;
   order: number;
   guideIds: readonly string[];
+  translations: CatalogTranslations;
 };
 
 export type Catalog = {
@@ -27,6 +34,8 @@ export type Tutorial = {
   difficulty: Difficulty;
   tags: string[];
   order?: number;
+  publishedAt: string;
+  updatedAt: string;
   content: string;
 };
 
@@ -37,19 +46,13 @@ export type RawLearnItem = {
   difficulty: Difficulty;
   tags: string[];
   order?: number;
+  publishedAt: string;
+  updatedAt: string;
   content: { fr: string; en: string };
 };
 
 // CATEGORY_KEYS controls category display order.
 export const CATEGORY_KEYS: readonly string[] = ['ia-llm', 'tooling', 'architecture'];
-
-// CATALOG_ORDER controls the display order of catalogs within their category.
-export const CATALOG_ORDER: readonly string[] = [
-  'ia-llm-fundamentals',
-  'ia-llm-applied',
-  'tooling-essentials',
-  'frontend-architecture',
-];
 
 export const DIFFICULTIES: readonly Difficulty[] = ['beginner', 'intermediate', 'advanced'];
 
@@ -76,11 +79,13 @@ type GuideFrontmatter = {
   difficulty: Difficulty;
   tags: string[];
   order?: number;
+  publishedAt: string;
+  updatedAt: string;
 };
 
 /**
  * Parses YAML frontmatter delimited by `---` at the top of a markdown file.
- * Extracts `id` (string), `difficulty` (string), `tags` (inline array) and optional `order` (number).
+ * Extracts `id`, `difficulty`, `tags`, optional `order`, `publishedAt`, and `updatedAt` (UTC ISO 8601 dates).
  */
 function parseFrontmatter(raw: string, path: string): { meta: GuideFrontmatter; body: string } {
   const parts = raw.split(/^---$/m);
@@ -89,6 +94,7 @@ function parseFrontmatter(raw: string, path: string): { meta: GuideFrontmatter; 
   }
 
   const meta: Partial<GuideFrontmatter> = {};
+  const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
   for (const line of parts[1].split('\n')) {
     const colonIdx = line.indexOf(':');
@@ -112,11 +118,23 @@ function parseFrontmatter(raw: string, path: string): { meta: GuideFrontmatter; 
     } else if (key === 'order') {
       const parsed = parseInt(value, 10);
       if (!isNaN(parsed)) meta.order = parsed;
+    } else if (key === 'publishedAt') {
+      if (!ISO_DATE_RE.test(value)) {
+        throw new Error(`[learn] Invalid publishedAt "${value}" in ${path}. Expected YYYY-MM-DD (UTC).`);
+      }
+      meta.publishedAt = value;
+    } else if (key === 'updatedAt') {
+      if (!ISO_DATE_RE.test(value)) {
+        throw new Error(`[learn] Invalid updatedAt "${value}" in ${path}. Expected YYYY-MM-DD (UTC).`);
+      }
+      meta.updatedAt = value;
     }
   }
 
-  if (!meta.id || !meta.difficulty || !meta.tags) {
-    throw new Error(`[learn] Incomplete frontmatter in ${path}: missing "id", "difficulty" or "tags"`);
+  if (!meta.id || !meta.difficulty || !meta.tags || !meta.publishedAt || !meta.updatedAt) {
+    throw new Error(
+      `[learn] Incomplete frontmatter in ${path}: missing "id", "difficulty", "tags", "publishedAt" or "updatedAt"`
+    );
   }
 
   return { meta: meta as GuideFrontmatter, body: parts.slice(2).join('---').trimStart() };
@@ -145,6 +163,8 @@ type GuideAccumulator = {
   difficulty: Difficulty;
   tags: string[];
   order?: number;
+  publishedAt: string;
+  updatedAt: string;
   content: Partial<Record<'fr' | 'en', string>>;
 };
 
@@ -174,6 +194,8 @@ for (const [path, raw] of Object.entries(_rawModules)) {
       difficulty: meta.difficulty,
       tags: meta.tags,
       order: meta.order,
+      publishedAt: meta.publishedAt,
+      updatedAt: meta.updatedAt,
       content: {},
     });
   }
@@ -188,6 +210,47 @@ for (const [path, raw] of Object.entries(_rawModules)) {
   }
 }
 
+/**
+ * Auto-discovered order.json files.
+ * Each file lives at ./content/<categoryKey>/order.json
+ * and contains an ordered array of catalogIds: string[]
+ */
+const _categoryOrderModules: Record<string, readonly string[]> = import.meta.glob('./content/*/order.json', {
+  eager: true,
+  import: 'default',
+});
+
+/**
+ * Maps catalogId → display order index (position within its category's order.json).
+ */
+const _catalogOrderMap = new Map<string, number>();
+for (const [, catalogIds] of Object.entries(_categoryOrderModules)) {
+  catalogIds.forEach((catalogId, index) => {
+    _catalogOrderMap.set(catalogId, index);
+  });
+}
+
+/**
+ * Auto-discovered catalog.json files.
+ * Each file lives at ./content/<categoryKey>/<catalogId>/catalog.json
+ * and contains { fr: { title, description }, en: { title, description } }.
+ */
+const _catalogMetaModules: Record<string, CatalogTranslations> = import.meta.glob('./content/**/catalog.json', {
+  eager: true,
+  import: 'default',
+});
+
+/**
+ * Maps catalogId → translations, parsed from catalog.json glob imports.
+ * Path format: ./content/<categoryKey>/<catalogId>/catalog.json
+ */
+const _catalogTranslations = new Map<string, CatalogTranslations>();
+for (const [path, translations] of Object.entries(_catalogMetaModules)) {
+  const segments = path.replace('./content/', '').split('/');
+  const catalogId = segments[1];
+  _catalogTranslations.set(catalogId, translations);
+}
+
 export const RAW_LEARN_ITEMS: readonly RawLearnItem[] = [..._guideMap.entries()].map(([id, acc]) => ({
   id,
   categoryKey: acc.categoryKey,
@@ -195,20 +258,34 @@ export const RAW_LEARN_ITEMS: readonly RawLearnItem[] = [..._guideMap.entries()]
   difficulty: acc.difficulty,
   tags: acc.tags,
   order: acc.order,
+  publishedAt: acc.publishedAt,
+  updatedAt: acc.updatedAt,
   content: acc.content as { fr: string; en: string },
 }));
 
 export const RAW_CATALOGS: readonly RawCatalog[] = [..._catalogMap.entries()].map(([id, acc]) => {
+  const translations = _catalogTranslations.get(id);
+  if (!translations) {
+    throw new Error(
+      `[learn] Missing catalog.json for catalog "${id}". Add a catalog.json file in the catalog folder with "fr" and "en" translations.`
+    );
+  }
   const sortedGuideIds = [...acc.guideIds].sort((a, b) => {
     const orderA = _guideMap.get(a)?.order ?? Infinity;
     const orderB = _guideMap.get(b)?.order ?? Infinity;
     return orderA - orderB;
   });
-  const order = CATALOG_ORDER.indexOf(id);
-  return { id, categoryKey: acc.categoryKey, order: order === -1 ? Infinity : order, guideIds: sortedGuideIds };
+  const order = _catalogOrderMap.get(id);
+  return { id, categoryKey: acc.categoryKey, order: order ?? Infinity, guideIds: sortedGuideIds, translations };
 });
 
 export const ALL_TAGS: readonly string[] = [...new Set(RAW_LEARN_ITEMS.flatMap((t) => t.tags))].sort();
+
+export function isPublished(publishedAt: string): boolean {
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  return publishedAt <= todayStr;
+}
 
 if (import.meta.env.DEV) {
   const validCategoryKeys = new Set(CATEGORY_KEYS);
@@ -220,11 +297,10 @@ if (import.meta.env.DEV) {
     );
   }
 
-  const catalogOrderSet = new Set(CATALOG_ORDER);
-  const unknownCatalogs = RAW_CATALOGS.filter((c) => !catalogOrderSet.has(c.id));
+  const unknownCatalogs = RAW_CATALOGS.filter((c) => !_catalogOrderMap.has(c.id));
   if (unknownCatalogs.length > 0) {
     console.warn(
-      '[learn] Catalogs found that are not listed in CATALOG_ORDER (they will appear last):',
+      '[learn] Catalogs found that are not listed in any category order.json (they will appear last):',
       unknownCatalogs.map((c) => c.id)
     );
   }

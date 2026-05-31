@@ -15,7 +15,7 @@ export default defineConfig({
       devDeps: false,
       optionalDeps: false,
       peerDeps: false,
-      except: [],
+      except: ['@grasdouble/slm_shared'],
       nodeBuiltins: true,
     }),
   ],

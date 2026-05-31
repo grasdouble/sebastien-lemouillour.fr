@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Badge, Card, Cluster, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
 
 import type { Tutorial } from '../../data/learn';
-import { DIFFICULTY_I18N_KEY, DIFFICULTY_VARIANT } from '../../data/learn';
+import { DIFFICULTY_I18N_KEY, DIFFICULTY_VARIANT, isPublished } from '../../data/learn';
 import styles from './LearnCard.module.css';
 
 type LearnCardProps = {
@@ -14,7 +14,8 @@ type LearnCardProps = {
 
 export function LearnCard({ tutorial, onClick }: LearnCardProps) {
   const { t } = useTranslation('learn');
-  const { title, description, tags, difficulty } = tutorial;
+  const { title, description, tags, difficulty, publishedAt } = tutorial;
+  const published = isPublished(publishedAt);
 
   const handleClick = () => onClick(tutorial);
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -24,13 +25,17 @@ export function LearnCard({ tutorial, onClick }: LearnCardProps) {
     }
   };
 
+  const cardClass = [styles['learn-card'], !published ? styles['learn-card-unpublished'] : '']
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className={styles['learn-card']}
+      className={cardClass}
       aria-label={t('aria.openItem', { title })}
     >
       <Card>
@@ -42,9 +47,16 @@ export function LearnCard({ tutorial, onClick }: LearnCardProps) {
                   {title}
                 </Text>
               </Stack>
-              <Badge variant={DIFFICULTY_VARIANT[difficulty]} size="sm">
-                {t(DIFFICULTY_I18N_KEY[difficulty])}
-              </Badge>
+              <Cluster spacing="compact">
+                {!published && (
+                  <Badge variant="warning" size="sm">
+                    {t('badge.draft')}
+                  </Badge>
+                )}
+                <Badge variant={DIFFICULTY_VARIANT[difficulty]} size="sm">
+                  {t(DIFFICULTY_I18N_KEY[difficulty])}
+                </Badge>
+              </Cluster>
             </Flex>
             <Text as="p" variant="body" color="secondary">
               {description}

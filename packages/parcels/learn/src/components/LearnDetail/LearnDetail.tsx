@@ -3,7 +3,20 @@ import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { Badge, Box, Button, Card, Cluster, Divider, Flex, Portal, Stack, Text } from '@grasdouble/lufa_design-system';
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Cluster,
+  Divider,
+  Flex,
+  Link,
+  Portal,
+  Stack,
+  Text,
+} from '@grasdouble/lufa_design-system';
+import { LangSwitcher } from '@grasdouble/slm_shared';
 
 import type { Tutorial } from '../../data/learn';
 import styles from './LearnDetail.module.css';
@@ -13,8 +26,14 @@ type LearnDetailProps = {
   onClose: () => void;
 };
 
+function formatDate(iso: string, lang: string): string {
+  return new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'long', day: 'numeric' }).format(
+    new Date(`${iso}T00:00:00`)
+  );
+}
+
 export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
-  const { t } = useTranslation('learn');
+  const { t, i18n } = useTranslation('learn');
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -55,16 +74,19 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
                   <Text as="h2" id="learn-detail-title" variant="h3" weight="bold" color="primary">
                     {tutorial.title}
                   </Text>
-                  <Button
-                    ref={closeButtonRef}
-                    type="ghost"
-                    variant="neutral"
-                    size="sm"
-                    radius="full"
-                    iconLeft="x"
-                    onClick={onClose}
-                    aria-label={t('detail.close')}
-                  />
+                  <Cluster spacing="tight" align="center">
+                    <LangSwitcher />
+                    <Button
+                      ref={closeButtonRef}
+                      type="ghost"
+                      variant="neutral"
+                      size="sm"
+                      radius="full"
+                      iconLeft="x"
+                      onClick={onClose}
+                      aria-label={t('detail.close')}
+                    />
+                  </Cluster>
                 </Flex>
               </Box>
 
@@ -84,6 +106,31 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
                   <Divider emphasis="subtle" spacing="compact" />
                 </>
               )}
+
+              <Box padding="compact">
+                <Flex gap="compact" wrap="wrap" align="center">
+                  <Text as="span" variant="caption" color="secondary">
+                    {t('detail.publishedAt')}{' '}
+                    <time dateTime={tutorial.publishedAt}>
+                      {formatDate(tutorial.publishedAt, i18n.resolvedLanguage ?? i18n.language)}
+                    </time>
+                  </Text>
+                  {tutorial.publishedAt !== tutorial.updatedAt && (
+                    <>
+                      <Text as="span" variant="caption" color="secondary" aria-hidden="true">
+                        |
+                      </Text>
+                      <Text as="span" variant="caption" color="secondary">
+                        {t('detail.updatedAt')}{' '}
+                        <time dateTime={tutorial.updatedAt}>
+                          {formatDate(tutorial.updatedAt, i18n.resolvedLanguage ?? i18n.language)}
+                        </time>
+                      </Text>
+                    </>
+                  )}
+                </Flex>
+              </Box>
+              <Divider emphasis="subtle" spacing="compact" />
 
               <Box grow className={styles['modal-content']} padding="comfortable">
                 <div className={styles['markdown-body']}>
@@ -144,6 +191,20 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
                         return <code className={styles['inline-code']}>{children}</code>;
                       },
                       pre: ({ children }) => <>{children}</>,
+                      a: ({ children, href }) => {
+                        const isExternal = href != null && (href.startsWith('http://') || href.startsWith('https://'));
+                        return (
+                          <Link
+                            href={href ?? '#'}
+                            target={isExternal ? '_blank' : '_self'}
+                            rel={isExternal ? 'noopener noreferrer' : undefined}
+                            variant="underline"
+                            color="primary"
+                          >
+                            {children}
+                          </Link>
+                        );
+                      },
                     }}
                   >
                     {tutorial.content}

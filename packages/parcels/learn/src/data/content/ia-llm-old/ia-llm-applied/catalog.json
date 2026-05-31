@@ -1,0 +1,46 @@
+{
+  "fr": {
+    "title": "Construire avec les LLMs",
+    "description": "Des patterns concrets pour builder avec les APIs LLM : intégrations robustes, RAG sur vos données, agents autonomes et mise en production",
+    "guides": {
+      "llm-agents": {
+        "title": "Agents LLM",
+        "description": "Concevoir des systèmes LLM autonomes : function calling, pattern ReAct, boucle d'agent en TypeScript et modes d'échec en production."
+      },
+      "llm-api-patterns": {
+        "title": "Patterns d'API LLM",
+        "description": "Construire des intégrations LLM robustes : streaming, gestion des erreurs, rate limiting, maîtrise des coûts et requêtes parallèles."
+      },
+      "llm-production": {
+        "title": "LLMs en production",
+        "description": "Rendre les intégrations LLM production-ready : observabilité, défense contre le prompt injection, optimisation des coûts, résilience et sélection de modèle."
+      },
+      "rag-fundamentals": {
+        "title": "Fondamentaux du RAG",
+        "description": "Connecter un LLM à vos données avec le Retrieval-Augmented Generation : embeddings, bases vectorielles, stratégies de chunking et pipeline TypeScript complet."
+      }
+    }
+  },
+  "en": {
+    "title": "Building with LLMs",
+    "description": "Concrete patterns for building with LLM APIs: robust integrations, RAG on your own data, autonomous agents and production deployment",
+    "guides": {
+      "llm-agents": {
+        "title": "LLM Agents",
+        "description": "Design autonomous LLM systems: function calling, the ReAct pattern, agent loops in TypeScript, and production failure modes."
+      },
+      "llm-api-patterns": {
+        "title": "LLM API Patterns",
+        "description": "Build robust LLM integrations: streaming responses, error handling, rate limiting, cost management and parallel requests."
+      },
+      "llm-production": {
+        "title": "LLMs in Production",
+        "description": "Make LLM integrations production-ready: observability, prompt injection defence, cost optimisation, resilience patterns and model selection."
+      },
+      "rag-fundamentals": {
+        "title": "RAG Fundamentals",
+        "description": "Connect LLMs to your own data with Retrieval-Augmented Generation: embeddings, vector databases, chunking strategies and a full TypeScript pipeline."
+      }
+    }
+  }
+}

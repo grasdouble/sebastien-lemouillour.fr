@@ -20,3 +20,8 @@
     transform: none;
   }
 }
+
+.learn-card-unpublished > * {
+  opacity: 0.6;
+  border: 2px dashed var(--lufa-semantic-ui-border-default);
+}

@@ -2,22 +2,24 @@
 id: vite-tooling
 order: 1
 difficulty: beginner
-tags: [tooling, Vite, build]
+tags: [tooling]
+publishedAt: 2026-05-22
+updatedAt: 2026-05-30
 ---
 
-You're mid-sprint. You open your terminal, run `npm start`, and then you wait. You go refill your coffee. Forty seconds later, Webpack has finished analyzing the dependency graph and you can finally see the app. You change one component, hit save, and wait again (five seconds this time, which sounds fine until you do it a hundred times a day).
+You're mid-sprint. You open your terminal, run `npm start`, and then you wait. You go refill your coffee. Forty seconds later, the dev server is finally ready. You change one component, hit save, and lose your train of thought while the page catches up.
 
-That pain is what made me permanently switch to Vite.
+That pain is why I'd pick [Vite's guide](https://vite.dev/guide/) for a new React + TypeScript app almost every time. If the phrase "ES modules" sounds abstract, think "the browser's built-in way to load JavaScript files". Vite leans on that during development, then uses Rolldown for production builds.
 
-## Why Vite works the way it does
+## Why it feels fast
 
-The reason Webpack is slow is structural: it bundles everything upfront, before serving a single file. Vite takes the opposite approach. It relies on native ES Modules, which every modern browser can load directly. In dev mode, Vite doesn't bundle anything: it serves files one at a time, on demand, exactly when the browser requests them. That's why the dev server starts in under a second regardless of project size, and why HMR only swaps the exact module that changed instead of triggering a full rebuild.
+Older setups often bundle everything before the browser sees anything. Vite avoids that bottleneck. As the [Features guide](https://vite.dev/guide/features.html) explains, it serves source files on demand, pre-bundles dependencies separately, and updates changed modules without rebuilding the whole app. That is the real win for beginners: less waiting means fewer chances to get lost.
 
-For production, Vite uses Rollup under the hood: tree-shaking, code splitting, minified output. The two modes don't fight each other. Speed while you develop, optimization when you ship.
+## Create the project first
 
-## Create a Vite + React + TypeScript project
+Once you know the tool is solving the waiting problem, the next risk is over-planning. I would not start with custom folders, custom ports, and five plugins. I would start with the official starter project and prove that the basics work first.
 
-Four commands and you're running:
+This is enough to get a React + TypeScript app running:
 
 ```bash
 pnpm create vite my-app --template react-ts
@@ -26,14 +28,14 @@ pnpm install
 pnpm dev
 ```
 
-When the browser hits the dev server for the first time, each import becomes an HTTP request. Vite intercepts, transforms TypeScript and JSX on the fly, and responds. No upfront compilation, no wait.
+## Keep `vite.config.ts` small
 
-## Structure of vite.config.ts
+After the app starts, the usual temptation is to add config because it feels like progress. I think that is where beginners get trapped. A config file is only helpful when it removes a repeated annoyance.
 
-I keep my base config minimal on purpose; Vite's defaults are good, and every option you add is one you have to maintain. Here's what I actually use:
+This is the kind of config I would keep:
 
 ```typescript
-import path from 'node:path';
+import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
@@ -41,61 +43,49 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-  },
-  server: {
-    port: 3000,
-    hmr: true,
   },
 });
 ```
 
-The React plugin gives you Fast Refresh (React's version of HMR that preserves component state between saves). The `@` alias is almost mandatory once the project grows (more on that below). Sourcemaps in the build output are something I always enable; they cost nothing at build time and save a lot of pain when debugging a production error.
+The [resolve.alias option](https://vite.dev/config/shared-options.html#resolve-alias) expects absolute file-system paths, which is why the example resolves `./src` to a full path first. I would leave everything else out until a real need appears. Small config is easier to debug because every line has a job.
 
-## Environment variables
+## Environment variables are intentionally strict
 
-The first time I needed to inject an API URL, I put it in `.env` and tried to read it, and spent twenty minutes wondering why it was `undefined`. Vite has a deliberate rule: **only variables prefixed with `VITE_` are exposed to the client**. Everything else stays server-side, invisible to the browser. I actually like this design; it makes accidental secret leakage harder.
+The next confusing moment usually arrives when `import.meta.env.MY_API_URL` comes back `undefined`. That is not Vite being picky for fun. The [env variables guide](https://vite.dev/guide/env-and-mode.html#env-variables) says only variables prefixed with `VITE_` are exposed to client code, and they arrive as strings.
+
+Put the variable in `.env` like this:
 
 ```bash
-# .env
 VITE_API_URL=https://api.example.com
-SECRET_KEY=do-not-expose          # not exposed to the browser
+SECRET_KEY=do-not-expose
 ```
 
+Then read it in client code like this:
+
 ```typescript
-// Access in client code
 const apiUrl = import.meta.env.VITE_API_URL;
-
-// TypeScript typing
-/// <reference types="vite/client" />
-interface ImportMetaEnv {
-  readonly VITE_API_URL: string;
-}
 ```
 
-## Path aliases
+If you want autocomplete for your own keys, the [TypeScript IntelliSense guide](https://vite.dev/guide/env-and-mode.html#intellisense-for-typescript) shows how to extend `ImportMetaEnv` in a `vite-env.d.ts` file.
 
-`../../../components/ui/Button` is a sign that something has gone wrong. Not technically, but cognitively: deep relative imports make refactoring painful because moving a file means fixing a dozen paths. The `@` alias maps the entire `src/` tree to a single stable root:
+## Vite is fast because it skips one job
 
-```typescript
-// Before
+At this point, one beginner confusion is still left: "If Vite is handling my TypeScript files, why did it miss this type error?" The answer is that the [TypeScript guide](https://vite.dev/guide/features.html#typescript) says Vite transpiles TypeScript but does not type-check it. Transpiling means turning TypeScript into runnable JavaScript. Type-checking means verifying that your types actually line up across files.
 
-// After (with alias "@" → "src/")
-import { Button } from '@/components/ui/Button';
+That separation is a good trade-off. I would keep IDE warnings on and run type checks separately instead of asking the dev server to do two jobs badly.
 
-import { Button } from '../../../components/ui/Button';
-```
+## Path aliases are for humans
 
-You also need to tell TypeScript about it, or you'll get red underlines everywhere despite the code working perfectly at runtime:
+Once the app grows, the next pain is not speed. It is readability. If you keep typing `../../../`, you are spending attention on folder math instead of the feature you meant to build.
+
+After adding the alias in `vite.config.ts`, mirror it in TypeScript so your editor resolves the same imports:
 
 ```json
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
@@ -103,14 +93,4 @@ You also need to tell TypeScript about it, or you'll get red underlines everywhe
 }
 ```
 
-## Compared to Webpack
-
-I'm not going to pretend Webpack is bad: it's powerful, it works, and some projects genuinely need its flexibility. But if you're starting fresh with a standard React + TypeScript setup, there's no reason to reach for it. The concrete differences:
-
-- **Sub-second startup**: no upfront bundling means the server answers immediately
-- **Surgical HMR**: only the changed module is replaced, component state survives
-- **Minimal config**: common setups work out of the box without five config files
-- **Rollup in production**: aggressive tree-shaking, no additional tooling decisions needed
-- **A real plugin ecosystem**: most of Rollup's plugins are already compatible
-
-The one edge case where Webpack still wins: very custom build pipelines, legacy integrations that assume CommonJS everywhere, or older tools that generate Webpack-specific configs. For a greenfield project, those edge cases don't apply.
+If your app is still a normal client-side React + TypeScript project, I would choose Vite first and keep the config boring until a real constraint shows up. When you first need to tune deployment paths or production output, go to the [Build guide](https://vite.dev/guide/build) next and add one option for one reason.
