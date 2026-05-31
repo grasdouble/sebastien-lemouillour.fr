@@ -10,7 +10,6 @@ import io
 import json
 import os
 import tempfile
-import textwrap
 import unittest
 from unittest.mock import patch
 

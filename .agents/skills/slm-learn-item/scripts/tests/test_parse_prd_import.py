@@ -6,11 +6,8 @@ or:
     python3 -m unittest scripts/tests/test_parse_prd_import -v
 """
 import importlib.util
-import json
 import os
 import re
-import sys
-import tempfile
 import textwrap
 import unittest
 

@@ -9,7 +9,6 @@ import importlib.util
 import io
 import json
 import os
-import sys
 import tempfile
 import textwrap
 import unittest
