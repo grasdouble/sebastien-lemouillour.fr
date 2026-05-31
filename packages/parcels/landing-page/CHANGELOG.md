@@ -1,5 +1,13 @@
 # @grasdouble/slm_parcel_landing-page
 
+## 1.2.11
+
+### Patch Changes
+
+- ca929d0: refactor: move CDN-provided deps from dependencies to peerDependencies.
+
+  Packages loaded at runtime via import map (react, react-dom, i18next, react-i18next, i18next-browser-languagedetector, @grasdouble/lufa_design-system, @tanstack/react-router, mermaid) are now declared as peerDependencies, with devDependencies for local dev. Only truly bundled packages (react-markdown, remark-gfm, @grasdouble/slm_shared) remain in dependencies. Vite externalizeDeps config updated accordingly (peerDeps: true, deps: false). Unused clsx dependency removed from all parcels.
+
 ## 1.2.10
 
 ### Patch Changes
