@@ -3,7 +3,7 @@ id: ai-logs
 order: 14
 difficulty: intermediate
 tags: [observability, llm]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

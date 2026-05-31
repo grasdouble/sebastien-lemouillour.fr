@@ -3,7 +3,7 @@ id: context-window
 order: 10
 difficulty: beginner
 tags: [tokens, llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 
@@ -25,4 +25,4 @@ C’est la réponse au problème suivant : « Si tout rentre, pourquoi le modèl
 
 Je choisirais presque toujours un prompt plus court et bien balisé plutôt qu’un énorme collage. Ce n’est pas du minimalisme pour le principe. C’est un choix de fiabilité. Quand la phrase importante est enfouie au milieu d’un contexte long, les modèles peuvent moins bien l’utiliser, et c’est précisément le phénomène étudié dans [Lost in the Middle](https://arxiv.org/abs/2307.03172).
 
-Donc, si un document est long, je ne le collerais pas entier dans le chat sauf si je n’ai vraiment pas mieux. Je garderais la tâche en premier, je citerais exactement le passage décisif, et je couperais tout ce qui ne change pas la réponse. Si vous voulez la suite logique après ça, regardez les tokens, parce qu’une fenêtre de contexte devient beaucoup moins abstraite dès qu’on sait estimer la taille d’un prompt. Ma règle est simple : si la réponse dépend d’un passage précis, rendez ce passage impossible à manquer, et si le prompt poursuit plusieurs objectifs à la fois, découpez-le avant de l’envoyer.
+Donc, si un document est long, je ne le collerais pas entier dans le chat sauf si je n’ai vraiment pas mieux. Je garderais la tâche en premier, je citerais exactement le passage décisif, et je couperais tout ce qui ne change pas la réponse. Si vous voulez la suite logique après ça, lisez le guide sur les embeddings, parce que c'est une autre façon fondamentale dont les modèles représentent le texte, et elle explique beaucoup de comportements qui semblent magiques. Ma règle est simple : si la réponse dépend d’un passage précis, rendez ce passage impossible à manquer, et si le prompt poursuit plusieurs objectifs à la fois, découpez-le avant de l’envoyer.

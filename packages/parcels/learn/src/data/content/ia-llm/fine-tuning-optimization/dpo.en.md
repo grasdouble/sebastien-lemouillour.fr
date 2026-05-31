@@ -3,7 +3,7 @@ id: dpo
 order: 25
 difficulty: advanced
 tags: [fine-tuning]
-publishedAt: 2026-05-15
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

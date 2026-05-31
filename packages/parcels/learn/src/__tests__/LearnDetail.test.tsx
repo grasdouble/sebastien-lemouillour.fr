@@ -36,6 +36,10 @@ vi.mock('@grasdouble/lufa_design-system', async () => {
   };
 });
 
+vi.mock('@grasdouble/slm_shared', () => ({
+  LangSwitcher: () => <div data-testid="lang-switcher" />,
+}));
+
 const baseTutorial: Tutorial = {
   id: 'test-id',
   title: 'Test Tutorial',
@@ -118,5 +122,14 @@ describe('LearnDetail — link rendering', () => {
     const link = screen.getByTestId('ds-link');
     expect(link.getAttribute('target')).toBe('_blank');
     expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+  });
+});
+
+describe('LearnDetail — language switcher', () => {
+  afterEach(cleanup);
+
+  it('renders the LangSwitcher component in the header', () => {
+    render(<LearnDetail tutorial={baseTutorial} onClose={vi.fn()} />);
+    expect(screen.getByTestId('lang-switcher')).toBeTruthy();
   });
 });

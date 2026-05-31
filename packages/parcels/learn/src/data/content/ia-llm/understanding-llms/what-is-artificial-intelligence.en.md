@@ -3,7 +3,7 @@ id: what-is-artificial-intelligence
 order: 1
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 
@@ -15,11 +15,11 @@ The most useful starting point comes from the [OECD](https://oecd.ai/en/ai-princ
 
 I would start with the word **task**. That keeps you grounded. An AI system might sort photos, suggest a song, detect fraud, or answer a question. What it does not tell you, by itself, is whether the system understands anything the way a person does.
 
-### That is why the word feels slippery
+### Why the word AI covers so many things
 
 The name itself goes back to [Dartmouth](https://home.dartmouth.edu/about/artificial-intelligence-ai-coined-dartmouth), where the field was named in 1956 around the idea that parts of intelligence could be described precisely enough for a machine to simulate them. That ambition was huge, so the label stayed huge. Over time, it came to cover many different approaches, from old rule-based systems to modern data-driven models.
 
-This is the first distinction I would protect if you are new: AI does not automatically mean a machine that thinks like a human. In everyday life, you are almost always using specialist systems. They are more like very focused interns than all-purpose geniuses. Useful, sometimes impressive, and absolutely capable of making a weird mistake outside their lane.
+This is the first distinction I would keep in mind if you are new: AI does not automatically mean a machine that thinks like a human. In everyday life, you are almost always using specialist systems. They are more like very focused interns than all-purpose geniuses. Useful, sometimes impressive, and absolutely capable of making a weird mistake outside their domain.
 
 ### So what makes AI different from regular software?
 

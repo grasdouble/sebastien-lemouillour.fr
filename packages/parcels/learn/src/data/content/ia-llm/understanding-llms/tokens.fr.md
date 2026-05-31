@@ -3,7 +3,7 @@ id: tokens
 order: 8
 difficulty: beginner
 tags: [tokens, llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 
@@ -29,4 +29,4 @@ Il y a aussi une limite à garder en tête tôt : une estimation de tokens ne se
 
 Je ne compterais pas les tokens pour chaque petit échange. Cela devient vite du travail inutile. Je les compterais quand l’argent compte, quand le prompt devient long, ou quand je construis un usage que je veux répéter.
 
-Si cela reste abstrait, faites un test concret ensuite : prenez un prompt que vous réutilisez, passez-le dans le tokenizer du modèle que vous utilisez vraiment, puis comparez le résultat à votre intuition. Ensuite, allez voir la notion de fenêtre de contexte, parce que c’est là que les tokens cessent d’être une idée théorique. Ma règle est simple : si un prompt est réutilisé, facturable, ou plus long que quelques paragraphes, comptez avant d’envoyer.
+Si cela reste abstrait, faites un test concret ensuite : prenez un prompt que vous réutilisez, passez-le dans le tokenizer du modèle que vous utilisez vraiment, puis comparez le résultat à votre intuition. Ensuite, lisez le guide sur la tokenisation, parce que c'est là que vous verrez exactement comment ce découpage fonctionne sous le capot. Ma règle est simple : si un prompt est réutilisé, facturable, ou plus long que quelques paragraphes, comptez avant d’envoyer.

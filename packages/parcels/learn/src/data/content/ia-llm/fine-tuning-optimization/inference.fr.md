@@ -3,7 +3,7 @@ id: inference
 order: 10
 difficulty: intermediate
 tags: [production, llm]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

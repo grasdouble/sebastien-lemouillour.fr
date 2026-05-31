@@ -3,7 +3,7 @@ id: metadata
 order: 9
 difficulty: intermediate
 tags: [rag, embeddings]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

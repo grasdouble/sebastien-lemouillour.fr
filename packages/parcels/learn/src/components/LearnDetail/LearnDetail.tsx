@@ -16,6 +16,7 @@ import {
   Stack,
   Text,
 } from '@grasdouble/lufa_design-system';
+import { LangSwitcher } from '@grasdouble/slm_shared';
 
 import type { Tutorial } from '../../data/learn';
 import styles from './LearnDetail.module.css';
@@ -73,16 +74,19 @@ export function LearnDetail({ tutorial, onClose }: LearnDetailProps) {
                   <Text as="h2" id="learn-detail-title" variant="h3" weight="bold" color="primary">
                     {tutorial.title}
                   </Text>
-                  <Button
-                    ref={closeButtonRef}
-                    type="ghost"
-                    variant="neutral"
-                    size="sm"
-                    radius="full"
-                    iconLeft="x"
-                    onClick={onClose}
-                    aria-label={t('detail.close')}
-                  />
+                  <Cluster spacing="tight" align="center">
+                    <LangSwitcher />
+                    <Button
+                      ref={closeButtonRef}
+                      type="ghost"
+                      variant="neutral"
+                      size="sm"
+                      radius="full"
+                      iconLeft="x"
+                      onClick={onClose}
+                      aria-label={t('detail.close')}
+                    />
+                  </Cluster>
                 </Flex>
               </Box>
 

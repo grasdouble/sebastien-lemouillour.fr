@@ -3,7 +3,7 @@ id: ai-engineering
 order: 21
 difficulty: advanced
 tags: [evaluation, observability, llm]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

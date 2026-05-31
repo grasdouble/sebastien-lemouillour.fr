@@ -3,7 +3,7 @@ id: tokens
 order: 8
 difficulty: beginner
 tags: [tokens, llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 
@@ -29,4 +29,4 @@ There is one limitation beginners should hear early: token estimates are not por
 
 I would not count tokens for every casual chat. That turns into busywork. I would count them when money matters, when the prompt is getting long, or when I am building a workflow I plan to repeat.
 
-If that still feels abstract, do one concrete check next: take a prompt you reuse, run it through the tokenizer for the model you actually use, then compare the number with your guess. After that, learn about context windows, because that is where token counts stop feeling theoretical. My rule is simple: if a prompt is reused, billable, or bigger than a few paragraphs, count before you send.
+If that still feels abstract, do one concrete check next: take a prompt you reuse, run it through the tokenizer for the model you actually use, then compare the number with your guess. After that, read the guide on tokenization, because that is where you will see exactly how that split works under the hood. My rule is simple: if a prompt is reused, billable, or bigger than a few paragraphs, count before you send.

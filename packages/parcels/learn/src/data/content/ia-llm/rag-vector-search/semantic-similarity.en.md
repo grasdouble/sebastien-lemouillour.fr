@@ -3,7 +3,7 @@ id: semantic-similarity
 order: 4
 difficulty: beginner
 tags: [rag, embeddings, llm]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

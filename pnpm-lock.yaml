@@ -50,6 +50,9 @@ importers:
       '@grasdouble/lufa_design-system':
         specifier: ^3.4.0
         version: 3.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@grasdouble/slm_shared':
+        specifier: workspace:*
+        version: link:../../shared
       i18next:
         specifier: ^26.3.0
         version: 26.3.0(typescript@6.0.3)
@@ -591,9 +594,15 @@ importers:
 
   packages/shared:
     dependencies:
+      '@grasdouble/lufa_design-system':
+        specifier: ^3.4.0
+        version: 3.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react:
         specifier: ^19.0.0
         version: 19.2.6
+      react-i18next:
+        specifier: ^17.0.8
+        version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
     devDependencies:
       '@grasdouble/lufa_config_eslint':
         specifier: ^0.1.9

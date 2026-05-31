@@ -3,7 +3,7 @@ id: output-validation
 order: 13
 difficulty: intermediate
 tags: [prompting, evaluation, llm]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

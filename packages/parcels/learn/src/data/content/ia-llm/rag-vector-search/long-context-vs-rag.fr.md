@@ -3,7 +3,7 @@ id: long-context-vs-rag
 order: 20
 difficulty: advanced
 tags: [rag]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

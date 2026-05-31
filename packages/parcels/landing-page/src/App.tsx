@@ -15,7 +15,7 @@ import {
   ProjectsSection,
   SectionDivider,
   SkillsSection,
-} from './components/sections';
+} from './components';
 import { SECTION_LABEL_KEY, SECTIONS } from './constants';
 
 function App() {

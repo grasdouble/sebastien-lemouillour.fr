@@ -3,7 +3,7 @@ id: document-cleaning
 order: 13
 difficulty: intermediate
 tags: [rag]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

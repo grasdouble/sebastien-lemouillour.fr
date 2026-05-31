@@ -35,6 +35,8 @@
     "vitest": "^4.1.7"
   },
   "peerDependencies": {
-    "react": "^19.0.0"
+    "@grasdouble/lufa_design-system": "^3.4.0",
+    "react": "^19.0.0",
+    "react-i18next": "^17.0.8"
   }
 }

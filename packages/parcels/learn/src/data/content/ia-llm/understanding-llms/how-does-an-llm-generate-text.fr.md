@@ -3,7 +3,7 @@ id: how-does-an-llm-generate-text
 order: 5
 difficulty: beginner
 tags: [tokens, llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 
@@ -25,4 +25,4 @@ C'est le point que je ferais retenir en premier à un débutant : le modèle opt
 
 Vous pouvez encore vous demander pourquoi le même prompt peut produire des formulations différentes. Pendant la génération, le système peut prendre le token le plus probable ou échantillonner parmi plusieurs candidats, et le [guide de génération](https://huggingface.co/docs/transformers/main/en/generation_strategies) montre ces choix en pratique. Un réglage important est la **température**, c'est-à-dire le paramètre qui rend cet échantillonnage plus prudent ou plus audacieux : une température basse est plus stable, une température haute est plus risquée. Pour un usage débutant, je choisirais une température basse dès que l'exactitude compte plus que le style.
 
-Si vous voulez une suite utile, lisez ensuite le guide sur la température. Ma règle est simple : quand une question devrait avoir une seule bonne réponse, traitez le modèle comme une machine à brouillon et vérifiez l'affirmation vous-même.
+Si vous voulez une suite utile, lisez ensuite le guide sur les différents types de modèles IA. Ma règle est simple : quand une question devrait avoir une seule bonne réponse, traitez le modèle comme une machine à brouillon et vérifiez l'affirmation vous-même.

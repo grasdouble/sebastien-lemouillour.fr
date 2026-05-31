@@ -3,7 +3,7 @@ id: agentic-rag
 order: 19
 difficulty: advanced
 tags: [rag, agents]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

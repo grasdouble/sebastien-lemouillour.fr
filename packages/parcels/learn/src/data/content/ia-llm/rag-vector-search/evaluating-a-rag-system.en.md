@@ -3,7 +3,7 @@ id: evaluating-a-rag-system
 order: 24
 difficulty: advanced
 tags: [rag, evaluation, observability]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

@@ -3,7 +3,7 @@ id: what-is-an-llm
 order: 4
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 
@@ -25,12 +25,6 @@ This is the part beginners often underestimate. By getting very good at next-tok
 
 The Transformer architecture matters because it helps the model use context instead of treating each word in isolation. My preferred mental model is not "tiny person in a box" or "search engine with opinions." It is "extremely powerful autocomplete." That comparison is useful because it explains both the impressive part and the dangerous part.
 
-### Why it can sound sure and still be wrong
-
-Once you see the autocomplete idea, the next problem makes sense. The model is trained to produce a plausible continuation, not to pause and verify a claim against the outside world. Most chat systems are also tuned after pre-training so they follow instructions better, often with human-feedback methods like the one described in [InstructGPT](https://arxiv.org/abs/2203.02155). That makes them more helpful, but it does not turn them into truth machines.
-
-This is why I would use an LLM confidently for drafting, summarizing, translating, or reorganizing text, and cautiously for medicine, law, finance, or anything that depends on fresh facts. Fluency is real skill. Fluency is not evidence.
-
 ### The rule I would use
 
-If your task is mostly about shaping language, start with an LLM. If your task is mostly about verified facts, recent events, or high-stakes decisions, treat the LLM as a first draft and bring in a trusted source before you believe it. Then read the next guide on token-by-token generation, because that is the point where these systems stop feeling mystical and start feeling predictable.
+If your task is mostly about shaping language, start with an LLM. If your task is mostly about verified facts, recent events, or high-stakes decisions, treat the LLM as a first draft and bring in a trusted source before you believe it. The reason is simple: the model is trained to produce a plausible continuation, not to verify facts. The next guide on token-by-token generation explains that mechanism and shows why these systems stop feeling mystical once you have seen it.

@@ -3,7 +3,7 @@ id: tokenization
 order: 9
 difficulty: beginner
 tags: [tokens, llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

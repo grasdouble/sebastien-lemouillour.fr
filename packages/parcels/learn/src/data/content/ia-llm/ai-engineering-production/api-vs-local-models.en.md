@@ -3,7 +3,7 @@ id: api-vs-local-models
 order: 1
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

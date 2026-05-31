@@ -3,7 +3,7 @@ id: llm-limitations
 order: 14
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 
@@ -27,4 +27,4 @@ C’est le dernier choc classique quand on débute : on pose presque deux fois l
 
 ## Ce que je choisirais en pratique
 
-J’utiliserais un LLM comme moteur de premier brouillon et comme explicateur patient. Je ne l’utiliserais pas seul pour des faits à fort enjeu. Si vous voulez la suite logique après ça, lisez le guide sur les hallucinations, parce que c’est là que cette limite devient une vraie habitude de vérification. Ma règle est simple : si le prix d’une erreur, c’est de la confiance, de l’argent ou de la sécurité, le modèle ne devrait pas travailler sans source, sans outil ou sans relecture humaine.
+J’utiliserais un LLM comme moteur de premier brouillon et comme explicateur patient. Je ne l’utiliserais pas seul pour des faits à fort enjeu. Si vous voulez la suite logique après ça, lisez le guide sur l'évaluation des réponses IA, parce que c'est là que ces limites deviennent un vrai cadre de vérification. Ma règle est simple : si le prix d’une erreur, c’est de la confiance, de l’argent ou de la sécurité, le modèle ne devrait pas travailler sans source, sans outil ou sans relecture humaine.

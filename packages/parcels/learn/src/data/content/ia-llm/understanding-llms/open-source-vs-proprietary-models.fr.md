@@ -3,7 +3,7 @@ id: open-source-vs-proprietary-models
 order: 7
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 

@@ -3,7 +3,7 @@ id: pre-training
 order: 18
 difficulty: intermediate
 tags: [fine-tuning, llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

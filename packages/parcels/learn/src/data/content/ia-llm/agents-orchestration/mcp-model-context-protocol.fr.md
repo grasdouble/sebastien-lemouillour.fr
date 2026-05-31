@@ -3,7 +3,7 @@ id: mcp-model-context-protocol
 order: 23
 difficulty: advanced
 tags: [security, tools]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

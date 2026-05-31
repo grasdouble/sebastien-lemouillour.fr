@@ -3,7 +3,7 @@ id: what-is-artificial-intelligence
 order: 1
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 
@@ -11,15 +11,15 @@ Un chatbot rédige un e-mail correct, votre téléphone se déverrouille avec vo
 
 ### L'IA est une étiquette, pas une explication
 
-Le point de départ le plus utile vient de l'[OCDE](https://oecd.ai/en/ai-principles) : un système d'IA est un système basé sur une machine qui déduit comment produire des sorties comme des prédictions, du contenu, des recommandations ou des décisions à partir des données qu'il reçoit. Dit comme ça, c'est formel, mais l'idée pratique est simple. L'IA n'est pas une machine magique unique. C'est une famille de méthodes utilisées pour réaliser des tâches qui ont, vues de l'extérieur, un petit air humain.
+Le point de départ le plus utile vient de l'[OECD](https://oecd.ai/en/ai-principles) : un système d'IA est un système basé sur une machine qui déduit comment produire des sorties comme des prédictions, du contenu, des recommandations ou des décisions à partir des données qu'il reçoit. Dit comme ça, c'est formel, mais l'idée pratique est simple. L'IA n'est pas une machine magique unique. C'est une famille de méthodes utilisées pour réaliser des tâches qui ont, vues de l'extérieur, un petit air humain.
 
 Je commencerais par le mot **tâche**. C'est lui qui vous garde sur terre. Un système d'IA peut trier des photos, suggérer une chanson, détecter une fraude ou répondre à une question. En revanche, ce mot ne vous dit pas, à lui seul, si le système comprend quoi que ce soit comme une personne.
 
-### Voilà pourquoi le mot glisse si facilement
+### Pourquoi le mot IA recouvre tant de choses
 
 Le nom lui-même remonte à [Dartmouth](https://home.dartmouth.edu/about/artificial-intelligence-ai-coined-dartmouth), où le champ a été nommé en 1956 autour de l'idée que certaines parties de l'intelligence pouvaient être décrites assez précisément pour qu'une machine les simule. Cette ambition était immense, donc l'étiquette est restée immense. Avec le temps, elle a fini par couvrir des approches très différentes, depuis les systèmes à règles jusqu'aux modèles modernes entraînés sur des données.
 
-C'est la première distinction que je protégerais si vous débutez : IA ne veut pas automatiquement dire machine qui pense comme un humain. Dans la vie courante, vous utilisez presque toujours des systèmes spécialisés. Ils ressemblent plus à des stagiaires très concentrés qu'à des génies universels. Utiles, parfois impressionnants, et tout à fait capables de produire une erreur étrange dès qu'ils sortent de leur couloir.
+C'est la première distinction que je garderais en tête si vous débutez : IA ne veut pas automatiquement dire machine qui pense comme un humain. Dans la vie courante, vous utilisez presque toujours des systèmes spécialisés. Ils ressemblent plus à des stagiaires très concentrés qu'à des génies universels. Utiles, parfois impressionnants, et tout à fait capables de produire une erreur étrange dès qu'ils sortent de leur domaine.
 
 ### Alors, qu'est-ce qui change par rapport à un logiciel classique ?
 

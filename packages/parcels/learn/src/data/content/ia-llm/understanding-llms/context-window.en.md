@@ -3,7 +3,7 @@ id: context-window
 order: 10
 difficulty: beginner
 tags: [tokens, llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 
@@ -25,4 +25,4 @@ This answers the next frustration people hit: “If the text fits, why did the m
 
 I would choose a smaller, labeled prompt over a giant paste almost every time. That is not minimalism for its own sake. It is a reliability choice. When the important sentence is buried in the middle of a long context, models can underuse it, which is exactly the pattern studied in [Lost in the Middle](https://arxiv.org/abs/2307.03172).
 
-So if a document is long, I would not drop the whole thing into the chat unless I had no better option. I would keep the task first, quote the exact passage that matters, and trim everything that does not change the answer. If you want the next concept after this, learn tokens next, because context windows stop feeling abstract once you can estimate prompt size. My rule is simple: if the answer depends on one passage, make that passage obvious, and if the prompt contains several goals at once, split it before you send it.
+So if a document is long, I would not drop the whole thing into the chat unless I had no better option. I would keep the task first, quote the exact passage that matters, and trim everything that does not change the answer. If you want the next concept after this, read the guide on embeddings, because that is another fundamental way models represent text, and it explains a lot of behavior that otherwise feels like magic. My rule is simple: if the answer depends on one passage, make that passage obvious, and if the prompt contains several goals at once, split it before you send it.

@@ -3,7 +3,7 @@ id: agent-memory
 order: 18
 difficulty: advanced
 tags: [agents, memory, llm]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

@@ -3,7 +3,7 @@ id: reasoning-in-llms
 order: 19
 difficulty: intermediate
 tags: [reasoning, llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

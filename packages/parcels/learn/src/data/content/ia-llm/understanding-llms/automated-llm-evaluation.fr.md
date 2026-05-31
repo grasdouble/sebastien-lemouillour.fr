@@ -3,7 +3,7 @@ id: automated-llm-evaluation
 order: 28
 difficulty: advanced
 tags: [evaluation, llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 

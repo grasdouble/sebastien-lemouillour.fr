@@ -3,7 +3,7 @@ id: how-does-an-llm-generate-text
 order: 5
 difficulty: beginner
 tags: [tokens, llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 
@@ -25,4 +25,4 @@ This is the point I think beginners should memorize: the model is optimizing for
 
 You might still wonder why the same prompt can produce different wording. During generation, the system can either take the top token or sample from several candidates, and the [generation guide](https://huggingface.co/docs/transformers/main/en/generation_strategies) walks through those choices. One important setting is **temperature**, which controls how adventurous that sampling becomes: lower temperature is steadier, higher temperature is riskier. For beginner use, I would keep temperature low whenever accuracy matters more than style.
 
-If you want a practical next step, read the guide on temperature after this one. My rule is simple: when a question should have one correct answer, treat the model like a rough-draft machine and verify the claim yourself.
+If you want a practical next step, read the guide on the different types of AI models after this one. My rule is simple: when a question should have one correct answer, treat the model like a rough-draft machine and verify the claim yourself.

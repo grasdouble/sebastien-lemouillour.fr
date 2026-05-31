@@ -3,7 +3,7 @@ id: what-is-an-llm
 order: 4
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-05-31
 updatedAt: 2026-05-31
 ---
 
@@ -25,12 +25,6 @@ C'est le point que les débutants sous-estiment souvent. En devenant très bon �
 
 L'architecture Transformer compte parce qu'elle aide le modèle à utiliser le contexte au lieu de traiter chaque mot séparément. Le modèle mental que je préfère n'est ni « une petite personne dans une boîte » ni « un moteur de recherche avec des opinions ». C'est « une autocomplétion extrêmement puissante ». Cette comparaison est utile parce qu'elle explique à la fois la partie impressionnante et la partie risquée.
 
-### Pourquoi il peut avoir l'air sûr de lui et se tromper
-
-Une fois cette idée d'autocomplétion en tête, le problème suivant devient plus clair. Le modèle est entraîné à produire une suite plausible, pas à s'arrêter pour vérifier une affirmation dans le monde réel. La plupart des systèmes de chat sont aussi ajustés après le pré-entraînement pour mieux suivre les consignes, souvent avec des méthodes de retour humain comme celle décrite dans [InstructGPT](https://arxiv.org/abs/2203.02155). Cela les rend plus utiles, mais pas plus proches d'une machine à vérité.
-
-C'est pour cela que j'utiliserais un LLM avec confiance pour rédiger, résumer, traduire ou réorganiser du texte, et avec prudence pour la médecine, le droit, la finance ou tout sujet qui dépend de faits récents. La fluidité est une vraie compétence. Ce n'est pas une preuve.
-
 ### La règle que j'utiliserais
 
-Si votre tâche consiste surtout à façonner du langage, commencez par un LLM. Si elle repose surtout sur des faits vérifiés, des événements récents ou des décisions à fort enjeu, traitez le LLM comme un premier brouillon et allez chercher une source fiable avant d'y croire. Ensuite, lisez le guide suivant sur la génération token par token, parce que c'est à ce moment-là que ces systèmes cessent d'avoir l'air mystiques et deviennent plus prévisibles.
+Si votre tâche consiste surtout à façonner du langage, commencez par un LLM. Si elle repose surtout sur des faits vérifiés, des événements récents ou des décisions à fort enjeu, traitez le LLM comme un premier brouillon et allez chercher une source fiable avant d'y croire. La raison est simple : le modèle est entraîné à produire une suite plausible, pas à vérifier des faits. Le guide suivant sur la génération token par token détaille ce mécanisme et explique pourquoi ces systèmes cessent d'avoir l'air mystiques une fois qu'on l'a vu.

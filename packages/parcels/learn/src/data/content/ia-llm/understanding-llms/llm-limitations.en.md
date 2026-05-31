@@ -3,7 +3,7 @@ id: llm-limitations
 order: 14
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-05-15
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 
@@ -27,4 +27,4 @@ That leads to the last beginner shock: you ask twice and get two noticeably diff
 
 ## What I would choose in practice
 
-I would use an LLM as a fast first-draft engine and a patient explainer. I would not use it alone for high-stakes facts. If you want the next concept after this, read hallucinations next, because that is where this limitation turns into a concrete checking habit. My rule is simple: if being wrong would cost trust, money, or safety, the model should not be working without a source, a tool, or a human review.
+I would use an LLM as a fast first-draft engine and a patient explainer. I would not use it alone for high-stakes facts. If you want the next concept after this, read the guide on evaluating AI responses, because that is where these limitations turn into a concrete checking framework. My rule is simple: if being wrong would cost trust, money, or safety, the model should not be working without a source, a tool, or a human review.

@@ -3,7 +3,7 @@ id: autonomous-agents
 order: 20
 difficulty: advanced
 tags: [agents, observability]
-publishedAt: 2026-05-31
+publishedAt: 2026-12-31
 updatedAt: 2026-05-31
 ---
 
