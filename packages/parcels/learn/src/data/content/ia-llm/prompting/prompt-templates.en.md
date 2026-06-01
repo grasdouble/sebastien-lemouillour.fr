@@ -3,8 +3,8 @@ id: prompt-templates
 order: 10
 difficulty: intermediate
 tags: [prompting, llm]
-publishedAt: 2026-06-01
-updatedAt: 2026-06-01
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
 You usually notice you need prompt templates the day one copied prompt starts disagreeing with another, and nobody can tell which version is real anymore.

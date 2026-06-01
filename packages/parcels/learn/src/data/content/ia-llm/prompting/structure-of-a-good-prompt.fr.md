@@ -3,8 +3,8 @@ id: structure-of-a-good-prompt
 order: 2
 difficulty: beginner
 tags: [prompting, tokens, llm]
-publishedAt: 2026-06-01
-updatedAt: 2026-06-01
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
 La boîte vide du chat est trompeuse. Elle vous pousse à écrire un paragraphe flou, puis le modèle, c'est-à-dire l'IA qui répond, traite surtout la version qu'il a devinée au lieu de celle que vous aviez en tête.

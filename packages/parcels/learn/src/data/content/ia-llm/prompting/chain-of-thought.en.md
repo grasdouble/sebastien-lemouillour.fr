@@ -3,8 +3,8 @@ id: chain-of-thought
 order: 7
 difficulty: intermediate
 tags: [prompting, reasoning, llm]
-publishedAt: 2026-06-10
-updatedAt: 2026-06-10
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
 Your prompt looks solid until one exception and two totals land in the same input. Then the model jumps to a verdict, skips the arithmetic, and hands you a polished wrong answer.

@@ -3,8 +3,8 @@ id: prompt-templates
 order: 10
 difficulty: intermediate
 tags: [prompting, llm]
-publishedAt: 2026-06-01
-updatedAt: 2026-06-01
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
 On remarque souvent qu’il faut des templates de prompts le jour où deux copies du même prompt commencent à répondre différemment, sans que personne sache laquelle fait foi.

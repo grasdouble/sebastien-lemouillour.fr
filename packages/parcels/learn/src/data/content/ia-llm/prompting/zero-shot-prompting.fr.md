@@ -3,8 +3,8 @@ id: zero-shot-prompting
 order: 4
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-01
-updatedAt: 2026-06-01
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
 Vous demandez un label court, et le modèle vous renvoie un mini essai avec des opinions que vous n'avez jamais demandées. Ce genre d'écart est courant quand on débute, et le zero-shot prompting est le premier correctif que j'essaierais.

@@ -3,8 +3,8 @@ id: few-shot-prompting
 order: 6
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-01
-updatedAt: 2026-06-01
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
 You wrote one clean example, and the model still gets the neighboring cases wrong. That is usually the moment to stop polishing the wording and start teaching by example.

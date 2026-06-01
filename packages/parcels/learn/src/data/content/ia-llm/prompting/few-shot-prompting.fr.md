@@ -3,8 +3,8 @@ id: few-shot-prompting
 order: 6
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-01
-updatedAt: 2026-06-01
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
 Vous avez écrit un exemple propre, et le modèle se trompe encore sur les cas voisins. C'est souvent le moment d'arrêter de polir la formulation et de commencer à enseigner par l'exemple.

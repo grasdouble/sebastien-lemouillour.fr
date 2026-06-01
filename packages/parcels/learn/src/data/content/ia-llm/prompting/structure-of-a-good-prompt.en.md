@@ -3,8 +3,8 @@ id: structure-of-a-good-prompt
 order: 2
 difficulty: beginner
 tags: [prompting, tokens, llm]
-publishedAt: 2026-06-01
-updatedAt: 2026-06-01
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
 The blank chat box is sneaky. It invites you to type one fuzzy paragraph, then the model, meaning the AI system answering you, replies to the version it guessed instead of the one you meant.

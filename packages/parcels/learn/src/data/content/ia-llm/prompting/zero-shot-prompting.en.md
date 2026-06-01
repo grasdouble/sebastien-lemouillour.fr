@@ -3,8 +3,8 @@ id: zero-shot-prompting
 order: 4
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-01
-updatedAt: 2026-06-01
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
 You ask for a short label, and the model sends back a tiny essay with opinions you never requested. That kind of wobble is common when you are starting out, and zero-shot prompting is the first fix I would try.
