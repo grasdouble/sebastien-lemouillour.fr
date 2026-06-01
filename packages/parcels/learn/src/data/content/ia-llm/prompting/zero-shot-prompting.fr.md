@@ -3,25 +3,25 @@ id: zero-shot-prompting
 order: 4
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-Parfois, vous avez juste besoin que le modèle arrête de faire le malin et fasse le boulot. Pas de dataset, pas d'exemples bien propres, pas une après-midi entière à peaufiner le prompt. Le zero-shot, c'est le premier réflexe que j'aurais.
+Vous demandez un label court, et le modèle vous renvoie un mini essai avec des opinions que vous n'avez jamais demandées. Ce genre d'écart est courant quand on débute, et le zero-shot prompting est le premier correctif que j'essaierais.
 
-Le **zero-shot prompting**, c'est tout simplement demander au modèle d'exécuter une tâche à partir des seules instructions, sans mettre d'exemple résolu dans le prompt, ce que présente très clairement le [guide Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies). Si vous débutez, c'est souvent le choix le moins pénible pour commencer.
+Le **zero-shot prompting** consiste à demander à un modèle d'accomplir une tâche avec des instructions seules, sans exemple résolu dans le prompt, ce qui correspond à la présentation de [Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies). Quand on débute, c'est souvent le point de départ le plus calme, parce qu'on voit mieux ce que l'instruction fait réellement.
 
 ### Pourquoi le zero-shot est le point de départ
 
-Pour des tâches courantes comme résumer, extraire des champs, réécrire un ton ou classer un sentiment évident, une instruction claire va déjà étonnamment loin. Ce n'est pas juste une impression : OpenAI explique noir sur blanc dans son [guide OpenAI](https://developers.openai.com/api/docs/guides/prompt-engineering) que les modèles GPT profitent d'instructions plus explicites sur la manière d'accomplir une tâche.
+Pour des tâches courantes comme résumer, extraire des champs, réécrire un ton ou classer un sentiment évident, une instruction claire suffit souvent déjà. [OpenAI](https://developers.openai.com/api/docs/guides/prompt-engineering) explique que les modèles GPT profitent d'instructions explicites sur la manière d'accomplir une tâche, donc je préfère travailler d'abord la clarté avant de collectionner des exemples.
 
-Le piège, c'est que zero-shot ne veut **pas** dire zéro contexte. Anthropic recommande de définir les critères de réussite avant de commencer à bricoler les prompts dans sa [vue d'ensemble Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview), et ce conseil compte énormément ici. Si vous oubliez le public, la contrainte ou le format de sortie, le modèle improvisera. Parfois c'est utile. Parfois c'est juste du chaos avec une cravate.
+Le piège est simple : zero-shot ne veut **pas** dire zéro contexte. La [vue d'ensemble Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) recommande de définir les critères de réussite avant d'ajuster les prompts, et ce conseil évite beaucoup de frustration aux débutants. Si vous ne dites pas pour qui la réponse est écrite, quoi inclure et quelle forme la sortie doit prendre, le modèle remplit les blancs tout seul.
 
 ### À quoi ressemble un bon prompt zero-shot
 
-J'aime le zero-shot parce qu'il reste lisible. Vous pouvez montrer le prompt à un collègue et il ressemble encore à une consigne normale, pas à une formule magique déterrée d'un forum en 2023.
+Un **label**, c'est simplement le nom court de la catégorie attendue, comme `positif` ou `négatif`. J'aime le zero-shot parce qu'il reste lisible. Vous pouvez le montrer à un collègue et reconnaître encore une consigne normale, pas un tas d'astuces de prompting.
 
-Voici le genre de prompt que j'enverrais en premier.
+Avant que le modèle respecte un format, il faut nommer ce format avec des mots simples.
 
 ```text
 Classe le sentiment de ce message client comme positif, neutre ou négatif.
@@ -31,10 +31,10 @@ Message :
 "Le nouveau dashboard est plus simple à utiliser, mais les exports échouent encore une fois sur deux."
 ```
 
-Cela fonctionne parce que la tâche est étroite, les labels autorisés sont explicites et le format de sortie est contraint. Les [bonnes pratiques Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices) disent la même chose de façon plus sage : la clarté et des consignes de sortie concrètes font déjà une grosse partie du travail avant même d'ajouter des exemples.
+Cela fonctionne parce que la tâche est étroite, les labels autorisés sont explicites et le format de sortie est contraint. Les [pratiques Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices) recommandent d'être clair et de préciser le format attendu, et ce prompt le fait exactement.
 
 ### Quand le zero-shot commence à vaciller
 
-Le zero-shot devient fragile quand la tâche dépend d'un style subtil, de labels maison, de cas limites pénibles ou de règles qui n'ont de sens que dans votre équipe. « Classe ce ticket en P1, P2 ou P3 » a l'air simple jusqu'au moment où vous découvrez que chaque entreprise a inventé sa propre religion autour des niveaux de priorité.
+Le zero-shot devient fragile quand la tâche dépend d'un style subtil, de labels maison ou de cas limites, c'est-à-dire des cas gênants qui tombent près de la frontière entre deux réponses. « Classe ce ticket en P1, P2 ou P3 » a l'air simple jusqu'au moment où vous remarquez que chaque équipe définit ces labels un peu à sa façon.
 
-Ma règle est simple : commencez en zero-shot pour les tâches courantes, puis passez en few-shot dès que vous avez des labels maison, un ton maison, ou que le modèle rate deux fois le même cas limite. C'est généralement le moment où garder un prompt court cesse d'être une bonne idée.
+J'ai une position très nette là-dessus : n'étirez pas le zero-shot quand il commence à rater le même motif. Et ensuite : passez au one-shot prompting si un seul exemple propre suffirait à fixer le format, puis au few-shot prompting, où l'on fournit quelques exemples, si le modèle rate deux fois le même type de cas limite.

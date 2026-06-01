@@ -176,7 +176,9 @@ function AppContent() {
   return (
     <Box id="lufa-learn" className={styles['lufa-learn']}>
       <Container as="main" size="lg" paddingBlock="spacious">
-        {activeCatalog ? (
+        {activeGuide ? (
+          <LearnDetail tutorial={activeGuide} onBack={closeGuide} />
+        ) : activeCatalog ? (
           <CatalogDetail catalog={activeCatalog} guides={catalogGuides} onBack={closeCatalog} onOpenGuide={openGuide} />
         ) : (
           <Stack direction="vertical" spacing="comfortable">
@@ -311,8 +313,6 @@ function AppContent() {
           </Stack>
         )}
       </Container>
-
-      {activeGuide && <LearnDetail tutorial={activeGuide} onClose={closeGuide} />}
     </Box>
   );
 }

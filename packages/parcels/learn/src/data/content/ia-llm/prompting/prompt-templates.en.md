@@ -3,46 +3,51 @@ id: prompt-templates
 order: 10
 difficulty: intermediate
 tags: [prompting, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-The first version of a prompt lives in one file. Two weeks later it exists in five places, each with one tiny tweak, and nobody knows which copy is responsible for the regression. That is not prompting anymore, that is configuration drift wearing a fake moustache.
+You usually notice you need prompt templates the day one copied prompt starts disagreeing with another, and nobody can tell which version is real anymore.
 
-Prompt templates fix that, but only if you treat them as reusable assets, not as a place to hide application logic. Jinja’s [template docs](https://jinja.palletsprojects.com/en/stable/templates/) give you variables, conditionals, includes, and proper rendering mechanics, which is enough for most LLM workloads. OpenAI’s [prompting guide](https://developers.openai.com/api/docs/guides/prompting) and Anthropic’s [prompt engineering overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) push the same operational habit: iterate on prompts deliberately instead of treating them like magic spells.
+That is the moment to stop editing raw strings in three places and pick one source of truth. OpenAI’s [prompting guide](https://developers.openai.com/api/docs/guides/prompting) exposes provider-managed prompts with variables and versions, Anthropic’s [prompting tools](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompting-tools) describe the same split between fixed instructions and runtime variables, and Anthropic’s [overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) explicitly starts from success criteria and evals. My stance is simple: use provider-native prompt management when it fits your workflow, then fall back to file-based templates when you need local review, composition, or cross-provider reuse.
 
-What most tutorials miss is the failure mode. Once prompts become templates, developers start sneaking business rules into them. A bit of conditional logic becomes a nested maze, and suddenly the prompt layer is making product decisions that your tests do not even cover. I prefer a boring rule: code decides, templates phrase.
+Once the structure is centralized, the next risk is putting decision logic in the template itself. Jinja’s [template docs](https://jinja.palletsprojects.com/en/stable/templates/) support variables, conditionals, loops, includes, and inheritance, which is enough to phrase a task clearly without turning the template into a second application. Keep the rule boring: code decides, templates phrase.
 
-I also keep user input in clearly delimited variables. OpenAI’s [prompt injection write-up](https://openai.com/index/prompt-injections/) is a good reminder that separation helps with accidental collisions and audits, but it does not make hostile input safe by itself.
+The other trap is security theater. OpenAI’s [safety guide](https://platform.openai.com/docs/guides/safety-best-practices) recommends constraining untrusted input, red-teaming for prompt injection, and keeping a human in the loop for sensitive flows. Delimiters and template variables help you separate instructions from user data, but they do not neutralize hostile text by themselves.
 
-When I review a reusable template, I want to see the moving parts immediately:
+When I review a reusable template, I want to spot the moving parts immediately:
 
-| Template Part | Purpose                                                    | Example                                        |
-| ------------- | ---------------------------------------------------------- | ---------------------------------------------- |
-| Role          | Tell the model who it is supposed to be for this task      | `You are a support analyst`                    |
-| Context       | Inject the facts, inputs, or source material it needs      | `Product: Acme Support; Plan: Pro`             |
-| Task          | State the exact job to perform                             | `Classify the ticket and draft a reply`        |
-| Constraints   | Narrow the behavior so the model does not improvise policy | `Do not offer refunds outside the allowlist`   |
-| Output format | Make the response shape machine- or reviewer-friendly      | `Return valid JSON with keys: category, reply` |
-| Examples      | Show the pattern when wording or structure matters         | `Input: billing issue -> Output: {...}`        |
+| Template part | Purpose                                                | Example                                        |
+| ------------- | ------------------------------------------------------ | ---------------------------------------------- |
+| Role          | Tell the model who it should be for this task          | `You are a support analyst`                    |
+| Context       | Inject the facts, inputs, or source material it needs  | `Product: Acme Support; Plan: Pro`             |
+| Task          | State the exact job to perform                         | `Classify the ticket and draft a reply`        |
+| Constraints   | Narrow behavior so the model does not improvise policy | `Do not offer refunds outside the allowlist`   |
+| Output format | Make the response shape machine- or reviewer-friendly  | `Return valid JSON with keys: category, reply` |
+| Examples      | Show the pattern when wording or structure matters     | `Input: billing issue -> Output: {...}`        |
 
-This is the kind of template setup I actually like:
+Before rendering anything from disk, set up the loader once and comment the runtime variables so another reviewer can see what may change per request:
 
 ```py
 from jinja2 import Environment, FileSystemLoader
 
-env = Environment(loader=FileSystemLoader("prompts"))
+env = Environment(
+    loader=FileSystemLoader("prompts"),  # folder that stores reusable prompt files
+)
+
 template = env.get_template("support_reply.j2")
 
 prompt = template.render(
-    product_name="Acme Support",
-    allowed_actions=["refund", "replace", "escalate"],
-    user_message=user_message,
-    tone="concise and warm",
+    product_name="Acme Support",  # fixed product label shown to the model
+    allowed_actions=["refund", "replace", "escalate"],  # policy decisions computed in code
+    user_message=user_message,  # untrusted user input passed as data, not concatenated text
+    tone="concise and warm",  # style variable that can be tested safely
 )
 ```
 
-And when the template grows, I like the assembly order to stay boring and reusable:
+If you need application-level loading rules, Jinja’s [API docs](https://jinja.palletsprojects.com/en/stable/api/#jinja2.Environment) are the place to check how `Environment`, loaders, and `render()` behave. One detail matters here: explicit configuration is safer than relying on defaults when the rendered output later feeds another system.
+
+When the template grows, I still want the assembly order to stay boring enough that a diff tells me what changed:
 
 ```mermaid
 flowchart LR
@@ -54,8 +59,6 @@ flowchart LR
   F --> G["Final prompt"]
 ```
 
-The template itself should stay readable enough that a reviewer can spot a risky change in one diff. If I need loops, conditionals, and includes, fine. If I need comments to explain what the template is thinking, I have already pushed too much logic into the wrong layer.
+Shared templates also make cost drift easier to spot. If one reusable prompt gains fifty tokens, you can measure that once at the shared boundary instead of discovering the same bloat after it has spread across six call sites.
 
-Templates also help with cost control because they reduce accidental prompt sprawl. A reused system prompt that grows by fifty tokens in one place is manageable. The same drift copied across six services becomes a slow tax you keep paying forever.
-
-My threshold is pretty strict. Use templates when the same prompt structure appears in more than one code path, or when non-engineers need to review wording safely. If your template starts looking like a tiny programming language, stop being proud of it and move the logic back into code.
+Use a template when the wording repeats across flows, when non-engineers need to review phrasing, or when you want one place to test variable substitutions. Stop and move logic back into code when you need nested business rules, API branching, or policy decisions inside the template.

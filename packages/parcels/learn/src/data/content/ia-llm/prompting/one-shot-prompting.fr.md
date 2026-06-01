@@ -3,25 +3,23 @@ id: one-shot-prompting
 order: 5
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
-Vous faites marcher votre premier appel LLM, puis une réponse revient avec une phrase en trop, un label bizarre ou un ton que vous n'avez jamais demandé, et votre petit parseur bien propre se met soudain à transpirer. C'est là que je sors le one-shot prompting.
+Vous demandez à un LLM, c'est-à-dire un grand modèle de langage, de renvoyer un seul label propre, et il ajoute quand même une phrase inutile. Ce raté est très courant, donc si vous bloquez ici, vous n'êtes pas en train de mal faire les choses.
 
-Le **one-shot prompting** consiste à donner au modèle un exemple du type d'entrée et de sortie attendu avant de lui soumettre un nouveau cas. Les guides officiels de [Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies), [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering) et [Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) présentent tous les exemples comme un moyen très concret de verrouiller le format de sortie et le comportement quand les instructions seules restent trop floues.
+Le **one-shot prompting** consiste à mettre un exemple déjà résolu dans le prompt avant la vraie demande. Les guides de [Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies), [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering) et [Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) présentent tous les exemples comme un moyen concret d'orienter le format et le comportement du modèle quand les instructions seules restent trop floues.
 
-### Pourquoi un seul exemple aide autant
+### Pourquoi un seul exemple aide
 
-Un exemple unique fait quelque chose que les instructions font mal : il montre le goût attendu. « Sois concis » reste vague. « Réponds comme ceci » devient concret. Le one-shot est donc particulièrement utile pour le ton, le format, les labels, et toutes les tâches où le modèle choisit le mauvais motif alors qu'il a pourtant compris le sujet.
+Un exemple résolu, c'est un peu comme une fiche déjà remplie que l'on montre avant de tendre la fiche vide. « Sois concis » reste abstrait. « Réponds comme ceci » devient concret. J'utilise le one-shot quand le modèle a déjà compris la tâche, mais rate encore le format, le style de label ou le ton.
 
-Je le sors quand le zero-shot est proche mais glissant. Si le zero-shot échoue complètement, un seul exemple ne suffira peut-être pas. S'il est déjà à 85 %, le one-shot peut donner l'impression de tricher un peu.
+Cette limite compte. Le one-shot donne une impulsion, ce n'est pas un plan de sauvetage. Si la tâche elle-même est vague, ou si vos labels se recouvrent, un seul exemple ne corrigera pas la règle de fond. Dans le vocabulaire du prompting, le **zero-shot** consiste à donner seulement des instructions, sans exemple. Si le zero-shot est déjà proche du bon résultat, le one-shot est souvent l'amélioration la plus légère et la plus utile.
 
-### À quoi ça ressemble en pratique
+### À quoi ressemble un prompt one-shot pour débuter
 
-L'exemple doit être court, propre et représentatif. Il n'est pas là pour impressionner le modèle. Il est là pour ancrer le motif.
-
-C'est typiquement le genre de prompt que j'utiliserais.
+Imaginez que vous vouliez ranger des messages de support dans trois cases : **Bug** pour un défaut, **Billing** pour un problème de paiement, et **Feature Request** pour une capacité demandée. Voici un prompt qui montre clairement ce motif.
 
 ```text
 Classe chaque message de support comme Bug, Billing ou Feature Request.
@@ -35,16 +33,16 @@ Classe maintenant ce message :
 "Le mode sombre est réussi, mais l'application mobile plante quand j'ouvre les réglages."
 ```
 
-Cet exemple apprend plus que l'instruction seule. Il montre le format exact de sortie, le niveau de brièveté et le style de labellisation.
+Cet exemple unique apprend plus que l'instruction seule. Il montre le format exact de sortie, les labels autorisés et le niveau de brièveté attendu. C'est pour cela que je préfère les exemples simples aux exemples malins.
 
 ### Le piège classique côté débutant
 
-Beaucoup de gens choisissent un exemple trop sophistiqué, trop long, ou trop spécifique. Ensuite, le modèle copie des détails accidentels au lieu du motif que vous vouliez enseigner. Si votre exemple contient des blagues, des commentaires inutiles ou un format bizarre, ne soyez pas surpris de les revoir revenir.
+Les débutants choisissent souvent un exemple trop long ou trop décoratif. Le modèle recopie alors la décoration au lieu de comprendre la règle. Si votre exemple contient des blagues, des explications en trop ou une mise en forme mélangée, ces détails peuvent revenir dans la réponse suivante.
 
-Je préfère les exemples ennuyeux. Les exemples ennuyeux enseignent mieux la règle.
+Ma position est simple : les exemples un peu ennuyeux sont souvent les meilleurs professeurs. Gardez un exemple court, représentatif et aussi propre que la sortie attendue.
 
-### Quand s'arrêter au one-shot
+### Quand un seul shot suffit
 
-Le one-shot sert à donner une impulsion, pas à construire tout un programme scolaire. Si le modèle continue de se tromper sur des cas limites après un exemple, ce n'est pas un échec. Cela veut juste dire que le motif a besoin d'une couverture plus large.
+Restez en one-shot quand un exemple clair enlève l'essentiel de la dérive. Passez à l'étape suivante quand vous ajoutez sans cesse des exceptions pour les cas voisins, parce que c'est souvent le moment où le **few-shot prompting**, c'est-à-dire plusieurs exemples au lieu d'un seul, montrera mieux la frontière de la règle.
 
-Ma règle est la suivante : quand la sortie est presque correcte et que vous pouvez montrer un exemple propre du motif manquant, utilisez le one-shot. Si un seul exemple corrige un cas mais pas les voisins, passez au guide suivant, parce que le few-shot prompting correspond justement au moment où l'on arrête de suggérer et où l'on commence à vraiment enseigner.
+Règle de décision : si un exemple corrige le cas courant, gardez-le. Si vous continuez à corriger les cas limites à la main après un shot propre, lisez ensuite le guide sur le few-shot prompting avant d'ajouter encore du texte.

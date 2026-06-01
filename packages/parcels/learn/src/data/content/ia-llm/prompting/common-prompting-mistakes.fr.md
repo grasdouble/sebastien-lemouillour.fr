@@ -3,13 +3,15 @@ id: common-prompting-mistakes
 order: 3
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
-Vous avez demandé une réponse courte, et vous avez reçu une mini conférence. Puis vous avez ajouté « sois concis s'il te plaît », et la réponse suivante est devenue encore plus bizarre. Bienvenue dans le prompting débutant.
+Vous avez demandé une réponse courte, et vous avez reçu un pavé. Puis vous avez demandé quelque chose de concis, et la réponse suivante est devenue encore plus étrange. Quand ça arrive, le modèle ne fait pas du théâtre, il devine.
 
-La plupart des mauvais prompts échouent pour des raisons très banales, pas pour des raisons mystérieuses. Ce qu'il y a de rassurant, c'est que la documentation officielle d'[OpenAI](https://developers.openai.com/api/docs/guides/prompting), de [Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies) et d'[Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/prompt-engineering) répète la même idée : donnez au modèle une tâche claire, assez de contexte, et des contraintes qu'il peut réellement suivre.
+Ce qui rassure, c'est que la documentation officielle répète presque toujours la même chose. Le [guide OpenAI](https://platform.openai.com/docs/guides/prompt-engineering), le [guide Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies) et le [guide Azure](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/prompt-engineering) recommandent tous la même habitude : donner au modèle une tâche claire, le contexte qu'il ne peut pas deviner, et des limites qu'il peut réellement suivre.
+
+Imaginez le modèle comme un nouveau collègue qui lit un post-it. Il peut beaucoup aider, mais il ne lit pas dans votre tête.
 
 Voici le tableau mental que j'utilise quand un prompt continue à produire du flou au lieu d'un résultat exploitable.
 
@@ -25,39 +27,44 @@ Voici le tableau mental que j'utilise quand un prompt continue à produire du fl
 
 ### Erreur 1 : demander une ambiance au lieu d'une tâche
 
-« Améliore ça » n'est pas vraiment une tâche. Mieux comment, pour qui, et selon quel critère ? Le modèle inventera volontiers un objectif si vous ne lui en donnez pas.
+« Améliore ça » semble clair dans votre tête, mais cela laisse le modèle inventer l'objectif. Améliorer pour qui ? Selon quel critère ?
 
-Je réécris presque toujours les demandes vagues sous forme de verbes. « Réécris cet email pour qu'il paraisse plus chaleureux. » « Résume cet article pour un CTO. » « Classe ces tickets par urgence. » Les verbes donnent au modèle quelque chose de concret à optimiser.
+Le réflexe le plus sûr consiste à transformer la demande en verbe plus cible. « Réécris ce message pour qu'il soit plus apaisant pour un client mécontent. » « Résume cet article pour un responsable non technique. » « Classe ces tickets de support par urgence. » Je choisirais cette version presque à chaque fois.
 
-### Erreur 2 : garder le contexte important dans votre tête
+### Erreur 2 : garder le contexte utile dans votre tête
 
-Le débutant connaît le détail manquant, mais le modèle ne le connaît pas. Vous savez peut-être que la cible est un client non technique, que l'échéance est demain, ou qu'un ton juridique est obligatoire. Si vous gardez ce contexte pour vous, la sortie va dériver.
+Quand on débute, on connaît souvent le détail manquant sans penser à l'écrire. Le public, l'échéance, le ton et les limites du résultat restent dans votre tête, donc la réponse dérive.
 
-### Erreur 3 : empiler trop d'objectifs d'un coup
+Si la tâche dépend d'un point de vue précis, nommez-le. Un rôle, c'est simplement le métier ou la posture que vous voulez faire jouer au modèle, par exemple recruteur, professeur ou agent de support. Le [guide Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices) insiste lui aussi sur des instructions explicites et des exemples pour cette raison.
 
-Un de mes prompts préférés, au sens ironique du terme, ressemble à ça : explique, résume, critique et réécris le texte, rends-le drôle, tout en restant formel. Techniquement, le modèle peut essayer. En pratique, vous obtenez de la bouillie.
+### Erreur 3 : demander trop de métiers d'un coup
 
-Ce genre de réécriture corrige souvent plus de choses que trois messages de suivi supplémentaires.
+Un prompt qui dit « explique, résume, critique, réécris et rends ça drôle » ressemble un peu à une demande faite à une seule personne pour être éditeur, humoriste et juriste dans la même minute. Le modèle peut essayer, mais le résultat finit souvent en bouillie.
+
+Voici le genre de réécriture qui évite souvent trois messages de suivi pénibles.
 
 ```text
 Prompt faible :
-Analyse ce texte de landing page et améliore-le.
+Analyse cette page et améliore-la.
 
 Meilleur prompt :
-Analyse ce texte de landing page pour la clarté et la confiance.
-Public : acheteurs SaaS débutants.
-Donne exactement 3 problèmes, puis réécris le titre et le sous-titre.
-Ne change pas le positionnement produit.
+Analyse ce texte de page pour la clarté et la confiance.
+Public : personnes qui achètent un logiciel pour la première fois.
+Donne exactement 3 problèmes.
+Puis réécris le titre et le sous-titre.
+Ne change pas la promesse du produit.
 ```
 
-### Erreur 4 : traiter la première réponse comme une vérité finale
+Cela fonctionne parce que la tâche est étroite, le public est nommé, et la sortie a une limite.
 
-La première réponse est souvent un brouillon, pas un verdict. Le prompting est itératif, ce qui veut simplement dire qu'on affine l'instruction en fonction de ce qui revient. Anthropic dit la même chose dans ses [bonnes pratiques](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) : la clarté, les exemples et le contrôle du format battent les formulations prétendument malines.
+### Erreur 4 : oublier de nommer la forme de la réponse
 
-En revanche, je déconseille de discuter en rond avec le modèle. Après deux réponses brouillonnes, je préfère réécrire tout le prompt depuis zéro. C'est plus rapide, et franchement moins agaçant.
+Même une réponse utile devient pénible quand elle arrive dans le mauvais format. Si vous voulez des puces, demandez des puces. Si vous voulez du JSON, c'est-à-dire un format texte que d'autres outils lisent facilement, demandez du JSON. Si vous voulez exactement trois suggestions, dites exactement trois.
 
-### Erreur 5 : oublier le format de sortie
+C'est aussi l'idée derrière [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) : quand votre application a besoin d'un schéma prévisible, c'est-à-dire d'une structure fixe avec des champs nommés, mieux vaut demander ce schéma que croiser les doigts pour que le modèle devine la bonne forme.
 
-Si vous voulez des puces, dites-le. Si vous voulez du JSON pour du code ou de l'automatisation, demandez directement une structure. Le guide [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs) d'OpenAI existe précisément pour ça. Beaucoup de gens sautent cette étape parce qu'elle leur paraît évidente. Elle est évidente pour vous, pas pour le modèle.
+### Erreur 5 : traiter la première réponse comme la dernière
 
-Ma règle est assez brutale : si un prompt produit deux réponses confuses de suite, j'arrête de le rafistoler avec des micro-corrections et je le réécris avec une tâche claire, du vrai contexte et un format explicite. Si vous voulez commencer par l'approche la plus simple, le guide suivant présente le zero-shot prompting, et c'est généralement là que je démarre.
+Le prompting est itératif, ce qui veut simplement dire qu'on regarde un premier brouillon, qu'on repère ce qui cloche, puis qu'on resserre l'instruction. C'est normal, pas le signe que vous êtes mauvais dans cet exercice.
+
+Ma position est simple : faites une ou deux réécritures propres, puis arrêtez de rafistoler. Si le modèle rate encore la cible après la deuxième réécriture, remettez le prompt à zéro au lieu d'empiler les retouches.
