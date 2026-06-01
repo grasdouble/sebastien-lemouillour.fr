@@ -3,37 +3,56 @@ id: chain-of-thought
 order: 7
 difficulty: intermediate
 tags: [prompting, reasoning, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
-You've got a prompt that works right until the input sneaks in one exception and two numbers. Then the model blurts out an answer, skips the part that mattered, and you end up debugging a sentence like it just paged you at 2 a.m.
+Your prompt looks solid until one exception and two totals land in the same input. Then the model jumps to a verdict, skips the arithmetic, and hands you a polished wrong answer.
 
-Chain-of-thought prompting exists for exactly that mess. In the original [Wei et al. paper](https://arxiv.org/abs/2201.11903), the trick was simple: show intermediate reasoning steps in the examples, not just question-answer pairs. That improved arithmetic, commonsense, and symbolic reasoning on tasks that genuinely require several hops. I still use that idea, but I treat it like a scalpel. For classification, retrieval, or plain rewriting, visible reasoning is usually expensive theater.
+Chain-of-thought earns its keep in that exact situation. In [Wei et al. 2022](https://arxiv.org/abs/2201.11903), the gain came from few-shot examples that included intermediate reasoning, which improved arithmetic, commonsense, and symbolic tasks when the model had to make several linked steps.
 
-The paper still matters, but provider guidance has moved. OpenAI's [reasoning guide](https://platform.openai.com/docs/guides/reasoning) says reasoning models already spend internal reasoning tokens before answering, and Anthropic's [prompt engineering overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) tells you to define success criteria and evals before fiddling with prompt wording. Translation: before you spray “think step by step” everywhere, make sure you picked the right model and can measure whether the extra thinking helps.
+My stance: in 2026, visible chain-of-thought is not the default. OpenAI's [reasoning guide](https://platform.openai.com/docs/guides/reasoning) says reasoning models already spend internal reasoning tokens, exposes effort controls such as `low` to `xhigh`, and defaults `gpt-5.5` to `medium`. Anthropic's [overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) makes the same practical point from another angle: define success criteria and evals before tuning wording, because latency and cost are often a model-choice problem before they are a prompt problem.
 
-I also would not make the model dump a giant monologue unless I need to inspect failure modes. OpenAI's [prompt engineering guide](https://platform.openai.com/docs/guides/prompt-engineering) still rewards clear structure, and Anthropic's [effort control](https://docs.anthropic.com/en/docs/build-with-claude/effort) makes the trade-off explicit: more thinking usually means more tokens and more latency. My default is boring on purpose: keep the answer clean, ask for short checks, and only expose reasoning when those checks help me debug or review.
+So I start with short, inspectable reasoning, not a diary. OpenAI's [prompt guide](https://platform.openai.com/docs/guides/prompt-engineering) also reminds you that Responses output can contain reasoning-related items in addition to text. That is one more reason to keep the customer-facing answer clean, validate the final result in code, and avoid dumping long traces into logs unless you truly need them.
 
-Here's the version I'd actually ship:
+When I need a reasoning trace that a human can review quickly, I use a prompt like this:
 
-```txt
-You are validating invoice line items.
+```ts
+import OpenAI from 'openai';
 
-Task:
-1. Read the invoice text.
-2. Extract quantities, prices, and discounts.
-3. Check whether subtotal, tax, and total are mathematically consistent.
-4. If one value is missing, return "missing_data".
-5. Return:
-   - reasoning: max 4 short bullet points
-   - verdict: valid | invalid | missing_data
-   - corrected_total: number or null
+const client = new OpenAI();
 
-Invoice text:
-"""{{invoice_text}}"""
+async function checkInvoice(invoiceText: string) {
+  return client.responses.create({
+    model: 'gpt-5.5', // reasoning model for multi-step checks
+    reasoning: { effort: 'low' }, // raise only if evals show a real gain
+    input: [
+      {
+        role: 'user',
+        content: `
+You are validating invoice totals.
+
+Steps:
+1. Extract quantities, unit prices, discounts, subtotal, tax, and total.
+2. Verify the math.
+3. If a required value is missing, return "missing_data".
+
+Return JSON with:
+- evidence: up to 3 short bullets
+- verdict: "valid" | "invalid" | "missing_data"
+- correctedTotal: number | null
+
+Invoice:
+"""${invoiceText}"""
+        `,
+      },
+    ],
+  });
+}
 ```
 
-The real win is not the phrase. The real win is separating observation from judgment. Step 2 forces the model to copy evidence before it decides, which makes failures much easier to inspect. When the answer is wrong, you can tell whether it misread the source, skipped a calculation, or confidently invented math. Classic model behavior, sadly.
+What makes this work is not the phrase "think step by step". It is the structure. The model gathers evidence before judging, the reasoning trace is capped, and your app still owns the final check. That keeps token spend and rate-limit pressure lower than a full scratchpad, while leaving enough trail to debug the failures that actually matter.
 
-My rule is simple: if I can verify the output with code, I keep the prompt short and let code be the adult in the room. I reach for visible chain of thought only when the task keeps failing on a hidden intermediate step and I need just enough reasoning to catch it, not a novella.
+If you truly need raw reasoning for debugging, Anthropic's [extended thinking](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking) can return `thinking` blocks, and its latest Claude docs recommend adaptive thinking on newer models while manual `budget_tokens` modes are deprecated or rejected on some versions. Use that sparingly, and never as the only guardrail.
+
+Use chain-of-thought when the task fails because of a missing intermediate step you can inspect. Skip it for classification, retrieval, or any flow where code can verify the answer cheaply. If three short evidence bullets are not enough, fix the task design before you ask for a novel.

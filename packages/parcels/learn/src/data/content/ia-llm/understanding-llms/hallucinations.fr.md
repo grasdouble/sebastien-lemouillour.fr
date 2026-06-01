@@ -3,8 +3,8 @@ id: hallucinations
 order: 12
 difficulty: beginner
 tags: [evaluation, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 Vous demandez une source, le modèle en invente une, et vous ne vous en rendez compte que lorsque le titre de l’article ne mène nulle part. C’est souvent là que les débutants arrêtent de confondre réponse bien tournée et preuve. Une **hallucination** est une réponse qui a l’air sûre d’elle mais qui est fausse, non étayée ou inventée, ce qui correspond à la manière dont OpenAI décrit le problème dans son [guide hallucinations](https://cookbook.openai.com/articles/hallucinations). S’il ne fallait garder qu’une règle, je prendrais celle-ci : une formulation fluide est un signal de style, pas un signal de vérité.

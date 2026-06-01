@@ -3,36 +3,53 @@ id: ai-benchmarks
 order: 27
 difficulty: advanced
 tags: [evaluation, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-Un modèle gagne trois points sur un leaderboard et, soudain, tout le monde veut signer. Puis il rate ton extraction structurée, laisse tomber un appel d'outil, ou explose le budget de latence. Voilà le piège. Les benchmarks publics sont utiles pour faire le tri. Ils sont mauvais pour prendre la décision finale à ta place en production.
+Une démo fournisseur arrive avec un beau graphique de benchmark, et soudain la salle agit comme si la décision était déjà prise. Puis le pilote rate ton schéma, relance le mauvais outil, ou explose le budget de latence. Si ce grand écart te paraît familier, tu n'as rien raté. Les benchmarks sont utiles. Ils deviennent juste dangereux au moment où on les traite comme un verdict de production.
 
-## Ce que chaque benchmark achète vraiment
+## Le signal que chaque benchmark classique donne encore
 
-[MMLU](https://arxiv.org/abs/2009.03300) reste utile pour une seule chose : la connaissance générale en format QCM. Si je veux une lecture rapide du rappel académique et professionnel, je le regarde. Si je veux prédire un vrai travail multi-tour un peu sale, je l'ignore.
+| Benchmark                                     | Signal réel                                                                                     | Pourquoi je le limite                                                                                                            | Mon usage en 2026                                                                            |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| [MMLU](https://arxiv.org/abs/2009.03300)      | Une largeur de connaissances sur 57 matières à choix multiple                                   | On le lit trop facilement comme de l'intelligence générale, alors qu'il signale surtout de la restitution et de la prise de test | Filtrage rapide de la culture générale, jamais mon arbitre final                             |
+| [HumanEval](https://arxiv.org/abs/2107.03374) | Une synthèse de code étroite, notée avec pass@k sur des tests cachés                            | Il dit beaucoup trop peu sur l'édition d'une vraie base de code, l'usage d'outils, ou la récupération quand tout devient ambigu  | Utile pour la génération de code seulement si le workflow reste proche de fonctions isolées  |
+| [MATH](https://arxiv.org/abs/2103.03874)      | Un raisonnement mathématique de concours sur 12 500 problèmes                                   | Il surpondère une logique de maths olympiques par rapport à la plupart des workflows métier                                      | À garder si les maths sont au cœur du produit, facile à surévaluer sinon                     |
+| [GPQA](https://arxiv.org/abs/2311.12022)      | Des questions scientifiques écrites par des experts et pensées pour résister à la recherche web | Il est fort pour la science profonde, mais il ne remplace pas des tâches ordinaires de support, d'ops, ou de contenu             | C'est celui que je surveille encore de près quand la profondeur scientifique compte vraiment |
+| [BIG-Bench](https://arxiv.org/abs/2206.04615) | Une suite collaborative de plus de 200 tâches                                                   | Il est trop large pour être réduit à un seul chiffre rassurant sans perdre les modes d'échec intéressants                        | Bon pour repérer des trous de capacité bizarres, mauvais pour désigner un gagnant            |
 
-[HumanEval](https://arxiv.org/abs/2107.03374) est celui que je prends au sérieux pour la synthèse de code au sens étroit, parce que le pass@k mesure si des solutions échantillonnées passent des tests cachés. Ça ne dit toujours presque rien sur l'édition d'une base de code vivante sous ambiguïté.
+Ce qui piège les équipes, ce n'est généralement pas le benchmark lui-même. C'est l'espoir qu'un score public unique puisse répondre à une question produit pour laquelle il n'a jamais été conçu.
 
-[HELM](https://arxiv.org/abs/2211.09110) est le cadre auquel je fais le plus confiance parce qu'il traite l'évaluation comme une combinaison de scénario, de métrique et d'adaptation, pas comme un nombre magique. C'est beaucoup plus proche de la manière dont les vrais systèmes cassent en production.
+## Pourquoi de gros scores publics déçoivent encore
 
-[Chatbot Arena](https://arxiv.org/abs/2403.04132) devient utile quand la préférence conversationnelle compte vraiment, puisqu'il classe les modèles à partir de votes humains en face à face agrégés avec un score de type Elo. Je n'achèterais quand même pas un modèle sur Arena seul, sauf si mon produit est presque uniquement du chat ouvert.
+Le premier souci, c'est le benchmark gaming et la saturation. Après des années de tuning de modèles, de prompts et de leaderboards, de petits écarts sur des suites célèbres peuvent paraître bien plus décisifs qu'ils ne le sont vraiment. Je n'utilise pas les benchmarks publics classiques pour départager des modèles de pointe quand de l'argent, des SLA, ou la confiance des utilisateurs sont en jeu.
 
-## Pourquoi les victoires au leaderboard ratent la production
+Le deuxième souci, c'est le risque de fuite. Le [rapport GPT-4](https://arxiv.org/abs/2303.08774) traite le recouvrement de données comme un vrai sujet d'évaluation, et ça me suffit pour rester méfiant face à n'importe quel benchmark que toute l'industrie optimise depuis des années. Si la mémorisation peut gonfler le score, alors le score cesse d'être un proxy propre de la capacité.
 
-Le premier problème, c'est la sensibilité du harness. HELM le pose noir sur blanc : les résultats dépendent du scénario, des métriques et de la procédure d'adaptation, donc le format du prompt et le setup d'évaluation peuvent bouger le score. Les petits écarts sur un leaderboard ont l'air précis bien après avoir cessé d'être utiles pour décider.
+Le troisième souci, c'est l'observabilité. Les suites publiques ne te disent presque jamais le taux de schéma valide, la réussite des appels d'outils, la charge de revue, la latence p95, ou le coût par sortie acceptée. Pourtant, ce sont ces chiffres-là qui décident si une semaine d'astreinte reste calme ou devient mémorable pour de très mauvaises raisons.
 
-Le deuxième problème, c'est l'exploitation réelle. Les benchmarks publics disent rarement si le modèle tient un SLA, garde des appels d'outils fiables, ou reste assez bon marché à ton niveau de trafic. Le [guide latence](https://developers.openai.com/api/docs/guides/latency-optimization) existe précisément parce que les contraintes de déploiement sont un problème différent d'une victoire sur benchmark. Si tu portes la latence, le budget d'erreur ou la marge, cette omission compte plus qu'une décimale de plus sur MMLU.
+## Ce que je lancerais vraiment
 
-Le troisième problème, c'est la contamination. Le [rapport GPT-4](https://arxiv.org/abs/2303.08774) traite le recouvrement de données comme un vrai risque d'évaluation, parce que des items de benchmark peuvent fuiter dans l'entraînement et gonfler artificiellement la capacité apparente. Lis donc chaque leaderboard comme un résultat potentiellement partiellement mémorisé tant que le contraire n'est pas établi.
+La meilleure question devient alors celle-ci : quelle preuve te ferait vraiment confiance à ce modèle dans ton propre workflow ?
 
-## Ce que je ferais à la place
+Le [guide OpenAI Evals](https://platform.openai.com/docs/guides/evals) recommande la bonne chose : évaluer la tâche que tu possèdes réellement. J'utiliserais les benchmarks publics pour réduire le marché à une shortlist, puis je construirais des évaluations privées autour des vrais prompts, des vrais coûts d'échec et des vrais seuils d'acceptation de l'équipe. Si ton agent a besoin de sorties structurées et d'un usage d'outils fiable, je mesurerais ça directement avant de m'émouvoir d'une décimale de plus sur un leaderboard.
 
-Utilise les benchmarks publics pour réduire le marché à une short list. Ensuite, construis des évaluations privées qui collent à tes prompts, à tes modes d'échec et à tes seuils d'acceptation. Le [guide OpenAI Evals](https://platform.openai.com/docs/guides/evals) pousse exactement cette habitude : évalue la tâche que tu possèdes vraiment, pas celle qu'un leaderboard public a rendue commode.
+Je suivrais aussi le taux de réussite de tâche, le taux de schéma valide, la réussite des appels d'outils, les échappées de revue, la latence p95 et le coût par sortie acceptée, dans cet ordre. C'est moins glamour qu'une capture de leaderboard, je sais, mais c'est cette série-là qui garde les achats, le produit et l'astreinte dans la même pièce.
 
-Je suivrais deux familles de métriques : la réussite de tâche pour ce que l'utilisateur paie réellement, et les métriques opérationnelles pour ce que ton équipe doit garder vivant. Si les deux racontent des histoires différentes, le réalisme de la tâche gagne.
+Voici le filtre que j'utilise avant de laisser un score public influencer une feuille de route.
+
+```mermaid
+graph TD
+    A[Score public] --> B{Même forme de tâche ?}
+    B -- Non --> C[Filtrage seulement]
+    B -- Oui --> D{Même coût d'échec ?}
+    D -- Non --> C
+    D -- Oui --> E[Lancer des evals privées]
+    E --> F[Vérifier SLA et observabilité]
+    F --> G[Prendre la décision de production]
+```
 
 ## Règle de décision
 
-Fais confiance à un benchmark en proportion de sa proximité avec ta forme de tâche, ton niveau de risque et tes contraintes d'exploitation. S'il est à plus d'une couche d'abstraction de la production, utilise-le pour filtrer et rien de plus.
+Ma règle est volontairement brutale : si un benchmark est à plus d'une couche d'abstraction de ta vraie tâche, il peut présélectionner des modèles et rien de plus. Je ne le laisse influencer un achat qu'après des evals privées au-dessus du seuil de tâche et encore dans le SLA sur une charge banale et représentative.

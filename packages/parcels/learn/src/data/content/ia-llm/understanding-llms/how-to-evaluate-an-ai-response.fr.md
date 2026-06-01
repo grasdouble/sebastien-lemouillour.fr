@@ -3,8 +3,8 @@ id: how-to-evaluate-an-ai-response
 order: 15
 difficulty: beginner
 tags: [evaluation, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 L’erreur classique au début, c’est d’accepter la première réponse IA qui a l’air calme, bien écrite et sûre d’elle. Un paragraphe fluide peut pourtant être faux, incomplet, ou inutile pour le vrai besoin du moment. S’il fallait enseigner une seule habitude d’abord, je choisirais celle-ci : n’évaluez plus si la réponse a l’air intelligente. Évaluez si elle vous aide à prendre la décision suivante sans vous piéger.
@@ -21,7 +21,7 @@ Si cela reste flou, écrivez d’abord une **grille d’évaluation**. C’est s
 
 C’est aussi pour ça que [HELM](https://arxiv.org/abs/2211.09110) reste un benchmark utile à connaître, c’est-à-dire un test standard pour comparer des systèmes. Il traite la qualité d’un modèle comme un ensemble de dimensions, pas comme une note magique unique. C’est la position que je copierais.
 
-## Vérifier les faits durs avant le style
+## Les contrôles durs avant les contrôles souples
 
 Une fois la grille posée, un autre problème apparaît : la confiance peut encore vous tromper. La solution consiste à séparer les **contrôles durs** des **contrôles souples**. Les contrôles durs sont ceux qu’on peut vérifier, comme un calcul, une source citée, un format obligatoire, ou le respect réel de l’instruction. Les contrôles souples concernent le ton, l’utilité, ou la fluidité.
 

@@ -12,15 +12,15 @@ Every guide must tell a story:
 - Close with a decision rule, a caveat, or a threshold — not a summary of what was covered
 - Both EN and FR must have the same narrative richness — FR is not a reduced version
 
-## Persona alignment
+## Difficulty-specific content requirements
 
-Always write for the target persona:
+The voice is always **Découvreur** (see `voice-rules.md`). Difficulty controls what the content must cover:
 
-| Difficulty     | Persona     | Rules                                                                                                                                                                   |
-| -------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `beginner`     | Découvreur  | Analogies, plain language, define every term on first use, explicit limitations, path to next guides. ✅ End with a "what next" pointer. ❌ No unexplained code blocks. |
-| `intermediate` | Développeur | Working code with commented parameters, practical patterns, mention costs/rate limits/security. ❌ No purely theoretical content.                                       |
-| `advanced`     | Architecte  | Tradeoffs, observability, production patterns, SLAs. ❌ Don't explain basics (tokens, temperature, etc.).                                                               |
+| Difficulty     | Content rules                                                                                                                                                           |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `beginner`     | Analogies, plain language, define every term on first use, explicit limitations, path to next guides. ✅ End with a "what next" pointer. ❌ No unexplained code blocks. |
+| `intermediate` | Working code with commented parameters, practical patterns, mention costs/rate limits/security. ❌ No purely theoretical content.                                       |
+| `advanced`     | Tradeoffs, observability, production patterns, SLAs. ❌ Don't explain basics (tokens, temperature, etc.).                                                               |
 
 ## Project-agnosticism
 

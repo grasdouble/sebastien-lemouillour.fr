@@ -1,72 +1,104 @@
 ---
 id: generation-parameters
-order: 23
+order: 20
 difficulty: intermediate
-tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+tags: [generation, sampling, llm]
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-Quand un workflow passe d’un JSON propre à un résultat coupé ou absurde, beaucoup réécrivent le prompt. Moi, je regarde d’abord les paramètres de décodage. J’ai perdu trop d’heures à accuser le wording alors que le vrai bug venait d’une `temperature` laissée au hasard, d’une limite de tokens minuscule, ou d’un preset copié qui ne voulait pas dire la même chose chez un autre fournisseur.
+Quand une réponse commence en JSON propre et finit en demi-phrase, le prompt n'est presque jamais le premier suspect. Le vrai bazar vient souvent d'un preset copié depuis un autre fournisseur, où le même levier a changé de nom, de casse ou de comportement.
 
-## La première correction, c’est d’arrêter de faire confiance aux défauts
+## Commence par cartographier les leviers avant de les régler
 
-Les valeurs par défaut sont des choix produit, pas des bonnes pratiques universelles. Dans les [Messages examples](https://docs.anthropic.com/en/api/messages-examples) d’Anthropic, Claude Opus 4.7 et les versions suivantes refusent `temperature`, `top_p` et `top_k` hors valeur par défaut, alors que [Transformers strategies](https://huggingface.co/docs/transformers/main/en/generation_strategies) documente le décodage greedy comme comportement par défaut et l’échantillonnage comme quelque chose qu’on active volontairement.
+Mon biais est volontairement ennuyeux : je fixe la limite de sortie, je fixe la température, puis je laisse le reste tranquille tant que je ne peux pas nommer l'échec. La [Responses API](https://platform.openai.com/docs/api-reference/responses/create) expose `temperature`, `top_p`, `max_output_tokens` et `stop` ; la [Messages API](https://docs.anthropic.com/en/api/messages) utilise `temperature`, `top_p`, `top_k`, `max_tokens` et `stop_sequences` ; [GenerationConfig](https://ai.google.dev/api/generate-content#v1beta.GenerationConfig) déplace la même famille sous `generationConfig` avec des noms en camelCase comme `topP`, `topK`, `maxOutputTokens` et `stopSequences`. Anthropic documente une `temperature` par défaut à `1.0`, alors que Google précise que plusieurs valeurs par défaut dépendent du modèle, et c'est exactement pour ça que je préfère les définir moi-même quand la portabilité compte.
 
-C’est pour ça que je traite les paramètres de génération comme une partie du contrat de l’application. Si la tâche sert à extraire, router ou appeler des outils, je veux une requête ennuyeuse volontairement. Si la tâche sert à produire des idées, alors j’achète de la variation consciemment au lieu de la laisser entrer par défaut.
+| Objectif                       | OpenAI                           | Anthropic        | Google                                                   | Ce que je choisirais                                                            |
+| ------------------------------ | -------------------------------- | ---------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Réduire l'aléatoire            | `temperature`                    | `temperature`    | `generationConfig.temperature`                           | Commencer par là                                                                |
+| Couper la queue de probabilité | `top_p`                          | `top_p`          | `generationConfig.topP`                                  | Le laisser à `1` tant que la température suffit                                 |
+| Limiter durement les candidats | Non exposé dans la Responses API | `top_k`          | `generationConfig.topK` sur les modèles qui l'autorisent | Le laisser de côté sauf si le fournisseur et le modèle le supportent clairement |
+| Éviter les réponses coupées    | `max_output_tokens`              | `max_tokens`     | `generationConfig.maxOutputTokens`                       | Toujours le régler intentionnellement                                           |
+| S'arrêter sur un marqueur      | `stop`                           | `stop_sequences` | `generationConfig.stopSequences`                         | Le traiter comme une frontière souple, pas comme un validateur                  |
 
-Quand j’ai besoin d’un pense-bête rapide sur le décodage, c’est ce tableau que je garde en tête avant de toucher à quoi que ce soit :
+## Le premier vrai piège, c'est la compatibilité fournisseur
 
-| Paramètre           | Ce qu’il contrôle                          | Recommandé pour les tâches structurées                                                                 | Recommandé pour les tâches créatives                                         |
-| ------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
-| `temperature`       | Le niveau d’aléatoire de l’échantillonnage | `0` à `0.2`                                                                                            | `0.7` à `0.9`                                                                |
-| `top_p`             | La taille du noyau de sampling             | `1` — je n’y touche pas tant que je ne peux pas nommer un vrai problème de queue                       | `1` — je change d’abord la température                                       |
-| `top_k`             | Le nombre maximum de tokens candidats      | N/A sur la plupart des API hébergées, donc je n’en fais pas un levier de base                          | `20` à `40` seulement sur des stacks auto-hébergées qui l’exposent           |
-| `max_output_tokens` | La longueur de la sortie                   | Assez serré pour éviter de bavarder, assez large pour éviter la coupe                                  | Assez large pour laisser plusieurs idées se terminer                         |
-| `stop`              | Les séquences d’arrêt                      | Utile pour garder le contrôle du format, mais je préfère toujours un schéma pour une structure stricte | Rarement nécessaire, sauf si je dois couper la sortie sur un marqueur précis |
+La mauvaise surprise la plus pénible aujourd'hui, ce n'est pas la théorie, c'est la compatibilité des modèles Anthropic. Les [Messages examples](https://docs.anthropic.com/en/api/messages-examples) indiquent que Claude Opus 4.7 et les versions suivantes renvoient une erreur 400 si tu envoies `temperature`, `top_p` ou `top_k` avec une valeur non par défaut. C'est un bon rappel : après un changement de modèle, vérifie d'abord les notes de compatibilité avant d'accuser ton prompt.
 
-## Régler un seul bouton d’aléatoire avant le reste
+Si tu hésites sur le premier levier à toucher, voici la mini carte de triage que j'utilise vraiment.
 
-Ma position est simple : je change d’abord `temperature` et je laisse `top_p` à `1` tant que je ne peux pas décrire un vrai problème de queue de distribution. L’[API Responses](https://platform.openai.com/docs/api-reference/responses/create) d’OpenAI documente `temperature`, `top_p`, `max_output_tokens` et `stop`, et présente `top_p` comme une alternative à la température, pas comme son compagnon obligatoire.
-
-Pour de l’extraction, de la classification ou des appels d’outils, je démarre autour de `0` à `0.2`. Pour explorer des variantes marketing, je peux monter vers `0.7` ou `0.9`, mais seulement si je suis prêt à relire plusieurs candidats.
-
-C’est le genre de requête avec lequel je commencerais pour une tâche structurée.
-
-```ts
-const response = await client.responses.create({
-  model: 'gpt-4.1-mini',
-  input: 'Extract the company name and country as JSON.',
-  temperature: 0.1, // garder un échantillonnage serré
-  top_p: 1, // régler un seul contrôle d’aléatoire d’abord
-  max_output_tokens: 120, // assez de place pour une sortie valide
-});
+```mermaid
+flowchart TD
+    A[Sortie ratée] --> B{Type d'échec}
+    B -->|Réponse coupée| C[Augmenter la limite]
+    B -->|Trop aléatoire| D[Baisser la température]
+    B -->|Format instable| E[Utiliser un schéma avant stop]
+    B -->|Changement de fournisseur| F[Renommer les champs et fixer les valeurs]
 ```
 
-## Contrôler la longueur avant d’accuser le style
+## Des presets de départ raisonnables
 
-`max_output_tokens` et `stop` ne sont pas des détails cosmétiques. Ils décident si le modèle a assez de place pour terminer et à quel endroit il a le droit de s’arrêter. Je vois souvent des équipes débattre de créativité alors qu’une limite trop basse coupe silencieusement la réponse.
+Si je veux un premier essai stable sur OpenAI, je pars du preset le plus ennuyeux possible qui laisse quand même la réponse se terminer.
 
-Si j’ai besoin d’une structure stricte, je préfère un schéma à une séquence `stop` soi-disant astucieuse. Les [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) d’OpenAI disent qu’une sortie basée sur JSON Schema peut faire respecter le schéma et rendre les refus détectables par programme, ce qui est plus sûr pour les automatisations que d’espérer qu’un prompt et une séquence d’arrêt coopèrent toujours.
+```js
+import OpenAI from 'openai';
 
-C’est le pattern que je préfère quand la variation est le but mais que la forme doit rester bornée.
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-```ts
 const response = await client.responses.create({
-  model: 'gpt-4.1-mini',
-  input: 'Give me 8 landing page headline options for a privacy-first note app.',
-  temperature: 0.8, // ajouter de la variation volontairement
-  top_p: 1, // laisser le nucleus sampling neutre pour mieux débugger
-  max_output_tokens: 220, // plafonner le coût de revue
+  model: 'gpt-5',
+  input: 'Return one product title and one sentence of description.',
+  temperature: 0.2, // Premier levier à toucher pour stabiliser la formulation
+  top_p: 1, // Je laisse le nucleus sampling tranquille tant que je ne peux pas nommer le problème
+  max_output_tokens: 120, // Évite la coupe sans payer pour du remplissage inutile
+  stop: ['\n\n'], // Frontière souple facultative, pas une garantie de schéma
 });
+
+console.log(response.output_text);
 ```
 
-## Les contrôles de répétition sont des outils de réparation
+Si j'ai besoin de la version Anthropic, je garde la même intention mais je renomme la limite et le champ d'arrêt.
 
-Transformers explique que le décodage greedy finit souvent par se répéter sur les sorties longues, alors que l’échantillonnage est ce qu’on active quand on veut un texte plus divers. C’est pour ça que je ne commence pas par les pénalités de répétition. Si le modèle boucle, je regarde d’abord la tâche, le contexte et la limite avant d’empiler des rustines.
+```js
+import Anthropic from '@anthropic-ai/sdk';
 
-## Les coûts et les limites punissent les réglages brouillons
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-Des caps plus longs, plus de retries et des expériences plus larges ne changent pas seulement le ton. Ils mangent votre budget de tokens et vous rapprochent des limites du fournisseur. Le [guide rate limits](https://platform.openai.com/docs/guides/rate-limits) d’OpenAI suit les RPM, TPM, RPD et TPD, et c’est un bon rappel qu’un tuning désordonné a un coût opérationnel bien avant que la finance le remarque.
+const message = await client.messages.create({
+  model: 'claude-sonnet-4-5',
+  max_tokens: 120, // Même rôle que max_output_tokens chez OpenAI
+  temperature: 0.2, // Anthropic documente 1.0 comme valeur par défaut
+  top_p: 1, // Je n'y touche pas tant que je ne peux pas expliquer le problème de queue
+  stop_sequences: ['\n\n'], // Séquences d'arrêt personnalisées si tu en as vraiment besoin
+  messages: [{ role: 'user', content: 'Return one product title and one sentence of description.' }],
+});
 
-Ma règle de décision est ennuyeuse volontairement : si la tâche a une seule bonne forme, commence avec une température basse, `top_p: 1`, et une limite assez large pour éviter la coupe. Si la tâche a besoin de variation, monte d’abord la température. Si tu ne peux pas nommer le problème précis qu’un paramètre corrige, ne touche pas à ce paramètre.
+console.log(message.content[0].text);
+```
+
+Gemini est celui qui fait trébucher le plus de monde, donc je préfère dire la partie pénible franchement : dans la REST API, tout ça vit sous `generationConfig`, et dans le SDK JavaScript tu le passes via `config`.
+
+```js
+import { GoogleGenAI } from '@google/genai';
+
+const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+const response = await client.models.generateContent({
+  model: 'gemini-2.5-flash',
+  contents: 'Return one product title and one sentence of description.',
+  config: {
+    temperature: 0.2, // Même intention, mais avec un autre emplacement
+    topP: 1, // CamelCase et valeurs par défaut dépendantes du modèle
+    maxOutputTokens: 120, // Même filet de sécurité que chez les autres fournisseurs
+    stopSequences: ['\n\n'], // Marqueur de coupure facultatif
+  },
+});
+
+console.log(response.text);
+```
+
+Quand une structure stricte compte plus que le style, je choisis un schéma plutôt qu'une séquence d'arrêt à chaque fois. Les [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) rendent les refus et les écarts de schéma plus faciles à détecter dans une automatisation, ce qui est plus sûr que d'espérer qu'un délimiteur n'apparaisse jamais dans le texte.
+
+Des limites plus longues, des retries et des séries de tests un peu trop enthousiastes dépensent tous des tokens, donc garde un œil sur les [rate limits](https://platform.openai.com/docs/guides/rate-limits) avant de transformer le réglage des paramètres en machine à sous.
+
+Si tu modifies plus d'un levier d'échantillonnage à la fois, arrête-toi là : fixe la limite, fixe la température, et si ça n'explique toujours pas l'échec, passe à un schéma ou à un autre modèle au lieu d'inventer un preset plus gros.

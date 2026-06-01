@@ -3,78 +3,76 @@ id: transformers
 order: 16
 difficulty: intermediate
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
-Throw a long brief at an old sequence model and you get the same annoying failure pattern: the answer starts confidently, then forgets who did what, loses references, and drifts off before the useful part. Transformers fixed that well enough that modern LLMs still inherit the core idea from the original [paper](https://arxiv.org/abs/1706.03762).
+Throw a long brief at a sequence model and you can almost feel the bug report forming: it loses who did what, drops earlier constraints, and somehow sounds confident while drifting away from the task. The move that changed this was the one in [Attention Is All You Need](https://arxiv.org/abs/1706.03762): let every token attend to the others in the same layer instead of forcing the whole computation through a strictly sequential path.
 
-## Why recurrence hit a ceiling
+## Why this changed day-to-day model work
 
-Recurrent models read one token after another. That feels intuitive until you try to train or serve them at scale. The path between distant tokens gets longer, long-range dependencies get shaky, and accelerator hardware spends too much time waiting on sequential work. The transformer paper took the blunt trade: use self-attention so each token can look at the others in the same layer, in parallel.
+That design choice fixed a very practical problem. Training became easier to parallelize, and the model no longer had to carry every long-range dependency through one long chain of recurrent steps. The trade-off is still real though: self-attention gets expensive as sequences grow, so transformers solve one bottleneck by making context length a budget you have to manage.
 
-That solved the training bottleneck, but it created the next practical question: what kind of transformer are you actually holding? The family split into shapes that are genuinely useful in practice: encoder-only models like [BERT](https://arxiv.org/abs/1810.04805) for representation-heavy work, decoder-only models like [GPT-3](https://arxiv.org/abs/2005.14165) for next-token generation, and encoder-decoder models like [T5](https://arxiv.org/abs/1910.10683) when the task is better framed as input-to-output transformation.
+Once you accept that trade, the next useful question is not “what is a transformer?” but “which transformer shape fits this job?” In practice, the family split into three patterns that still matter: encoder-only models such as [BERT](https://arxiv.org/abs/1810.04805) for representation-heavy work, decoder-only models such as [GPT-3](https://arxiv.org/abs/2005.14165) for next-token generation, and encoder-decoder models such as [T5](https://arxiv.org/abs/1910.10683) when the output should stay tightly anchored to an input.
 
-If I need the thirty-second mental model, I sketch it like this:
+When I need a quick mental model, I think in task flow rather than architecture trivia:
 
 ```mermaid
 graph TD
-  Input["Input Tokens"] --> Embed["Token + Positional Embedding"]
-  Embed --> Encoder["Encoder Block (×N)<br/>Self-Attention + FFN"]
-  Encoder --> Decoder["Decoder Block (×N)<br/>Masked Self-Attention + Cross-Attention + FFN"]
-  Decoder --> Output["Output Probabilities (softmax)"]
+  Task["Your task"] --> ChoiceA["Classify or retrieve?"]
+  Task --> ChoiceB["Generate text?"]
+  ChoiceA --> Encoder["Encoder-only"]
+  ChoiceB --> ChoiceC["Rewrite input to output?"]
+  ChoiceC --> Decoder["Decoder-only"]
+  ChoiceC --> Seq2Seq["Encoder-decoder"]
 ```
 
-And for the product trade-off, this table helps me faster than another round of architecture lore:
+This is the comparison I actually use when choosing a starting point:
 
-| Dimension               | RNN / LSTM                                       | Transformer                                                   |
-| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------- |
-| Processing order        | Strictly sequential                              | Parallel within each layer                                    |
-| Long-range dependencies | Degrade as distance grows                        | Attention connects distant tokens directly                    |
-| Training speed          | Slower on modern accelerators                    | Faster when batch and sequence work parallelize well          |
-| Memory / context cost   | Compact hidden state, but limited context access | Attention cost grows with sequence length                     |
-| Best fit                | Short streams, constrained online decoding       | Long context, large-scale pretraining, modern text generation |
+| Need                  | Encoder-only                                                   | Decoder-only                                      | Encoder-decoder                                          |
+| --------------------- | -------------------------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------- |
+| Best first choice for | Classification, ranking, retrieval                             | Chat, completion, code generation                 | Summarization, translation, controlled rewriting         |
+| Why I would pick it   | Efficient scoring and strong representations                   | Mature serving path for autoregressive generation | Keeps the source and generated text explicitly connected |
+| First thing to watch  | You still need a separate generation model if the task expands | Latency and token cost climb fast without caching | More moving parts to serve and tune                      |
 
-## What I check before trusting the label
+## What I check before I trust a checkpoint
 
-That taxonomy helps, but “it’s a transformer” is still too vague for a product decision. I check four things.
+My default is simple: decoder-only for free-form generation, encoder-only for scoring or retrieval, and encoder-decoder only when the output really needs to track the input sentence by sentence. That rule saves a lot of wasted prompt engineering.
 
-First, I want the variant. If the job is open-ended generation, I pick decoder-only first because the tooling and serving path are more mature. If the job is ranking, retrieval, or classification, I would rather start with an encoder than force a chat model to pretend it is a scoring model.
+The next thing I inspect is generation speed. The [HF caching](https://huggingface.co/docs/transformers/main/en/cache_explanation) docs explain why KV caching matters: during autoregressive decoding, the model can reuse past keys and values instead of recomputing attention over the whole prefix at every step. If a serving stack turns that off or handles it badly, streaming feels sluggish long before model quality is the real issue.
 
-Second, I want to know how the model stays fast while generating. In autoregressive decoding, reusing past keys and values is not a micro-optimization. The [HF cache](https://huggingface.co/docs/transformers/en/cache_explanation) docs show why KV caching cuts repeated attention work during inference. If a serving stack disables or mishandles cache behavior, streaming feels broken long before quality becomes the bottleneck.
+After that, I look at cost and rate limits, because a good architecture choice can still become an expensive product mistake. [OpenAI rate limits](https://platform.openai.com/docs/guides/rate-limits) are a good reminder that hosted APIs can cap both requests and tokens, and some long-context requests sit behind separate limits. That is why I cap `max_new_tokens` early and test with prompts that look like production, not toy examples.
 
-Third, I check the prompt budget, because architecture hype does not pay the invoice. The original paper already makes the scaling pain obvious: self-attention gets expensive as context grows. Hosted APIs also throttle by tokens, and some expose separate long-context limits, as documented by [OpenAI](https://platform.openai.com/docs/guides/rate-limits).
+Then I draw the trust boundary. The [OWASP cheat sheet](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html) is very clear on the tricky part: if you mix instructions with retrieved pages, emails, or PDFs, malicious text inside those documents can still steer the model. Confusion here is normal because the model sounds like it understands roles perfectly, but your application still has to separate trusted instructions from untrusted content and validate any tool-triggering output.
 
-Fourth, I check the trust boundary. A transformer gives you shared context, not instruction isolation. If you pour retrieved web pages, emails, or PDFs into the same prompt, the model can still follow malicious text hidden inside them unless your application adds guardrails and validation, which is exactly the prompt-injection warning in [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html).
-
-Here is the quickest sanity check I use before I trust a checkpoint:
+Before I argue about benchmarks, I like to run one tiny probe locally:
 
 ```python
-from transformers import AutoConfig, AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 import torch
 
-model_id = "gpt2"  # small decoder-only checkpoint for local experiments
+model_id = "gpt2"  # small decoder-only checkpoint for local checks
 prompt = "Alice gave Bob the key because"
 
 config = AutoConfig.from_pretrained(model_id)
 print("model_type:", config.model_type)
+print("is_encoder_decoder:", getattr(config, "is_encoder_decoder", "unknown"))
 print("max_position_embeddings:", getattr(config, "max_position_embeddings", "unknown"))
 print("use_cache:", getattr(config, "use_cache", "unknown"))
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(model_id)
-
 inputs = tokenizer(prompt, return_tensors="pt")
 
 with torch.inference_mode():
     output_ids = model.generate(
         **inputs,
-        max_new_tokens=40,  # caps latency and token cost
-        do_sample=False,    # deterministic run for debugging
+        max_new_tokens=40,  # caps latency and token spend
+        do_sample=False,    # keeps the run deterministic for debugging
         use_cache=True,     # reuses past keys and values while decoding
     )
 
 print(tokenizer.decode(output_ids[0], skip_special_tokens=True))
 ```
 
-If `use_cache` is false, or the checkpoint’s context limit is smaller than your real documents, I treat that as a deployment warning, not a footnote. And if the task is classification or retrieval, I switch model families instead of stretching a decoder-only model into a job it never wanted.
+If that quick check shows `use_cache` disabled, a context window smaller than your real documents, or a model family that does not match the task, I would stop there and switch approach. Once your production prompts live near the context ceiling, or your retrieved content is not fully trusted, that is the threshold where pipeline design matters more than another round of prompt tuning.

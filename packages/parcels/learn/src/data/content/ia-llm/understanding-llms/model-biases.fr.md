@@ -3,8 +3,8 @@ id: model-biases
 order: 13
 difficulty: beginner
 tags: [llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 Vous demandez un « bon leader », et la réponse glisse doucement vers un homme en costume. Vous demandez le portrait d’un « développeur type », et le modèle oublie d’un coup des pays entiers, des âges, et des parcours pro. Ce genre de décalage, c’est ce qu’on appelle un **biais** : une inclinaison répétée des réponses, pas juste une mauvaise sortie isolée. Je pense qu’il faut l’apprendre tôt, parce que le biais arrive souvent avec un ton calme et serviable.
@@ -15,7 +15,7 @@ Les LLMs apprennent sur d’immenses collections de textes humains, et ces texte
 
 Le biais ne s’arrête pas au pré-entraînement. Le papier [InstructGPT](https://arxiv.org/abs/2203.02155) montre que le comportement est aussi remodelé par des démonstrations et des classements rédigés par des humains, ce qui veut dire que les choix de réglage ultérieurs peuvent renforcer certaines préférences et en adoucir d’autres. Un **jeu de données d’entraînement** est l’ensemble d’exemples utilisé pour apprendre au modèle. Si cet ensemble surreprésente certains groupes, en rend d’autres moins visibles, ou reflète des discriminations passées, le modèle peut apprendre ces déformations comme si elles étaient ordinaires.
 
-C’est pour ça que je ne réduirais pas le biais aux insultes ou aux formulations ouvertement offensantes. Il peut aussi se voir dans qui est traité comme la norme, dans quel parcours paraît « normal », ou dans quelles perspectives disparaissent sans bruit.
+C'est pourquoi je ne limiterais pas le biais aux insultes ou aux formulations ouvertement offensantes. Il se glisse aussi dans des présupposés silencieux : qui est traité comme la norme, quel parcours paraît « naturel », quelles perspectives s'effacent sans qu'on les remarque.
 
 ## Pourquoi une réponse polie peut rester biaisée
 

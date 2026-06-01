@@ -3,62 +3,59 @@ id: few-shot-prompting
 order: 6
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
-Un exemple a corrigé le cas facile, puis le modèle s'est complètement emmêlé sur les cas bizarres. C'est le signal que la tâche a besoin de plus qu'un simple indice.
+Vous avez écrit un exemple propre, et le modèle se trompe encore sur les cas voisins. C'est souvent le moment d'arrêter de polir la formulation et de commencer à enseigner par l'exemple.
 
-Le **few-shot prompting** consiste à donner au modèle plusieurs paires entrée-sortie avant de lui demander de résoudre un nouveau cas. Dans le jargon du prompting, un **shot** n'est rien d'autre qu'un exemple. Des fournisseurs comme [Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies), [Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) et [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering) décrivent tous les exemples comme un moyen central d'orienter le comportement du modèle. Quand le one-shot vacille, c'est la chose que j'essaie juste après.
+Le **few-shot prompting** consiste à donner au modèle plusieurs exemples résolus avant la vraie tâche. Un **exemple résolu** associe une entrée à la sortie attendue. Google explique que ces exemples servent à cadrer le format de sortie, la formulation, la portée et le motif général de la réponse, qu'ils doivent garder un format cohérent et qu'il faut tester leur nombre, car trop d'exemples peuvent faire coller le modèle de trop près aux cas montrés, un phénomène appelé **surapprentissage** ([guide Google](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/few-shot-examples)).
 
-### Pourquoi quelques exemples battent un paragraphe parfait
+### Pourquoi les débutants y viennent
 
-Certaines tâches sont difficiles à définir avec des mots abstraits. Les labels métier, les politiques de modération, le tri de tickets support, les règles d'extraction ou un style maison vivent souvent plus naturellement dans des exemples que dans des définitions.
+Le few-shot devient utile quand la frontière entre deux réponses reste floue. Un **label** est le nom court de la catégorie attendue, comme `Satisfaction` ou `Problème`. Un **cas limite** est un exemple gênant qui tombe près de la ligne entre deux labels. OpenAI explique que les modèles GPT profitent d'instructions explicites, et les exemples sont justement un moyen très concret de rendre ces instructions moins ambiguës quand les mots seuls laissent encore de la place au doute ([guide OpenAI](https://developers.openai.com/api/docs/guides/prompt-engineering)).
 
-Le few-shot marche parce qu'il apprend au modèle où se trouvent les limites du motif. Un exemple dit : « fais quelque chose comme ça ». Plusieurs exemples disent : « voilà la ligne, et voilà comment elle se courbe ». C'est bien plus utile quand les cas limites comptent vraiment.
+Anthropic recommande de définir des critères de réussite et de tester les prompts avant de continuer à les retoucher. Ce conseil compte ici, parce qu'un prompt plus long n'est utile que s'il améliore les résultats sur de nouveaux cas, pas seulement sur les exemples que vous avez collés dedans ([guide Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices)).
 
-### Ce qui fait de bons exemples few-shot
+### À quoi ressemblent de bons exemples few-shot
 
-Les exemples doivent être cohérents dans leur format et variés dans leur contenu. La cohérence du format enseigne la structure. La variété du contenu enseigne la règle. Si tous les exemples se ressemblent trop, le modèle risque de mémoriser des formulations de surface au lieu du vrai motif.
+Quand je relis un prompt débutant, je vérifie d'abord ces signaux.
 
-Quand je relis un prompt few-shot, je fais souvent ce contrôle rapide avant de chipoter sur la formulation.
+| Motif                       | Exemple                                                              | Pourquoi ça marche / pourquoi ça rate                                                                                   |
+| --------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Bon : format cohérent       | `Exemple 1 : Message ... Label ...` répété de la même manière        | Ça marche parce que le modèle apprend une structure stable au lieu de devoir deviner un nouvel emballage à chaque shot. |
+| Bon : cas variés            | Satisfaction claire, problème clair, question claire, puis cas mixte | Ça marche parce que l'ensemble montre la règle et sa frontière, pas une seule tournure répétée.                         |
+| Bon : labels explicites     | `Label : Problème` plutôt qu'une phrase de réponse complète          | Ça marche parce que la sortie cible est évidente et facile à copier.                                                    |
+| Mauvais : habillages mixtes | Premier exemple en prose, deuxième en puces, troisième en JSON       | Ça rate parce que le modèle dépense son attention à deviner l'emballage au lieu de la tâche.                            |
+| Mauvais : quasi doublons    | Cinq exemples qui disent presque la même chose                       | Ça rate parce que le prompt s'allonge sans enseigner une nouvelle frontière.                                            |
+| Mauvais : labels erronés    | Un message de connexion cassée étiqueté `Satisfaction`               | Ça rate parce qu'un seul mauvais exemple peut enseigner la mauvaise règle.                                              |
 
-| Motif                         | Exemple                                                                     | Pourquoi ça marche / pourquoi ça rate                                                                                   |
-| ----------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Bon : format cohérent         | `Exemple 1 : Message ... Label ...` répété de la même manière à chaque fois | Ça marche parce que le modèle apprend une structure stable au lieu de devoir deviner un nouvel emballage à chaque shot. |
-| Bon : exemples variés         | Message de satisfaction, problème, question, puis cas ambigu                | Ça marche parce que la variété montre où passe la frontière de la règle, pas juste une tournure de phrase.              |
-| Bon : labels clairement posés | `Label : Problem` plutôt qu'une phrase floue                                | Ça marche parce que la sortie cible est limpide et facile à reproduire.                                                 |
-| Mauvais : format incohérent   | Premier exemple en prose, deuxième en puces, troisième en JSON              | Ça rate parce que le modèle gaspille son attention à comprendre l'habillage au lieu de la tâche.                        |
-| Mauvais : trop d'exemples     | 15 mini-shots pour une tâche qui devrait se stabiliser avec 3 à 5           | Ça rate parce que le prompt s'allonge, devient pénible à maintenir, et le signal finit par se diluer.                   |
-| Mauvais : exemples biaisés    | Tous les `Problem` sont agressifs, tous les `Praise` sont enthousiastes     | Ça rate parce que le modèle risque d'apprendre des stéréotypes de ton au lieu de la vraie règle de classification.      |
-| Mauvais : labels erronés      | Un message clairement négatif étiqueté `Praise`                             | Ça rate parce qu'un seul exemple mal étiqueté peut contaminer tout le motif.                                            |
-
-C'est le genre de configuration que j'aime pour une tâche de classification accessible aux débutants.
+Je donnerais quelque chose d'aussi simple à un débutant avant d'ajouter quoi que ce soit de plus sophistiqué.
 
 ```text
-Classe chaque message client comme Praise, Problem ou Question.
+Classe chaque message client comme Satisfaction, Problème ou Question.
 Réponds avec un seul label.
 
 Exemple 1 :
-Message : "Le parcours d'onboarding était clair et j'ai tout configuré en cinq minutes."
-Label : Praise
+Message : "Le parcours d'inscription était clair et j'ai tout configuré en cinq minutes."
+Label : Satisfaction
 
 Exemple 2 :
 Message : "Je ne peux pas réinitialiser mon mot de passe parce que l'email n'arrive jamais."
-Label : Problem
+Label : Problème
 
 Exemple 3 :
 Message : "Est-ce que vous gérez le SSO sur l'offre starter ?"
 Label : Question
 
 Classe maintenant ce message :
-"Le design est propre, mais je n'arrive toujours pas à exporter mes factures."
+"L'interface est propre, mais je n'arrive toujours pas à exporter mes factures."
 ```
 
-Regardez ce que font réellement ces exemples. Ils sont courts, ils utilisent tous la même mise en forme, et ils couvrent des cas différents. Toute l'utilité est là.
+Ce prompt reste lisible parce que chaque exemple garde la même forme, que chaque label est explicite et que le dernier message est un peu mixte au lieu d'être une copie évidente d'un cas précédent.
 
-### Le compromis qu'on explique rarement assez clairement
+### La limite à respecter
 
-Les prompts few-shot sont puissants, mais ils deviennent aussi plus longs. Des prompts plus longs prennent plus de place dans la fenêtre de contexte et demandent plus d'entretien. Si vous continuez à empiler des exemples, il est possible que vous compensiez en réalité une définition de tâche qui reste floue.
+Ajouter des exemples n'est pas gratuit. Chaque exemple ajoute des **tokens**, c'est-à-dire les morceaux de texte que le modèle lit, donc le prompt devient plus long, plus coûteux et plus pénible à maintenir. OpenAI présente l'amélioration comme une boucle entre évaluation, prompt engineering et, pour certains cas, fine-tuning, ce qui en fait la bonne étape suivante quand ajouter des exemples ne change plus les résultats réels ([guide OpenAI tuning](https://platform.openai.com/docs/guides/fine-tuning)).
 
-Mon seuil est très pratique : si trois à cinq exemples ne stabilisent toujours pas le comportement, j'arrête d'ajouter des shots et j'envisage une approche plus systématique, comme une meilleure évaluation ou le [fine-tuning](https://platform.openai.com/docs/guides/fine-tuning). Après ce guide, c'est là que j'irais voir, parce qu'à partir du moment où un prompt commence à ressembler à un mini manuel scolaire, le vrai problème dépasse souvent la simple formulation.
+Ma règle est simple : si chaque nouvel exemple ne corrige que son minuscule coin de problème, arrêtez d'allonger le prompt. La suite logique consiste à mesurer le comportement avec des évaluations, puis à regarder le fine-tuning seulement si les tests répétés montrent clairement que le few-shot a plafonné.

@@ -3,43 +3,59 @@ id: structured-outputs
 order: 12
 difficulty: intermediate
 tags: [prompting, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
-Valid JSON feels like a victory until one missing enum takes down the next service. I learned that the annoying way: the parser was happy, TypeScript was happy, and the business rule still exploded because `"priority": "urgent-ish"` was not a value anybody had agreed to support.
+Your parser passes every test until the model invents one enum value your queue worker has never seen. The JSON parses, the deploy looks green, and the failure lands in the next service.
 
-Structured outputs are what I reach for when the backend depends on shape, not just syntax. OpenAI’s [structured outputs guide](https://platform.openai.com/docs/guides/structured-outputs) lets you attach a JSON Schema and ask the model to return data that matches it. The win is not cosmetic. You move the contract from fuzzy prompt prose into a machine-checkable interface.
+That is when I stop asking for “valid JSON” and start defining a contract. [JSON Schema](https://json-schema.org/overview/what-is-jsonschema) is the useful baseline here because it lets you lock required keys, enums, and nested objects instead of hoping prompt wording keeps the shape stable.
 
-That changes how you think about prompting. The [JSON Schema overview](https://json-schema.org/overview/what-is-jsonschema) is worth reading because the moment you define enums, required properties, and nested objects, you are not “just prompting” anymore. You are designing an API boundary, and schema mistakes usually outlive prompt wording.
+Provider support is similar in spirit, but not in API shape. OpenAI’s [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) let the Responses API return schema-constrained assistant text with `text.format.type = "json_schema"`, and the same guide is clear that you still need to handle refusals and that the first request with a new schema can be slower. Anthropic’s [strict tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/strict-tool-use) gives the guarantee on tool arguments with `strict: true` plus an `input_schema`, which is excellent for agents but not the same thing as constraining arbitrary assistant prose. Gemini’s [structured output](https://ai.google.dev/gemini-api/docs/structured-output) uses a response format with `mimeType: "application/json"` plus a schema; in the REST API, that sits under `generationConfig.responseFormat.text`, so it is closer to the OpenAI pattern than the Anthropic one.
 
-The part most people skip is the refusal branch. Structured outputs do not force the model to comply with unsafe or impossible requests, so your code still needs a real fallback path. Another operational detail from the docs matters in production: the first request with a new schema can add latency while the schema is processed. That is fine for internal tools, less funny on a hot path you forgot to warm up.
+If that distinction feels annoyingly subtle, you are not imagining it. That difference matters before you promise “portable structured outputs” to a team. If you need typed assistant text, OpenAI or Gemini fit directly. If you need a model to call your functions safely, Anthropic’s strict tool inputs are the tighter match.
 
-This is the kind of call I use when a typed payload is non-negotiable:
+On OpenAI, this is the shape I would actually ship for a medium-risk extraction task:
 
 ```ts
 const response = await client.responses.create({
-  model: 'gpt-4.1',
-  input: 'Classify this lead based on the transcript.',
+  model: 'gpt-4o-2024-08-06', // example model from the official Structured Outputs guide
+  input: [
+    {
+      role: 'developer',
+      content: 'Extract the ticket summary. If a field is missing in the source, return null instead of guessing.',
+    },
+    { role: 'user', content: transcript },
+  ],
   text: {
     format: {
-      type: 'json_schema',
-      name: 'lead_classifier',
-      strict: true,
+      type: 'json_schema', // turn on schema-constrained text output
+      name: 'ticket_summary', // stable name for this payload
+      strict: true, // require schema adherence
       schema: {
         type: 'object',
         additionalProperties: false,
         properties: {
-          segment: { type: 'string', enum: ['startup', 'agency', 'enterprise'] },
-          priority: { type: 'string', enum: ['low', 'medium', 'high'] },
-          needs_demo: { type: 'boolean' },
+          sentiment: { type: 'string', enum: ['negative', 'neutral', 'positive'] },
+          urgency: { type: 'string', enum: ['low', 'medium', 'high'] },
+          product: {
+            anyOf: [{ type: 'string' }, { type: 'null' }], // nullable instead of guessed
+          },
+          needs_human: { type: 'boolean' },
         },
-        required: ['segment', 'priority', 'needs_demo'],
+        required: ['sentiment', 'urgency', 'product', 'needs_human'],
       },
     },
   },
 });
+
+const firstItem = response.output[0]?.content[0];
+if (firstItem?.type === 'refusal') throw new Error(firstItem.refusal);
+
+const ticket = JSON.parse(response.output_text);
 ```
+
+I keep the schema tighter than my instinct. Anthropic’s [tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) notes that tool definitions and schemas themselves count toward input tokens, so every extra property and verbose description has a real cost. That is one more reason to cap retries, scrub secrets before logging broken payloads, and stop after one repair attempt instead of turning validation into a budget leak.
 
 When choosing an output format, I use a very boring rule: pick the weakest format that still gives me reliable parsing.
 
@@ -65,8 +81,4 @@ flowchart TD
     F -->|Still broken| G[Fallback]
 ```
 
-I still keep the prompt itself boring and explicit. OpenAI’s [prompt engineering guide](https://platform.openai.com/docs/guides/prompt-engineering) still applies: clear instructions and good examples matter even when the output is typed. A schema prevents structural drift, not semantic stupidity.
-
-The useful comparison is OpenAI’s [JSON mode guide](https://platform.openai.com/docs/guides/text-generation#json-mode). JSON mode solves parseability. Structured outputs solve parseability plus schema adherence. That extra guarantee costs some setup and some provider coupling, but it saves a lot of defensive code once your system starts depending on exact fields.
-
-My threshold is blunt. The moment downstream code branches on keys, enums, or required fields, pay the schema tax up front. Free-form text is fun for demos. Contracts are what survive contact with production.
+My cutoff is simple. If downstream code branches on a field, pay the schema tax on day one. If the output only helps a human think and a wrong enum cannot trigger automation, plain JSON is usually enough.

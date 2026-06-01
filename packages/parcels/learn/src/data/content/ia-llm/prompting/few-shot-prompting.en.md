@@ -3,44 +3,41 @@ id: few-shot-prompting
 order: 6
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
-One example fixed the easy case, then the model face-planted on the weird ones. That is your signal that the task needs more than a hint.
+You wrote one clean example, and the model still gets the neighboring cases wrong. That is usually the moment to stop polishing the wording and start teaching by example.
 
-**Few-shot prompting** means giving the model several examples of input-output pairs before asking it to solve a new case. In prompting jargon, a **shot** is just one example. Providers like [Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies), [Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview), and [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering) all describe examples as a core way to steer model behavior. When one-shot is shaky, few-shot is the next thing I try.
+**Few-shot prompting** means giving the model several worked examples before the real task. A **worked example** is one input paired with the output you want back. Google explains that few-shot examples help control output format, phrasing, scope, and broader response patterns, should stay consistent in format, and should be tested carefully because too many examples can make the model cling too closely to the samples you showed, a problem called **overfitting** ([Google few-shot](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/few-shot-examples)).
 
-### Why a few examples beat one perfect paragraph
+### Why beginners reach for it
 
-Some tasks are hard to define in abstract words. Custom labels, moderation policies, support triage, extraction rules, and house style often live in examples more naturally than in definitions.
+Few-shot is most useful when the boundary between answers is fuzzy. A **label** is the short category name you want back, such as `Praise` or `Problem`. An **edge case** is an awkward example that sits near the line between two labels. OpenAI says GPT models do better with explicit instructions, and examples are one practical way to make those instructions concrete when plain wording still leaves room for guessing ([OpenAI prompting](https://developers.openai.com/api/docs/guides/prompt-engineering)).
 
-Few-shot works because it teaches the model the boundaries of the pattern. One example says, "do something like this." Several examples say, "here is the line, and here is where it bends." That is much more useful when the edge cases matter.
+Anthropic recommends defining success criteria and testing prompts against them before you keep tuning. That advice matters here because a longer prompt is only better if it improves results on new cases, not just on the examples you pasted into it ([Anthropic guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices)).
 
-### What makes good few-shot examples
+### What good few-shot examples look like
 
-The examples should be consistent in format and varied in content. Consistent format teaches the structure. Varied content teaches the rule. If every example is too similar, the model may memorize surface wording instead of the actual pattern.
+When I review a beginner prompt, I look for these signals first.
 
-When I review a few-shot prompt, I usually sanity-check it with a table like this before I obsess over wording.
+| Pattern                     | Example                                                             | Why it works / Why it fails                                                                                    |
+| --------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Good: consistent format     | `Example 1: Message ... Label ...` repeated the same way each time  | Works because the model learns one stable structure instead of reverse-engineering a new layout on every shot. |
+| Good: varied cases          | Clear praise, clear problem, clear question, then one mixed case    | Works because the set shows the rule and its boundary, not one repeated phrasing pattern.                      |
+| Good: labels stated clearly | `Label: Problem` rather than a full answer sentence                 | Works because the target output is obvious and easy to copy.                                                   |
+| Bad: mixed wrappers         | First example is prose, second is bullets, third is JSON            | Fails because the model spends attention guessing the wrapper instead of the task.                             |
+| Bad: near-duplicates        | Five examples that all say the same thing with tiny wording changes | Fails because the prompt gets longer without teaching a new boundary.                                          |
+| Bad: wrong labels           | An obviously broken login message labeled `Praise`                  | Fails because one bad example can teach the wrong rule.                                                        |
 
-| Pattern                     | Example                                                                      | Why it works / Why it fails                                                                                    |
-| --------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Good: consistent format     | `Example 1: Message ... Label ...` repeated the same way each time           | Works because the model learns one stable structure instead of reverse-engineering a new layout on every shot. |
-| Good: diverse examples      | Praise, complaint, question, and mixed-signal customer messages              | Works because variety teaches the boundary of the rule instead of one narrow wording pattern.                  |
-| Good: labels stated clearly | `Label: Problem` rather than a vague answer sentence                         | Works because the target output is obvious and easy to imitate.                                                |
-| Bad: inconsistent format    | First example is prose, second is bullets, third is JSON                     | Fails because the model spends attention guessing the wrapper instead of the task.                             |
-| Bad: too many examples      | 15 tiny shots for a task that should stabilize after 3 to 5                  | Fails because prompt length grows, maintenance gets worse, and signal starts turning into noise.               |
-| Bad: biased examples        | Every “problem” example sounds angry, every “praise” example sounds cheerful | Fails because the model may learn tone stereotypes instead of the actual classification rule.                  |
-| Bad: wrong labels           | An obviously negative message is labeled `Praise`                            | Fails because one mislabeled shot can poison the whole pattern.                                                |
-
-This is the kind of setup I like for a beginner-friendly classification task.
+I would hand a beginner something this plain before adding anything fancier.
 
 ```text
 Classify each customer message as Praise, Problem, or Question.
 Reply with only one label.
 
 Example 1:
-Message: "The onboarding flow was clear and I got set up in five minutes."
+Message: "The onboarding was clear and I got set up in five minutes."
 Label: Praise
 
 Example 2:
@@ -52,13 +49,13 @@ Message: "Do you support SSO on the starter plan?"
 Label: Question
 
 Now classify this message:
-"The design is clean, but I still can't export my invoices."
+"The interface is clean, but I still can't export my invoices."
 ```
 
-Notice what these examples do. They are short, they use the same layout, and they cover different cases. That variety is the whole point.
+This prompt stays readable because every example uses the same shape, each label is explicit, and the final message is slightly mixed instead of being an obvious copy of a previous case.
 
-### The trade-off nobody tells beginners clearly enough
+### The limit to respect
 
-Few-shot prompts are powerful, but they also get longer. Longer prompts take more room in the context window and more effort to maintain. If you keep stuffing examples into the prompt, you may eventually be compensating for a task definition that is still unclear.
+More examples are not free. Each one adds **tokens**, the chunks of text the model reads, so the prompt gets longer, more expensive, and harder to maintain. OpenAI describes improvement as a loop of evals, prompt engineering, and, for some use cases, fine-tuning, which is the right next step once adding examples stops changing real results ([OpenAI tuning](https://platform.openai.com/docs/guides/fine-tuning)).
 
-My threshold is practical: if three to five examples still do not stabilize the behavior, I stop piling on shots and consider a more systematic approach such as better evaluation or [fine-tuning](https://platform.openai.com/docs/guides/fine-tuning). After this guide, that is where I would look next, because once a prompt starts needing a tiny textbook, the real problem is usually bigger than wording.
+My rule is simple: if each new example only fixes its own tiny corner case, stop growing the prompt. Next, measure the behavior with evals, and only look at fine-tuning if repeated tests show few-shot has clearly plateaued.

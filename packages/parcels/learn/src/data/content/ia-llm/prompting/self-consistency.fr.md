@@ -3,38 +3,71 @@ id: self-consistency
 order: 8
 difficulty: intermediate
 tags: [prompting, reasoning, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
-Tu arrives enfin à stabiliser un prompt de raisonnement, puis la prod commence à renvoyer 42, 39, et « sans doute 41 » pour la même question. C’est là que tu arrêtes d’admirer le style et que tu recommences à exiger de la fiabilité.
+Tu finis par stabiliser un prompt de raisonnement, puis la prod renvoie 42, 39, et « sans doute 41 » pour la même tâche. C’est à ce moment-là que l’auto-cohérence arrête de sentir le labo et commence à devenir utile.
 
-L’auto-cohérence est la technique que je choisis quand une tâche devrait converger vers une seule réponse, même s’il existe plusieurs chemins plausibles pour y arriver. Le [papier](https://arxiv.org/abs/2203.11171) remplace le décodage glouton par plusieurs trajectoires de raisonnement échantillonnées, puis retient la réponse qui reste la plus cohérente entre elles. Dit comme ça, ça sent un peu le labo. En pratique, c’est simple : tu fais plusieurs runs et tu obliges l’accord à mériter la victoire.
+L’auto-cohérence vient de [Wang et al.](https://arxiv.org/abs/2203.11171) : au lieu de garder une seule trajectoire de raisonnement gloutonne, tu en échantillonnes plusieurs et tu retiens la réponse qui revient le plus souvent. Je la traite comme une tactique de fiabilité, pas comme un bonus d’intelligence magique.
 
-Le vrai piège, c’est le coût. Le guide [model optimization](https://developers.openai.com/api/docs/guides/model-optimization) d’OpenAI est assez direct : les sorties d’un LLM sont non déterministes, et il faut des mesures pour savoir si un prompt progresse vraiment ou s’il vient juste de tomber sur un bon tirage. Si tu n’as pas construit des [evals](https://developers.openai.com/api/docs/guides/evals), l’auto-cohérence peut te rassurer tout en multipliant discrètement la facture. Une réponse à 2 000 tokens, ça passe. Cinq échantillons, ça transforme la même requête en petite réunion budgétaire.
+La facture arrive vite. Le [guide d’optimisation](https://developers.openai.com/api/docs/guides/model-optimization) d’OpenAI rappelle que le comportement d’un modèle est non déterministe et doit être mesuré, et son [guide Evals](https://developers.openai.com/api/docs/guides/evals) montre comment le faire proprement. Cinq échantillons peuvent réduire les ratés aléatoires, mais ils multiplient aussi les tokens et la latence. Les [rate limits](https://platform.openai.com/docs/guides/rate-limits) comptent aussi, parce que des appels répétés consomment bien plus vite le RPM et le TPM qu’une seule requête.
 
-Autre erreur que je vois souvent : voter sur le raisonnement au lieu de voter sur la réponse finale. Mauvaise idée. Vote sur une valeur finale normalisée, parce que l’explication la plus élégante de la pièce est souvent complètement fausse. Les LLM excellent à donner l’impression qu’ils ont fait les calculs.
+Ma règle est simple : vote sur une réponse finale normalisée, pas sur l’explication. Si tu as besoin d’un champ stable à comparer, [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) est plus sûr que gratter de la prose, parce que le schéma est imposé au lieu d’espérer que le modèle garde le même format.
 
-Voici la version que je mettrais vraiment en prod pour une étape de raisonnement fragile :
+Avant de recopier le pattern, regarde bien la forme de la requête : la même tâche à chaque fois, assez de température pour explorer des chemins alternatifs, et une limite de sortie serrée pour garder le budget sous contrôle. Le code ci-dessous reprend la forme du [guide texte](https://platform.openai.com/docs/guides/text?api-mode=responses) d’OpenAI pour la Responses API.
 
 ```ts
-const samples = await Promise.all(
-  Array.from({ length: 5 }, async () => {
-    const response = await client.responses.create({
-      model: 'gpt-4.1',
-      temperature: 0.7,
-      input: prompt,
-    });
+import OpenAI from 'openai';
 
-    return extractFinalAnswer(response.output_text);
-  })
-);
+const client = new OpenAI();
 
-const answer = majorityVote(samples.map(normalizeAnswer));
+const instructions = [
+  'Solve the task carefully.',
+  'You may reason internally.',
+  'Reply with only the final answer.',
+].join(' ');
+
+function normalizeAnswer(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function majorityVote(values: string[]): [string, number] | null {
+  const counts = new Map<string, number>();
+
+  for (const value of values) {
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+
+  const winner = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+
+  return winner ?? null;
+}
+
+async function sampleFinalAnswer(task: string): Promise<string> {
+  const response = await client.responses.create({
+    model: 'gpt-4.1', // Épingle un modèle ou un snapshot en production.
+    temperature: 0.7, // Laisse assez d'aléa pour explorer d'autres chemins.
+    max_output_tokens: 60, // Garde chaque échantillon peu coûteux.
+    input: [
+      { role: 'developer', content: instructions },
+      { role: 'user', content: task },
+    ], // Garde exactement le même prompt à chaque essai.
+  });
+
+  return normalizeAnswer(response.output_text);
+}
+
+const task = 'What is 27 × 14?';
+const samples = await Promise.all(Array.from({ length: 5 }, () => sampleFinalAnswer(task)));
+
+const winner = majorityVote(samples);
+
+if (!winner || winner[1] < 3) {
+  throw new Error('No stable answer. Escalate or verify deterministically.');
+}
+
+console.log(winner[0]);
 ```
 
-Cinq échantillons suffisent souvent pour voir si le prompt est robuste ou juste chanceux. Si le score tombe sur un 2-2-1, je ne fais pas confiance à la majorité. Je traite ça comme de l’incertitude et soit j’escalade vers un modèle plus fort, soit je passe par une vérification déterministe. Ce signal vaut déjà la moitié du prix d’entrée.
-
-Le [guide de tests](https://docs.anthropic.com/en/docs/test-and-evaluate/develop-tests) d’Anthropic pousse la même idée sous un autre angle : définir des critères de réussite, construire des évaluations, puis itérer. C’est pour ça que j’aime l’auto-cohérence en production. Ce n’est pas de la poussière magique pour le raisonnement, c’est un moyen assez bon marché de rendre le désaccord visible.
-
-Utilise l’auto-cohérence quand une mauvaise réponse coûte assez cher pour justifier trois à cinq appels, par exemple pour de l’extraction financière, des contrôles de politique, ou des workflows avec pas mal de calcul. Oublie ça pour du texte de chat générique. Si tu n’es pas capable d’expliquer quoi faire quand les votes se dispersent, tu n’es pas prêt à payer les échantillons en plus.
+J’utilise ce pattern pour des tâches bornées comme le calcul, la classification, ou l’extraction, quand une mauvaise réponse coûte plus cher que trois à cinq appels de plus. Si la meilleure réponse ne dépasse pas environ 60 % des votes, traite le résultat comme non résolu et escalade au lieu de faire semblant d’avoir de la confiance.

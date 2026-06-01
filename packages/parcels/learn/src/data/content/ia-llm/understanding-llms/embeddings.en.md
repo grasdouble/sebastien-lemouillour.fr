@@ -3,8 +3,8 @@ id: embeddings
 order: 11
 difficulty: beginner
 tags: [embeddings, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-01
+updatedAt: 2026-06-01
 ---
 
 You search for “how to cancel a plan,” but the page says “end your subscription.” Keyword search shrugs, and you are left thinking, “come on, that is obviously the same idea.” If the problem is “same meaning, different words,” an embedding is often the first tool I would choose.
@@ -15,7 +15,7 @@ OpenAI’s [embeddings guide](https://platform.openai.com/docs/guides/embeddings
 
 That still sounds cold and mathematical, so I picture a city map. Sentences with nearby meanings live in the same neighborhood. “Cheap hotel” and “budget place to stay” do not share many words, but a decent embedding model tries to park them close together.
 
-That trick has older roots than most beginners expect. The [word2vec paper](https://arxiv.org/abs/1301.3781) showed early on that language can be turned into vectors that capture useful patterns. Modern embedding models do the same job with richer context.
+The idea of representing meaning as coordinates is older than most beginners expect. The [word2vec paper](https://arxiv.org/abs/1301.3781) showed early on that language can be turned into vectors that capture useful patterns. Modern embedding models do the same job with richer context.
 
 ## What people use embeddings for
 

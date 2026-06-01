@@ -3,45 +3,61 @@ id: structured-outputs
 order: 12
 difficulty: intermediate
 tags: [prompting, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
-Un JSON valide ressemble à une victoire jusqu’au moment où un enum manquant fait tomber le service d’après. Je l’ai appris de la façon agaçante : le parseur était content, TypeScript aussi, et la règle métier explosait quand même parce que `"priority": "urgent-ish"` n’était une valeur prise en charge par personne.
+Ton parseur passe tous les tests jusqu’au jour où le modèle invente une valeur d’enum que ton worker n’a jamais vue. Le JSON se parse, le déploiement a l’air propre, et la casse arrive dans le service d’après.
 
-Les structured outputs, c’est ce que je choisis quand le backend dépend de la forme, pas seulement de la syntaxe. Le [guide Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) d’OpenAI permet d’attacher un schéma JSON Schema et de demander au modèle une sortie qui le respecte. Le gain n’est pas cosmétique. Tu déplaces le contrat depuis un prompt flou vers une interface vérifiable par la machine.
+À ce moment-là, j’arrête de demander du “JSON valide” et je définis un contrat. [JSON Schema](https://json-schema.org/overview/what-is-jsonschema) est la bonne base ici, parce que tu peux verrouiller les clés requises, les enums et les objets imbriqués au lieu d’espérer qu’un prompt bien tourné garde la forme stable.
 
-Ça change aussi la manière de penser le prompting. La [présentation de JSON Schema](https://json-schema.org/overview/what-is-jsonschema) mérite vraiment la lecture, parce qu’à partir du moment où tu définis des enums, des propriétés requises et des objets imbriqués, tu n’es plus “juste en train d’écrire un prompt”. Tu es en train de concevoir une frontière d’API, et les erreurs de schéma vivent souvent beaucoup plus longtemps que la formulation du prompt.
+Le principe est proche selon les providers, mais la forme d’API ne l’est pas. Les [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) d’OpenAI permettent au Responses API de renvoyer un texte assistant contraint par schéma avec `text.format.type = "json_schema"`, et le même guide rappelle qu’il faut toujours gérer les refus et que la première requête avec un nouveau schéma peut être plus lente. Le [strict tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/strict-tool-use) d’Anthropic donne la garantie sur les arguments d’outils avec `strict: true` et `input_schema`, ce qui est excellent pour les agents, mais ce n’est pas la même chose que contraindre une réponse libre de l’assistant. Le [structured output](https://ai.google.dev/gemini-api/docs/structured-output) de Gemini passe par un format de réponse avec `mimeType: "application/json"` et un schéma ; dans l’API REST, ça vit sous `generationConfig.responseFormat.text`, donc on est plus proche du modèle OpenAI que du modèle Anthropic.
 
-Le détail que beaucoup oublient, c’est la branche de refus. Les structured outputs n’obligent pas le modèle à répondre à une demande dangereuse ou impossible, donc ton code a toujours besoin d’un vrai chemin de repli. Un autre détail opérationnel des docs compte en production : la première requête avec un nouveau schéma peut ajouter de la latence pendant le traitement du schéma. C’est acceptable sur un outil interne, beaucoup moins drôle sur un hot path que personne n’a préchauffé.
+Si cette distinction te paraît inutilement subtile, tu ne l’inventes pas. Cette différence compte avant de vendre des “structured outputs portables” à une équipe. Si tu as besoin d’un texte assistant typé, OpenAI ou Gemini collent directement au besoin. Si tu as besoin qu’un modèle appelle tes fonctions sans casser la signature, les entrées d’outils strictes d’Anthropic sont un meilleur choix.
 
-Voici le genre d’appel que j’utilise quand un payload typé n’est pas négociable :
+Sur OpenAI, voilà la forme que je livrerais vraiment pour une extraction de risque moyen :
 
 ```ts
 const response = await client.responses.create({
-  model: 'gpt-4.1',
-  input: 'Classify this lead based on the transcript.',
+  model: 'gpt-4o-2024-08-06', // exemple de modèle donné dans le guide officiel Structured Outputs
+  input: [
+    {
+      role: 'developer',
+      content: 'Extract the ticket summary. If a field is missing in the source, return null instead of guessing.',
+    },
+    { role: 'user', content: transcript },
+  ],
   text: {
     format: {
-      type: 'json_schema',
-      name: 'lead_classifier',
-      strict: true,
+      type: 'json_schema', // active une sortie texte contrainte par schéma
+      name: 'ticket_summary', // nom stable pour ce payload
+      strict: true, // impose le respect du schéma
       schema: {
         type: 'object',
         additionalProperties: false,
         properties: {
-          segment: { type: 'string', enum: ['startup', 'agency', 'enterprise'] },
-          priority: { type: 'string', enum: ['low', 'medium', 'high'] },
-          needs_demo: { type: 'boolean' },
+          sentiment: { type: 'string', enum: ['negative', 'neutral', 'positive'] },
+          urgency: { type: 'string', enum: ['low', 'medium', 'high'] },
+          product: {
+            anyOf: [{ type: 'string' }, { type: 'null' }], // nullable au lieu de deviner
+          },
+          needs_human: { type: 'boolean' },
         },
-        required: ['segment', 'priority', 'needs_demo'],
+        required: ['sentiment', 'urgency', 'product', 'needs_human'],
       },
     },
   },
 });
+
+const firstItem = response.output[0]?.content[0];
+if (firstItem?.type === 'refusal') throw new Error(firstItem.refusal);
+
+const ticket = JSON.parse(response.output_text);
 ```
 
-Quand je choisis un format de sortie, j'applique une règle très terre à terre : je prends le format le plus simple qui me donne encore un parsing fiable.
+Je garde le schéma plus serré que mon instinct. La [vue d’ensemble du tool use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) d’Anthropic précise que les définitions d’outils et les schémas comptent eux-mêmes dans les tokens d’entrée, donc chaque propriété en trop et chaque description verbeuse ont un coût réel. C’est une bonne raison de limiter les retries, de nettoyer les secrets avant de logger un payload cassé, et de s’arrêter après une tentative de réparation au lieu de transformer la validation en fuite de budget.
+
+Pour choisir un format de sortie, j'utilise une règle très ennuyeuse : prendre le format le plus faible qui donne encore un parsing fiable.
 
 | Format             | Cas d'usage                                                     | Librairie de parsing             | Risque                                                                            |
 | ------------------ | --------------------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------- |
@@ -65,8 +81,4 @@ flowchart TD
     F -->|Toujours cassé| G[Fallback]
 ```
 
-Je garde quand même le prompt lui-même très sobre et très explicite. Le [guide de prompt engineering](https://platform.openai.com/docs/guides/prompt-engineering) reste valable : des consignes claires et de bons exemples comptent toujours, même quand la sortie est typée. Un schéma empêche la dérive structurelle, pas la bêtise sémantique.
-
-La comparaison utile, c’est le [guide JSON mode](https://platform.openai.com/docs/guides/text-generation#json-mode). Le JSON mode résout la parseabilité. Les structured outputs résolvent la parseabilité plus l’adhérence au schéma. Cette garantie supplémentaire coûte un peu de setup et un peu de dépendance au provider, mais elle fait gagner beaucoup de code défensif dès que ton système dépend de champs exacts.
-
-Mon seuil est très simple. Dès que le code en aval branche sur des clés, des enums ou des champs requis, paie la taxe du schéma tout de suite. Le texte libre est amusant pour les démos. Les contrats, eux, survivent à la production.
+Mon seuil est simple. Si le code en aval branche sur un champ, paie la taxe du schéma dès le premier jour. Si la sortie sert seulement à aider un humain à réfléchir et qu'un mauvais enum ne déclenche aucune automatisation, du JSON simple suffit souvent.

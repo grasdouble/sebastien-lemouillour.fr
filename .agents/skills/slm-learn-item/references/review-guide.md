@@ -35,8 +35,8 @@ If more than one guide is in scope, use sub-agents (see the batch orchestration 
 
 > **Load both asset files before reviewing:**
 >
-> - `{skill-root}/assets/content-quality-rules.md` — the authoritative source for link counts, anchor text, project-agnosticism, and narrative arc
-> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, tone calibration by difficulty, antipatterns, reformulation examples
+> - `{skill-root}/assets/content-quality-rules.md` — the authoritative source for link counts, anchor text, project-agnosticism, narrative arc, and difficulty-specific content requirements
+> - `{skill-root}/assets/voice-rules.md` — point of view, opening rule, unified Découvreur voice, antipatterns, reformulation examples
 >
 > The checklist below applies both files. Apply all rules without exception.
 
@@ -70,6 +70,13 @@ For each guide, verify:
 - [ ] Code examples use generic names (`@my/shared`, `my-app`, `my-package`)
 - [ ] Any personal anecdote is framed around a universal experience, not internal specifics
 
+### Visual elements
+
+- [ ] For every existing GFM table and Mermaid diagram, assess its relevance: does it still add value given the current prose structure?
+- [ ] If still relevant and factually accurate — keep it as-is
+- [ ] If still relevant but stale or mismatched between EN and FR — update the cells or node labels to match
+- [ ] If no longer relevant or genuinely misleading — remove it, and flag the removal explicitly in the correction log
+
 ### Dates
 
 - [ ] `publishedAt` is present in both EN and FR frontmatter
@@ -90,7 +97,7 @@ For each guide, verify:
 - [ ] One natural transition sentence before every code block
 - [ ] Closes with a decision rule, a caveat, or a threshold — not a summary
 - [ ] Takes a clear stance at least once: states what it would recommend and why, not just neutral options
-- [ ] Tone matches the difficulty: warm/reassuring for `beginner`, peer-to-peer for `intermediate`, blunt for `advanced`
+- [ ] Tone is warm and reassuring (Découvreur) regardless of difficulty — normalizes confusion, never blunt or coldly authoritative
 - [ ] EN and FR match in voice: same opinions, stance, humor — FR is not a reduced version
 
 ## Pre-pass — Structural validation
@@ -142,7 +149,7 @@ Apply these orchestration rules:
    > **Escape hatch:** If the request includes `confirm: false` or is in headless mode (strict JSON payload with `mode: headless`), skip the scope confirmation and proceed directly.
 3. Launch sub-agents with a rolling concurrency cap of **4** — start the next guide immediately as each sub-agent completes, rather than waiting for an entire batch to finish; **1 sub-agent per guide, 1 guide per sub-agent**
 4. Track which guides have been started and completed; never launch more than 4 concurrently
-5. Each sub-agent prompt must include: file paths, voice rules (from session persistent_facts), content quality rules, constraints (`no git add/commit`), and the **exact JSON schema from the Subagent return contract below** — instruct the sub-agent explicitly that it must return only that JSON object, no prose, no markdown outside the schema. Sub-agents must NOT run `pnpm lint` or `pnpm build` — the parent runs the final validation once after all guides complete.
+5. Each sub-agent prompt must include: file paths, voice rules (from session persistent_facts), content quality rules, constraints (`no git add/commit`, **never remove existing GFM tables or Mermaid diagrams — update their content if stale, but always keep the visual element**), and the **exact JSON schema from the Subagent return contract below** — instruct the sub-agent explicitly that it must return only that JSON object, no prose, no markdown outside the schema. Sub-agents must NOT run `pnpm lint` or `pnpm build` — the parent runs the final validation once after all guides complete.
 6. After all batches: run `rtk pnpm lint && rtk pnpm typecheck && rtk pnpm build` from `packages/parcels/learn`
 7. Report a summary of what each sub-agent changed
 

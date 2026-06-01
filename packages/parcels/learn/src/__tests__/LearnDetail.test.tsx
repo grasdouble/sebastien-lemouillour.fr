@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type * as DesignSystem from '@grasdouble/lufa_design-system';
@@ -36,10 +36,6 @@ vi.mock('@grasdouble/lufa_design-system', async () => {
   };
 });
 
-vi.mock('@grasdouble/slm_shared', () => ({
-  LangSwitcher: () => <div data-testid="lang-switcher" />,
-}));
-
 vi.mock('../components/MermaidBlock/MermaidBlock', () => ({
   MermaidBlock: ({ chart }: { chart: string }) => (
     <div data-testid="mermaid-block" data-chart={chart} role="img" aria-label="Diagram" />
@@ -64,7 +60,7 @@ describe('LearnDetail — dates', () => {
   afterEach(cleanup);
 
   it('shows only the published date when publishedAt equals updatedAt', () => {
-    render(<LearnDetail tutorial={baseTutorial} onClose={vi.fn()} />);
+    render(<LearnDetail tutorial={baseTutorial} onBack={vi.fn()} />);
 
     const times = document.querySelectorAll('time');
     expect(times).toHaveLength(1);
@@ -73,7 +69,7 @@ describe('LearnDetail — dates', () => {
 
   it('shows both dates when publishedAt differs from updatedAt', () => {
     const tutorial: Tutorial = { ...baseTutorial, updatedAt: '2025-06-01' };
-    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+    render(<LearnDetail tutorial={tutorial} onBack={vi.fn()} />);
 
     const times = document.querySelectorAll('time');
     expect(times).toHaveLength(2);
@@ -83,7 +79,7 @@ describe('LearnDetail — dates', () => {
 
   it('shows a | separator between dates when they differ', () => {
     const tutorial: Tutorial = { ...baseTutorial, updatedAt: '2025-06-01' };
-    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+    render(<LearnDetail tutorial={tutorial} onBack={vi.fn()} />);
 
     expect(document.body.textContent).toContain('|');
   });
@@ -98,7 +94,7 @@ describe('LearnDetail — link rendering', () => {
       content: 'Check [this link](https://example.com) for more.',
     };
 
-    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+    render(<LearnDetail tutorial={tutorial} onBack={vi.fn()} />);
 
     const link = screen.getByTestId('ds-link');
     expect(link).toBeTruthy();
@@ -111,7 +107,7 @@ describe('LearnDetail — link rendering', () => {
       content: '[Read more](https://example.com)',
     };
 
-    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+    render(<LearnDetail tutorial={tutorial} onBack={vi.fn()} />);
 
     const link = screen.getByTestId('ds-link');
     expect(link.textContent).toBe('Read more');
@@ -123,7 +119,7 @@ describe('LearnDetail — link rendering', () => {
       content: '[External](https://example.com)',
     };
 
-    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+    render(<LearnDetail tutorial={tutorial} onBack={vi.fn()} />);
 
     const link = screen.getByTestId('ds-link');
     expect(link.getAttribute('target')).toBe('_blank');
@@ -134,9 +130,9 @@ describe('LearnDetail — link rendering', () => {
 describe('LearnDetail — language switcher', () => {
   afterEach(cleanup);
 
-  it('renders the LangSwitcher component in the header', () => {
-    render(<LearnDetail tutorial={baseTutorial} onClose={vi.fn()} />);
-    expect(screen.getByTestId('lang-switcher')).toBeTruthy();
+  it('does not render the LangSwitcher component', () => {
+    render(<LearnDetail tutorial={baseTutorial} onBack={vi.fn()} />);
+    expect(screen.queryByTestId('lang-switcher')).toBeNull();
   });
 });
 
@@ -149,7 +145,7 @@ describe('LearnDetail — code block rendering', () => {
       content: '```js\nconsole.log("hello");\n```',
     };
 
-    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+    render(<LearnDetail tutorial={tutorial} onBack={vi.fn()} />);
 
     expect(document.querySelector('pre')).not.toBeNull();
     expect(document.querySelector('code')).not.toBeNull();
@@ -161,7 +157,7 @@ describe('LearnDetail — code block rendering', () => {
       content: '```mermaid\ngraph TD\nA-->B\n```',
     };
 
-    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+    render(<LearnDetail tutorial={tutorial} onBack={vi.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByTestId('mermaid-block')).toBeTruthy();
@@ -174,7 +170,7 @@ describe('LearnDetail — code block rendering', () => {
       content: '```mermaid\ngraph TD\nA-->B\n```',
     };
 
-    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+    render(<LearnDetail tutorial={tutorial} onBack={vi.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByTestId('mermaid-wrapper')).toBeTruthy();
@@ -191,8 +187,29 @@ describe('LearnDetail — table rendering', () => {
       content: '| A | B |\n|---|---|\n| 1 | 2 |',
     };
 
-    render(<LearnDetail tutorial={tutorial} onClose={vi.fn()} />);
+    render(<LearnDetail tutorial={tutorial} onBack={vi.fn()} />);
 
     expect(document.querySelector('table')).not.toBeNull();
+  });
+});
+
+describe('LearnDetail — page layout (not a modal)', () => {
+  afterEach(cleanup);
+
+  it('does not render role="dialog" — it is a plain page, not a modal', () => {
+    render(<LearnDetail tutorial={baseTutorial} onBack={vi.fn()} />);
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it('renders a back button', () => {
+    render(<LearnDetail tutorial={baseTutorial} onBack={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /detail\.backToList/i })).toBeTruthy();
+  });
+
+  it('calls onBack when the back button is clicked', () => {
+    const onBack = vi.fn();
+    render(<LearnDetail tutorial={baseTutorial} onBack={onBack} />);
+    fireEvent.click(screen.getByRole('button', { name: /detail\.backToList/i }));
+    expect(onBack).toHaveBeenCalledOnce();
   });
 });

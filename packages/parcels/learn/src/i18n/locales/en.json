@@ -15,7 +15,6 @@
     "results_other": "{{count}} guides"
   },
   "detail": {
-    "close": "Close",
     "backToList": "Back to list",
     "publishedAt": "Published on",
     "updatedAt": "Updated on"
@@ -43,8 +42,6 @@
     "architecture": "Architecture"
   },
   "catalogs": {
-    "sectionTitle": "Catalogues",
-    "sectionSubtitle": "Collections of guides around a common theme",
     "guideCount_one": "{{count}} guide",
     "guideCount_other": "{{count}} guides",
     "back": "Back to list",

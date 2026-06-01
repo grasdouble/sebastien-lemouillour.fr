@@ -3,31 +3,37 @@ id: structure-of-a-good-prompt
 order: 2
 difficulty: beginner
 tags: [prompting, tokens, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
-La boîte vide du chat est un piège. Elle donne l'impression qu'un paragraphe brouillon suffira, puis on se retrouve avec une réponse sûre d'elle à une question qu'on n'a même pas vraiment formulée.
+La boîte vide du chat est trompeuse. Elle vous pousse à écrire un paragraphe flou, puis le modèle, c'est-à-dire l'IA qui répond, traite surtout la version qu'il a devinée au lieu de celle que vous aviez en tête.
 
-Si je devais donner un réflexe simple à un débutant, je prendrais presque toujours quatre blocs : la **tâche**, le **contexte**, les **contraintes** et la **sortie**. Ce n'est pas une religion, mais on est très proche de ce que [le guide OpenAI](https://platform.openai.com/docs/guides/prompt-engineering) recommande quand on veut des réponses plus fiables. Beaucoup de tutoriels sautent cette structure pour parler tout de suite d'astuces de formulation, et c'est exactement pour ça que le prompting paraît aléatoire au début.
+Un **prompt**, c'est l'instruction que vous envoyez à ce modèle. Pour un réflexe simple de débutant, je recommande quatre blocs : la **tâche**, le **contexte**, les **contraintes** et la **sortie**. Ce n'est pas une loi officielle, juste un raccourci pratique aligné avec le [guide OpenAI](https://developers.openai.com/api/docs/guides/prompt-guidance) : décrire l'objectif, partager la matière utile, poser les contraintes et dire ce que la réponse finale doit contenir. Avec ça, le prompting ressemble moins à un jeu de devinette et plus à un petit bon de commande.
 
 ### 1. Commencez par la tâche
 
-Mettez le travail à faire en premier. Si le modèle doit deviner si vous voulez une explication, une réécriture, une checklist ou un avis, vous avez déjà compliqué le problème inutilement.
+La **tâche**, c'est le travail à accomplir. Mettez-la en premier. Le [guide Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices) revient souvent à des instructions claires, et c'est important parce que les modèles suivent souvent la demande telle qu'elle est formulée.
 
-J'aime écrire la tâche sous forme de verbe : expliquer, comparer, résumer, classer, réécrire, brainstormer. Les verbes forcent la clarté. « Aide-moi avec ça » paraît sympa, mais ça n'apprend presque rien au modèle. [Les bonnes pratiques d'Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices) disent la même chose avec plus de diplomatie : soyez explicite sur la portée, parce que le modèle suit généralement ce que vous avez vraiment demandé, au pied de la lettre.
+J'aime écrire la tâche sous forme de verbe : expliquer, comparer, résumer, classer, réécrire. « Aide-moi avec ça » sonne gentiment, mais ça laisse trop de place au hasard. Si vous hésitez sur le bon verbe, demandez-vous simplement ce que la réponse finale doit vous permettre de faire.
 
-### 2. Ajoutez le contexte qu'il ne peut pas inventer proprement
+Ça règle une première source de flou, mais un verbe clair ne dit pas encore dans quelle situation vous vous trouvez.
 
-Le contexte, c'est l'information de fond sur laquelle le modèle doit s'appuyer : le public, le domaine, le texte source, l'objectif métier, ou tout autre élément qui change ce qu'on considère comme une bonne réponse. [La décomposition d'Azure](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/prompt-engineering) distingue les instructions du contenu sur lequel le modèle doit travailler, et je trouve ce découpage très utile.
+### 2. Ajoutez le contexte sur lequel il doit s'appuyer
 
-Si vous demandez du contenu, dites pour qui il est écrit. Si vous demandez du code, précisez le langage et l'environnement. Si vous demandez un retour critique, expliquez ce que « bon » veut dire. Le modèle peut combler les blancs, bien sûr, mais c'est justement la partie risquée : il les remplit avec des suppositions plausibles.
+Si la tâche dit quoi faire, le **contexte** dit sur quoi s'appuyer. Le [guide Azure](https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/prompt-engineering) sépare les instructions du contenu sur lequel le modèle doit travailler, et c'est un modèle mental très utile quand on débute.
+
+Dites pour qui la réponse est écrite, sur quel matériau le modèle doit s'appuyer et dans quelle situation vous êtes. Si vous sautez cette étape, le modèle remplit les trous avec des suppositions plausibles. Parfois ce n'est pas grave, mais dès que la demande compte, c'est souvent là que la confusion commence.
+
+Ça retire beaucoup de suppositions, mais il reste encore de la place pour des réponses trop longues, trop vagues ou trop risquées.
 
 ### 3. Posez les contraintes avant que le modèle improvise
 
-Les contraintes sont vos garde-fous : longueur, ton, points obligatoires, choses à éviter, ou limites du type « n'invente pas de données ». Les débutants les ajoutent souvent seulement après une mauvaise réponse. Je préfère les annoncer dès le départ et m'épargner plusieurs allers-retours.
+Les **contraintes**, ce sont les garde-fous : longueur, ton, points obligatoires, choses interdites, ou limites du type « n'invente pas de données ». Le [guide Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies) commence par des instructions claires et précises, donc je recommande vraiment d'annoncer vos limites et le format attendu dès qu'ils comptent.
 
-Voici le squelette ultra simple que je réutilise le plus souvent.
+Cette structure améliore la clarté, pas la vérité. Si votre texte source est faible ou absent, un prompt bien rangé peut quand même produire une erreur bien rangée.
+
+Avant d'écrire la demande complète, ce mini squelette vous donne simplement les cases à remplir :
 
 ```text
 Tâche :
@@ -36,28 +42,28 @@ Contraintes :
 Sortie :
 ```
 
-Quand je veux éviter les erreurs bêtes, j'élargis mentalement ce squelette avec une grille un peu plus complète. Tâche / contexte / contraintes / sortie font l'essentiel du boulot. Le rôle et les exemples sont optionnels, mais c'est souvent eux qui font passer la réponse de « correcte » à « directement exploitable ».
+Quand je veux éviter les erreurs prévisibles, j'élargis mentalement ce squelette. Tâche, contexte, contraintes et sortie font l'essentiel du travail. Le rôle et les exemples sont facultatifs, mais c'est souvent ce qui fait la différence entre une réponse correcte et une que vous pouvez vraiment réutiliser.
 
-| Élément          | Rôle                                                                       | Mauvais exemple               | Bon exemple                                                                    |
-| ---------------- | -------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------ |
-| Rôle             | Donner le bon angle quand le niveau d'expertise ou la posture comptent.    | « Sois intelligent. »         | « Agis comme un staff engineer frontend en train de relire une pull request. » |
-| Tâche            | Dire clairement le travail attendu, de préférence avec un verbe.           | « Aide-moi avec le caching. » | « Explique le caching à un développeur frontend junior. »                      |
-| Contexte         | Fournir les infos que le modèle ne peut pas inventer proprement.           | « Tu connais déjà l'app. »    | « C'est une SPA React avec des pages produit lentes et aucun CDN. »            |
-| Contraintes      | Poser les garde-fous avant que le modèle improvise.                        | « Fais ça bien. »             | « Reste sous 150 mots, évite le jargon et n'invente pas de métriques. »        |
-| Format de sortie | Demander la forme exacte de la réponse.                                    | « Réponds comme tu veux. »    | « Retourne un paragraphe court puis 3 puces. »                                 |
-| Exemples         | Montrer le motif attendu quand la cohérence compte plus que la créativité. | « Tu vois l'idée. »           | « Utilise ce format : problème → cause probable → action suivante. »           |
+| Composant     | Objectif                                                                 | Mauvais exemple                     | Bon exemple                                                               |
+| ------------- | ------------------------------------------------------------------------ | ----------------------------------- | ------------------------------------------------------------------------- |
+| Rôle          | Définir l'angle du modèle quand l'expertise ou le positionnement compte. | « Sois intelligent. »               | « Agis comme un ingénieur senior qui relit une pull request. »            |
+| Tâche         | Dire quel travail doit être fait, idéalement avec un verbe.              | « Aide-moi avec la mise en cache. » | « Explique ce qu'est la mise en cache à un développeur frontend junior. » |
+| Contexte      | Fournir les faits que le modèle ne peut pas deviner de façon fiable.     | « Tu connais déjà l'app. »          | « C'est une SPA React avec des pages produit lentes et aucun CDN. »       |
+| Contraintes   | Poser les garde-fous avant que le modèle improvise.                      | « Rends ça bien. »                  | « Moins de 150 mots, sans jargon, et n'invente pas de métriques. »        |
+| Format sortie | Demander la forme de la réponse attendue.                                | « Réponds comme tu veux. »          | « Un court paragraphe puis 3 puces. »                                     |
+| Exemples      | Montrer le motif quand la cohérence compte plus que la créativité.       | « Tu vois l'idée. »                 | « Utilise ce format : problème → cause probable → prochaine action. »     |
 
 ### 4. Demandez une sortie précise
 
-Si vous connaissez la forme de la réponse, demandez-la. Un paragraphe, une liste à puces, un tableau, du JSON, trois options classées par confiance, peu importe, tant que cela vous aide à utiliser le résultat rapidement. [L'intro Gemini](https://ai.google.dev/gemini-api/docs/prompting-intro) recommande elle aussi d'indiquer les contraintes et le format de réponse, et je suivrais ce conseil presque à chaque fois sauf si la forme m'est complètement égale.
+Même une bonne réponse devient pénible si elle arrive dans une forme que vous ne pouvez pas réutiliser. La **sortie**, c'est la forme de la réponse que vous voulez récupérer : un paragraphe, un tableau ou du JSON, c'est-à-dire un format texte avec des champs nommés et des valeurs. J'ai un avis assez net ici : si vous savez déjà comment vous allez utiliser la réponse, nommez le format. Le petit effort au départ fait gagner bien plus de temps ensuite.
 
-Voici à quoi ressemble cette structure dans un prompt concret et accessible.
+Avant d'utiliser ce schéma dans un vrai cas, ça aide de voir un exemple déjà rempli :
 
 ```text
-Tâche : Explique ce qu'est le caching.
-Contexte : Le lecteur est un développeur frontend junior.
-Contraintes : Utilise moins de 150 mots, évite le jargon, ajoute une analogie.
+Tâche : Explique ce qu'est la mise en cache.
+Contexte : Le lecteur est un développeur web junior qui n'a jamais étudié la performance.
+Contraintes : Utilise moins de 150 mots, évite le jargon, ajoute une analogie du quotidien et n'invente pas de métriques.
 Sortie : Un paragraphe court suivi de deux puces intitulées « Pourquoi c'est utile ».
 ```
 
-Ma règle est simple : si la demande compte ou si vous savez qu'une réponse floue va vous agacer, écrivez les quatre blocs. Si c'est un prompt jetable, soyez volontairement paresseux et acceptez le bazar.
+Si ce schéma vous paraît déjà naturel, lisez ensuite **zero-shot prompting**, puis **prompt templates** quand vous commencez à réutiliser la même structure. Ma règle est simple : dès qu'un prompt dépasse vraiment ces quatre blocs ou qu'il commence à être copié partout, arrêtez de le polir et transformez-le en template.

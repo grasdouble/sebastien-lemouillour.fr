@@ -3,41 +3,37 @@ id: what-is-a-prompt
 order: 1
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-12-31
-updatedAt: 2026-05-31
+publishedAt: 2026-06-08
+updatedAt: 2026-06-08
 ---
 
-Vous avez déjà tapé quelque chose dans ChatGPT, appuyé sur Entrée, puis reçu une réponse tellement vague qu'elle ne servait à rien. La plupart du temps, ce n'est pas le modèle qui est mauvais. C'est le prompt qui fait le paresseux.
+Vous avez déjà tapé quelque chose dans ChatGPT, appuyé sur Entrée, puis reçu une réponse si vague que vous ne saviez même pas quoi en faire. Si ça vous arrive souvent, vous n'êtes pas en retard. Les débutants commencent presque toujours par une demande trop courte en espérant que le modèle devinera le reste.
 
-Un **prompt**, c'est l'entrée, souvent du texte, qui dit à un modèle de langage quel travail faire. Cette entrée peut contenir une instruction, du contexte, des contraintes, des exemples et le format de sortie attendu. Le [guide OpenAI](https://platform.openai.com/docs/guides/prompt-engineering), la [vue d'ensemble Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) et les [stratégies Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies) répètent au fond la même chose : dites clairement ce que vous voulez, ajoutez le contexte qui manque, montrez des exemples quand la précision compte, et demandez la forme de réponse dont vous avez réellement besoin.
+Un **prompt**, c'est l'entrée que vous donnez à un **modèle de langage**, c'est-à-dire un système entraîné à produire du texte à partir d'exemples. Pour un débutant, l'idée utile est plus simple que la définition : un prompt est le brief qui dit au modèle quel travail faire. [Le guide OpenAI](https://platform.openai.com/docs/guides/prompt-engineering) recommande d'être explicite sur la tâche, les instructions, le contexte et le format de sortie, et c'est un point de départ bien plus sûr que d'espérer qu'une phrase maligne fera tout le travail.
 
-Ce que les débutants ratent souvent, c'est ceci : un prompt n'est pas une formule magique. Le modèle n'attend pas un mot-clé secret. Il lit ce que vous lui donnez comme du **contexte**, c'est-à-dire l'information disponible avant de commencer à répondre. Si ce contexte est flou, la réponse sera en général floue aussi.
+### Un prompt ressemble à un brief, pas à un mot-clé
 
-### Un prompt ressemble plus à un brief qu'à un mot-clé
+Les moteurs de recherche nous ont habitués à taper des fragments comme « idées marketing » ou « explique les API ». Un modèle de chat peut s'en contenter, mais il travaille bien mieux quand vous précisez pour qui la réponse est écrite, quelle longueur vous voulez et sous quelle forme elle doit arriver. [Les stratégies Gemini](https://ai.google.dev/gemini-api/docs/prompting-strategies) disent la même chose avec des instructions claires, des contraintes et des exemples. Mon avis, assez ferme sur ce point, est simple : mieux vaut écrire un prompt un peu plus long que miser sur une demande minuscule et floue.
 
-On commence souvent par quelque chose comme « idées marketing » ou « explique les API ». C'est normal, les moteurs de recherche nous ont habitués à taper des fragments. Un modèle conversationnel fonctionne autrement. Il suit bien mieux un brief qu'il ne devine votre objectif implicite.
-
-C'est le contraste que je montrerais à n'importe qui dès le premier jour.
+C'est le contraste que je montrerais dès le premier jour.
 
 ```text
 Prompt faible :
-Explique les API.
+Explique ce qu'est une API.
 
 Meilleur prompt :
 Explique ce qu'est une API à un développeur web débutant en moins de 120 mots.
-Utilise une analogie concrète et termine par une erreur fréquente à éviter.
+Utilise une analogie du quotidien et termine par une erreur fréquente à éviter.
 ```
 
-La seconde version gagne parce qu'elle répond aux questions que le modèle ne peut pas deviner proprement tout seul : le public, la longueur et le résultat attendu. C'est cette manière d'écrire que je choisirais presque à chaque fois, sauf si la forme de la réponse m'importe vraiment très peu.
+La deuxième version marche mieux parce qu'elle enlève une partie des devinettes. Le **contexte**, c'est l'information de fond que le modèle doit utiliser, par exemple le public ou le texte source. Les **contraintes**, ce sont les règles comme la longueur, le ton ou les choses à éviter. Dès que ces éléments deviennent visibles, la qualité grimpe souvent très vite.
 
-### Les petits détails changent beaucoup le résultat
+### Ce qu'un prompt ne peut pas faire
 
-Un prompt peut préciser le ton, le format, le niveau de détail ou les limites. « Donne-moi trois options » n'est pas la même demande que « choisis la meilleure option et justifie-la ». « Résume ce texte » n'est pas le même travail que « résume ce texte pour un manager pressé qui n'a pas lu l'original ».
+C'est la partie qui évite beaucoup de frustration. Un meilleur prompt peut guider le modèle, mais il ne peut pas lui donner un texte source que vous n'avez jamais fourni, ni transformer le mauvais outil en bon outil. [La vue d'ensemble d'Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) rappelle d'ailleurs que tous les problèmes ne se règlent pas avec du prompt engineering, parce qu'il faut parfois choisir un autre modèle, mieux évaluer, ou changer carrément d'outil.
 
-C'est pour ça que le prompting semble étrange au début. Vous ne programmez pas au sens classique, mais vous spécifiez quand même un comportement. Ne vous inquiétez pas si cela paraît encore abstrait. Chez moi, le déclic est venu quand j'ai commencé à traiter le modèle comme un stagiaire ultra rapide : utile, capable, et totalement incapable de lire dans mes pensées.
+C'est aussi pour ça que le prompting paraît bizarre au début. Vous n'écrivez pas du code au sens classique, mais vous guidez quand même un comportement. Si cela vous semble encore flou, tant mieux, presque tout le monde passe par là au départ.
 
-### Le bon modèle mental
+### Et ensuite
 
-Si la sortie est mauvaise, vérifiez quatre choses avant d'accuser le modèle : la tâche demandée, le contexte fourni, les contraintes fixées et le format demandé. Le prompting débutant progresse souvent très vite dès que ces quatre éléments deviennent explicites.
-
-Ma règle perso est volontairement un peu ennuyeuse : je réécris le prompt deux fois avant d'accuser le modèle. Si deux réécritures produisent encore de la bouillie, le problème n'est probablement pas le style de la phrase. Il manque du contexte, un meilleur exemple, ou carrément un autre outil.
+Ensuite, passez à **La structure d'un bon prompt** et entraînez-vous à découper une demande brouillonne en tâche, contexte, contraintes et sortie. Ma règle de décision est simple : si deux réécritures soignées ratent encore la cible, arrêtez de polir la phrase et ajoutez de la structure, des exemples, ou un autre outil.
