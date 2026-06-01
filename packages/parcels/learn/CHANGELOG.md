@@ -1,5 +1,13 @@
 # @grasdouble/slm_parcel_learn
 
+## 1.3.3
+
+### Patch Changes
+
+- 4f5bacd: fix: human review of certain guides and update of the publication date
+- 4f5bacd: fix: review all prompting catalog guides — factual accuracy, voice, and official doc links.
+  fix: re-review common-prompting-mistakes, structure-of-a-good-prompt, structured-outputs — corrected provider URLs, Gemini API shape, and voice transitions.
+
 ## 1.3.2
 
 ### Patch Changes
