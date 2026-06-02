@@ -1,6 +1,6 @@
 ---
-'@grasdouble/slm-vendors': minor
-'@grasdouble/slm-container': minor
+'@grasdouble/slm-vendors': major
+'@grasdouble/slm-container': major
 ---
 
 feat: extract vendor bundling into a dedicated @grasdouble/slm_vendors CDN package.
