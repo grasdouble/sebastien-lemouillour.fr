@@ -17,9 +17,8 @@ describe('importMapPlugin', () => {
     vi.restoreAllMocks();
   });
 
-  it('injects external and production import maps in production mode', () => {
+  it('injects production import map in production mode', () => {
     setFiles({
-      [`${cwd}/importMapExternal.json`]: { imports: { react: 'https://cdn.example.com/react.js' } },
       [`${cwd}/importMap.json`]: { imports: { '@app/root': '/assets/root.js' } },
     });
 
@@ -28,15 +27,12 @@ describe('importMapPlugin', () => {
 
     const result = plugin.transformIndexHtml!(HTML);
 
-    expect(result).toContain('<script type="importmap">');
-    expect(result).toContain('https://cdn.example.com/react.js');
     expect(result).toContain('<script type="importmap" overridable="true">');
     expect(result).toContain('"@app/root": "/assets/root.js"');
   });
 
-  it('injects external and development import maps in dev mode', () => {
+  it('injects development import map in dev mode', () => {
     setFiles({
-      [`${cwd}/importMapExternal.json`]: { imports: { react: 'https://cdn.example.com/react.js' } },
       [`${cwd}/importMap.dev.json`]: { imports: { '@app/root': 'http://localhost:4101/root.js' } },
     });
 
@@ -45,7 +41,6 @@ describe('importMapPlugin', () => {
 
     const result = plugin.transformIndexHtml!(HTML);
 
-    expect(result).toContain('https://cdn.example.com/react.js');
     expect(result).toContain('"@app/root": "http://localhost:4101/root.js"');
   });
 
@@ -58,9 +53,6 @@ describe('importMapPlugin', () => {
     plugin.transformIndexHtml!(HTML);
 
     expect(warnSpy).toHaveBeenCalledWith(
-      `[vite-plugin-importmap-injector] ⚠️ import-map for externals not found: ${cwd}/importMapExternal.json`
-    );
-    expect(warnSpy).toHaveBeenCalledWith(
       `[vite-plugin-importmap-injector] ⚠️ import-map for production not found: ${cwd}/importMap.json`
     );
     expect(warnSpy).toHaveBeenCalledWith(
@@ -68,41 +60,36 @@ describe('importMapPlugin', () => {
     );
   });
 
-  it('accepts extImportMap as an inline object in dev mode', () => {
-    setFiles({
-      [`${cwd}/importMap.dev.json`]: { imports: { '@app/root': 'http://localhost:4101/root.js' } },
-    });
+  it('accepts inline prodImportMap object', () => {
+    setFiles({});
 
     const plugin = importMapPlugin({
-      extImportMap: { imports: { react: '/vendor/react-bundle.mjs' } },
-    });
-    plugin.configResolved!({ command: 'serve', mode: 'development' } as never);
-
-    const result = plugin.transformIndexHtml!(HTML);
-
-    expect(result).toContain('"/vendor/react-bundle.mjs"');
-    expect(result).not.toContain('esm.sh');
-  });
-
-  it('accepts extImportMap as an inline object in production mode', () => {
-    setFiles({
-      [`${cwd}/importMap.json`]: { imports: { '@app/root': '/assets/root.js' } },
-    });
-
-    const plugin = importMapPlugin({
-      extImportMap: { imports: { react: '/vendor/react-bundle.mjs' } },
+      prodImportMap: { imports: { '@app/root': '/assets/root.js', react: '/vendor/react-bundle.mjs' } },
     });
     plugin.configResolved!({ command: 'build', mode: 'production' } as never);
 
     const result = plugin.transformIndexHtml!(HTML);
 
     expect(result).toContain('"/vendor/react-bundle.mjs"');
-    expect(result).not.toContain('esm.sh');
+    expect(result).toContain('"/assets/root.js"');
+  });
+
+  it('accepts inline devImportMap object', () => {
+    setFiles({});
+
+    const plugin = importMapPlugin({
+      devImportMap: { imports: { '@app/root': 'http://localhost:4101/root.js', react: '/vendor/react-bundle.mjs' } },
+    });
+    plugin.configResolved!({ command: 'serve', mode: 'development' } as never);
+
+    const result = plugin.transformIndexHtml!(HTML);
+
+    expect(result).toContain('"/vendor/react-bundle.mjs"');
+    expect(result).toContain('"@app/root": "http://localhost:4101/root.js"');
   });
 
   it('merges preview import maps on top of production entries', () => {
     setFiles({
-      [`${cwd}/importMapExternal.json`]: { imports: { react: 'https://cdn.example.com/react.js' } },
       [`${cwd}/importMap.json`]: { imports: { '@app/root': '/assets/root.js', shared: '/assets/shared.js' } },
       [`${cwd}/importMap.preview.json`]: { imports: { '@app/root': 'http://localhost:4101/root.js' } },
     });

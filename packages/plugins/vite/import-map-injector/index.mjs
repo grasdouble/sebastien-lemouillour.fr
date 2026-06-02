@@ -20,7 +20,6 @@ function resolveImportMap(value, label) {
 }
 
 export default function importMapPlugin({
-  extImportMap = 'importMapExternal.json',
   prodImportMap = 'importMap.json',
   devImportMap = 'importMap.dev.json',
   previewImportMap = 'importMap.preview.json',
@@ -45,8 +44,6 @@ export default function importMapPlugin({
       const isPreviewBuild = runtime.command === 'build' && runtime.isPreview;
       const isProdBuild = runtime.command === 'build' && !runtime.isPreview;
 
-      const extImportMapContent = resolveImportMap(extImportMap, 'externals');
-
       const prodImportMapContent = resolveImportMap(prodImportMap, 'production');
       const devImportMapContent = isDev ? resolveImportMap(devImportMap, 'development') : {};
       const previewImportMapContent = isPreviewBuild ? resolveImportMap(previewImportMap, 'preview') : {};
@@ -62,11 +59,7 @@ export default function importMapPlugin({
         },
       };
 
-      // overridable-importmap is a custom attribute used by single-spa and import-map-overrides
-      // to allow the import map to be overridden at runtime
-      // see https://github.com/single-spa/import-map-overrides/blob/main/docs/configuration.md#client-side-single-map
-      // The choice has been made to use standard importmap for the external dependencies like that it will not be possible to override them
-      const importMapScripts = [`<script type="importmap">${JSON.stringify(extImportMapContent, null, 2)}</script>`];
+      const importMapScripts = [];
 
       if (isDev || isPreviewBuild || isProdBuild) {
         importMapScripts.push(

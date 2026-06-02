@@ -3,7 +3,6 @@ export interface ImportMap {
 }
 
 export interface ImportMapPluginOptions {
-  extImportMap?: string | ImportMap;
   prodImportMap?: string | ImportMap;
   devImportMap?: string | ImportMap;
   previewImportMap?: string | ImportMap;

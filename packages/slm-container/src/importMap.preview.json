@@ -1,5 +1,15 @@
 {
   "imports": {
+    "react": "http://localhost:4099/react-bundle.mjs",
+    "react/jsx-runtime": "http://localhost:4099/react-bundle.mjs",
+    "react-dom": "http://localhost:4099/react-bundle.mjs",
+    "react-dom/client": "http://localhost:4099/react-bundle.mjs",
+    "i18next": "http://localhost:4099/i18next.mjs",
+    "react-i18next": "http://localhost:4099/react-i18next.mjs",
+    "i18next-browser-languagedetector": "http://localhost:4099/i18next-browser-languagedetector.mjs",
+    "@tanstack/react-router": "http://localhost:4099/tanstack-react-router.mjs",
+    "clsx": "http://localhost:4099/clsx.mjs",
+    "mermaid": "http://localhost:4099/mermaid.mjs",
     "@grasdouble/slm_parcel_header-bar": "http://localhost:4100/header-bar.mjs",
     "@grasdouble/slm_parcel_landing-page": "http://localhost:4101/home.mjs",
     "@grasdouble/slm_parcel_professional-experience": "http://localhost:4102/professional-experience.mjs",

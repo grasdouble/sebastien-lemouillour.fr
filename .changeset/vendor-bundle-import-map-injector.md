@@ -1,7 +1,7 @@
 ---
-'@grasdouble/slm_plugin_vite_import-map-injector': minor
+'@grasdouble/slm_plugin_vite_import-map-injector': major
 ---
 
-feat: extImportMap accepts a file path (string) or an inline object — enables deriving the import map directly from a vendor config without a JSON file.
+feat: remove extImportMap option — external dependencies are now managed through the standard import maps (prodImportMap, devImportMap, previewImportMap). This eliminates the concept of a separate "external" import map and simplifies the plugin API.
 
-chore: remove extProdImportMap option — use extImportMap for all modes instead.
+BREAKING CHANGE: The extImportMap parameter has been removed. If you were using extImportMap, merge those entries into your main import maps instead.
