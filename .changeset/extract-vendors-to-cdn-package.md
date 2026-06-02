@@ -1,5 +1,5 @@
 ---
-'@grasdouble/slm_vendors': minor
+'@grasdouble/slm-vendors': minor
 '@grasdouble/slm-container': minor
 ---
 
