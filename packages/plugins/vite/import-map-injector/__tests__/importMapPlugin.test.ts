@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unnecessary-type-assertion */
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import fs from 'fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -66,6 +66,38 @@ describe('importMapPlugin', () => {
     expect(warnSpy).toHaveBeenCalledWith(
       `[vite-plugin-importmap-injector] ⚠️ import-map for development not found: ${cwd}/importMap.dev.json`
     );
+  });
+
+  it('accepts extImportMap as an inline object in dev mode', () => {
+    setFiles({
+      [`${cwd}/importMap.dev.json`]: { imports: { '@app/root': 'http://localhost:4101/root.js' } },
+    });
+
+    const plugin = importMapPlugin({
+      extImportMap: { imports: { react: '/vendor/react-bundle.mjs' } },
+    });
+    plugin.configResolved!({ command: 'serve', mode: 'development' } as never);
+
+    const result = plugin.transformIndexHtml!(HTML);
+
+    expect(result).toContain('"/vendor/react-bundle.mjs"');
+    expect(result).not.toContain('esm.sh');
+  });
+
+  it('accepts extImportMap as an inline object in production mode', () => {
+    setFiles({
+      [`${cwd}/importMap.json`]: { imports: { '@app/root': '/assets/root.js' } },
+    });
+
+    const plugin = importMapPlugin({
+      extImportMap: { imports: { react: '/vendor/react-bundle.mjs' } },
+    });
+    plugin.configResolved!({ command: 'build', mode: 'production' } as never);
+
+    const result = plugin.transformIndexHtml!(HTML);
+
+    expect(result).toContain('"/vendor/react-bundle.mjs"');
+    expect(result).not.toContain('esm.sh');
   });
 
   it('merges preview import maps on top of production entries', () => {

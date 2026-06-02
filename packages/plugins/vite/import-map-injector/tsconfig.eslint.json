@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "checkJs": true
+  },
+  "include": ["index.mjs", "vitest.config.ts", "__tests__/**/*.ts", "eslint.config.mjs", "prettier.config.mjs"]
+}
