@@ -4,6 +4,7 @@ packages:
   - packages/parcels/*
   - packages/shared
   - packages/slm-container
+  - packages/slm-vendors
 
 hoist: false
 hoistWorkspacePackages: false

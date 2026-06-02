@@ -1,8 +1,25 @@
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * Resolves an import map from either an inline object or a JSON file path.
+ * Returns an empty object if the value is empty or the file is missing.
+ */
+function resolveImportMap(value, label) {
+  if (value !== null && typeof value === 'object') {
+    return value;
+  }
+  if (typeof value === 'string' && value !== '') {
+    const filePath = path.resolve(process.cwd(), value);
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    }
+    console.warn(`[vite-plugin-importmap-injector] ⚠️ import-map for ${label} not found: ${filePath}`);
+  }
+  return {};
+}
+
 export default function importMapPlugin({
-  extImportMap = 'importMapExternal.json',
   prodImportMap = 'importMap.json',
   devImportMap = 'importMap.dev.json',
   previewImportMap = 'importMap.preview.json',
@@ -26,39 +43,10 @@ export default function importMapPlugin({
       const isDev = runtime.command === 'serve';
       const isPreviewBuild = runtime.command === 'build' && runtime.isPreview;
       const isProdBuild = runtime.command === 'build' && !runtime.isPreview;
-      const extImportMapPath = path.resolve(process.cwd(), extImportMap);
-      const prodImportMapPath = path.resolve(process.cwd(), prodImportMap);
-      const devImportMapPath = path.resolve(process.cwd(), devImportMap);
-      const previewImportMapPath = path.resolve(process.cwd(), previewImportMap);
 
-      let extImportMapContent = {};
-      let prodImportMapContent = {};
-      let devImportMapContent = {};
-      let previewImportMapContent = {};
-
-      if (fs.existsSync(extImportMapPath)) {
-        extImportMapContent = JSON.parse(fs.readFileSync(extImportMapPath, 'utf-8'));
-      } else {
-        console.warn(`[vite-plugin-importmap-injector] ⚠️ import-map for externals not found: ${extImportMapPath}`);
-      }
-
-      if (fs.existsSync(prodImportMapPath)) {
-        prodImportMapContent = JSON.parse(fs.readFileSync(prodImportMapPath, 'utf-8'));
-      } else {
-        console.warn(`[vite-plugin-importmap-injector] ⚠️ import-map for production not found: ${prodImportMapPath}`);
-      }
-
-      if (isDev && fs.existsSync(devImportMapPath)) {
-        devImportMapContent = JSON.parse(fs.readFileSync(devImportMapPath, 'utf-8'));
-      } else if (isDev) {
-        console.warn(`[vite-plugin-importmap-injector] ⚠️ import-map for development not found: ${devImportMapPath}`);
-      }
-
-      if (isPreviewBuild && fs.existsSync(previewImportMapPath)) {
-        previewImportMapContent = JSON.parse(fs.readFileSync(previewImportMapPath, 'utf-8'));
-      } else if (isPreviewBuild) {
-        console.warn(`[vite-plugin-importmap-injector] ⚠️ import-map for preview not found: ${previewImportMapPath}`);
-      }
+      const prodImportMapContent = resolveImportMap(prodImportMap, 'production');
+      const devImportMapContent = isDev ? resolveImportMap(devImportMap, 'development') : {};
+      const previewImportMapContent = isPreviewBuild ? resolveImportMap(previewImportMap, 'preview') : {};
 
       const mergedImportMap = {
         imports: {
@@ -71,11 +59,7 @@ export default function importMapPlugin({
         },
       };
 
-      // overridable-importmap is a custom attribute used by single-spa and import-map-overrides
-      // to allow the import map to be overridden at runtime
-      // see https://github.com/single-spa/import-map-overrides/blob/main/docs/configuration.md#client-side-single-map
-      // The choice has been made to use standard importmap for the external dependencies like that it will not be possible to override them
-      const importMapScripts = [`<script type="importmap">${JSON.stringify(extImportMapContent, null, 2)}</script>`];
+      const importMapScripts = [];
 
       if (isDev || isPreviewBuild || isProdBuild) {
         importMapScripts.push(

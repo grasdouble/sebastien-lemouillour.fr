@@ -43,43 +43,44 @@ const dsVersionPlugin = () => ({
   transformIndexHtml: (html) => html.replaceAll('%LUFA_DS_VERSION%', dsVersion),
 });
 
-export default defineConfig({
-  plugins: [
-    dsVersionPlugin(),
-    sitemapGeneratorPlugin(),
-    importMapInjectorPlugin({
-      extImportMap: 'src/importMapExternal.json',
-      devImportMap: 'src/importMap.dev.json',
-      previewImportMap: 'src/importMap.preview.json',
-      prodImportMap: 'src/importMap.json',
-    }),
-    externalizeDeps({
-      deps: false,
-      devDeps: false,
-      optionalDeps: false,
-      peerDeps: true,
-      except: [],
-      nodeBuiltins: true,
-    }),
-    reactPreamblePlugin(),
-  ],
-  build: {
-    target: 'esnext',
-    modulePreload: false, // Single-SPA manages the loading of modules
-    minify: false,
-    rolldownOptions: {
-      output: {
-        format: 'esm',
-        entryFileNames: '[name].[hash].js',
+export default defineConfig(() => {
+  return {
+    plugins: [
+      dsVersionPlugin(),
+      sitemapGeneratorPlugin(),
+      importMapInjectorPlugin({
+        devImportMap: 'src/importMap.dev.json',
+        previewImportMap: 'src/importMap.preview.json',
+        prodImportMap: 'src/importMap.json',
+      }),
+      externalizeDeps({
+        deps: false,
+        devDeps: false,
+        optionalDeps: false,
+        peerDeps: true,
+        except: [],
+        nodeBuiltins: true,
+      }),
+      reactPreamblePlugin(),
+    ],
+    build: {
+      target: 'esnext',
+      modulePreload: false, // Single-SPA manages the loading of modules
+      minify: false,
+      rolldownOptions: {
+        output: {
+          format: 'esm',
+          entryFileNames: '[name].[hash].js',
+        },
       },
     },
-  },
-  server: {
-    port: 5173,
-    cors: true,
-    hmr: true,
-  },
-  preview: {
-    port: 5173,
-  },
+    server: {
+      port: 5173,
+      cors: true,
+      hmr: true,
+    },
+    preview: {
+      port: 5173,
+    },
+  };
 });
