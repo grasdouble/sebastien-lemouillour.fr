@@ -18,9 +18,18 @@ const CONTENT_TYPES = {
 };
 
 createServer((req, res) => {
-  const filePath = join(distDir, req.url ?? '/');
+  // Normalize and validate the requested path to prevent directory traversal attacks
+  const requestedPath = req.url?.split('?')[0] ?? '/';
+  const filePath = resolve(join(distDir, requestedPath));
 
   res.setHeader('Access-Control-Allow-Origin', '*');
+
+  // Security check: ensure the resolved path is within distDir
+  if (!filePath.startsWith(distDir)) {
+    res.writeHead(403);
+    res.end('Forbidden');
+    return;
+  }
 
   if (!existsSync(filePath)) {
     res.writeHead(404);
