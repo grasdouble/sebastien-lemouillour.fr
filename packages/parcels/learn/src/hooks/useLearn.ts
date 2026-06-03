@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Difficulty, Tutorial } from '../data/learn';
 import { CATEGORY_KEYS, DIFFICULTIES, isPublished, RAW_CATALOGS, RAW_LEARN_ITEMS } from '../data/learn';
-import { useShowUnpublished } from './useShowUnpublished';
+import { useDevMode } from './useDevMode';
 
 type UseLearnResult = {
   tutorials: Tutorial[];
@@ -14,12 +14,12 @@ type UseLearnResult = {
 
 export function useLearn(): UseLearnResult {
   const { t, i18n } = useTranslation('learn');
-  const showUnpublished = useShowUnpublished();
+  const devMode = useDevMode();
 
   const tutorials = useMemo<Tutorial[]>(() => {
     const lang = (i18n.resolvedLanguage ?? i18n.language).split('-')[0] as 'fr' | 'en';
 
-    return RAW_LEARN_ITEMS.filter((raw) => showUnpublished || isPublished(raw.publishedAt)).map((raw) => {
+    return RAW_LEARN_ITEMS.filter((raw) => devMode || isPublished(raw.publishedAt)).map((raw) => {
       const catalog = RAW_CATALOGS.find((c) => c.id === raw.catalogId);
       const guideTranslations = catalog?.translations[lang]?.guides[raw.id] ?? catalog?.translations.fr.guides[raw.id];
 
@@ -38,7 +38,7 @@ export function useLearn(): UseLearnResult {
         content: raw.content[lang] ?? raw.content.fr ?? raw.content.en ?? '',
       };
     });
-  }, [t, i18n.language, i18n.resolvedLanguage, showUnpublished]);
+  }, [t, i18n.language, i18n.resolvedLanguage, devMode]);
 
   const allTags = useMemo<string[]>(() => [...new Set(tutorials.flatMap((tut) => tut.tags))].sort(), [tutorials]);
 

@@ -7,7 +7,8 @@
         "title": "Micro-frontends avec React et single-spa",
         "description": "Architecturer une application en micro-frontends indépendants avec single-spa, des import maps, des parcels React et des dépendances partagées."
       }
-    }
+    },
+    "subcategory": "fondamentaux"
   },
   "en": {
     "title": "Front-end Architecture",
@@ -17,6 +18,7 @@
         "title": "Micro-frontends with React and single-spa",
         "description": "Architect an application into independent micro-frontends with single-spa, import maps, React parcels and shared dependencies."
       }
-    }
+    },
+    "subcategory": "fundamentals"
   }
 }

@@ -19,7 +19,8 @@
         "title": "Fondamentaux du RAG",
         "description": "Connecter un LLM à vos données avec le Retrieval-Augmented Generation : embeddings, bases vectorielles, stratégies de chunking et pipeline TypeScript complet."
       }
-    }
+    },
+    "subcategory": "usage"
   },
   "en": {
     "title": "Building with LLMs",
@@ -41,6 +42,7 @@
         "title": "RAG Fundamentals",
         "description": "Connect LLMs to your own data with Retrieval-Augmented Generation: embeddings, vector databases, chunking strategies and a full TypeScript pipeline."
       }
-    }
+    },
+    "subcategory": "usage"
   }
 }

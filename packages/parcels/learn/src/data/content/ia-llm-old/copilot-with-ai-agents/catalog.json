@@ -27,7 +27,8 @@
         "title": "Créer et utiliser des Skills",
         "description": "Comprendre ce qu'est un Skill Copilot, comment en créer un, quand les skills sont plus adaptés qu'une instruction dans AGENTS.md, et comment les organiser dans le projet."
       }
-    }
+    },
+    "subcategory": "usage"
   },
   "en": {
     "title": "Developing with Copilot & AI Agents",
@@ -57,6 +58,7 @@
         "title": "Creating and using Skills",
         "description": "Understand what a Copilot Skill is, how to create one, when skills are a better fit than an instruction in AGENTS.md, and how to organise them in your project."
       }
-    }
+    },
+    "subcategory": "usage"
   }
 }

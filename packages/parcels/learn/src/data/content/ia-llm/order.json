@@ -1,8 +1,16 @@
 [
-  "understanding-llms",
-  "prompting",
-  "rag-vector-search",
-  "agents-orchestration",
-  "ai-engineering-production",
-  "fine-tuning-optimization"
+  "llm-fundamentals",
+  "llm-architecture",
+  "llm-evaluation-limits",
+  "prompting-fundamentals",
+  "prompting-advanced",
+  "rag-fundamentals",
+  "rag-implementation",
+  "rag-advanced",
+  "agents-fundamentals",
+  "agents-orchestration-workflows",
+  "model-training-alignment",
+  "model-optimization-deployment",
+  "ai-engineering-practices",
+  "ai-production-operations"
 ]

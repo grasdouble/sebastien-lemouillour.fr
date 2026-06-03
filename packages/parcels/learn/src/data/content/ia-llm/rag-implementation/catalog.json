@@ -1,0 +1,80 @@
+{
+  "fr": {
+    "title": "Implémentation du RAG",
+    "description": "Techniques pratiques pour construire des pipelines RAG robustes",
+    "guides": {
+      "document-cleaning": {
+        "title": "Nettoyage de documents",
+        "description": "Nettoyer et prétraiter les documents avant l'indexation pour améliorer la qualité des embeddings et la pertinence de récupération"
+      },
+      "chunking": {
+        "title": "Chunking",
+        "description": "Comprendre les stratégies de chunking de documents et comment elles affectent la qualité de récupération dans les systèmes RAG"
+      },
+      "chunk-size": {
+        "title": "Taille des chunks",
+        "description": "Apprendre à choisir la bonne taille de chunk pour votre pipeline RAG et les compromis impliqués"
+      },
+      "overlap": {
+        "title": "Chevauchement",
+        "description": "Utiliser le chevauchement de chunks pour préserver le contexte et améliorer les résultats de récupération"
+      },
+      "document-indexing": {
+        "title": "Indexation de documents",
+        "description": "Apprendre à indexer des documents pour le RAG : parsing, embedding et stockage dans une base vectorielle"
+      },
+      "metadata": {
+        "title": "Métadonnées",
+        "description": "Utiliser les métadonnées pour améliorer le filtrage, le classement et la traçabilité dans les systèmes RAG"
+      },
+      "hybrid-search": {
+        "title": "Recherche hybride",
+        "description": "Combiner la recherche vectorielle avec la recherche par mots-clés pour améliorer la pertinence et la couverture de récupération"
+      },
+      "reranking": {
+        "title": "Reranking",
+        "description": "Utiliser des modèles de reranking pour affiner les résultats de récupération et améliorer la pertinence de classement"
+      }
+    },
+    "subcategory": "recherche augmentée"
+  },
+  "en": {
+    "title": "RAG Implementation",
+    "description": "Practical techniques for building robust RAG pipelines",
+    "guides": {
+      "document-cleaning": {
+        "title": "Document cleaning",
+        "description": "Clean and preprocess documents before indexing to improve embedding quality and retrieval relevance"
+      },
+      "chunking": {
+        "title": "Chunking",
+        "description": "Understand document chunking strategies and how they affect retrieval quality in RAG systems"
+      },
+      "chunk-size": {
+        "title": "Chunk size",
+        "description": "Learn how to choose the right chunk size for your RAG pipeline and the trade-offs involved"
+      },
+      "overlap": {
+        "title": "Overlap",
+        "description": "Use chunk overlap to preserve context and improve retrieval results"
+      },
+      "document-indexing": {
+        "title": "Document indexing",
+        "description": "Learn how to index documents for RAG: parsing, embedding, and storing in a vector database"
+      },
+      "metadata": {
+        "title": "Metadata",
+        "description": "Use metadata to improve filtering, ranking, and traceability in RAG systems"
+      },
+      "hybrid-search": {
+        "title": "Hybrid search",
+        "description": "Combine vector search with keyword search to improve retrieval relevance and coverage"
+      },
+      "reranking": {
+        "title": "Reranking",
+        "description": "Use reranking models to refine retrieval results and improve ranking relevance"
+      }
+    },
+    "subcategory": "augmented retrieval"
+  }
+}

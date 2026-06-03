@@ -39,6 +39,21 @@ describe('learn data', () => {
       expect(catalog.translations.fr.description).toBeTruthy();
       expect(catalog.translations.en.title).toBeTruthy();
       expect(catalog.translations.en.description).toBeTruthy();
+      expect(typeof catalog.translations.fr.subcategory).toBe('string');
+      expect(typeof catalog.translations.en.subcategory).toBe('string');
+    }
+  });
+
+  it('ensures all catalogs have a non-empty subcategory', () => {
+    for (const catalog of RAW_CATALOGS) {
+      expect(
+        catalog.translations.fr.subcategory.length,
+        `Catalog "${catalog.id}" must have a non-empty FR subcategory`
+      ).toBeGreaterThan(0);
+      expect(
+        catalog.translations.en.subcategory.length,
+        `Catalog "${catalog.id}" must have a non-empty EN subcategory`
+      ).toBeGreaterThan(0);
     }
   });
 

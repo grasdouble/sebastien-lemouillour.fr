@@ -1,0 +1,64 @@
+{
+  "fr": {
+    "title": "Fondamentaux du prompting",
+    "description": "Maîtriser les bases du prompting pour obtenir des réponses précises et fiables",
+    "guides": {
+      "what-is-a-prompt": {
+        "title": "Qu'est-ce qu'un prompt ?",
+        "description": "Comprendre ce qu'est un prompt et pourquoi il est crucial pour interagir avec un LLM"
+      },
+      "structure-of-a-good-prompt": {
+        "title": "Structure d'un bon prompt",
+        "description": "Apprendre à structurer un prompt efficace avec les bons éléments"
+      },
+      "zero-shot-prompting": {
+        "title": "Zero-shot prompting",
+        "description": "Utiliser le zero-shot prompting pour obtenir des réponses utiles sans fournir d'exemples"
+      },
+      "one-shot-prompting": {
+        "title": "One-shot prompting",
+        "description": "Améliorer la qualité des réponses en fournissant un exemple dans le prompt"
+      },
+      "few-shot-prompting": {
+        "title": "Few-shot prompting",
+        "description": "Guider le modèle avec plusieurs exemples pour obtenir des réponses plus cohérentes"
+      },
+      "common-prompting-mistakes": {
+        "title": "Erreurs courantes de prompting",
+        "description": "Identifier et éviter les erreurs fréquentes lors de la création de prompts"
+      }
+    },
+    "subcategory": "maîtriser le prompting"
+  },
+  "en": {
+    "title": "Prompting Fundamentals",
+    "description": "Master the basics of prompting to get precise and reliable responses",
+    "guides": {
+      "what-is-a-prompt": {
+        "title": "What is a prompt?",
+        "description": "Understand what a prompt is and why it is crucial for interacting with an LLM"
+      },
+      "structure-of-a-good-prompt": {
+        "title": "Structure of a good prompt",
+        "description": "Learn how to structure an effective prompt with the right elements"
+      },
+      "zero-shot-prompting": {
+        "title": "Zero-shot prompting",
+        "description": "Use zero-shot prompting to get useful responses without providing any examples"
+      },
+      "one-shot-prompting": {
+        "title": "One-shot prompting",
+        "description": "Improve response quality by providing one example in the prompt"
+      },
+      "few-shot-prompting": {
+        "title": "Few-shot prompting",
+        "description": "Guide the model with multiple examples to get more consistent responses"
+      },
+      "common-prompting-mistakes": {
+        "title": "Common prompting mistakes",
+        "description": "Identify and avoid frequent mistakes when creating prompts"
+      }
+    },
+    "subcategory": "mastering prompting"
+  }
+}

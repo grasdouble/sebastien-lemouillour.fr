@@ -143,9 +143,9 @@ describe('useCatalogs — publishing filter', () => {
     expect(result.current.catalogs).toHaveLength(0);
   });
 
-  it('shows all catalogs when sessionStorage learn.showUnpublished is true', () => {
+  it('shows all catalogs when sessionStorage learn.dev is true', () => {
     vi.setSystemTime(new Date('2000-01-01'));
-    sessionStorage.setItem('learn.showUnpublished', 'true');
+    sessionStorage.setItem('learn.dev', 'true');
 
     const { result } = renderHook(() => useCatalogs());
 
@@ -174,9 +174,9 @@ describe('useLearn — publishing filter', () => {
     expect(result.current.tutorials).toHaveLength(0);
   });
 
-  it('shows all guides when sessionStorage learn.showUnpublished is true', () => {
+  it('shows all guides when sessionStorage learn.dev is true', () => {
     vi.setSystemTime(new Date('2000-01-01'));
-    sessionStorage.setItem('learn.showUnpublished', 'true');
+    sessionStorage.setItem('learn.dev', 'true');
 
     const { result } = renderHook(() => useLearn());
 
@@ -192,7 +192,7 @@ describe('useLearn — publishing filter', () => {
   });
 });
 
-describe('useShowUnpublished — URL query param', () => {
+describe('useDevMode — URL query param ?dev', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2000-01-01'));
@@ -207,36 +207,36 @@ describe('useShowUnpublished — URL query param', () => {
     window.history.pushState({}, '', window.location.pathname);
   });
 
-  it('sets sessionStorage and shows all tutorials when ?showUnpublished=true', () => {
-    window.history.pushState({}, '', '?showUnpublished=true');
+  it('sets sessionStorage and shows all tutorials when ?dev=true', () => {
+    window.history.pushState({}, '', '?dev=true');
 
     const { result } = renderHook(() => useLearn());
 
-    expect(sessionStorage.getItem('learn.showUnpublished')).toBe('true');
+    expect(sessionStorage.getItem('learn.dev')).toBe('true');
     expect(result.current.tutorials).toHaveLength(RAW_LEARN_ITEMS.length);
   });
 
-  it('activates when ?showUnpublished has no value', () => {
-    window.history.pushState({}, '', '?showUnpublished');
+  it('activates when ?dev has no value', () => {
+    window.history.pushState({}, '', '?dev');
 
     const { result } = renderHook(() => useLearn());
 
-    expect(sessionStorage.getItem('learn.showUnpublished')).toBe('true');
+    expect(sessionStorage.getItem('learn.dev')).toBe('true');
     expect(result.current.tutorials).toHaveLength(RAW_LEARN_ITEMS.length);
   });
 
-  it('deactivates and clears sessionStorage when ?showUnpublished=false', () => {
-    sessionStorage.setItem('learn.showUnpublished', 'true');
-    window.history.pushState({}, '', '?showUnpublished=false');
+  it('deactivates and clears sessionStorage when ?dev=false', () => {
+    sessionStorage.setItem('learn.dev', 'true');
+    window.history.pushState({}, '', '?dev=false');
 
     const { result } = renderHook(() => useLearn());
 
-    expect(sessionStorage.getItem('learn.showUnpublished')).toBeNull();
+    expect(sessionStorage.getItem('learn.dev')).toBeNull();
     expect(result.current.tutorials).toHaveLength(0);
   });
 
-  it('shows all catalogs when ?showUnpublished=true', () => {
-    window.history.pushState({}, '', '?showUnpublished=true');
+  it('shows all catalogs when ?dev=true', () => {
+    window.history.pushState({}, '', '?dev=true');
 
     const { result } = renderHook(() => useCatalogs());
 
@@ -246,7 +246,7 @@ describe('useShowUnpublished — URL query param', () => {
   it('does not set sessionStorage when param is absent', () => {
     const { result } = renderHook(() => useLearn());
 
-    expect(sessionStorage.getItem('learn.showUnpublished')).toBeNull();
+    expect(sessionStorage.getItem('learn.dev')).toBeNull();
     expect(result.current.tutorials).toHaveLength(0);
   });
 });

@@ -1,0 +1,72 @@
+{
+  "fr": {
+    "title": "RAG Avancé",
+    "description": "Techniques avancées et évaluation des systèmes RAG",
+    "guides": {
+      "query-expansion": {
+        "title": "Expansion de requête",
+        "description": "Améliorer la récupération en générant plusieurs variantes de requête et en fusionnant les résultats"
+      },
+      "multi-vector-rag": {
+        "title": "RAG multi-vecteurs",
+        "description": "Utiliser plusieurs vecteurs par document pour améliorer la précision et la couverture de récupération"
+      },
+      "graph-rag": {
+        "title": "Graph RAG",
+        "description": "Combiner des graphes de connaissances avec le RAG pour capturer des relations et permettre une récupération structurée"
+      },
+      "evaluating-a-rag-system": {
+        "title": "Évaluer un système RAG",
+        "description": "Construire un cadre d'évaluation complet pour les systèmes RAG couvrant la qualité de récupération et de génération"
+      },
+      "precision": {
+        "title": "Précision",
+        "description": "Mesurer la précision de récupération : combien de documents récupérés sont pertinents"
+      },
+      "recall": {
+        "title": "Rappel",
+        "description": "Mesurer le rappel de récupération : combien de documents pertinents sont récupérés"
+      },
+      "faithfulness": {
+        "title": "Fidélité",
+        "description": "Évaluer si les réponses LLM sont ancrées dans le contexte récupéré et exemptes d'hallucinations"
+      }
+    },
+    "subcategory": "recherche augmentée"
+  },
+  "en": {
+    "title": "Advanced RAG",
+    "description": "Advanced techniques and evaluation for RAG systems",
+    "guides": {
+      "query-expansion": {
+        "title": "Query expansion",
+        "description": "Improve retrieval by generating multiple query variants and merging results"
+      },
+      "multi-vector-rag": {
+        "title": "Multi-vector RAG",
+        "description": "Use multiple vectors per document to improve retrieval precision and coverage"
+      },
+      "graph-rag": {
+        "title": "Graph RAG",
+        "description": "Combine knowledge graphs with RAG to capture relationships and enable structured retrieval"
+      },
+      "evaluating-a-rag-system": {
+        "title": "Evaluating a RAG system",
+        "description": "Build a comprehensive evaluation framework for RAG systems covering retrieval and generation quality"
+      },
+      "precision": {
+        "title": "Precision",
+        "description": "Measure retrieval precision: how many retrieved documents are relevant"
+      },
+      "recall": {
+        "title": "Recall",
+        "description": "Measure retrieval recall: how many relevant documents are retrieved"
+      },
+      "faithfulness": {
+        "title": "Faithfulness",
+        "description": "Assess whether LLM responses are grounded in retrieved context and free of hallucinations"
+      }
+    },
+    "subcategory": "augmented retrieval"
+  }
+}
