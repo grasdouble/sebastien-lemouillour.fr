@@ -17,7 +17,7 @@
     "build": "vite build",
     "build:watch": "vite build -w",
     "dev": "vite",
-    "lint": "eslint ./src",
+    "lint": "eslint ./src --max-warnings 0",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
     "preview": "vite build --mode preview && vite preview --mode preview",

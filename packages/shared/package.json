@@ -9,7 +9,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
     "test": "vitest run",
