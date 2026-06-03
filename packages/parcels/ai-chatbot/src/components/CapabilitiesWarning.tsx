@@ -3,8 +3,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { BrowserCapabilities } from '@grasdouble/slm_shared';
-
-import styles from './CapabilitiesWarning.module.css';
+import { Badge, Box, Stack, Text } from '@grasdouble/lufa_design-system';
 
 type CapabilitiesWarningProps = {
   capabilities: BrowserCapabilities;
@@ -23,27 +22,55 @@ export const CapabilitiesWarning: FC<CapabilitiesWarningProps> = ({ capabilities
   }
 
   return (
-    <div className={styles.container} role="alert" aria-live="polite">
-      {!hasWebGPU && (
-        <div className={styles.warning}>
-          <h3 className={styles.title}>{t('chatbot.capabilities.noWebGPU.title')}</h3>
-          <p className={styles.description}>{t('chatbot.capabilities.noWebGPU.description')}</p>
-          <p className={styles.fallback}>{t('chatbot.capabilities.noWebGPU.fallback')}</p>
-        </div>
-      )}
+    <Box
+      padding="default"
+      style={{ backgroundColor: 'var(--lufa-semantic-ui-background-warning-subtle)' }}
+      role="alert"
+      aria-live="polite"
+    >
+      <Stack direction="vertical" spacing="default">
+        <Stack direction="horizontal" spacing="compact" align="center">
+          <Badge variant="warning" size="md">
+            ⚠️
+          </Badge>
+          <Text variant="body" weight="semibold">
+            {t('chatbot.capabilities.title')}
+          </Text>
+        </Stack>
 
-      {!hasEnoughMemory && (
-        <div className={styles.warning}>
-          <h3 className={styles.title}>{t('chatbot.capabilities.lowMemory.title')}</h3>
-          <p className={styles.description}>
-            {t('chatbot.capabilities.lowMemory.description', {
-              current: capabilities.deviceMemoryGB,
-              required: minRequiredMemoryGB,
-            })}
-          </p>
-          <p className={styles.suggestion}>{t('chatbot.capabilities.lowMemory.suggestion')}</p>
-        </div>
-      )}
-    </div>
+        <Stack direction="vertical" spacing="comfortable">
+          {!hasWebGPU && (
+            <Stack direction="vertical" spacing="tight">
+              <Text variant="body" weight="semibold" color="warning">
+                {t('chatbot.capabilities.noWebGPU.title')}
+              </Text>
+              <Text variant="body-small" color="secondary">
+                {t('chatbot.capabilities.noWebGPU.description')}
+              </Text>
+              <Text variant="body-small" color="tertiary" style={{ fontStyle: 'italic' }}>
+                {t('chatbot.capabilities.noWebGPU.fallback')}
+              </Text>
+            </Stack>
+          )}
+
+          {!hasEnoughMemory && (
+            <Stack direction="vertical" spacing="tight">
+              <Text variant="body" weight="semibold" color="warning">
+                {t('chatbot.capabilities.lowMemory.title')}
+              </Text>
+              <Text variant="body-small" color="secondary">
+                {t('chatbot.capabilities.lowMemory.description', {
+                  current: capabilities.deviceMemoryGB,
+                  required: minRequiredMemoryGB,
+                })}
+              </Text>
+              <Text variant="body-small" color="tertiary" style={{ fontStyle: 'italic' }}>
+                {t('chatbot.capabilities.lowMemory.suggestion')}
+              </Text>
+            </Stack>
+          )}
+        </Stack>
+      </Stack>
+    </Box>
   );
 };

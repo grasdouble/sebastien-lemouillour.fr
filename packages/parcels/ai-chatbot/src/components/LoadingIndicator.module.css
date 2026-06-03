@@ -1,54 +1,13 @@
-.container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
-
-.content {
-  width: 100%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.modelName {
-  font-weight: 600;
-  color: #424242;
-  text-align: center;
-}
-
-.status {
-  color: #616161;
-  text-align: center;
-  font-size: 0.875rem;
-}
-
-.progressContainer {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
+/* Custom progress bar with DS tokens - DS doesn't provide progress component yet */
 .progressBar {
-  flex: 1;
   height: 8px;
-  background-color: #e0e0e0;
-  border-radius: 4px;
+  background-color: var(--lufa-semantic-ui-background-muted);
+  border-radius: var(--lufa-semantic-ui-border-radius-base);
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
-  background-color: #1976d2;
+  background-color: var(--lufa-semantic-ui-background-brand);
   transition: width 0.3s ease;
-}
-
-.percentage {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #424242;
-  min-width: 3rem;
-  text-align: right;
 }

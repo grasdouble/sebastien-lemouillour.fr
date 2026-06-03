@@ -3,11 +3,11 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { ModelConfig } from '@grasdouble/slm_shared';
+import { Box, Container, Divider, Stack, Text } from '@grasdouble/lufa_design-system';
 import { useCapabilities, useModelLoader } from '@grasdouble/slm_shared';
 
 import type { Message } from './MessageList';
 import { CapabilitiesWarning } from './CapabilitiesWarning';
-import styles from './ChatInterface.module.css';
 import { LoadingIndicator } from './LoadingIndicator';
 import { MessageInput } from './MessageInput';
 import { MessageList } from './MessageList';
@@ -81,33 +81,48 @@ export const ChatInterface: FC = () => {
   const isReady = loadingStatus === 'ready' && provider !== null;
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{t('chatbot.title')}</h1>
-        <p className={styles.subtitle}>{t('chatbot.subtitle')}</p>
-      </header>
+    <Container size="xl" paddingBlock="none" fluid>
+      <Stack direction="vertical" spacing="none" style={{ minHeight: '100vh' }}>
+        <Box
+          padding="comfortable"
+          style={{ backgroundColor: 'var(--lufa-semantic-ui-background-brand)', textAlign: 'center' }}
+        >
+          <Stack direction="vertical" spacing="tight">
+            <Text as="h1" variant="h1" weight="bold" color="inverse">
+              {t('chatbot.title')}
+            </Text>
+            <Text variant="body-small" color="inverse">
+              {t('chatbot.subtitle')}
+            </Text>
+          </Stack>
+        </Box>
 
-      <CapabilitiesWarning capabilities={capabilities} minRequiredMemoryGB={selectedModel?.minMemoryGB ?? 4} />
+        <CapabilitiesWarning capabilities={capabilities} minRequiredMemoryGB={selectedModel?.minMemoryGB ?? 4} />
 
-      <div className={styles.modelSection}>
-        <ModelSelector
-          onSelect={handleModelSelect}
-          selectedModel={selectedModel}
-          disabled={Boolean(isGenerating) || loadingStatus === 'downloading' || loadingStatus === 'loading'}
-        />
-      </div>
+        <Box padding="default">
+          <ModelSelector
+            onSelect={handleModelSelect}
+            selectedModel={selectedModel}
+            disabled={Boolean(isGenerating) || loadingStatus === 'downloading' || loadingStatus === 'loading'}
+          />
+        </Box>
 
-      {(loadingStatus === 'downloading' || loadingStatus === 'loading') && (
-        <LoadingIndicator progress={progressPercent} status={loadingStatus} modelName={selectedModel?.name} />
-      )}
+        <Divider spacing="compact" />
 
-      <div className={styles.chatSection}>
-        <MessageList messages={messages} />
-      </div>
+        {(loadingStatus === 'downloading' || loadingStatus === 'loading') && (
+          <LoadingIndicator progress={progressPercent} status={loadingStatus} modelName={selectedModel?.name} />
+        )}
 
-      <div className={styles.inputSection}>
-        <MessageInput onSend={handleSendMessage} disabled={!isReady || Boolean(isGenerating)} />
-      </div>
-    </div>
+        <Box style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+          <MessageList messages={messages} />
+        </Box>
+
+        <Divider spacing="compact" />
+
+        <Box>
+          <MessageInput onSend={handleSendMessage} disabled={!isReady || Boolean(isGenerating)} />
+        </Box>
+      </Stack>
+    </Container>
   );
 };

@@ -2,6 +2,8 @@ import type { FC } from 'react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Badge, Box, Center, Stack, Text } from '@grasdouble/lufa_design-system';
+
 import styles from './LoadingIndicator.module.css';
 
 type LoadingIndicatorProps = {
@@ -26,28 +28,46 @@ export const LoadingIndicator: FC<LoadingIndicatorProps> = ({ progress, status, 
     return t(`chatbot.loading.${status}`);
   };
 
+  const getStatusVariant = () => {
+    if (status === 'error') return 'danger';
+    if (status === 'downloading') return 'info';
+    if (status === 'loading') return 'warning';
+    return 'default';
+  };
+
   return (
-    <div className={styles.container} role="status" aria-live="polite">
-      <div className={styles.content}>
-        {modelName && (
-          <div className={styles.modelName}>
-            {t('chatbot.loading.model')}: {modelName}
-          </div>
-        )}
-        <div className={styles.status}>{getStatusMessage()}</div>
-        <div className={styles.progressContainer}>
-          <div
-            className={styles.progressBar}
-            role="progressbar"
-            aria-valuenow={progress}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-          </div>
-          <span className={styles.percentage}>{Math.round(progress)}%</span>
-        </div>
-      </div>
-    </div>
+    <Box padding="spacious" role="status" aria-live="polite">
+      <Center>
+        <Stack direction="vertical" spacing="default" style={{ width: '100%', maxWidth: '500px' }}>
+          {modelName && (
+            <Text variant="body" weight="semibold" align="center">
+              {t('chatbot.loading.model')}: {modelName}
+            </Text>
+          )}
+
+          <Center>
+            <Badge variant={getStatusVariant()} size="md">
+              {getStatusMessage()}
+            </Badge>
+          </Center>
+
+          <Stack direction="horizontal" spacing="compact" align="center">
+            <div
+              className={styles.progressBar}
+              role="progressbar"
+              aria-valuenow={progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              style={{ flex: 1 }}
+            >
+              <div className={styles.progressFill} style={{ width: `${progress}%` }} />
+            </div>
+            <Text variant="body-small" weight="semibold" style={{ minWidth: '3rem', textAlign: 'right' }}>
+              {Math.round(progress)}%
+            </Text>
+          </Stack>
+        </Stack>
+      </Center>
+    </Box>
   );
 };
