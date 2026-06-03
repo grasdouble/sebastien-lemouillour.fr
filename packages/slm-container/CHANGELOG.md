@@ -1,5 +1,11 @@
 # @grasdouble/slm-container
 
+## 2.0.1
+
+### Patch Changes
+
+- 90e6f22: fix: pakage name slm-vendors
+
 ## 2.0.0
 
 ### Major Changes
