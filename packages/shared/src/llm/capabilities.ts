@@ -18,7 +18,7 @@ export function detectCapabilities(): BrowserCapabilities {
   }
 
   const canRunLargeModels = hasWebGPU && deviceMemoryGB >= 8;
-  const recommendedProvider: LLMProvider = hasWebGPU ? 'webllm' : 'transformers-js';
+  const recommendedProvider: LLMProvider = 'webllm';
 
   return {
     hasWebGPU,

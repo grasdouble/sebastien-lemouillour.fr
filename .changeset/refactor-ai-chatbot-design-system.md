@@ -7,11 +7,12 @@ refactor: complete migration to Lufa Design System with 100% DS components and s
 
 **Full DS component adoption:**
 - **ModelSelector**: replaced custom `<button>` with `<Card>` clickable, uses `Badge` for model metadata
-- **ChatInterface**: uses `Container` + `Divider` instead of hardcoded borders, removed all inline styles
+- **ChatInterface**: uses `Container` + `Divider` instead of hardcoded borders, removed all inline styles, added `CapabilitiesInfo` component
 - **MessageList**: uses `Badge` for user/assistant labels instead of plain text
 - **MessageInput**: wrapped in `Box` with proper padding, uses `Button` size="lg"
 - **LoadingIndicator**: uses `Center` + `Badge` with dynamic variants (info/warning/danger) for status
 - **CapabilitiesWarning**: uses `Badge` for visual emphasis instead of emoji
+- **CapabilitiesInfo**: new component displaying WebGPU support and device memory with semantic tokens and responsive grid
 
 **Semantic tokens everywhere:**
 - All custom CSS now uses `var(--lufa-semantic-ui-*)` tokens (background, text, border, spacing, border-radius)
@@ -23,8 +24,12 @@ refactor: complete migration to Lufa Design System with 100% DS components and s
 - MessageList.module.css: message bubble alignment (user right, assistant left, max-width 80%)
 - MessageInput.module.css: textarea sizing and focus states (DS has no textarea component yet)
 - LoadingIndicator.module.css: progress bar with visible gradient fill (cyan/blue), border for visibility, respects prefers-reduced-motion
+- CapabilitiesInfo.module.css: responsive grid (`repeat(auto-fit, minmax(200px, 1fr))`)
+
+**Translation additions:**
+- Added `capabilities.supported` and `capabilities.notSupported` keys in fr.json and en.json
 
 **Container-level fix:**
 - Added `import '@grasdouble/lufa_design-system/style.css'` in slm-container/src/main.ts to load DS CSS in dev mode (production uses CDN via index.html)
 
-All 19 tests pass, lint clean, build successful.
+All 22 tests pass (added 3 tests for CapabilitiesInfo), lint clean, build successful.

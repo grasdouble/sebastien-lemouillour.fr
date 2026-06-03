@@ -53,7 +53,9 @@ export const MessageList: FC<MessageListProps> = ({ messages }) => {
                     {message.timestamp.toLocaleTimeString()}
                   </Text>
                 </Flex>
-                <Text variant="body">{message.content}</Text>
+                <Text variant="body" className={styles.messageContent}>
+                  {message.content}
+                </Text>
               </Stack>
             </Card>
           </div>

@@ -3,27 +3,6 @@
     "title": "AI Playground",
     "subtitle": "Expérimentez avec des LLM dans le navigateur et des paramètres ajustables",
 
-    "models": {
-      "title": "Sélection de modèle",
-      "select": "Sélectionnez un modèle pour commencer",
-      "selected": "Sélectionné",
-      "specs": {
-        "size": "Taille",
-        "memory": "RAM min",
-        "type": "Type"
-      }
-    },
-
-    "capabilities": {
-      "title": "Capacités du navigateur",
-      "webgpu": "WebGPU",
-      "memory": "Mémoire de l'appareil",
-      "supported": "Supporté",
-      "notSupported": "Non supporté",
-      "unknown": "Inconnu",
-      "recommended": "Modèles recommandés pour votre appareil"
-    },
-
     "prompt": {
       "title": "Prompt",
       "placeholder": "Entrez votre prompt ici...",
@@ -71,15 +50,6 @@
       "memoryUsage": "Mémoire",
       "totalTokens": "Total tokens",
       "timeElapsed": "Temps écoulé"
-    },
-
-    "loading": {
-      "model": "Modèle",
-      "downloading": "Téléchargement du modèle...",
-      "loading": "Chargement du modèle en mémoire...",
-      "ready": "Modèle prêt",
-      "error": "Échec du chargement du modèle",
-      "progress": "{{percent}}% terminé"
     },
 
     "errors": {

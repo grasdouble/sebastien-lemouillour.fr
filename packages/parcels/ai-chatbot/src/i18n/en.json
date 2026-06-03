@@ -4,9 +4,6 @@
     "subtitle": "Chat with a language model running directly in your browser",
     "capabilities": {
       "title": "Browser capabilities",
-      "webgpu": "WebGPU",
-      "memory": "Device memory",
-      "provider": "Provider",
       "noWebGPU": {
         "title": "WebGPU not available",
         "description": "Your browser does not support WebGPU. High-performance models will not be available. Please use a recent browser (Chrome 113+, Edge 113+, etc.).",
@@ -47,12 +44,6 @@
         "label": "Message",
         "send": "Send"
       }
-    },
-    "loading": {
-      "model": "Model",
-      "downloading": "Downloading model...",
-      "loading": "Loading model...",
-      "error": "Error loading model"
     },
     "message": {
       "user": "You",

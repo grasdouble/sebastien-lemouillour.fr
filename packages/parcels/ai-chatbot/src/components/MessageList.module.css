@@ -9,3 +9,10 @@
   align-self: flex-start;
   max-width: 80%;
 }
+
+.messageContent {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}

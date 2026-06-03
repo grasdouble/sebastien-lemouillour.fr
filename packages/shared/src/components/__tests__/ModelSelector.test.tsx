@@ -1,9 +1,8 @@
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { MODEL_REGISTRY } from '@grasdouble/slm_shared';
-
-import { ModelSelector } from '../components/ModelSelector';
+import { MODEL_REGISTRY } from '../../llm/model-registry';
+import { ModelSelector } from '../ModelSelector';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

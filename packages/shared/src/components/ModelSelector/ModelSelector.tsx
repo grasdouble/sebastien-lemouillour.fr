@@ -2,20 +2,20 @@ import type { FC, KeyboardEvent } from 'react';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { ModelConfig } from '@grasdouble/slm_shared';
-import { Badge, Card, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
-import { MODEL_REGISTRY } from '@grasdouble/slm_shared';
+import { Card, Flex, Icon, Stack, Text } from '@grasdouble/lufa_design-system';
 
+import type { ModelConfig } from '../../llm/types';
+import { MODEL_REGISTRY } from '../../llm/model-registry';
 import styles from './ModelSelector.module.css';
 
-type ModelSelectorProps = {
+export type ModelSelectorProps = {
   onSelect: (model: ModelConfig) => void;
   selectedModel: ModelConfig | null;
   disabled?: boolean;
 };
 
 export const ModelSelector: FC<ModelSelectorProps> = ({ onSelect, selectedModel, disabled }) => {
-  const { t } = useTranslation('ai-playground');
+  const { t } = useTranslation('slm-shared');
 
   const handleSelect = useCallback(
     (model: ModelConfig) => {
@@ -39,7 +39,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({ onSelect, selectedModel,
   return (
     <Stack direction="vertical" spacing="compact">
       <Text as="h2" weight="semibold" color="primary">
-        {t('playground.models.title')}
+        {t('models.title')}
       </Text>
       <div className={styles.grid}>
         {MODEL_REGISTRY.map((model) => {
@@ -55,31 +55,24 @@ export const ModelSelector: FC<ModelSelectorProps> = ({ onSelect, selectedModel,
               aria-pressed={isSelected}
               className={styles.card}
             >
-              <Stack direction="vertical" spacing="compact">
-                <Flex direction="row" justify="between" align="center">
-                  <Text as="h3" weight="semibold">
+              <Stack direction="vertical" spacing="none">
+                <Flex direction="row" justify="start" align="center" gap="tight">
+                  <Text as="h3" weight="semibold" size="small">
                     {model.name}
                   </Text>
-                  {isSelected && <Badge variant="success">{t('playground.models.selected')}</Badge>}
+                  {isSelected && <Icon name="check-circle" size="sm" color="success" />}
                 </Flex>
-                <Stack direction="vertical" spacing="tight">
-                  <Flex direction="row" justify="start" align="center" gap="compact">
-                    <Text variant="body-small" weight="semibold" color="secondary">
-                      {t('playground.models.specs.size')}:
-                    </Text>
-                    <Text variant="body-small" color="secondary">
-                      {model.estimatedSizeGB}GB
-                    </Text>
-                  </Flex>
-                  <Flex direction="row" justify="start" align="center" gap="compact">
-                    <Text variant="body-small" weight="semibold" color="secondary">
-                      {t('playground.models.specs.memory')}:
-                    </Text>
-                    <Text variant="body-small" color="secondary">
-                      {model.minMemoryGB}GB
-                    </Text>
-                  </Flex>
-                </Stack>
+                <Flex direction="row" justify="start" align="center" gap="tight">
+                  <Text variant="body-small" color="secondary">
+                    {model.estimatedSizeGB}GB
+                  </Text>
+                  <Text variant="body-small" color="tertiary">
+                    •
+                  </Text>
+                  <Text variant="body-small" color="secondary">
+                    {model.minMemoryGB}GB RAM
+                  </Text>
+                </Flex>
               </Stack>
             </Card>
           );

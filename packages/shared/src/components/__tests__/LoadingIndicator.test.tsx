@@ -1,8 +1,7 @@
-import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { LoadingIndicator } from '../components/LoadingIndicator';
+import { LoadingIndicator } from '../LoadingIndicator';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -40,6 +39,6 @@ describe('LoadingIndicator', () => {
   it('displays correct status message', () => {
     render(<LoadingIndicator progress={30} status="downloading" />);
 
-    expect(screen.getByText('chatbot.loading.downloading')).toBeDefined();
+    expect(screen.getByText('loading.downloading')).toBeDefined();
   });
 });

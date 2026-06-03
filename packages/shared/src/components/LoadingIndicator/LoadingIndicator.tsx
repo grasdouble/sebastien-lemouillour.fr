@@ -1,12 +1,11 @@
 import type { FC } from 'react';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Badge, Box, Center, Stack, Text } from '@grasdouble/lufa_design-system';
 
 import styles from './LoadingIndicator.module.css';
 
-type LoadingIndicatorProps = {
+export type LoadingIndicatorProps = {
   progress: number;
   status: 'idle' | 'downloading' | 'loading' | 'ready' | 'error';
   modelName?: string;
@@ -14,7 +13,7 @@ type LoadingIndicatorProps = {
 };
 
 export const LoadingIndicator: FC<LoadingIndicatorProps> = ({ progress, status, modelName, error }) => {
-  const { t } = useTranslation('ai-playground');
+  const { t } = useTranslation('slm-shared');
 
   // Don't render anything if not loading
   if (progress === 0 || status === 'idle' || status === 'ready') {
@@ -25,7 +24,7 @@ export const LoadingIndicator: FC<LoadingIndicatorProps> = ({ progress, status, 
     if (status === 'error' && error) {
       return error;
     }
-    return t(`playground.loading.${status}`);
+    return t(`loading.${status}`);
   };
 
   const getStatusVariant = () => {
@@ -41,7 +40,7 @@ export const LoadingIndicator: FC<LoadingIndicatorProps> = ({ progress, status, 
         <Stack direction="vertical" spacing="default" style={{ width: '100%', maxWidth: '500px' }}>
           {modelName && (
             <Text variant="body" weight="semibold" align="center">
-              {t('playground.loading.model')}: {modelName}
+              {t('loading.model')}: {modelName}
             </Text>
           )}
 

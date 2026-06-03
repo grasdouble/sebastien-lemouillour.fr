@@ -1,0 +1,25 @@
+{
+  "capabilities": {
+    "title": "Capacités du navigateur",
+    "webgpu": "WebGPU",
+    "memory": "Mémoire de l'appareil",
+    "supported": "Supporté",
+    "notSupported": "Non supporté"
+  },
+  "loading": {
+    "model": "Modèle",
+    "downloading": "Téléchargement du modèle...",
+    "loading": "Chargement du modèle en mémoire...",
+    "error": "Échec du chargement du modèle"
+  },
+  "models": {
+    "title": "Sélection de modèle",
+    "select": "Sélectionnez un modèle pour commencer",
+    "selected": "Sélectionné",
+    "specs": {
+      "size": "Taille",
+      "memory": "RAM min",
+      "type": "Type"
+    }
+  }
+}

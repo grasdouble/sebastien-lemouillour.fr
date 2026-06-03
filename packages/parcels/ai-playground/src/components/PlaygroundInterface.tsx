@@ -4,11 +4,14 @@ import { useTranslation } from 'react-i18next';
 
 import type { GenerationConfig, ModelConfig } from '@grasdouble/slm_shared';
 import { Box, Button, Container, Divider, Stack } from '@grasdouble/lufa_design-system';
-import { useCapabilities, useModelLoader } from '@grasdouble/slm_shared';
+import {
+  CapabilitiesInfo,
+  LoadingIndicator,
+  ModelSelector,
+  useCapabilities,
+  useModelLoader,
+} from '@grasdouble/slm_shared';
 
-import { CapabilitiesInfo } from './CapabilitiesInfo';
-import { LoadingIndicator } from './LoadingIndicator';
-import { ModelSelector } from './ModelSelector';
 import { OutputDisplay } from './OutputDisplay';
 import { ParametersPanel } from './ParametersPanel';
 import { PerformanceMetrics } from './PerformanceMetrics';
@@ -87,52 +90,56 @@ export const PlaygroundInterface: FC = () => {
 
   return (
     <Container size="xl">
-      <Stack direction="vertical" spacing="comfortable">
-        <CapabilitiesInfo capabilities={capabilities} />
+      <Stack direction="vertical" spacing="none">
+        <Box padding="comfortable">
+          <Stack direction="vertical" spacing="comfortable">
+            <CapabilitiesInfo capabilities={capabilities} />
 
-        <Divider spacing="comfortable" />
-
-        <ModelSelector onSelect={handleModelSelect} selectedModel={selectedModel} disabled={isLoading} />
-
-        {(loadingStatus === 'downloading' || loadingStatus === 'loading') && (
-          <LoadingIndicator progress={progressPercent} status={loadingStatus} modelName={selectedModel?.name} />
-        )}
-
-        {isReady && (
-          <>
             <Divider spacing="comfortable" />
 
-            <div className={styles.mainPanel}>
-              <Stack direction="vertical" spacing="comfortable" className={styles.inputSection}>
-                <PromptEditor value={prompt} onChange={setPrompt} disabled={isGenerating} />
+            <ModelSelector onSelect={handleModelSelect} selectedModel={selectedModel} disabled={isLoading} />
 
-                <ParametersPanel config={config} onChange={setConfig} disabled={isGenerating} />
+            {(loadingStatus === 'downloading' || loadingStatus === 'loading') && (
+              <LoadingIndicator progress={progressPercent} status={loadingStatus} modelName={selectedModel?.name} />
+            )}
 
-                <Button
-                  type="solid"
-                  variant="primary"
-                  size="lg"
-                  onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                >
-                  {isGenerating ? t('playground.output.streaming') : t('playground.prompt.generate')}
-                </Button>
-              </Stack>
+            {isReady && (
+              <>
+                <Divider spacing="comfortable" />
 
-              <Stack direction="vertical" spacing="comfortable" className={styles.outputSection}>
-                <OutputDisplay output={output} isStreaming={isGenerating} onClear={handleClear} />
+                <div className={styles.mainPanel}>
+                  <Stack direction="vertical" spacing="comfortable" className={styles.inputSection}>
+                    <PromptEditor value={prompt} onChange={setPrompt} disabled={isGenerating} />
 
-                {output && <PerformanceMetrics {...metrics} />}
-              </Stack>
-            </div>
-          </>
-        )}
+                    <ParametersPanel config={config} onChange={setConfig} disabled={isGenerating} />
 
-        {loadProgress.status === 'error' && (
-          <Box backgroundColor="muted" padding="default" className={styles.error}>
-            {t('playground.loading.error')}
-          </Box>
-        )}
+                    <Button
+                      type="solid"
+                      variant="primary"
+                      size="lg"
+                      onClick={handleGenerate}
+                      disabled={isGenerating || !prompt.trim()}
+                    >
+                      {isGenerating ? t('playground.output.streaming') : t('playground.prompt.generate')}
+                    </Button>
+                  </Stack>
+
+                  <Stack direction="vertical" spacing="comfortable" className={styles.outputSection}>
+                    <OutputDisplay output={output} isStreaming={isGenerating} onClear={handleClear} />
+
+                    {output && <PerformanceMetrics {...metrics} />}
+                  </Stack>
+                </div>
+              </>
+            )}
+
+            {loadProgress.status === 'error' && (
+              <Box backgroundColor="muted" padding="default" className={styles.error}>
+                {t('playground.loading.error')}
+              </Box>
+            )}
+          </Stack>
+        </Box>
       </Stack>
     </Container>
   );

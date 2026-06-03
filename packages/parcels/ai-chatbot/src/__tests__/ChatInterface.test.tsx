@@ -15,16 +15,19 @@ vi.mock('react-i18next', () => ({
 vi.mock('@grasdouble/slm_shared', () => ({
   MODEL_REGISTRY: [
     {
-      id: 'phi-3-mini',
-      name: 'Phi-3 Mini',
+      id: 'llama-3.2-1b',
+      name: 'Llama 3.2 1B',
       provider: 'webllm',
       size: 'small',
-      parameterCount: '3.8B',
-      estimatedSizeGB: 2.3,
-      minMemoryGB: 4,
+      parameterCount: '1B',
+      estimatedSizeGB: 0.9,
+      minMemoryGB: 2,
       requiresWebGPU: true,
     },
   ],
+  CapabilitiesInfo: () => <div>capabilities.title</div>,
+  LoadingIndicator: () => <div>loading.idle</div>,
+  ModelSelector: () => <div>models.title</div>,
   useCapabilities: () => ({
     hasWebGPU: true,
     hasWebGL: true,
@@ -33,7 +36,7 @@ vi.mock('@grasdouble/slm_shared', () => ({
     canRunLargeModels: true,
   }),
   useModelLoader: () => ({
-    progress: 0,
+    progress: { loaded: false, progress: 0, status: 'idle' },
     provider: null,
     loadModel: vi.fn(),
     unloadModel: vi.fn(),
@@ -54,7 +57,7 @@ describe('ChatInterface', () => {
   it('renders model selector initially', () => {
     render(<ChatInterface />);
 
-    expect(screen.getByText('chatbot.model.title')).toBeDefined();
+    expect(screen.getByText('models.title')).toBeDefined();
   });
 
   it('shows empty chat state', () => {

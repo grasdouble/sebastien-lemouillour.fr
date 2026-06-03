@@ -3,27 +3,6 @@
     "title": "AI Playground",
     "subtitle": "Experiment with browser-based LLMs and adjustable parameters",
 
-    "models": {
-      "title": "Model Selection",
-      "select": "Select a model to start",
-      "selected": "Selected",
-      "specs": {
-        "size": "Size",
-        "memory": "Min RAM",
-        "type": "Type"
-      }
-    },
-
-    "capabilities": {
-      "title": "Browser Capabilities",
-      "webgpu": "WebGPU",
-      "memory": "Device Memory",
-      "supported": "Supported",
-      "notSupported": "Not Supported",
-      "unknown": "Unknown",
-      "recommended": "Recommended models for your device"
-    },
-
     "prompt": {
       "title": "Prompt",
       "placeholder": "Enter your prompt here...",
@@ -71,15 +50,6 @@
       "memoryUsage": "Memory",
       "totalTokens": "Total Tokens",
       "timeElapsed": "Time Elapsed"
-    },
-
-    "loading": {
-      "model": "Model",
-      "downloading": "Downloading model...",
-      "loading": "Loading model into memory...",
-      "ready": "Model ready",
-      "error": "Failed to load model",
-      "progress": "{{percent}}% complete"
     },
 
     "errors": {

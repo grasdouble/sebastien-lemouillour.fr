@@ -5,63 +5,76 @@
 import type { ModelConfig } from './types';
 
 export const MODEL_REGISTRY: ModelConfig[] = [
-  // Small models (~1-3B parameters)
+  // Tiny models (< 1B parameters) - Fast demos and testing
   {
-    id: 'phi-3-mini',
-    name: 'Phi-3 Mini',
+    id: 'smollm2-360m',
+    name: 'SmolLM2 360M',
+    provider: 'webllm',
+    size: 'small',
+    parameterCount: '360M',
+    estimatedSizeGB: 0.4,
+    minMemoryGB: 2,
+    requiresWebGPU: true,
+    webllmModelId: 'SmolLM2-360M-Instruct-q4f16_1-MLC',
+  },
+  {
+    id: 'llama-3.2-1b',
+    name: 'Llama 3.2 1B',
+    provider: 'webllm',
+    size: 'small',
+    parameterCount: '1B',
+    estimatedSizeGB: 0.9,
+    minMemoryGB: 2,
+    requiresWebGPU: true,
+    webllmModelId: 'Llama-3.2-1B-Instruct-q4f16_1-MLC',
+  },
+
+  // Small models (~2-4B parameters) - Balanced performance
+  {
+    id: 'llama-3.2-3b',
+    name: 'Llama 3.2 3B',
+    provider: 'webllm',
+    size: 'small',
+    parameterCount: '3B',
+    estimatedSizeGB: 2.3,
+    minMemoryGB: 3,
+    requiresWebGPU: true,
+    webllmModelId: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',
+  },
+  {
+    id: 'phi-4-mini',
+    name: 'Phi-4 Mini',
     provider: 'webllm',
     size: 'small',
     parameterCount: '3.8B',
-    estimatedSizeGB: 2.3,
+    estimatedSizeGB: 3.4,
     minMemoryGB: 4,
     requiresWebGPU: true,
-    webllmModelId: 'Phi-3-mini-4k-instruct-q4f16_1-MLC',
-  },
-  {
-    id: 'tinyllama',
-    name: 'TinyLlama',
-    provider: 'transformers-js',
-    size: 'small',
-    parameterCount: '1.1B',
-    estimatedSizeGB: 0.6,
-    minMemoryGB: 2,
-    requiresWebGPU: false,
-    transformersJsModelId: 'TinyLlama/TinyLlama-1.1B-Chat-v1.0',
-  },
-  {
-    id: 'gemma-2b',
-    name: 'Gemma 2B',
-    provider: 'webllm',
-    size: 'small',
-    parameterCount: '2B',
-    estimatedSizeGB: 1.4,
-    minMemoryGB: 4,
-    requiresWebGPU: true,
-    webllmModelId: 'gemma-2b-it-q4f16_1-MLC',
+    webllmModelId: 'Phi-4-mini-instruct-q4f16_1-MLC',
   },
 
-  // Medium models (~7B parameters)
+  // Medium models (~7-8B parameters) - High quality responses
   {
-    id: 'llama-3-8b',
-    name: 'Llama 3 8B',
+    id: 'llama-3.1-8b',
+    name: 'Llama 3.1 8B',
     provider: 'webllm',
     size: 'medium',
     parameterCount: '8B',
-    estimatedSizeGB: 4.8,
-    minMemoryGB: 8,
+    estimatedSizeGB: 5.0,
+    minMemoryGB: 6,
     requiresWebGPU: true,
-    webllmModelId: 'Llama-3-8B-Instruct-q4f16_1-MLC',
+    webllmModelId: 'Llama-3.1-8B-Instruct-q4f16_1-MLC',
   },
   {
-    id: 'mistral-7b',
-    name: 'Mistral 7B',
+    id: 'deepseek-r1-qwen-7b',
+    name: 'DeepSeek R1 Qwen 7B',
     provider: 'webllm',
     size: 'medium',
     parameterCount: '7B',
-    estimatedSizeGB: 4.1,
-    minMemoryGB: 8,
+    estimatedSizeGB: 5.1,
+    minMemoryGB: 6,
     requiresWebGPU: true,
-    webllmModelId: 'Mistral-7B-Instruct-v0.3-q4f16_1-MLC',
+    webllmModelId: 'DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC',
   },
 ];
 
@@ -82,7 +95,7 @@ export function getModelsBySize(size: 'small' | 'medium' | 'large'): ModelConfig
 /**
  * Get models by provider
  */
-export function getModelsByProvider(provider: 'webllm' | 'transformers-js'): ModelConfig[] {
+export function getModelsByProvider(provider: 'webllm'): ModelConfig[] {
   return MODEL_REGISTRY.filter((model) => model.provider === provider);
 }
 

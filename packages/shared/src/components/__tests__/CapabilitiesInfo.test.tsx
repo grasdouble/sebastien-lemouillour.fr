@@ -1,7 +1,7 @@
 import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { CapabilitiesInfo } from '../components/CapabilitiesInfo';
+import { CapabilitiesInfo } from '../CapabilitiesInfo';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -27,7 +27,7 @@ describe('CapabilitiesInfo', () => {
       />
     );
 
-    expect(getByText('playground.capabilities.supported')).toBeDefined();
+    expect(getByText('capabilities.supported')).toBeDefined();
   });
 
   it('renders device memory', () => {
@@ -37,7 +37,7 @@ describe('CapabilitiesInfo', () => {
           hasWebGPU: false,
           hasWebGL: true,
           deviceMemoryGB: 16,
-          recommendedProvider: 'transformers-js',
+          recommendedProvider: 'webllm',
           canRunLargeModels: false,
         }}
       />
@@ -53,12 +53,12 @@ describe('CapabilitiesInfo', () => {
           hasWebGPU: false,
           hasWebGL: false,
           deviceMemoryGB: 4,
-          recommendedProvider: 'transformers-js',
+          recommendedProvider: 'webllm',
           canRunLargeModels: false,
         }}
       />
     );
 
-    expect(getByText('playground.capabilities.notSupported')).toBeDefined();
+    expect(getByText('capabilities.notSupported')).toBeDefined();
   });
 });

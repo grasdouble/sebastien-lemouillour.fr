@@ -2,7 +2,7 @@
  * LLM types and interfaces for browser-based language models
  */
 
-export type LLMProvider = 'webllm' | 'transformers-js';
+export type LLMProvider = 'webllm';
 
 export type BrowserCapabilities = {
   hasWebGPU: boolean;
@@ -28,8 +28,7 @@ export type ModelConfig = {
   estimatedSizeGB: number;
   minMemoryGB: number;
   requiresWebGPU: boolean;
-  webllmModelId?: string;
-  transformersJsModelId?: string;
+  webllmModelId: string;
 };
 
 export type ModelLoadProgress = {

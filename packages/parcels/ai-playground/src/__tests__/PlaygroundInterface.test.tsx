@@ -36,12 +36,12 @@ afterEach(() => {
 describe('PlaygroundInterface', () => {
   it('renders capabilities info', () => {
     const { getByText } = render(<PlaygroundInterface />);
-    expect(getByText('playground.capabilities.title')).toBeDefined();
+    expect(getByText('capabilities.title')).toBeDefined();
   });
 
   it('renders model selector', () => {
     const { getByText } = render(<PlaygroundInterface />);
-    expect(getByText('playground.models.title')).toBeDefined();
+    expect(getByText('models.title')).toBeDefined();
   });
 
   it('does not show controls before model is loaded', () => {

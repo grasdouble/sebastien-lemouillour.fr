@@ -3,15 +3,19 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { ModelConfig } from '@grasdouble/slm_shared';
-import { Box, Container, Divider, Stack, Text } from '@grasdouble/lufa_design-system';
-import { useCapabilities, useModelLoader } from '@grasdouble/slm_shared';
+import { Box, Container, Divider, Stack } from '@grasdouble/lufa_design-system';
+import {
+  CapabilitiesInfo,
+  LoadingIndicator,
+  ModelSelector,
+  useCapabilities,
+  useModelLoader,
+} from '@grasdouble/slm_shared';
 
 import type { Message } from './MessageList';
 import { CapabilitiesWarning } from './CapabilitiesWarning';
-import { LoadingIndicator } from './LoadingIndicator';
 import { MessageInput } from './MessageInput';
 import { MessageList } from './MessageList';
-import { ModelSelector } from './ModelSelector';
 
 export const ChatInterface: FC = () => {
   const { t } = useTranslation('ai-chatbot');
@@ -83,19 +87,11 @@ export const ChatInterface: FC = () => {
   return (
     <Container size="xl" paddingBlock="none" fluid>
       <Stack direction="vertical" spacing="none" style={{ minHeight: '100vh' }}>
-        <Box
-          padding="comfortable"
-          style={{ backgroundColor: 'var(--lufa-semantic-ui-background-brand)', textAlign: 'center' }}
-        >
-          <Stack direction="vertical" spacing="tight">
-            <Text as="h1" variant="h1" weight="bold" color="inverse">
-              {t('chatbot.title')}
-            </Text>
-            <Text variant="body-small" color="inverse">
-              {t('chatbot.subtitle')}
-            </Text>
-          </Stack>
+        <Box padding="default">
+          <CapabilitiesInfo capabilities={capabilities} />
         </Box>
+
+        <Divider spacing="compact" />
 
         <CapabilitiesWarning capabilities={capabilities} minRequiredMemoryGB={selectedModel?.minMemoryGB ?? 4} />
 

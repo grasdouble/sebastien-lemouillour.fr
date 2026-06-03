@@ -22,7 +22,7 @@ describe('CapabilitiesWarning', () => {
       hasWebGPU: false,
       hasWebGL: true,
       deviceMemoryGB: 4,
-      recommendedProvider: 'transformers-js' as const,
+      recommendedProvider: 'webllm' as const,
       canRunLargeModels: false,
     };
 
