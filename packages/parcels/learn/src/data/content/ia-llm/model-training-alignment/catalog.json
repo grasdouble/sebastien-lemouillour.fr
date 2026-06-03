@@ -1,0 +1,56 @@
+{
+  "fr": {
+    "title": "Entraînement et alignement",
+    "description": "Comprendre comment entraîner et aligner les modèles de langage",
+    "guides": {
+      "pre-training": {
+        "title": "Pré-entraînement",
+        "description": "Comprendre le pré-entraînement des LLMs sur de vastes corpus de texte"
+      },
+      "fine-tuning": {
+        "title": "Fine-tuning",
+        "description": "Adapter un modèle pré-entraîné à des tâches ou domaines spécifiques"
+      },
+      "alignment": {
+        "title": "Alignement",
+        "description": "Aligner le comportement des LLMs avec les valeurs et intentions humaines"
+      },
+      "rlhf": {
+        "title": "RLHF",
+        "description": "Utiliser le Reinforcement Learning from Human Feedback pour améliorer les modèles"
+      },
+      "dpo": {
+        "title": "DPO",
+        "description": "Direct Preference Optimization : une alternative simplifiée au RLHF"
+      }
+    },
+    "subcategory": "personnaliser les modèles"
+  },
+  "en": {
+    "title": "Training and Alignment",
+    "description": "Understand how to train and align language models",
+    "guides": {
+      "pre-training": {
+        "title": "Pre-training",
+        "description": "Understand LLM pre-training on vast text corpora"
+      },
+      "fine-tuning": {
+        "title": "Fine-tuning",
+        "description": "Adapt a pre-trained model to specific tasks or domains"
+      },
+      "alignment": {
+        "title": "Alignment",
+        "description": "Align LLM behavior with human values and intentions"
+      },
+      "rlhf": {
+        "title": "RLHF",
+        "description": "Use Reinforcement Learning from Human Feedback to improve models"
+      },
+      "dpo": {
+        "title": "DPO",
+        "description": "Direct Preference Optimization: a simplified alternative to RLHF"
+      }
+    },
+    "subcategory": "customizing models"
+  }
+}

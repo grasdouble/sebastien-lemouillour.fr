@@ -23,7 +23,7 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
     "test": "vitest run",
@@ -34,7 +34,7 @@
   },
   "lint-staged": {
     "*.{js,ts,mjs}": [
-      "eslint --fix",
+      "eslint --fix --max-warnings 0",
       "prettier --write"
     ],
     "*.ts": [

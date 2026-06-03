@@ -1,0 +1,64 @@
+{
+  "fr": {
+    "title": "Orchestration et workflows",
+    "description": "Architecturer des systèmes multi-agents et des workflows complexes",
+    "guides": {
+      "agentic-workflows": {
+        "title": "Workflows agentiques",
+        "description": "Concevoir des workflows où les agents collaborent pour résoudre des problèmes complexes"
+      },
+      "llm-workflows": {
+        "title": "Workflows LLM",
+        "description": "Structurer des enchaînements de tâches impliquant plusieurs appels LLM"
+      },
+      "prompt-chaining": {
+        "title": "Chaînage de prompts",
+        "description": "Enchaîner plusieurs prompts pour décomposer des tâches complexes"
+      },
+      "multi-agent-architectures": {
+        "title": "Architectures multi-agents",
+        "description": "Concevoir des systèmes où plusieurs agents spécialisés collaborent"
+      },
+      "model-routing": {
+        "title": "Routage de modèles",
+        "description": "Diriger intelligemment les requêtes vers les modèles les plus appropriés"
+      },
+      "mcp-model-context-protocol": {
+        "title": "MCP (Model Context Protocol)",
+        "description": "Utiliser le Model Context Protocol pour standardiser les interactions entre agents et outils"
+      }
+    },
+    "subcategory": "orchestrer des agents"
+  },
+  "en": {
+    "title": "Orchestration and Workflows",
+    "description": "Architect multi-agent systems and complex workflows",
+    "guides": {
+      "agentic-workflows": {
+        "title": "Agentic workflows",
+        "description": "Design workflows where agents collaborate to solve complex problems"
+      },
+      "llm-workflows": {
+        "title": "LLM workflows",
+        "description": "Structure task sequences involving multiple LLM calls"
+      },
+      "prompt-chaining": {
+        "title": "Prompt chaining",
+        "description": "Chain multiple prompts to break down complex tasks"
+      },
+      "multi-agent-architectures": {
+        "title": "Multi-agent architectures",
+        "description": "Design systems where multiple specialized agents collaborate"
+      },
+      "model-routing": {
+        "title": "Model routing",
+        "description": "Intelligently route requests to the most appropriate models"
+      },
+      "mcp-model-context-protocol": {
+        "title": "MCP (Model Context Protocol)",
+        "description": "Use the Model Context Protocol to standardize interactions between agents and tools"
+      }
+    },
+    "subcategory": "orchestrating agents"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "fr": {
+    "title": "Opérations IA en Production",
+    "description": "Gérer, sécuriser et optimiser les systèmes IA en production",
+    "guides": {
+      "ai-application-scalability": {
+        "title": "Scalabilité des applications IA",
+        "description": "Scaler les applications IA pour gérer un trafic élevé avec du cache, un équilibrage de charge et le parallélisme de modèles"
+      },
+      "ai-cost-optimization": {
+        "title": "Optimisation des coûts IA",
+        "description": "Réduire les coûts d'infrastructure IA grâce au cache, à la sélection de modèles, au batching et aux stratégies d'optimisation"
+      },
+      "cost-of-using-an-llm": {
+        "title": "Coût d'utilisation d'un LLM",
+        "description": "Comprendre les modèles de tarification des LLMs et estimer les coûts pour votre cas d'usage"
+      },
+      "securing-ai-applications": {
+        "title": "Sécuriser les applications IA",
+        "description": "Implémenter des pratiques de sécurité pour les applications IA : validation des entrées, contrôle d'accès et audit"
+      },
+      "prompt-injection": {
+        "title": "Injection de prompt",
+        "description": "Comprendre les attaques par injection de prompt et comment défendre les applications LLM contre elles"
+      },
+      "guardrails": {
+        "title": "Guardrails",
+        "description": "Implémenter des guardrails pour empêcher les contenus nuisibles et faire respecter les politiques dans les sorties LLM"
+      },
+      "data-privacy": {
+        "title": "Confidentialité des données",
+        "description": "Protéger les données utilisateur dans les applications IA avec chiffrement, anonymisation et minimisation des données"
+      },
+      "ai-governance": {
+        "title": "Gouvernance IA",
+        "description": "Établir des cadres de gouvernance IA couvrant la responsabilité, l'auditabilité et les pratiques IA responsables"
+      }
+    },
+    "subcategory": "déployer en production"
+  },
+  "en": {
+    "title": "AI Production Operations",
+    "description": "Manage, secure, and optimize AI systems in production",
+    "guides": {
+      "ai-application-scalability": {
+        "title": "AI application scalability",
+        "description": "Scale AI applications to handle high traffic with caching, load balancing, and model parallelism"
+      },
+      "ai-cost-optimization": {
+        "title": "AI cost optimization",
+        "description": "Reduce AI infrastructure costs through caching, model selection, batching, and optimization strategies"
+      },
+      "cost-of-using-an-llm": {
+        "title": "Cost of using an LLM",
+        "description": "Understand LLM pricing models and estimate costs for your use case"
+      },
+      "securing-ai-applications": {
+        "title": "Securing AI applications",
+        "description": "Implement security practices for AI applications: input validation, access control, and auditing"
+      },
+      "prompt-injection": {
+        "title": "Prompt injection",
+        "description": "Understand prompt injection attacks and how to defend LLM applications against them"
+      },
+      "guardrails": {
+        "title": "Guardrails",
+        "description": "Implement guardrails to prevent harmful content and enforce policies in LLM outputs"
+      },
+      "data-privacy": {
+        "title": "Data privacy",
+        "description": "Protect user data in AI applications with encryption, anonymization, and data minimization"
+      },
+      "ai-governance": {
+        "title": "AI governance",
+        "description": "Establish AI governance frameworks covering accountability, auditability, and responsible AI practices"
+      }
+    },
+    "subcategory": "deploying to production"
+  }
+}

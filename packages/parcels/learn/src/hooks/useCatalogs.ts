@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Catalog } from '../data/learn';
 import { isPublished, RAW_CATALOGS, RAW_LEARN_ITEMS } from '../data/learn';
-import { useShowUnpublished } from './useShowUnpublished';
+import { useDevMode } from './useDevMode';
 
 type UseCatalogsResult = {
   catalogs: Catalog[];
@@ -12,13 +12,13 @@ type UseCatalogsResult = {
 
 export function useCatalogs(): UseCatalogsResult {
   const { t, i18n } = useTranslation('learn');
-  const showUnpublished = useShowUnpublished();
+  const devMode = useDevMode();
 
   const catalogs = useMemo<Catalog[]>(() => {
     const lang = (i18n.resolvedLanguage ?? i18n.language).split('-')[0] as 'fr' | 'en';
 
     return RAW_CATALOGS.filter((raw) => {
-      if (showUnpublished) return true;
+      if (devMode) return true;
       const firstGuideId = raw.guideIds[0];
       if (!firstGuideId) return false;
       const firstGuide = RAW_LEARN_ITEMS.find((item) => item.id === firstGuideId);
@@ -32,10 +32,11 @@ export function useCatalogs(): UseCatalogsResult {
         order: raw.order,
         title: localizedTranslations.title,
         description: localizedTranslations.description,
+        subcategory: localizedTranslations.subcategory,
         guideIds: raw.guideIds,
       };
     });
-  }, [t, i18n.language, i18n.resolvedLanguage, showUnpublished]);
+  }, [t, i18n.language, i18n.resolvedLanguage, devMode]);
 
   const groupedCatalogs = useMemo<Record<string, Catalog[]>>(() => {
     const groups: Record<string, Catalog[]> = {};

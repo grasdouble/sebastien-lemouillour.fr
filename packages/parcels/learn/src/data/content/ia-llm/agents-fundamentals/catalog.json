@@ -1,0 +1,72 @@
+{
+  "fr": {
+    "title": "Comprendre les agents IA",
+    "description": "Découvrir ce que sont les agents IA, leurs capacités et comment ils fonctionnent",
+    "guides": {
+      "what-is-an-ai-agent": {
+        "title": "Qu'est-ce qu'un agent IA ?",
+        "description": "Comprendre ce qu'est un agent IA et en quoi il diffère d'un simple LLM"
+      },
+      "autonomous-agents": {
+        "title": "Agents autonomes",
+        "description": "Découvrir comment les agents peuvent agir de manière autonome pour atteindre des objectifs"
+      },
+      "agent-memory": {
+        "title": "Mémoire des agents",
+        "description": "Comprendre comment les agents utilisent la mémoire pour maintenir le contexte et apprendre"
+      },
+      "function-calling": {
+        "title": "Appel de fonctions",
+        "description": "Permettre aux LLMs d'appeler des fonctions externes pour étendre leurs capacités"
+      },
+      "tool-calling": {
+        "title": "Appel d'outils",
+        "description": "Donner aux agents la capacité d'utiliser des outils externes pour accomplir des tâches"
+      },
+      "task-planning": {
+        "title": "Planification de tâches",
+        "description": "Découvrir comment les agents décomposent des objectifs complexes en tâches exécutables"
+      },
+      "agentic-rag": {
+        "title": "RAG agentique",
+        "description": "Combiner les capacités des agents avec le RAG pour une recherche d'information intelligente"
+      }
+    },
+    "subcategory": "orchestrer des agents"
+  },
+  "en": {
+    "title": "Understanding AI Agents",
+    "description": "Discover what AI agents are, their capabilities, and how they work",
+    "guides": {
+      "what-is-an-ai-agent": {
+        "title": "What is an AI agent?",
+        "description": "Understand what an AI agent is and how it differs from a simple LLM"
+      },
+      "autonomous-agents": {
+        "title": "Autonomous agents",
+        "description": "Discover how agents can act autonomously to achieve goals"
+      },
+      "agent-memory": {
+        "title": "Agent memory",
+        "description": "Understand how agents use memory to maintain context and learn"
+      },
+      "function-calling": {
+        "title": "Function calling",
+        "description": "Allow LLMs to call external functions to extend their capabilities"
+      },
+      "tool-calling": {
+        "title": "Tool calling",
+        "description": "Give agents the ability to use external tools to accomplish tasks"
+      },
+      "task-planning": {
+        "title": "Task planning",
+        "description": "Discover how agents break down complex goals into executable tasks"
+      },
+      "agentic-rag": {
+        "title": "Agentic RAG",
+        "description": "Combine agent capabilities with RAG for intelligent information retrieval"
+      }
+    },
+    "subcategory": "orchestrating agents"
+  }
+}

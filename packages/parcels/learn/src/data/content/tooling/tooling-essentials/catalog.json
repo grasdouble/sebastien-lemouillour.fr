@@ -11,7 +11,8 @@
         "title": "Vite : le build tool moderne",
         "description": "Découvrez Vite, ses avantages par rapport à Webpack et comment configurer un projet React/TypeScript avec des variables d'environnement et des alias de chemins."
       }
-    }
+    },
+    "subcategory": "fondamentaux"
   },
   "en": {
     "title": "Modern Tooling",
@@ -25,6 +26,7 @@
         "title": "Vite: the modern build tool",
         "description": "Discover Vite, its advantages over Webpack, and how to configure a React/TypeScript project with env variables and path aliases."
       }
-    }
+    },
+    "subcategory": "fundamentals"
   }
 }

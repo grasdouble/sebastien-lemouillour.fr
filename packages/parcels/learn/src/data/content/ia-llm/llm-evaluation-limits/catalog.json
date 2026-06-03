@@ -1,0 +1,88 @@
+{
+  "fr": {
+    "title": "Évaluation et Limites des LLMs",
+    "description": "Comprendre les limitations, biais et méthodes d'évaluation des LLMs",
+    "guides": {
+      "reasoning-in-llms": {
+        "title": "Le raisonnement dans les LLMs",
+        "description": "Explorer comment les LLMs abordent les tâches de raisonnement et où ils réussissent ou échouent"
+      },
+      "hallucinations": {
+        "title": "Hallucinations",
+        "description": "Comprendre pourquoi les LLMs génèrent de fausses informations et comment détecter et atténuer les hallucinations"
+      },
+      "llm-limitations": {
+        "title": "Limitations des LLMs",
+        "description": "Comprendre les limites inhérentes aux LLMs : coupure de connaissances, échecs de raisonnement et contraintes de contexte"
+      },
+      "model-biases": {
+        "title": "Biais des modèles",
+        "description": "Explorer les sources de biais dans les modèles IA et leur impact sur les sorties et l'équité"
+      },
+      "open-source-vs-proprietary-models": {
+        "title": "Modèles open-source vs propriétaires",
+        "description": "Comparer les modèles IA open-source et propriétaires : compromis de coût, contrôle, performance et confidentialité"
+      },
+      "how-to-evaluate-an-ai-response": {
+        "title": "Comment évaluer une réponse IA",
+        "description": "Apprendre des critères pratiques pour évaluer la qualité, la précision et la fiabilité d'une réponse LLM"
+      },
+      "automated-llm-evaluation": {
+        "title": "Évaluation automatisée des LLMs",
+        "description": "Apprendre à utiliser des métriques automatisées et des techniques LLM-as-judge pour évaluer les sorties à grande échelle"
+      },
+      "human-evaluation-of-models": {
+        "title": "Évaluation humaine des modèles",
+        "description": "Concevoir des cadres d'évaluation humaine pour mesurer la qualité, la sécurité et l'alignement des modèles"
+      },
+      "ai-benchmarks": {
+        "title": "Benchmarks IA",
+        "description": "Comprendre les principaux benchmarks utilisés pour évaluer les LLMs, leurs forces et leurs limites"
+      }
+    },
+    "subcategory": "comprendre les llm"
+  },
+  "en": {
+    "title": "LLM Evaluation & Limitations",
+    "description": "Understand the limitations, biases, and evaluation methods of LLMs",
+    "guides": {
+      "reasoning-in-llms": {
+        "title": "Reasoning in LLMs",
+        "description": "Explore how LLMs approach reasoning tasks and where they succeed or fail"
+      },
+      "hallucinations": {
+        "title": "Hallucinations",
+        "description": "Understand why LLMs generate false information and how to detect and mitigate hallucinations"
+      },
+      "llm-limitations": {
+        "title": "LLM limitations",
+        "description": "Understand the inherent limitations of LLMs: knowledge cutoff, reasoning failures, and context constraints"
+      },
+      "model-biases": {
+        "title": "Model biases",
+        "description": "Explore the sources of bias in AI models and their impact on outputs and fairness"
+      },
+      "open-source-vs-proprietary-models": {
+        "title": "Open-source vs proprietary models",
+        "description": "Compare open-source and proprietary AI models: cost, control, performance, and privacy trade-offs"
+      },
+      "how-to-evaluate-an-ai-response": {
+        "title": "How to evaluate an AI response",
+        "description": "Learn practical criteria for assessing the quality, accuracy, and reliability of an LLM response"
+      },
+      "automated-llm-evaluation": {
+        "title": "Automated LLM evaluation",
+        "description": "Learn how to use automated metrics and LLM-as-judge techniques to evaluate model outputs at scale"
+      },
+      "human-evaluation-of-models": {
+        "title": "Human evaluation of models",
+        "description": "Design human evaluation frameworks to assess model quality, safety, and alignment"
+      },
+      "ai-benchmarks": {
+        "title": "AI benchmarks",
+        "description": "Understand the major benchmarks used to evaluate LLMs and their strengths and limitations"
+      }
+    },
+    "subcategory": "understanding llms"
+  }
+}

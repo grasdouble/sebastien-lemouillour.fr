@@ -3,7 +3,7 @@ export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 export type GuideTranslation = { title: string; description: string };
 export type CatalogTranslations = Record<
   'fr' | 'en',
-  { title: string; description: string; guides: Record<string, GuideTranslation> }
+  { title: string; description: string; subcategory: string; guides: Record<string, GuideTranslation> }
 >;
 
 export type RawCatalog = {
@@ -21,6 +21,7 @@ export type Catalog = {
   order: number;
   title: string;
   description: string;
+  subcategory: string;
   guideIds: readonly string[];
 };
 

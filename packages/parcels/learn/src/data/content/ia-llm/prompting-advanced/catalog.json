@@ -1,0 +1,64 @@
+{
+  "fr": {
+    "title": "Techniques avancées de prompting",
+    "description": "Explorer les techniques avancées pour des cas d'usage complexes et des sorties structurées",
+    "guides": {
+      "chain-of-thought": {
+        "title": "Chain of Thought",
+        "description": "Améliorer le raisonnement du modèle en le guidant à travers des étapes logiques"
+      },
+      "self-consistency": {
+        "title": "Auto-cohérence",
+        "description": "Améliorer la fiabilité des réponses en générant plusieurs solutions et en choisissant la plus cohérente"
+      },
+      "prompt-templates": {
+        "title": "Templates de prompts",
+        "description": "Utiliser des templates réutilisables pour standardiser les interactions avec un LLM"
+      },
+      "json-generation": {
+        "title": "Génération de JSON",
+        "description": "Obtenir des réponses structurées au format JSON pour une intégration facile"
+      },
+      "structured-outputs": {
+        "title": "Sorties structurées",
+        "description": "Forcer le modèle à générer des sorties dans un format spécifique et prédictible"
+      },
+      "output-validation": {
+        "title": "Validation des sorties",
+        "description": "Mettre en place des stratégies de validation pour garantir la qualité des réponses"
+      }
+    },
+    "subcategory": "maîtriser le prompting"
+  },
+  "en": {
+    "title": "Advanced Prompting Techniques",
+    "description": "Explore advanced techniques for complex use cases and structured outputs",
+    "guides": {
+      "chain-of-thought": {
+        "title": "Chain of Thought",
+        "description": "Improve model reasoning by guiding it through logical steps"
+      },
+      "self-consistency": {
+        "title": "Self-consistency",
+        "description": "Improve response reliability by generating multiple solutions and choosing the most consistent one"
+      },
+      "prompt-templates": {
+        "title": "Prompt templates",
+        "description": "Use reusable templates to standardize interactions with an LLM"
+      },
+      "json-generation": {
+        "title": "JSON generation",
+        "description": "Get structured responses in JSON format for easy integration"
+      },
+      "structured-outputs": {
+        "title": "Structured outputs",
+        "description": "Force the model to generate outputs in a specific and predictable format"
+      },
+      "output-validation": {
+        "title": "Output validation",
+        "description": "Implement validation strategies to ensure response quality"
+      }
+    },
+    "subcategory": "mastering prompting"
+  }
+}

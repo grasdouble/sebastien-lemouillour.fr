@@ -1,0 +1,72 @@
+{
+  "fr": {
+    "title": "Architecture des LLMs",
+    "description": "Comprendre l'architecture technique et les mécanismes de génération des LLMs",
+    "guides": {
+      "how-does-an-llm-generate-text": {
+        "title": "Comment un LLM génère-t-il du texte ?",
+        "description": "Comprendre le processus de génération token par token derrière chaque réponse d'un LLM"
+      },
+      "transformers": {
+        "title": "Transformers",
+        "description": "Comprendre l'architecture Transformer qui alimente les LLMs modernes : encodeur, décodeur et auto-attention"
+      },
+      "attention-mechanism": {
+        "title": "Mécanisme d'attention",
+        "description": "Plonger dans le mécanisme d'attention et comprendre comment il permet aux LLMs de se concentrer sur les parties pertinentes de l'entrée"
+      },
+      "temperature": {
+        "title": "Température",
+        "description": "Comprendre le paramètre de température et comment il contrôle l'aléatoire des sorties LLM"
+      },
+      "top-p": {
+        "title": "Top-P",
+        "description": "Comprendre comment fonctionne l'échantillonnage Top-P (nucleus) et comment l'utiliser pour contrôler la diversité des sorties"
+      },
+      "top-k": {
+        "title": "Top-K",
+        "description": "Comprendre la stratégie d'échantillonnage Top-K et quand la préférer aux autres méthodes"
+      },
+      "generation-parameters": {
+        "title": "Paramètres de génération",
+        "description": "Maîtriser tous les paramètres de génération LLM : temperature, top-p, top-k, max tokens et stop sequences"
+      }
+    },
+    "subcategory": "comprendre les llm"
+  },
+  "en": {
+    "title": "LLM Architecture",
+    "description": "Understand the technical architecture and generation mechanisms of LLMs",
+    "guides": {
+      "how-does-an-llm-generate-text": {
+        "title": "How does an LLM generate text?",
+        "description": "Understand the token-by-token generation process behind every LLM response"
+      },
+      "transformers": {
+        "title": "Transformers",
+        "description": "Understand the Transformer architecture that powers modern LLMs: encoder, decoder, and self-attention"
+      },
+      "attention-mechanism": {
+        "title": "Attention mechanism",
+        "description": "Dive into the attention mechanism and understand how it lets LLMs focus on relevant parts of the input"
+      },
+      "temperature": {
+        "title": "Temperature",
+        "description": "Understand the temperature parameter and how it controls the randomness of LLM outputs"
+      },
+      "top-p": {
+        "title": "Top-P",
+        "description": "Learn how Top-P (nucleus) sampling works and how to use it to control output diversity"
+      },
+      "top-k": {
+        "title": "Top-K",
+        "description": "Understand the Top-K sampling strategy and when to prefer it over other sampling methods"
+      },
+      "generation-parameters": {
+        "title": "Generation parameters",
+        "description": "Master all LLM generation parameters: temperature, top-p, top-k, max tokens, and stop sequences"
+      }
+    },
+    "subcategory": "understanding llms"
+  }
+}

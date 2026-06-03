@@ -11,7 +11,8 @@
         "title": "Prompt Engineering",
         "description": "Maîtriser le prompt engineering avec le zero-shot, few-shot, chain-of-thought, role prompting, les system prompts et le structured output."
       }
-    }
+    },
+    "subcategory": "fondamentaux"
   },
   "en": {
     "title": "AI & LLM Fundamentals",
@@ -25,6 +26,7 @@
         "title": "Prompt Engineering",
         "description": "Master prompt engineering with zero-shot, few-shot, chain-of-thought, role prompting, system prompts and structured output."
       }
-    }
+    },
+    "subcategory": "fundamentals"
   }
 }

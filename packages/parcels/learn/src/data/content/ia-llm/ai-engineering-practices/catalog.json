@@ -1,0 +1,88 @@
+{
+  "fr": {
+    "title": "Pratiques d'Ingénierie IA",
+    "description": "Méthodes et pratiques pour développer des systèmes IA robustes",
+    "guides": {
+      "ai-engineering": {
+        "title": "Ingénierie IA",
+        "description": "Comprendre la discipline de l'ingénierie IA : faire le pont entre la recherche ML et le développement logiciel en production"
+      },
+      "ai-system-architecture": {
+        "title": "Architecture de système IA",
+        "description": "Concevoir des architectures évolutives et maintenables pour les applications alimentées par IA"
+      },
+      "choosing-a-model": {
+        "title": "Choisir un modèle",
+        "description": "Comparer et sélectionner le bon modèle LLM en fonction des exigences de performance, coût et latence"
+      },
+      "api-vs-local-models": {
+        "title": "API vs modèles locaux",
+        "description": "Décider entre les APIs de modèles hébergés et les déploiements locaux selon le contrôle, le coût et la confidentialité"
+      },
+      "ai-application-testing": {
+        "title": "Tests d'applications IA",
+        "description": "Tester les applications IA avec des tests unitaires déterministes, des assertions probabilistes et l'évaluation sur des jeux de données de référence"
+      },
+      "continuous-evaluation": {
+        "title": "Évaluation continue",
+        "description": "Surveiller la qualité des modèles en production avec des pipelines d'évaluation continue et la détection de dérives"
+      },
+      "ai-logs": {
+        "title": "Logs IA",
+        "description": "Instrumenter les applications IA avec une journalisation structurée pour le débogage et l'audit"
+      },
+      "agent-traces": {
+        "title": "Traces d'agents",
+        "description": "Instrumenter les agents IA avec du tracing distribué pour observer leur exécution et déboguer les échecs"
+      },
+      "llm-monitoring": {
+        "title": "Monitoring LLM",
+        "description": "Surveiller les métriques LLM en production : latence, utilisation de tokens, taux d'erreur et qualité"
+      }
+    },
+    "subcategory": "déployer en production"
+  },
+  "en": {
+    "title": "AI Engineering Practices",
+    "description": "Methods and practices for developing robust AI systems",
+    "guides": {
+      "ai-engineering": {
+        "title": "AI engineering",
+        "description": "Understand the discipline of AI engineering: bridging ML research and production software development"
+      },
+      "ai-system-architecture": {
+        "title": "AI system architecture",
+        "description": "Design scalable and maintainable architectures for AI-powered applications"
+      },
+      "choosing-a-model": {
+        "title": "Choosing a model",
+        "description": "Compare and select the right LLM based on performance, cost, and latency requirements"
+      },
+      "api-vs-local-models": {
+        "title": "API vs local models",
+        "description": "Decide between hosted model APIs and local deployments based on control, cost, and privacy"
+      },
+      "ai-application-testing": {
+        "title": "AI application testing",
+        "description": "Test AI applications with deterministic unit tests, probabilistic assertions, and benchmark evaluation"
+      },
+      "continuous-evaluation": {
+        "title": "Continuous evaluation",
+        "description": "Monitor model quality in production with continuous evaluation pipelines and drift detection"
+      },
+      "ai-logs": {
+        "title": "AI logs",
+        "description": "Instrument AI applications with structured logging for debugging and auditing"
+      },
+      "agent-traces": {
+        "title": "Agent traces",
+        "description": "Instrument AI agents with distributed tracing to observe execution and debug failures"
+      },
+      "llm-monitoring": {
+        "title": "LLM monitoring",
+        "description": "Monitor LLM metrics in production: latency, token usage, error rates, and quality"
+      }
+    },
+    "subcategory": "deploying to production"
+  }
+}

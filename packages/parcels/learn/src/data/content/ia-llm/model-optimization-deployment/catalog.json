@@ -1,0 +1,64 @@
+{
+  "fr": {
+    "title": "Optimisation et déploiement",
+    "description": "Optimiser les modèles pour le déploiement et l'inférence en production",
+    "guides": {
+      "peft": {
+        "title": "PEFT",
+        "description": "Parameter-Efficient Fine-Tuning : entraîner efficacement avec moins de ressources"
+      },
+      "lora": {
+        "title": "LoRA",
+        "description": "Low-Rank Adaptation : une technique PEFT populaire pour le fine-tuning"
+      },
+      "quantization": {
+        "title": "Quantification",
+        "description": "Réduire la taille des modèles en utilisant des représentations numériques plus compactes"
+      },
+      "gpu-and-vram": {
+        "title": "GPU et VRAM",
+        "description": "Comprendre les besoins en GPU et VRAM pour entraîner et déployer des LLMs"
+      },
+      "inference": {
+        "title": "Inférence",
+        "description": "Optimiser l'inférence pour des réponses rapides et efficaces"
+      },
+      "serving": {
+        "title": "Serving",
+        "description": "Déployer et servir des modèles en production de manière fiable et scalable"
+      }
+    },
+    "subcategory": "personnaliser les modèles"
+  },
+  "en": {
+    "title": "Optimization and Deployment",
+    "description": "Optimize models for deployment and production inference",
+    "guides": {
+      "peft": {
+        "title": "PEFT",
+        "description": "Parameter-Efficient Fine-Tuning: train efficiently with fewer resources"
+      },
+      "lora": {
+        "title": "LoRA",
+        "description": "Low-Rank Adaptation: a popular PEFT technique for fine-tuning"
+      },
+      "quantization": {
+        "title": "Quantization",
+        "description": "Reduce model size by using more compact numerical representations"
+      },
+      "gpu-and-vram": {
+        "title": "GPU and VRAM",
+        "description": "Understand GPU and VRAM requirements for training and deploying LLMs"
+      },
+      "inference": {
+        "title": "Inference",
+        "description": "Optimize inference for fast and efficient responses"
+      },
+      "serving": {
+        "title": "Serving",
+        "description": "Deploy and serve models in production reliably and at scale"
+      }
+    },
+    "subcategory": "customizing models"
+  }
+}

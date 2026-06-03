@@ -19,6 +19,7 @@ const baseCatalog: Catalog = {
   order: 0,
   title: 'Test Catalog',
   description: 'A test catalog.',
+  subcategory: '',
   guideIds: [],
 };
 

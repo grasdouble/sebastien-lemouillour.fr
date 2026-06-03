@@ -13,7 +13,7 @@ type CatalogCardProps = {
 
 export function CatalogCard({ catalog, onClick }: CatalogCardProps) {
   const { t } = useTranslation('learn');
-  const { title, description, guideIds } = catalog;
+  const { title, description, subcategory, guideIds } = catalog;
 
   const handleClick = () => onClick(catalog);
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -34,14 +34,19 @@ export function CatalogCard({ catalog, onClick }: CatalogCardProps) {
     >
       <Card>
         <Stack direction="vertical" spacing="default" grow>
-          <Flex justify="between" align="start" gap="compact">
-            <Text as="h3" variant="h4" weight="semibold" color="primary">
-              {title}
-            </Text>
+          <Flex justify="between" align="center" gap="compact">
+            {subcategory && (
+              <Badge variant="success" size="sm">
+                {subcategory}
+              </Badge>
+            )}
             <Badge variant="info" size="sm">
               {t('catalogs.guideCount', { count: guideIds.length })}
             </Badge>
           </Flex>
+          <Text as="h3" variant="h4" weight="semibold" color="primary">
+            {title}
+          </Text>
           <Text as="p" variant="body" color="secondary">
             {description}
           </Text>

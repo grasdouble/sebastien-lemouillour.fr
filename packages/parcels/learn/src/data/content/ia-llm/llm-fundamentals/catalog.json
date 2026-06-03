@@ -1,0 +1,88 @@
+{
+  "fr": {
+    "title": "Fondamentaux des LLMs",
+    "description": "Concepts de base pour comprendre ce qu'est un LLM et comment il fonctionne",
+    "guides": {
+      "what-is-artificial-intelligence": {
+        "title": "Qu'est-ce que l'Intelligence Artificielle ?",
+        "description": "Une introduction à l'intelligence artificielle, son histoire et les concepts clés derrière les systèmes IA modernes"
+      },
+      "ai-machine-learning-and-deep-learning": {
+        "title": "IA, Machine Learning et Deep Learning",
+        "description": "Comprendre la relation entre intelligence artificielle, machine learning et deep learning"
+      },
+      "generative-ai-definition-and-use-cases": {
+        "title": "IA générative : définition et cas d'usage",
+        "description": "Découvrir ce qu'est l'IA générative, en quoi elle diffère des autres approches et où elle s'applique"
+      },
+      "different-types-of-ai-models": {
+        "title": "Les différents types de modèles IA",
+        "description": "Explorer le paysage des modèles IA : modèles de langage, modèles d'image et modèles multimodaux"
+      },
+      "what-is-an-llm": {
+        "title": "Qu'est-ce qu'un LLM ?",
+        "description": "Comprendre ce qu'est un Large Language Model, comment il est entraîné et en quoi il diffère du logiciel traditionnel"
+      },
+      "tokens": {
+        "title": "Tokens",
+        "description": "Comprendre ce que sont les tokens et pourquoi ils constituent l'unité fondamentale du texte dans les LLMs"
+      },
+      "tokenization": {
+        "title": "Tokenisation",
+        "description": "Découvrir comment fonctionne la tokenisation et comment les tokenizers découpent le texte en tokens"
+      },
+      "context-window": {
+        "title": "Fenêtre de contexte",
+        "description": "Comprendre ce qu'est la fenêtre de contexte et comment sa taille affecte ce qu'un LLM peut traiter"
+      },
+      "embeddings": {
+        "title": "Embeddings",
+        "description": "Comprendre comment les embeddings représentent le texte sous forme de vecteurs et permettent la similarité sémantique"
+      }
+    },
+    "subcategory": "comprendre les llm"
+  },
+  "en": {
+    "title": "LLM Fundamentals",
+    "description": "Core concepts to understand what an LLM is and how it works",
+    "guides": {
+      "what-is-artificial-intelligence": {
+        "title": "What is Artificial Intelligence?",
+        "description": "An introduction to artificial intelligence, its history, and the key concepts behind modern AI systems"
+      },
+      "ai-machine-learning-and-deep-learning": {
+        "title": "AI, Machine Learning, and Deep Learning",
+        "description": "Understand the relationship between artificial intelligence, machine learning, and deep learning"
+      },
+      "generative-ai-definition-and-use-cases": {
+        "title": "Generative AI: definition and use cases",
+        "description": "Discover what generative AI is, how it differs from other AI approaches, and where it is applied"
+      },
+      "different-types-of-ai-models": {
+        "title": "Different types of AI models",
+        "description": "Explore the landscape of AI models: language models, image models, and multimodal models"
+      },
+      "what-is-an-llm": {
+        "title": "What is an LLM?",
+        "description": "Learn what a Large Language Model is, how it is trained, and what makes it different from traditional software"
+      },
+      "tokens": {
+        "title": "Tokens",
+        "description": "Understand what tokens are and why they are the fundamental unit of text in LLMs"
+      },
+      "tokenization": {
+        "title": "Tokenization",
+        "description": "Discover how tokenization works and how tokenizers split text into tokens"
+      },
+      "context-window": {
+        "title": "Context window",
+        "description": "Learn what the context window is and how its size affects what an LLM can process"
+      },
+      "embeddings": {
+        "title": "Embeddings",
+        "description": "Understand how embeddings represent text as vectors and enable semantic similarity"
+      }
+    },
+    "subcategory": "understanding llms"
+  }
+}

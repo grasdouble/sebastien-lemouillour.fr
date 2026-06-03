@@ -24,7 +24,7 @@
     "build": "vite build",
     "build:watch": "vite build -w",
     "dev": "vite",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
     "preview": "vite build && vite preview",
@@ -36,7 +36,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
-      "eslint --fix",
+      "eslint --fix --max-warnings 0",
       "prettier --write"
     ],
     "*.{ts,tsx}": [
