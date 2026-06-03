@@ -2,6 +2,8 @@ import type { ChangeEvent, FC } from 'react';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Stack, Text } from '@grasdouble/lufa_design-system';
+
 import styles from './PromptEditor.module.css';
 
 type PromptEditorProps = {
@@ -21,8 +23,10 @@ export const PromptEditor: FC<PromptEditorProps> = ({ value, onChange, disabled 
   );
 
   return (
-    <div className={styles.container}>
-      <h2>{t('playground.prompt.title')}</h2>
+    <Stack direction="vertical" spacing="compact">
+      <Text as="h2" weight="semibold" color="primary">
+        {t('playground.prompt.title')}
+      </Text>
       <textarea
         className={styles.textarea}
         value={value}
@@ -32,6 +36,6 @@ export const PromptEditor: FC<PromptEditorProps> = ({ value, onChange, disabled 
         aria-label={t('playground.prompt.title')}
         rows={6}
       />
-    </div>
+    </Stack>
   );
 };

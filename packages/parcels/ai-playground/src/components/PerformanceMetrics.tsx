@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Box, Stack, Text } from '@grasdouble/lufa_design-system';
+
 import styles from './PerformanceMetrics.module.css';
 
 type PerformanceMetricsProps = {
@@ -19,28 +21,38 @@ export const PerformanceMetrics: FC<PerformanceMetricsProps> = ({
   const { t } = useTranslation('ai-playground');
 
   return (
-    <div className={styles.container}>
-      <h2>{t('playground.metrics.title')}</h2>
+    <Box backgroundColor="muted" padding="default" className={styles.container}>
+      <Text as="h2" weight="semibold" color="primary">
+        {t('playground.metrics.title')}
+      </Text>
       <div className={styles.grid}>
-        <div className={styles.metric}>
-          <span className={styles.label}>{t('playground.metrics.tokensPerSec')}:</span>
-          <span className={styles.value}>{tokensPerSecond !== undefined ? tokensPerSecond.toFixed(2) : '-'}</span>
-        </div>
-        <div className={styles.metric}>
-          <span className={styles.label}>{t('playground.metrics.latency')}:</span>
-          <span className={styles.value}>{latencyMs !== undefined ? `${latencyMs.toFixed(0)}ms` : '-'}</span>
-        </div>
-        <div className={styles.metric}>
-          <span className={styles.label}>{t('playground.metrics.totalTokens')}:</span>
-          <span className={styles.value}>{totalTokens ?? '-'}</span>
-        </div>
-        <div className={styles.metric}>
-          <span className={styles.label}>{t('playground.metrics.timeElapsed')}:</span>
-          <span className={styles.value}>
+        <Stack direction="vertical" spacing="tight">
+          <Text variant="body-small" color="secondary">
+            {t('playground.metrics.tokensPerSec')}:
+          </Text>
+          <Text className={styles.value}>{tokensPerSecond !== undefined ? tokensPerSecond.toFixed(2) : '-'}</Text>
+        </Stack>
+        <Stack direction="vertical" spacing="tight">
+          <Text variant="body-small" color="secondary">
+            {t('playground.metrics.latency')}:
+          </Text>
+          <Text className={styles.value}>{latencyMs !== undefined ? `${latencyMs.toFixed(0)}ms` : '-'}</Text>
+        </Stack>
+        <Stack direction="vertical" spacing="tight">
+          <Text variant="body-small" color="secondary">
+            {t('playground.metrics.totalTokens')}:
+          </Text>
+          <Text className={styles.value}>{totalTokens ?? '-'}</Text>
+        </Stack>
+        <Stack direction="vertical" spacing="tight">
+          <Text variant="body-small" color="secondary">
+            {t('playground.metrics.timeElapsed')}:
+          </Text>
+          <Text className={styles.value}>
             {timeElapsedMs !== undefined ? `${(timeElapsedMs / 1000).toFixed(1)}s` : '-'}
-          </span>
-        </div>
+          </Text>
+        </Stack>
       </div>
-    </div>
+    </Box>
   );
 };

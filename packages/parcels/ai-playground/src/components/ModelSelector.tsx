@@ -1,8 +1,9 @@
-import type { FC } from 'react';
+import type { FC, KeyboardEvent } from 'react';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { ModelConfig } from '@grasdouble/slm_shared';
+import { Badge, Card, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
 import { MODEL_REGISTRY } from '@grasdouble/slm_shared';
 
 import styles from './ModelSelector.module.css';
@@ -24,39 +25,66 @@ export const ModelSelector: FC<ModelSelectorProps> = ({ onSelect, selectedModel,
     [onSelect, disabled]
   );
 
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLButtonElement>, model: ModelConfig) => {
+      if (disabled) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleSelect(model);
+      }
+    },
+    [disabled, handleSelect]
+  );
+
   return (
-    <div className={styles.container}>
-      <h2>{t('playground.models.title')}</h2>
+    <Stack direction="vertical" spacing="compact">
+      <Text as="h2" weight="semibold" color="primary">
+        {t('playground.models.title')}
+      </Text>
       <div className={styles.grid}>
         {MODEL_REGISTRY.map((model) => {
           const isSelected = selectedModel?.id === model.id;
           return (
-            <button
+            <Card
               key={model.id}
-              type="button"
-              className={styles.card}
+              as="button"
+              role="button"
               onClick={() => handleSelect(model)}
+              onKeyDown={(e: KeyboardEvent<HTMLButtonElement>) => handleKeyDown(e, model)}
               disabled={disabled}
               aria-pressed={isSelected}
+              className={styles.card}
             >
-              <div className={styles.header}>
-                <h3>{model.name}</h3>
-                {isSelected && <span className={styles.badge}>{t('playground.models.selected')}</span>}
-              </div>
-              <div className={styles.specs}>
-                <div>
-                  <span className={styles.label}>{t('playground.models.specs.size')}:</span>
-                  <span>{model.estimatedSizeGB}GB</span>
-                </div>
-                <div>
-                  <span className={styles.label}>{t('playground.models.specs.memory')}:</span>
-                  <span>{model.minMemoryGB}GB</span>
-                </div>
-              </div>
-            </button>
+              <Stack direction="vertical" spacing="compact">
+                <Flex direction="row" justify="between" align="center">
+                  <Text as="h3" weight="semibold">
+                    {model.name}
+                  </Text>
+                  {isSelected && <Badge variant="success">{t('playground.models.selected')}</Badge>}
+                </Flex>
+                <Stack direction="vertical" spacing="tight">
+                  <Flex direction="row" justify="start" align="center" gap="compact">
+                    <Text variant="body-small" weight="semibold" color="secondary">
+                      {t('playground.models.specs.size')}:
+                    </Text>
+                    <Text variant="body-small" color="secondary">
+                      {model.estimatedSizeGB}GB
+                    </Text>
+                  </Flex>
+                  <Flex direction="row" justify="start" align="center" gap="compact">
+                    <Text variant="body-small" weight="semibold" color="secondary">
+                      {t('playground.models.specs.memory')}:
+                    </Text>
+                    <Text variant="body-small" color="secondary">
+                      {model.minMemoryGB}GB
+                    </Text>
+                  </Flex>
+                </Stack>
+              </Stack>
+            </Card>
           );
         })}
       </div>
-    </div>
+    </Stack>
   );
 };

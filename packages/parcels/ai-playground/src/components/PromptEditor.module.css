@@ -1,25 +1,22 @@
-.container {
-  margin-bottom: 2rem;
-}
-
 .textarea {
   width: 100%;
-  padding: 1rem;
+  padding: var(--lufa-semantic-ui-spacing-default);
   font-size: 1rem;
   font-family: inherit;
-  border: 2px solid #ddd;
-  border-radius: 8px;
+  border: 2px solid var(--lufa-semantic-ui-border-default);
+  border-radius: var(--lufa-semantic-ui-border-radius-base);
+  background: var(--lufa-semantic-ui-background-input);
+  color: var(--lufa-semantic-ui-text-primary);
   resize: vertical;
-  margin-top: 0.5rem;
 }
 
 .textarea:focus {
   outline: none;
-  border-color: #0066cc;
+  border-color: var(--lufa-semantic-ui-border-focus);
 }
 
 .textarea:disabled {
   opacity: 0.5;
-  background: #f5f5f5;
+  background: var(--lufa-semantic-ui-background-disabled);
   cursor: not-allowed;
 }

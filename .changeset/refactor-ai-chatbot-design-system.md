@@ -22,7 +22,7 @@ refactor: complete migration to Lufa Design System with 100% DS components and s
 - ModelSelector.module.css: responsive grid (`repeat(auto-fill, minmax(250px, 1fr))`)
 - MessageList.module.css: message bubble alignment (user right, assistant left, max-width 80%)
 - MessageInput.module.css: textarea sizing and focus states (DS has no textarea component yet)
-- LoadingIndicator.module.css: progress bar fill animation (DS has no progress component yet)
+- LoadingIndicator.module.css: progress bar with visible gradient fill (cyan/blue), border for visibility, respects prefers-reduced-motion
 
 **Container-level fix:**
 - Added `import '@grasdouble/lufa_design-system/style.css'` in slm-container/src/main.ts to load DS CSS in dev mode (production uses CDN via index.html)

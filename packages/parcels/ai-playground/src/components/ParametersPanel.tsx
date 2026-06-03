@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { GenerationConfig } from '@grasdouble/slm_shared';
+import { Input, Stack, Text } from '@grasdouble/lufa_design-system';
 
 import styles from './ParametersPanel.module.css';
 
@@ -23,12 +24,16 @@ export const ParametersPanel: FC<ParametersPanelProps> = ({ config, onChange, di
   );
 
   return (
-    <div className={styles.container}>
-      <h2>{t('playground.parameters.title')}</h2>
-      <div className={styles.controls}>
+    <Stack direction="vertical" spacing="compact">
+      <Text as="h2" weight="semibold" color="primary">
+        {t('playground.parameters.title')}
+      </Text>
+      <Stack direction="vertical" spacing="comfortable">
         <div className={styles.control}>
           <label>
-            <span className={styles.label}>{t('playground.parameters.temperature.label')}</span>
+            <Text as="span" weight="semibold" className={styles.label}>
+              {t('playground.parameters.temperature.label')}
+            </Text>
             <input
               type="range"
               min="0"
@@ -38,15 +43,20 @@ export const ParametersPanel: FC<ParametersPanelProps> = ({ config, onChange, di
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('temperature', parseFloat(e.target.value))}
               disabled={disabled}
               aria-label={t('playground.parameters.temperature.label')}
+              className={styles.rangeInput}
             />
             <span className={styles.value}>{(config.temperature ?? 0.7).toFixed(1)}</span>
           </label>
-          <p className={styles.hint}>{t('playground.parameters.temperature.hint')}</p>
+          <Text as="p" variant="body-small" color="secondary" className={styles.hint}>
+            {t('playground.parameters.temperature.hint')}
+          </Text>
         </div>
 
         <div className={styles.control}>
           <label>
-            <span className={styles.label}>{t('playground.parameters.topP.label')}</span>
+            <Text as="span" weight="semibold" className={styles.label}>
+              {t('playground.parameters.topP.label')}
+            </Text>
             <input
               type="range"
               min="0"
@@ -56,28 +66,35 @@ export const ParametersPanel: FC<ParametersPanelProps> = ({ config, onChange, di
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('topP', parseFloat(e.target.value))}
               disabled={disabled}
               aria-label={t('playground.parameters.topP.label')}
+              className={styles.rangeInput}
             />
             <span className={styles.value}>{(config.topP ?? 0.9).toFixed(2)}</span>
           </label>
-          <p className={styles.hint}>{t('playground.parameters.topP.hint')}</p>
+          <Text as="p" variant="body-small" color="secondary" className={styles.hint}>
+            {t('playground.parameters.topP.hint')}
+          </Text>
         </div>
 
         <div className={styles.control}>
           <label>
-            <span className={styles.label}>{t('playground.parameters.maxTokens.label')}</span>
-            <input
+            <Text as="span" weight="semibold" className={styles.label}>
+              {t('playground.parameters.maxTokens.label')}
+            </Text>
+            <Input
               type="number"
-              min="1"
-              max="4096"
+              min={1}
+              max={4096}
               value={config.maxTokens ?? 256}
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange('maxTokens', parseInt(e.target.value, 10))}
               disabled={disabled}
               aria-label={t('playground.parameters.maxTokens.label')}
             />
           </label>
-          <p className={styles.hint}>{t('playground.parameters.maxTokens.hint')}</p>
+          <Text as="p" variant="body-small" color="secondary" className={styles.hint}>
+            {t('playground.parameters.maxTokens.hint')}
+          </Text>
         </div>
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   );
 };

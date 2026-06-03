@@ -3,9 +3,11 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { GenerationConfig, ModelConfig } from '@grasdouble/slm_shared';
+import { Box, Button, Container, Divider, Stack } from '@grasdouble/lufa_design-system';
 import { useCapabilities, useModelLoader } from '@grasdouble/slm_shared';
 
 import { CapabilitiesInfo } from './CapabilitiesInfo';
+import { LoadingIndicator } from './LoadingIndicator';
 import { ModelSelector } from './ModelSelector';
 import { OutputDisplay } from './OutputDisplay';
 import { ParametersPanel } from './ParametersPanel';
@@ -34,8 +36,10 @@ export const PlaygroundInterface: FC = () => {
     timeElapsedMs?: number;
   }>({});
 
-  const isReady = loadProgress.status === 'ready' && provider !== null;
-  const isLoading = loadProgress.status === 'downloading' || loadProgress.status === 'loading';
+  const progressPercent = loadProgress.progress;
+  const loadingStatus = loadProgress.status;
+  const isReady = loadingStatus === 'ready' && provider !== null;
+  const isLoading = loadingStatus === 'downloading' || loadingStatus === 'loading';
 
   const handleModelSelect = useCallback(
     (model: ModelConfig) => {
@@ -82,39 +86,54 @@ export const PlaygroundInterface: FC = () => {
   }, []);
 
   return (
-    <div className={styles.container}>
-      <CapabilitiesInfo capabilities={capabilities} />
+    <Container size="xl">
+      <Stack direction="vertical" spacing="comfortable">
+        <CapabilitiesInfo capabilities={capabilities} />
 
-      <ModelSelector onSelect={handleModelSelect} selectedModel={selectedModel} disabled={isLoading} />
+        <Divider spacing="comfortable" />
 
-      {isReady && (
-        <>
-          <div className={styles.mainPanel}>
-            <div className={styles.inputSection}>
-              <PromptEditor value={prompt} onChange={setPrompt} disabled={isGenerating} />
+        <ModelSelector onSelect={handleModelSelect} selectedModel={selectedModel} disabled={isLoading} />
 
-              <ParametersPanel config={config} onChange={setConfig} disabled={isGenerating} />
+        {(loadingStatus === 'downloading' || loadingStatus === 'loading') && (
+          <LoadingIndicator progress={progressPercent} status={loadingStatus} modelName={selectedModel?.name} />
+        )}
 
-              <button
-                type="button"
-                onClick={handleGenerate}
-                disabled={isGenerating || !prompt.trim()}
-                className={styles.generateButton}
-              >
-                {isGenerating ? t('playground.output.streaming') : t('playground.prompt.generate')}
-              </button>
+        {isReady && (
+          <>
+            <Divider spacing="comfortable" />
+
+            <div className={styles.mainPanel}>
+              <Stack direction="vertical" spacing="comfortable" className={styles.inputSection}>
+                <PromptEditor value={prompt} onChange={setPrompt} disabled={isGenerating} />
+
+                <ParametersPanel config={config} onChange={setConfig} disabled={isGenerating} />
+
+                <Button
+                  type="solid"
+                  variant="primary"
+                  size="lg"
+                  onClick={handleGenerate}
+                  disabled={isGenerating || !prompt.trim()}
+                >
+                  {isGenerating ? t('playground.output.streaming') : t('playground.prompt.generate')}
+                </Button>
+              </Stack>
+
+              <Stack direction="vertical" spacing="comfortable" className={styles.outputSection}>
+                <OutputDisplay output={output} isStreaming={isGenerating} onClear={handleClear} />
+
+                {output && <PerformanceMetrics {...metrics} />}
+              </Stack>
             </div>
+          </>
+        )}
 
-            <div className={styles.outputSection}>
-              <OutputDisplay output={output} isStreaming={isGenerating} onClear={handleClear} />
-
-              {output && <PerformanceMetrics {...metrics} />}
-            </div>
-          </div>
-        </>
-      )}
-
-      {loadProgress.status === 'error' && <div className={styles.error}>{t('playground.loading.error')}</div>}
-    </div>
+        {loadProgress.status === 'error' && (
+          <Box backgroundColor="muted" padding="default" className={styles.error}>
+            {t('playground.loading.error')}
+          </Box>
+        )}
+      </Stack>
+    </Container>
   );
 };

@@ -74,6 +74,7 @@
     },
 
     "loading": {
+      "model": "Model",
       "downloading": "Downloading model...",
       "loading": "Loading model into memory...",
       "ready": "Model ready",

@@ -2,6 +2,8 @@ import type { FC } from 'react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Badge, Button, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
+
 import styles from './OutputDisplay.module.css';
 
 type OutputDisplayProps = {
@@ -27,28 +29,38 @@ export const OutputDisplay: FC<OutputDisplayProps> = ({ output, isStreaming, onC
   }, [output]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>{t('playground.output.title')}</h2>
-        <div className={styles.actions}>
+    <Stack direction="vertical" spacing="compact">
+      <Flex direction="row" justify="between" align="center">
+        <Text as="h2" weight="semibold" color="primary">
+          {t('playground.output.title')}
+        </Text>
+        <Flex direction="row" gap="compact">
           {output && (
             <>
-              <button type="button" onClick={handleCopy} className={styles.button}>
+              <Button type="outline" variant="primary" size="sm" onClick={handleCopy}>
                 {copied ? t('playground.output.copied') : t('playground.output.copy')}
-              </button>
+              </Button>
               {onClear && (
-                <button type="button" onClick={onClear} className={styles.button}>
+                <Button type="outline" variant="neutral" size="sm" onClick={onClear}>
                   {t('playground.output.clear')}
-                </button>
+                </Button>
               )}
             </>
           )}
-        </div>
-      </div>
+        </Flex>
+      </Flex>
       <div className={styles.outputBox}>
-        {isStreaming && <div className={styles.streaming}>{t('playground.output.streaming')}</div>}
-        {output || <div className={styles.empty}>{t('playground.output.empty')}</div>}
+        {isStreaming && (
+          <Badge variant="info" className={styles.streaming}>
+            {t('playground.output.streaming')}
+          </Badge>
+        )}
+        {output || (
+          <Text color="secondary" className={styles.empty}>
+            {t('playground.output.empty')}
+          </Text>
+        )}
       </div>
-    </div>
+    </Stack>
   );
 };

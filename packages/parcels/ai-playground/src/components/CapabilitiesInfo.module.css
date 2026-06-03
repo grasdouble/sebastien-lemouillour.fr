@@ -1,33 +1,10 @@
 .container {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: #f5f5f5;
-  border-radius: 8px;
+  border-radius: var(--lufa-semantic-ui-border-radius-base);
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.label {
-  font-weight: 600;
-}
-
-.supported {
-  color: #00aa00;
-  font-weight: 600;
-}
-
-.notSupported {
-  color: #cc0000;
-  font-weight: 600;
+  gap: var(--lufa-semantic-ui-spacing-default);
+  margin-top: var(--lufa-semantic-ui-spacing-default);
 }
