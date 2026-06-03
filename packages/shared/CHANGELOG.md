@@ -1,5 +1,11 @@
 # @grasdouble/slm_shared
 
+## 1.1.1
+
+### Patch Changes
+
+- d75fe82: chore: update dependencies
+
 ## 1.1.0
 
 ### Minor Changes

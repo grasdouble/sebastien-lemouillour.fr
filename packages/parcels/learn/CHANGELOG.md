@@ -1,5 +1,13 @@
 # @grasdouble/slm_parcel_learn
 
+## 1.3.4
+
+### Patch Changes
+
+- d75fe82: chore: update dependencies
+- Updated dependencies [d75fe82]
+  - @grasdouble/slm_shared@1.1.1
+
 ## 1.3.3
 
 ### Patch Changes

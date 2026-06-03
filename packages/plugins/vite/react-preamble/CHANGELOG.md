@@ -1,5 +1,11 @@
 # @grasdouble/slm_plugin_vite_react-preamble
 
+## 1.0.4
+
+### Patch Changes
+
+- d75fe82: chore: update dependencies
+
 ## 1.0.3
 
 ### Patch Changes

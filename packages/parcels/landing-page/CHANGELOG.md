@@ -1,5 +1,13 @@
 # @grasdouble/slm_parcel_landing-page
 
+## 1.2.12
+
+### Patch Changes
+
+- d75fe82: chore: update dependencies
+- Updated dependencies [d75fe82]
+  - @grasdouble/slm_shared@1.1.1
+
 ## 1.2.11
 
 ### Patch Changes
