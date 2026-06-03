@@ -1,5 +1,24 @@
 # @grasdouble/slm-container
 
+## 2.0.0
+
+### Major Changes
+
+- d75fe82: feat: extract vendor bundling into a dedicated @grasdouble/slm_vendors CDN package.
+
+  All shared dependencies (react-bundle, i18next, react-i18next, i18next-browser-languagedetector, @tanstack/react-router, clsx, mermaid) are now built and published as @grasdouble/slm_vendors. Vendor bundles are output at the package root (no dist/ subfolder) so CDN URLs are clean: cdn.sebastien-lemouillour.fr/@grasdouble/slm_vendors@VERSION/react-bundle.mjs. Cache busting is handled by the npm version in the CDN URL. In dev, vendors are served locally from the installed package via a Vite middleware.
+
+### Minor Changes
+
+- d75fe82: feat: bundle all shared dependencies (react, react-dom, react/jsx-runtime, react-dom/client, i18next, react-i18next, i18next-browser-languagedetector, @tanstack/react-router, clsx, mermaid) into dist/vendor/\*.mjs at build time. Production import map now points to local /vendor/ files instead of esm.sh CDN, eliminating the risk of future duplicate-instance regressions. React family is combined into a single react-bundle.mjs using esbuild with explicit named exports.
+
+  fix: replace CJS-only use-sync-external-store/shim (and /shim/with-selector) with ESM shims backed by React 18+'s native useSyncExternalStore. This prevents a runtime "Dynamic require of react is not supported" crash in react-i18next and @tanstack/react-router vendor bundles.
+
+### Patch Changes
+
+- Updated dependencies [d75fe82]
+  - @grasdouble/slm_shared@1.1.1
+
 ## 1.2.7
 
 ### Patch Changes
