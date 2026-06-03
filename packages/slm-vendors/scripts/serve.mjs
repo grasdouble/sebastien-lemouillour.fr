@@ -41,5 +41,5 @@ createServer((req, res) => {
   res.setHeader('Content-Type', contentType);
   createReadStream(filePath).pipe(res);
 }).listen(PORT, () => {
-  console.log(`@grasdouble/slm_vendors serving dist/ at http://localhost:${PORT}`);
+  console.log(`@grasdouble/slm-vendors serving dist/ at http://localhost:${PORT}`);
 });
