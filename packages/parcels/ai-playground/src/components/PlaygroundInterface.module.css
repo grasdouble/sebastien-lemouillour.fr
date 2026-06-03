@@ -1,0 +1,59 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.mainPanel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.inputSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.outputSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.generateButton {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.generateButton:hover:not(:disabled) {
+  background: #0052a3;
+}
+
+.generateButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  padding: 1rem;
+  margin-top: 1rem;
+  background: #ffebee;
+  color: #c62828;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .mainPanel {
+    grid-template-columns: 1fr;
+  }
+}

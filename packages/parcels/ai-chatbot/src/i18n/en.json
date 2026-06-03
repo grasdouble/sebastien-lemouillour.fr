@@ -1,0 +1,64 @@
+{
+  "chatbot": {
+    "title": "AI Chatbot",
+    "subtitle": "Chat with a language model running directly in your browser",
+    "capabilities": {
+      "title": "Browser capabilities",
+      "webgpu": "WebGPU",
+      "memory": "Device memory",
+      "provider": "Provider",
+      "noWebGPU": {
+        "title": "WebGPU not available",
+        "description": "Your browser does not support WebGPU. High-performance models will not be available. Please use a recent browser (Chrome 113+, Edge 113+, etc.).",
+        "fallback": "You can still use lighter models with Transformers.js."
+      },
+      "lowMemory": {
+        "title": "Insufficient memory",
+        "description": "Your device has {{current}} GB of memory, but {{required}} GB is recommended for this model.",
+        "suggestion": "Try a smaller model."
+      }
+    },
+    "model": {
+      "title": "Model selection",
+      "select": "Select a model",
+      "loading": "Loading model...",
+      "downloadProgress": "Downloading: {{progress}}%",
+      "ready": "Model ready",
+      "error": "Error loading model",
+      "unload": "Unload model",
+      "info": {
+        "size": "Size",
+        "parameters": "Parameters",
+        "minMemory": "Min. memory",
+        "requiresWebGPU": "Requires WebGPU"
+      }
+    },
+    "chat": {
+      "empty": "Start a conversation by selecting a model and typing a message.",
+      "placeholder": "Type your message...",
+      "send": "Send",
+      "clear": "Clear conversation",
+      "emptyState": "Start a conversation by selecting a model and typing a message.",
+      "generating": "Generating...",
+      "error": "An error occurred",
+      "retry": "Retry",
+      "input": {
+        "placeholder": "Type your message...",
+        "label": "Message",
+        "send": "Send"
+      }
+    },
+    "loading": {
+      "model": "Model",
+      "downloading": "Downloading model...",
+      "loading": "Loading model...",
+      "error": "Error loading model"
+    },
+    "message": {
+      "user": "You",
+      "assistant": "Assistant",
+      "copy": "Copy",
+      "copied": "Copied!"
+    }
+  }
+}

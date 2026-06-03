@@ -25,3 +25,5 @@ allowBuilds:
   core-js: false
   esbuild: true
   keytar: false
+  protobufjs: true
+  sharp: true

@@ -2,7 +2,9 @@
   "nav": {
     "home": "Accueil",
     "experience": "Expérience",
-    "learn": "Guides"
+    "learn": "Guides",
+    "aiChat": "Chat IA",
+    "aiPlayground": "IA Playground"
   },
   "aria": {
     "openMenu": "Ouvrir le menu",

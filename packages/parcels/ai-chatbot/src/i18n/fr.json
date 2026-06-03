@@ -1,0 +1,64 @@
+{
+  "chatbot": {
+    "title": "Chatbot IA",
+    "subtitle": "Discutez avec un modèle de langage exécuté directement dans votre navigateur",
+    "capabilities": {
+      "title": "Capacités du navigateur",
+      "webgpu": "WebGPU",
+      "memory": "Mémoire disponible",
+      "provider": "Fournisseur",
+      "noWebGPU": {
+        "title": "WebGPU non disponible",
+        "description": "Votre navigateur ne supporte pas WebGPU. Les modèles performants ne seront pas disponibles. Veuillez utiliser un navigateur récent (Chrome 113+, Edge 113+, etc.).",
+        "fallback": "Vous pouvez quand même utiliser des modèles plus légers avec Transformers.js."
+      },
+      "lowMemory": {
+        "title": "Mémoire insuffisante",
+        "description": "Votre appareil dispose de {{current}} GB de mémoire, mais {{required}} GB sont recommandés pour ce modèle.",
+        "suggestion": "Essayez un modèle plus petit."
+      }
+    },
+    "model": {
+      "title": "Sélection du modèle",
+      "select": "Sélectionnez un modèle",
+      "loading": "Chargement du modèle...",
+      "downloadProgress": "Téléchargement : {{progress}}%",
+      "ready": "Modèle prêt",
+      "error": "Erreur lors du chargement du modèle",
+      "unload": "Décharger le modèle",
+      "info": {
+        "size": "Taille",
+        "parameters": "Paramètres",
+        "minMemory": "Mémoire min.",
+        "requiresWebGPU": "Nécessite WebGPU"
+      }
+    },
+    "chat": {
+      "empty": "Commencez une conversation en sélectionnant un modèle et en tapant un message.",
+      "placeholder": "Saisissez votre message...",
+      "send": "Envoyer",
+      "clear": "Effacer la conversation",
+      "emptyState": "Commencez une conversation en sélectionnant un modèle et en tapant un message.",
+      "generating": "Génération...",
+      "error": "Une erreur s'est produite",
+      "retry": "Réessayer",
+      "input": {
+        "placeholder": "Saisissez votre message...",
+        "label": "Message",
+        "send": "Envoyer"
+      }
+    },
+    "loading": {
+      "model": "Modèle",
+      "downloading": "Téléchargement du modèle en cours...",
+      "loading": "Chargement du modèle...",
+      "error": "Erreur lors du chargement"
+    },
+    "message": {
+      "user": "Vous",
+      "assistant": "Assistant",
+      "copy": "Copier",
+      "copied": "Copié !"
+    }
+  }
+}

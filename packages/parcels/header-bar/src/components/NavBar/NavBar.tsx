@@ -16,6 +16,8 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/', labelKey: 'nav.home' },
   { href: '/experience', labelKey: 'nav.experience' },
   { href: '/learn', labelKey: 'nav.learn' },
+  { href: '/ai/chat', labelKey: 'nav.aiChat' },
+  { href: '/ai/playground', labelKey: 'nav.aiPlayground' },
 ];
 
 export function NavBar() {

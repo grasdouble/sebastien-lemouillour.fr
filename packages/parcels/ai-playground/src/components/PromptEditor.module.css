@@ -1,0 +1,25 @@
+.container {
+  margin-bottom: 2rem;
+}
+
+.textarea {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  resize: vertical;
+  margin-top: 0.5rem;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #0066cc;
+}
+
+.textarea:disabled {
+  opacity: 0.5;
+  background: #f5f5f5;
+  cursor: not-allowed;
+}

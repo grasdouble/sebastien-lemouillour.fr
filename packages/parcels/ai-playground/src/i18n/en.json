@@ -1,0 +1,90 @@
+{
+  "playground": {
+    "title": "AI Playground",
+    "subtitle": "Experiment with browser-based LLMs and adjustable parameters",
+
+    "models": {
+      "title": "Model Selection",
+      "select": "Select a model to start",
+      "selected": "Selected",
+      "specs": {
+        "size": "Size",
+        "memory": "Min RAM",
+        "type": "Type"
+      }
+    },
+
+    "capabilities": {
+      "title": "Browser Capabilities",
+      "webgpu": "WebGPU",
+      "memory": "Device Memory",
+      "supported": "Supported",
+      "notSupported": "Not Supported",
+      "unknown": "Unknown",
+      "recommended": "Recommended models for your device"
+    },
+
+    "prompt": {
+      "title": "Prompt",
+      "placeholder": "Enter your prompt here...",
+      "examples": "Prompt Templates",
+      "generate": "Generate"
+    },
+
+    "parameters": {
+      "title": "Generation Parameters",
+      "temperature": {
+        "label": "Temperature",
+        "hint": "Controls randomness (0 = deterministic, 1 = creative)"
+      },
+      "topP": {
+        "label": "Top P",
+        "hint": "Nucleus sampling threshold"
+      },
+      "topK": {
+        "label": "Top K",
+        "hint": "Limits token selection to top K options"
+      },
+      "maxTokens": {
+        "label": "Max Tokens",
+        "hint": "Maximum length of generated text"
+      },
+      "seed": {
+        "label": "Seed",
+        "hint": "Random seed for reproducibility (optional)"
+      }
+    },
+
+    "output": {
+      "title": "Output",
+      "streaming": "Generating...",
+      "copy": "Copy to clipboard",
+      "copied": "Copied!",
+      "clear": "Clear",
+      "empty": "Generated text will appear here"
+    },
+
+    "metrics": {
+      "title": "Performance Metrics",
+      "tokensPerSec": "Tokens/sec",
+      "latency": "Latency",
+      "memoryUsage": "Memory",
+      "totalTokens": "Total Tokens",
+      "timeElapsed": "Time Elapsed"
+    },
+
+    "loading": {
+      "downloading": "Downloading model...",
+      "loading": "Loading model into memory...",
+      "ready": "Model ready",
+      "error": "Failed to load model",
+      "progress": "{{percent}}% complete"
+    },
+
+    "errors": {
+      "noModel": "Please select a model first",
+      "emptyPrompt": "Please enter a prompt",
+      "generationFailed": "Generation failed. Please try again."
+    }
+  }
+}

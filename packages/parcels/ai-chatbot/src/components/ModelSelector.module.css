@@ -1,0 +1,80 @@
+.container {
+  width: 100%;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.modelGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.modelCard {
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.modelCard:hover:not(:disabled) {
+  border-color: #2196f3;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+}
+
+.modelCard:focus-visible {
+  outline: 2px solid #2196f3;
+  outline-offset: 2px;
+}
+
+.modelCard:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modelCard.selected {
+  border-color: #2196f3;
+  background: #e3f2fd;
+}
+
+.modelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.modelName {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.modelSize {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.modelInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.infoItem {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.hint {
+  color: #666;
+  font-size: 0.875rem;
+  margin: 0;
+}

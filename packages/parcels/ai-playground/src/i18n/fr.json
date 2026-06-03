@@ -1,0 +1,90 @@
+{
+  "playground": {
+    "title": "AI Playground",
+    "subtitle": "Expérimentez avec des LLM dans le navigateur et des paramètres ajustables",
+
+    "models": {
+      "title": "Sélection de modèle",
+      "select": "Sélectionnez un modèle pour commencer",
+      "selected": "Sélectionné",
+      "specs": {
+        "size": "Taille",
+        "memory": "RAM min",
+        "type": "Type"
+      }
+    },
+
+    "capabilities": {
+      "title": "Capacités du navigateur",
+      "webgpu": "WebGPU",
+      "memory": "Mémoire de l'appareil",
+      "supported": "Supporté",
+      "notSupported": "Non supporté",
+      "unknown": "Inconnu",
+      "recommended": "Modèles recommandés pour votre appareil"
+    },
+
+    "prompt": {
+      "title": "Prompt",
+      "placeholder": "Entrez votre prompt ici...",
+      "examples": "Modèles de prompts",
+      "generate": "Générer"
+    },
+
+    "parameters": {
+      "title": "Paramètres de génération",
+      "temperature": {
+        "label": "Température",
+        "hint": "Contrôle l'aléatoire (0 = déterministe, 1 = créatif)"
+      },
+      "topP": {
+        "label": "Top P",
+        "hint": "Seuil d'échantillonnage nucléaire"
+      },
+      "topK": {
+        "label": "Top K",
+        "hint": "Limite la sélection de tokens aux K meilleures options"
+      },
+      "maxTokens": {
+        "label": "Tokens max",
+        "hint": "Longueur maximale du texte généré"
+      },
+      "seed": {
+        "label": "Graine",
+        "hint": "Graine aléatoire pour la reproductibilité (optionnel)"
+      }
+    },
+
+    "output": {
+      "title": "Sortie",
+      "streaming": "Génération en cours...",
+      "copy": "Copier dans le presse-papiers",
+      "copied": "Copié !",
+      "clear": "Effacer",
+      "empty": "Le texte généré apparaîtra ici"
+    },
+
+    "metrics": {
+      "title": "Métriques de performance",
+      "tokensPerSec": "Tokens/sec",
+      "latency": "Latence",
+      "memoryUsage": "Mémoire",
+      "totalTokens": "Total tokens",
+      "timeElapsed": "Temps écoulé"
+    },
+
+    "loading": {
+      "downloading": "Téléchargement du modèle...",
+      "loading": "Chargement du modèle en mémoire...",
+      "ready": "Modèle prêt",
+      "error": "Échec du chargement du modèle",
+      "progress": "{{percent}}% terminé"
+    },
+
+    "errors": {
+      "noModel": "Veuillez d'abord sélectionner un modèle",
+      "emptyPrompt": "Veuillez entrer un prompt",
+      "generationFailed": "La génération a échoué. Veuillez réessayer."
+    }
+  }
+}
