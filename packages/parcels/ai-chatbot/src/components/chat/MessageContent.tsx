@@ -3,6 +3,7 @@ import React from 'react';
 import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
 
 // Import highlight.js theme for code syntax highlighting
@@ -44,7 +45,11 @@ export const MessageContent: FC<MessageContentProps> = ({ content, role }) => {
 
   return (
     <div className={styles.markdown}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]} components={components}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeSanitize, rehypeHighlight]}
+        components={components}
+      >
         {content}
       </ReactMarkdown>
     </div>

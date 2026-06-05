@@ -41,6 +41,7 @@
       "emptyState": "Start a conversation by selecting a model and typing a message.",
       "generating": "Generating...",
       "error": "An error occurred",
+      "loadError": "Error loading model. Please try again.",
       "retry": "Retry",
       "input": {
         "placeholder": "Type your message...",

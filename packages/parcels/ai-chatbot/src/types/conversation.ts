@@ -1,4 +1,4 @@
-import type { Message } from '../components/MessageList';
+import type { Message } from './message';
 
 export type Conversation = {
   id: string;

@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { CapabilitiesWarning } from '../components/CapabilitiesWarning';
+import { CapabilitiesWarning } from './CapabilitiesWarning';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

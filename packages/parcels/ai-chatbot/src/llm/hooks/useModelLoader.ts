@@ -19,46 +19,79 @@ export function useModelLoader() {
     status: 'idle',
   });
   const [provider, setProvider] = useState<LLMProviderInstance | null>(null);
+  const [lastAttemptedModel, setLastAttemptedModel] = useState<ModelConfig | null>(null);
 
-  const loadModel = useCallback(async (model: ModelConfig) => {
-    setProgress({
-      loaded: false,
-      progress: 0,
-      status: 'downloading',
-      timeElapsedMs: 0,
-    });
+  const loadModel = useCallback(
+    async (model: ModelConfig) => {
+      // Unload previous provider if exists
+      if (provider) {
+        await provider.unload();
+        setProvider(null);
+      }
 
-    const startTime = Date.now();
+      let cancelled = false;
 
-    try {
-      const newProvider = createProvider(model);
-
-      await newProvider.load((progressValue) => {
-        setProgress((prev) => ({
-          ...prev,
-          progress: progressValue,
-          status: progressValue === 100 ? 'loading' : 'downloading',
-          timeElapsedMs: Date.now() - startTime,
-        }));
-      });
-
-      setProvider(newProvider);
-      setProgress({
-        loaded: true,
-        progress: 100,
-        status: 'ready',
-        timeElapsedMs: Date.now() - startTime,
-      });
-    } catch (error) {
+      setLastAttemptedModel(model);
       setProgress({
         loaded: false,
         progress: 0,
-        status: 'error',
-        error: error as Error,
-        timeElapsedMs: Date.now() - startTime,
+        status: 'downloading',
+        timeElapsedMs: 0,
       });
+
+      const startTime = Date.now();
+
+      try {
+        const newProvider = createProvider(model);
+
+        await newProvider.load((progressValue) => {
+          if (!cancelled) {
+            setProgress((prev) => ({
+              ...prev,
+              progress: progressValue,
+              status: progressValue === 100 ? 'loading' : 'downloading',
+              timeElapsedMs: Date.now() - startTime,
+            }));
+          }
+        });
+
+        if (!cancelled) {
+          setProvider(newProvider);
+          setProgress({
+            loaded: true,
+            progress: 100,
+            status: 'ready',
+            timeElapsedMs: Date.now() - startTime,
+          });
+        } else {
+          // Cleanup if cancelled
+          await newProvider.unload();
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setProgress({
+            loaded: false,
+            progress: 0,
+            status: 'error',
+            error: error as Error,
+            timeElapsedMs: Date.now() - startTime,
+          });
+        }
+      }
+
+      return () => {
+        cancelled = true;
+      };
+    },
+    [provider]
+  );
+
+  const retryLoadModel = useCallback(() => {
+    if (lastAttemptedModel) {
+      return loadModel(lastAttemptedModel);
     }
-  }, []);
+    return Promise.resolve();
+  }, [lastAttemptedModel, loadModel]);
 
   const unloadModel = useCallback(async () => {
     if (provider) {
@@ -76,6 +109,7 @@ export function useModelLoader() {
     progress,
     provider,
     loadModel,
+    retryLoadModel,
     unloadModel,
   };
 }

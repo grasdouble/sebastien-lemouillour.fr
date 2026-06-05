@@ -2,23 +2,23 @@ import type { CSSProperties, FC } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Box, Container, Divider, Flex, Stack } from '@grasdouble/lufa_design-system';
+import { Box, Button, Container, Divider, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
 
-import type { ChatMessage, ModelConfig } from '../llm/types';
-import type { Message } from './MessageList';
-import { useConversationHistory } from '../hooks/useConversationHistory';
-import { useCapabilities, useModelLoader } from '../llm';
-import { CapabilitiesWarning } from './CapabilitiesWarning';
+import type { ChatMessage, ModelConfig } from '../../llm/types';
+import type { Message } from '../../types/message';
+import { useConversationHistory } from '../../hooks/useConversationHistory';
+import { useCapabilities, useModelLoader } from '../../llm';
+import { ConversationHistory } from '../conversation/ConversationHistory';
+import { LoadingIndicator, ModelSelector } from '../model';
+import { CapabilitiesWarning } from '../model/CapabilitiesWarning';
 import styles from './ChatInterface.module.css';
-import { ConversationHistory } from './ConversationHistory';
-import { LoadingIndicator, ModelSelector } from './llm';
 import { MessageInput } from './MessageInput';
 import { MessageList } from './MessageList';
 
 export const ChatInterface: FC = () => {
   const { t } = useTranslation('ai-chatbot');
   const capabilities = useCapabilities();
-  const { progress: loadProgress, provider, loadModel } = useModelLoader();
+  const { progress: loadProgress, provider, loadModel, retryLoadModel } = useModelLoader();
 
   const {
     conversations,
@@ -33,6 +33,7 @@ export const ChatInterface: FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [headerOffset, setHeaderOffset] = useState(0);
   const pendingMessageRef = useRef<string | null>(null);
+  const isGeneratingRef = useRef(false);
 
   const progressPercent = loadProgress.progress;
   const loadingStatus = loadProgress.status;
@@ -73,7 +74,7 @@ export const ChatInterface: FC = () => {
 
   const handleSendMessage = useCallback(
     (content: string) => {
-      if (provider === null || isGenerating) return;
+      if (provider === null || isGeneratingRef.current) return;
 
       // Create a new conversation if none exists
       const conversationId = currentConversation?.id;
@@ -92,6 +93,7 @@ export const ChatInterface: FC = () => {
 
       const updatedMessages = [...messages, userMessage];
       updateConversation(conversationId!, updatedMessages);
+      isGeneratingRef.current = true;
       setIsGenerating(true);
 
       // Convert UI messages to ChatMessage format for the provider
@@ -103,6 +105,9 @@ export const ChatInterface: FC = () => {
       provider
         .generate(chatHistory)
         .then((result) => {
+          // Check if conversation still exists before updating
+          if (!currentConversation) return;
+
           const assistantMessage: Message = {
             id: `assistant-${Date.now()}`,
             role: 'assistant',
@@ -113,6 +118,9 @@ export const ChatInterface: FC = () => {
           updateConversation(conversationId!, [...updatedMessages, assistantMessage]);
         })
         .catch(() => {
+          // Check if conversation still exists before updating
+          if (!currentConversation) return;
+
           const errorMsg: Message = {
             id: `error-${Date.now()}`,
             role: 'assistant',
@@ -122,31 +130,31 @@ export const ChatInterface: FC = () => {
           updateConversation(conversationId!, [...updatedMessages, errorMsg]);
         })
         .finally(() => {
+          isGeneratingRef.current = false;
           setIsGenerating(false);
         });
     },
-    [
-      provider,
-      isGenerating,
-      messages,
-      t,
-      currentConversation,
-      createConversation,
-      selectedModel?.id,
-      updateConversation,
-    ]
+    [provider, messages, t, currentConversation, createConversation, selectedModel?.id, updateConversation]
   );
 
   const isReady = loadingStatus === 'ready' && provider !== null;
 
+  // Cancel generation if current conversation is deleted
+  useEffect(() => {
+    if (!currentConversation && isGeneratingRef.current) {
+      isGeneratingRef.current = false;
+      setIsGenerating(false);
+    }
+  }, [currentConversation]);
+
   // Auto-send pending message when conversation is created
   useEffect(() => {
-    if (pendingMessageRef.current && currentConversation && provider && !isGenerating) {
+    if (pendingMessageRef.current && currentConversation && provider && !isGeneratingRef.current) {
       const content = pendingMessageRef.current;
       pendingMessageRef.current = null;
       handleSendMessage(content);
     }
-  }, [currentConversation, provider, isGenerating, handleSendMessage]);
+  }, [currentConversation, provider, handleSendMessage]);
 
   useEffect(() => {
     const header = document.getElementById('lufa-header');
@@ -216,6 +224,22 @@ export const ChatInterface: FC = () => {
             <>
               <Box padding="default">
                 <LoadingIndicator progress={progressPercent} status={loadingStatus} modelName={selectedModel?.name} />
+              </Box>
+              <Divider spacing="compact" />
+            </>
+          )}
+
+          {loadingStatus === 'error' && (
+            <>
+              <Box padding="default">
+                <Stack direction="vertical" spacing="default">
+                  <Text variant="body" color="warning">
+                    {t('chatbot.chat.loadError')}
+                  </Text>
+                  <Button variant="primary" size="md" onClick={() => retryLoadModel()}>
+                    {t('chatbot.chat.retry')}
+                  </Button>
+                </Stack>
               </Box>
               <Divider spacing="compact" />
             </>

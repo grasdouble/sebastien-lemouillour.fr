@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ChatInterface } from '../components/ChatInterface';
+import { ChatInterface } from './ChatInterface';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -12,7 +12,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Mock the llm module
-vi.mock('../llm', () => ({
+vi.mock('../../llm', () => ({
   MODEL_REGISTRY: [
     {
       id: 'llama-3.2-1b',

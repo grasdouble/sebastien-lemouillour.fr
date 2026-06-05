@@ -1,37 +1,61 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import type { Message } from '../components/MessageList';
 import type { Conversation } from '../types/conversation';
+import type { Message } from '../types/message';
 
 const STORAGE_KEY = 'ai-chatbot-conversations';
 const DEFAULT_TITLE_FR = 'Nouvelle conversation';
 const DEFAULT_TITLE_EN = 'New conversation';
 
-// Define type for stored conversation data
-type StoredConversation = {
-  id: string;
-  title: string;
-  messages: {
-    id: string;
-    role: 'user' | 'assistant';
-    content: string;
-    timestamp: string;
-  }[];
-  modelId?: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
 // Helper to parse dates from localStorage
-const parseConversation = (conv: StoredConversation): Conversation => ({
-  ...conv,
-  createdAt: new Date(conv.createdAt),
-  updatedAt: new Date(conv.updatedAt),
-  messages: conv.messages.map((msg) => ({
-    ...msg,
-    timestamp: new Date(msg.timestamp),
-  })),
-});
+const parseConversation = (conv: unknown): Conversation | null => {
+  // Validate structure
+  if (!conv || typeof conv !== 'object') return null;
+
+  const c = conv as Record<string, unknown>;
+
+  // Validate required fields
+  if (typeof c.id !== 'string') return null;
+  if (typeof c.title !== 'string') return null;
+  if (!Array.isArray(c.messages)) return null;
+  if (typeof c.createdAt !== 'string') return null;
+  if (typeof c.updatedAt !== 'string') return null;
+
+  // Validate messages array
+  const validMessages = c.messages.every((msg: unknown) => {
+    if (!msg || typeof msg !== 'object') return false;
+    const m = msg as Record<string, unknown>;
+    return (
+      typeof m.id === 'string' &&
+      (m.role === 'user' || m.role === 'assistant') &&
+      typeof m.content === 'string' &&
+      typeof m.timestamp === 'string'
+    );
+  });
+
+  if (!validMessages) return null;
+
+  // Parse dates
+  try {
+    return {
+      id: c.id,
+      title: c.title,
+      messages: (c.messages as { id: string; role: 'user' | 'assistant'; content: string; timestamp: string }[]).map(
+        (msg) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp),
+        })
+      ),
+      modelId: typeof c.modelId === 'string' ? c.modelId : undefined,
+      createdAt: new Date(c.createdAt),
+      updatedAt: new Date(c.updatedAt),
+    };
+  } catch {
+    return null;
+  }
+};
 
 // Helper to load conversations from localStorage
 const loadConversationsFromStorage = (): Conversation[] => {
@@ -42,7 +66,7 @@ const loadConversationsFromStorage = (): Conversation[] => {
     const parsed: unknown = JSON.parse(stored);
     if (!Array.isArray(parsed)) return [];
 
-    return parsed.map((conv) => parseConversation(conv as StoredConversation));
+    return parsed.map(parseConversation).filter((conv): conv is Conversation => conv !== null);
   } catch {
     return [];
   }
@@ -52,8 +76,14 @@ const loadConversationsFromStorage = (): Conversation[] => {
 const saveConversationsToStorage = (conversations: Conversation[]): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
-  } catch {
-    // Silently fail if localStorage is not available
+  } catch (error) {
+    console.error('[ConversationHistory] Failed to save conversations:', error);
+
+    // Notify user about storage issue
+    if (error instanceof Error && error.name === 'QuotaExceededError') {
+      console.warn('[ConversationHistory] localStorage quota exceeded. Consider deleting old conversations.');
+      // In production, this should trigger a toast notification to the user
+    }
   }
 };
 

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Badge, Box, Stack, Text } from '@grasdouble/lufa_design-system';
 
-import type { BrowserCapabilities } from '../llm/types';
+import type { BrowserCapabilities } from '../../llm/types';
 
 type CapabilitiesWarningProps = {
   capabilities: BrowserCapabilities;

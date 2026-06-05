@@ -4,15 +4,9 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
 
+import type { Message } from '../../types/message';
 import { MessageContent } from './MessageContent';
 import styles from './MessageList.module.css';
-
-export type Message = {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-};
 
 type MessageListProps = {
   messages: Message[];
@@ -83,7 +77,11 @@ export const MessageList: FC<MessageListProps> = ({ messages, isReady, modelName
                 <div className={styles.avatar}>{message.role === 'user' ? '👤' : '🤖'}</div>
                 <Stack direction="vertical" spacing="tight" style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="body" weight="medium" size="sm">
-                    {message.role === 'user' ? t('chatbot.message.user') : t('chatbot.message.assistant')}
+                    {message.role === 'user'
+                      ? t('chatbot.message.user')
+                      : modelName
+                        ? `${t('chatbot.message.assistant')} (${modelName})`
+                        : t('chatbot.message.assistant')}
                   </Text>
                   <MessageContent content={message.content} role={message.role} />
                 </Stack>

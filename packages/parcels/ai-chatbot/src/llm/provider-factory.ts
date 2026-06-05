@@ -56,6 +56,18 @@ export type LLMProviderInstance = {
   unload(): Promise<void>;
 };
 
+// Memoized WebLLM module to avoid re-importing
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let webLLMModule: Awaited<typeof import('@mlc-ai/web-llm')> | null = null;
+
+/**
+ * Get or load WebLLM module (memoized)
+ */
+async function getWebLLMModule() {
+  webLLMModule ??= await import('@mlc-ai/web-llm');
+  return webLLMModule;
+}
+
 /**
  * Creates an LLM provider instance (WebLLM only)
  */
@@ -79,8 +91,8 @@ function createWebLLMProvider(model: ModelConfig): LLMProviderInstance {
 
   return {
     async load(onProgress?: (progress: number) => void): Promise<void> {
-      // Dynamic import to avoid bundling WebLLM in all parcels
-      const { CreateMLCEngine } = await import('@mlc-ai/web-llm');
+      // Dynamic import to avoid bundling WebLLM in all parcels (memoized)
+      const { CreateMLCEngine } = await getWebLLMModule();
 
       engine = (await CreateMLCEngine(modelId, {
         initProgressCallback: (report: WebLLMProgressReport) => {

@@ -41,6 +41,7 @@
       "emptyState": "Commencez une conversation en sélectionnant un modèle et en tapant un message.",
       "generating": "Génération...",
       "error": "Une erreur s'est produite",
+      "loadError": "Erreur lors du chargement du modèle. Veuillez réessayer.",
       "retry": "Réessayer",
       "input": {
         "placeholder": "Saisissez votre message...",

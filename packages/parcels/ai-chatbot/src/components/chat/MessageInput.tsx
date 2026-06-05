@@ -52,6 +52,8 @@ export const MessageInput: FC<MessageInputProps> = ({ onSend, disabled }) => {
             placeholder={t('chatbot.chat.input.placeholder')}
             disabled={disabled}
             rows={3}
+            required
+            minLength={1}
             aria-label={t('chatbot.chat.input.label')}
           />
           <Button

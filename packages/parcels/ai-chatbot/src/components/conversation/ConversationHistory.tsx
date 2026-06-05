@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, Button, Card, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
 
-import type { Conversation } from '../types/conversation';
+import type { Conversation } from '../../types/conversation';
 import styles from './ConversationHistory.module.css';
 
 type ConversationHistoryProps = {
@@ -21,18 +21,19 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
   onDeleteConversation,
   onNewConversation,
 }) => {
-  const { t } = useTranslation('ai-chatbot');
+  const { t, i18n } = useTranslation('ai-chatbot');
 
   const formatDate = (date: Date): string => {
+    const locale = i18n.language;
     const now = new Date();
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
 
     if (diffInHours < 24) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
     } else if (diffInHours < 24 * 7) {
-      return date.toLocaleDateString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleDateString(locale, { weekday: 'short', hour: '2-digit', minute: '2-digit' });
     } else {
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
     }
   };
 
