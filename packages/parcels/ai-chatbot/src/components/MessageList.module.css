@@ -1,18 +1,87 @@
-/* Message bubble alignment - DS Cards don't provide this pattern */
-.user {
-  align-self: flex-end;
-  max-width: 80%;
-  margin-left: auto;
+/* Empty state */
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: var(--lufa-spacing-spacious);
 }
 
-.assistant {
-  align-self: flex-start;
-  max-width: 80%;
+.examplesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--lufa-spacing-default);
+  width: 100%;
+  max-width: 800px;
+  margin-top: var(--lufa-spacing-default);
+}
+
+.exampleCard {
+  padding: var(--lufa-spacing-default);
+  border: 1px solid var(--lufa-color-border-subtle);
+  border-radius: var(--lufa-border-radius-default);
+  background-color: var(--lufa-color-background-secondary);
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.exampleCard:hover {
+  border-color: var(--lufa-color-border-default);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Message container */
+.messageListContainer {
+  width: 100%;
+}
+
+/* Message rows with distinct backgrounds */
+.messageRow {
+  width: 100%;
+  padding: var(--lufa-spacing-default) 0;
+  border-bottom: 1px solid var(--lufa-color-border-subtle);
+}
+
+.userRow {
+  background-color: var(--lufa-color-background-default);
+}
+
+.assistantRow {
+  background-color: var(--lufa-color-background-secondary);
+}
+
+/* Wrapper for constrained width */
+.messageWrapper {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0 var(--lufa-spacing-default);
 }
 
 .messageContent {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  line-height: 1.6;
-  overflow-wrap: break-word;
+  width: 100%;
+}
+
+.avatar {
+  font-size: 1.5rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: var(--lufa-color-background-tertiary);
+  border: 2px solid var(--lufa-color-border-default);
+}
+
+@media (max-width: 48rem) {
+  .examplesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .messageWrapper {
+    max-width: 100%;
+    padding: 0 var(--lufa-spacing-compact);
+  }
 }

@@ -14,7 +14,6 @@
     "@grasdouble/slm_parcel_landing-page": "http://localhost:4101/src/parcel.tsx",
     "@grasdouble/slm_parcel_professional-experience": "http://localhost:4102/src/parcel.tsx",
     "@grasdouble/slm_parcel_learn": "http://localhost:4103/src/parcel.tsx",
-    "@grasdouble/slm_parcel_ai-chatbot": "http://localhost:4105/src/parcel.tsx",
-    "@grasdouble/slm_parcel_ai-playground": "http://localhost:4106/src/parcel.tsx"
+    "@grasdouble/slm_parcel_ai-chatbot": "http://localhost:4105/src/parcel.tsx"
   }
 }

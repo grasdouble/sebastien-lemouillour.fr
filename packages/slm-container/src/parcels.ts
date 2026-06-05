@@ -14,5 +14,4 @@ export const PARCELS: ParcelConfig[] = [
   { name: 'professional-experience', path: '/experience' },
   { name: 'learn', path: '/learn', pathPrefix: true },
   { name: 'ai-chatbot', path: '/ai/chat' },
-  { name: 'ai-playground', path: '/ai/playground' },
 ];

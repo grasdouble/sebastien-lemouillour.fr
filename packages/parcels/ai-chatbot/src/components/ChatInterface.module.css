@@ -1,0 +1,67 @@
+.chatContainer {
+  min-height: calc(100vh - var(--chat-header-offset, 0px));
+}
+
+.layout {
+  min-height: calc(100vh - var(--chat-header-offset, 0px));
+  max-height: calc(100vh - var(--chat-header-offset, 0px));
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background-color: var(--lufa-color-background-secondary);
+  border-right: 1px solid var(--lufa-color-border-default);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--chat-header-offset, 0px));
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--chat-header-offset, 0px));
+  background-color: var(--lufa-color-background-default);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.inputArea {
+  padding: var(--lufa-spacing-default);
+  border-top: 1px solid var(--lufa-color-border-default);
+  background-color: var(--lufa-color-background-default);
+  max-width: 48rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 64rem) {
+  .layout {
+    flex-direction: column;
+    max-height: none;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 40vh;
+  }
+
+  .main {
+    height: auto;
+    min-height: 60vh;
+  }
+
+  .inputArea {
+    max-width: 100%;
+  }
+}

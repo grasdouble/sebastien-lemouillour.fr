@@ -14,7 +14,6 @@
     "@grasdouble/slm_parcel_landing-page": "http://localhost:4101/home.mjs",
     "@grasdouble/slm_parcel_professional-experience": "http://localhost:4102/professional-experience.mjs",
     "@grasdouble/slm_parcel_learn": "http://localhost:4103/learn.mjs",
-    "@grasdouble/slm_parcel_ai-chatbot": "http://localhost:4105/ai-chatbot.mjs",
-    "@grasdouble/slm_parcel_ai-playground": "http://localhost:4106/ai-playground.mjs"
+    "@grasdouble/slm_parcel_ai-chatbot": "http://localhost:4105/ai-chatbot.mjs"
   }
 }

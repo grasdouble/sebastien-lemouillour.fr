@@ -32,6 +32,9 @@
     },
     "chat": {
       "empty": "Commencez une conversation en sélectionnant un modèle et en tapant un message.",
+      "welcome": "Comment puis-je vous aider aujourd'hui ?",
+      "welcomeSubtitle": "Alimenté par {{modelName}}",
+      "selectModel": "Sélectionnez un modèle dans la barre latérale pour commencer",
       "placeholder": "Saisissez votre message...",
       "send": "Envoyer",
       "clear": "Effacer la conversation",
@@ -45,11 +48,28 @@
         "send": "Envoyer"
       }
     },
+    "examples": {
+      "creative": "Créativité",
+      "creativeExample": "Écris-moi un poème sur la nature",
+      "explain": "Explication",
+      "explainExample": "Explique-moi comment fonctionne le machine learning",
+      "code": "Code",
+      "codeExample": "Crée une fonction JavaScript pour trier un tableau"
+    },
     "message": {
       "user": "Vous",
       "assistant": "Assistant",
       "copy": "Copier",
       "copied": "Copié !"
+    },
+    "history": {
+      "new": "Nouvelle conversation",
+      "empty": "Aucune conversation enregistrée",
+      "load": "Charger la conversation",
+      "delete": "Supprimer la conversation",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette conversation ?",
+      "messages": "messages",
+      "defaultTitle": "Nouvelle conversation"
     }
   }
 }

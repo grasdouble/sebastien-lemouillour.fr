@@ -6,6 +6,7 @@ export default mergeConfig(
   baseConfig,
   defineConfig({
     test: {
+      setupFiles: ['./src/__tests__/setup.ts'],
       coverage: {
         thresholds: {
           statements: 80,

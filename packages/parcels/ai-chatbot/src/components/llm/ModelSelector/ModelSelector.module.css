@@ -1,0 +1,32 @@
+.select {
+  width: 100%;
+  padding: var(--lufa-semantic-ui-spacing-compact) var(--lufa-semantic-ui-spacing-default);
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--lufa-semantic-ui-text-primary);
+  background-color: var(--lufa-semantic-ui-background-default);
+  border: 2px solid var(--lufa-semantic-ui-border-default);
+  border-radius: var(--lufa-semantic-ui-border-radius-base);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.select:hover:not(:disabled) {
+  border-color: var(--lufa-semantic-ui-border-hover);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--lufa-semantic-ui-color-primary-base);
+  box-shadow: 0 0 0 3px var(--lufa-semantic-ui-color-primary-alpha-10);
+}
+
+.select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.select option {
+  padding: var(--lufa-semantic-ui-spacing-compact);
+}

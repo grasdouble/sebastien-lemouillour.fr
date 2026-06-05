@@ -63,6 +63,9 @@ export default defineConfig(() => {
       }),
       reactPreamblePlugin(),
     ],
+    optimizeDeps: {
+      include: ['react-markdown', 'remark-gfm', 'rehype-highlight', 'highlight.js'],
+    },
     build: {
       target: 'esnext',
       modulePreload: false, // Single-SPA manages the loading of modules

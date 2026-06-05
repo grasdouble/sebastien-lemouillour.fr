@@ -17,10 +17,16 @@ describe('MessageList', () => {
     vi.clearAllMocks();
   });
 
-  it('renders empty state when no messages', () => {
-    render(<MessageList messages={[]} />);
+  it('renders empty state when no messages and model not selected', () => {
+    render(<MessageList messages={[]} isReady={false} />);
 
-    expect(screen.getByText('chatbot.chat.empty')).toBeDefined();
+    expect(screen.getByText('chatbot.chat.selectModel')).toBeDefined();
+  });
+
+  it('renders welcome state when no messages but model is ready', () => {
+    render(<MessageList messages={[]} isReady modelName="SmolLM2 135M" />);
+
+    expect(screen.getByText('chatbot.chat.welcome')).toBeDefined();
   });
 
   it('renders user and assistant messages', () => {

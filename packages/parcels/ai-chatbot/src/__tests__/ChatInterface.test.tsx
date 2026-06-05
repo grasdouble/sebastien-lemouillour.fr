@@ -11,8 +11,8 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-// Mock the shared hooks
-vi.mock('@grasdouble/slm_shared', () => ({
+// Mock the llm module
+vi.mock('../llm', () => ({
   MODEL_REGISTRY: [
     {
       id: 'llama-3.2-1b',
@@ -25,9 +25,6 @@ vi.mock('@grasdouble/slm_shared', () => ({
       requiresWebGPU: true,
     },
   ],
-  CapabilitiesInfo: () => <div>capabilities.title</div>,
-  LoadingIndicator: () => <div>loading.idle</div>,
-  ModelSelector: () => <div>models.title</div>,
   useCapabilities: () => ({
     hasWebGPU: true,
     hasWebGL: true,
@@ -48,6 +45,13 @@ vi.mock('@grasdouble/slm_shared', () => ({
   }),
 }));
 
+// Mock the llm components
+vi.mock('../components/llm', () => ({
+  CapabilitiesInfo: () => <div>capabilities.title</div>,
+  LoadingIndicator: () => <div>loading.idle</div>,
+  ModelSelector: () => <div>models.title</div>,
+}));
+
 describe('ChatInterface', () => {
   afterEach(() => {
     cleanup();
@@ -60,10 +64,17 @@ describe('ChatInterface', () => {
     expect(screen.getByText('models.title')).toBeDefined();
   });
 
-  it('shows empty chat state', () => {
+  it('shows empty chat state when model not ready', () => {
     render(<ChatInterface />);
 
-    expect(screen.getByText('chatbot.chat.empty')).toBeDefined();
+    expect(screen.getByText('chatbot.chat.selectModel')).toBeDefined();
+  });
+
+  it('renders conversation and chat regions', () => {
+    render(<ChatInterface />);
+
+    expect(screen.getByTestId('chat-conversations-region')).toBeDefined();
+    expect(screen.getByTestId('chat-main-region')).toBeDefined();
   });
 
   it('allows typing a message', () => {

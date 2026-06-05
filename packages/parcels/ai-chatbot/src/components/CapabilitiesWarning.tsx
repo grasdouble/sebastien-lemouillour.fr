@@ -2,8 +2,9 @@ import type { FC } from 'react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { BrowserCapabilities } from '@grasdouble/slm_shared';
 import { Badge, Box, Stack, Text } from '@grasdouble/lufa_design-system';
+
+import type { BrowserCapabilities } from '../llm/types';
 
 type CapabilitiesWarningProps = {
   capabilities: BrowserCapabilities;

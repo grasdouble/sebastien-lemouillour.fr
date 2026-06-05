@@ -32,6 +32,9 @@
     },
     "chat": {
       "empty": "Start a conversation by selecting a model and typing a message.",
+      "welcome": "How can I help you today?",
+      "welcomeSubtitle": "Powered by {{modelName}}",
+      "selectModel": "Select a model from the sidebar to get started",
       "placeholder": "Type your message...",
       "send": "Send",
       "clear": "Clear conversation",
@@ -45,11 +48,28 @@
         "send": "Send"
       }
     },
+    "examples": {
+      "creative": "Creative",
+      "creativeExample": "Write me a poem about nature",
+      "explain": "Explain",
+      "explainExample": "Explain how machine learning works",
+      "code": "Code",
+      "codeExample": "Create a JavaScript function to sort an array"
+    },
     "message": {
       "user": "You",
       "assistant": "Assistant",
       "copy": "Copy",
       "copied": "Copied!"
+    },
+    "history": {
+      "new": "New conversation",
+      "empty": "No saved conversations",
+      "load": "Load conversation",
+      "delete": "Delete conversation",
+      "confirmDelete": "Are you sure you want to delete this conversation?",
+      "messages": "messages",
+      "defaultTitle": "New conversation"
     }
   }
 }
