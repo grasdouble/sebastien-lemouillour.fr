@@ -49,7 +49,7 @@ vi.mock('../../llm', () => ({
 vi.mock('../components/llm', () => ({
   CapabilitiesInfo: () => <div>capabilities.title</div>,
   LoadingIndicator: () => <div>loading.idle</div>,
-  ModelSelector: () => <div>models.title</div>,
+  ModelSelector: () => <div>chatbot.model.title</div>,
 }));
 
 describe('ChatInterface', () => {
@@ -61,7 +61,7 @@ describe('ChatInterface', () => {
   it('renders model selector initially', () => {
     render(<ChatInterface />);
 
-    expect(screen.getByText('models.title')).toBeDefined();
+    expect(screen.getByText('chatbot.model.title')).toBeDefined();
   });
 
   it('shows empty chat state when model not ready', () => {

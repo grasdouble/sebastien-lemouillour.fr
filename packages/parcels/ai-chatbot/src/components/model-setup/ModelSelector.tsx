@@ -15,7 +15,7 @@ export type ModelSelectorProps = {
 };
 
 export const ModelSelector: FC<ModelSelectorProps> = ({ onSelect, selectedModel, disabled }) => {
-  const { t } = useTranslation('ai-chatbot-llm');
+  const { t } = useTranslation('ai-chatbot');
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
@@ -32,7 +32,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({ onSelect, selectedModel,
     <Stack direction="vertical" spacing="compact">
       <Label htmlFor="model-select">
         <Text as="h2" weight="semibold" color="primary">
-          {t('models.title')}
+          {t('chatbot.model.title')}
         </Text>
       </Label>
       <select
@@ -41,10 +41,10 @@ export const ModelSelector: FC<ModelSelectorProps> = ({ onSelect, selectedModel,
         onChange={handleChange}
         disabled={disabled}
         className={styles.select}
-        aria-label={t('models.select')}
+        aria-label={t('chatbot.model.select')}
       >
         <option value="" disabled>
-          {t('models.select')}
+          {t('chatbot.model.select')}
         </option>
         {MODEL_REGISTRY.map((model) => (
           <option key={model.id} value={model.id}>

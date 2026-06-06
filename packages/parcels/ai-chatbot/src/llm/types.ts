@@ -36,6 +36,7 @@ export type ModelLoadProgress = {
   loaded: boolean;
   progress: number;
   status: 'idle' | 'downloading' | 'loading' | 'ready' | 'error';
+  loadingFromCache?: boolean;
   error?: Error;
   timeElapsedMs?: number;
 };

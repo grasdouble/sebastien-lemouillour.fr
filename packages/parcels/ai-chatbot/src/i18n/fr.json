@@ -19,6 +19,8 @@
       "title": "Sélection du modèle",
       "select": "Sélectionnez un modèle",
       "loading": "Chargement du modèle...",
+      "loadingFromCache": "Chargement depuis le cache...",
+      "preparing": "Préparation du téléchargement...",
       "downloadProgress": "Téléchargement : {{progress}}%",
       "ready": "Modèle prêt",
       "error": "Erreur lors du chargement du modèle",

@@ -19,6 +19,8 @@
       "title": "Model selection",
       "select": "Select a model",
       "loading": "Loading model...",
+      "loadingFromCache": "Loading from cache...",
+      "preparing": "Preparing download...",
       "downloadProgress": "Downloading: {{progress}}%",
       "ready": "Model ready",
       "error": "Error loading model",

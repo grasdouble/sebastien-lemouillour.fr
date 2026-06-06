@@ -33,6 +33,12 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  /* Encadrement de la zone de discussion */
+  margin: var(--lufa-spacing-default, 1rem);
+  padding: var(--lufa-spacing-default, 1rem);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .inputArea {
@@ -42,6 +48,10 @@
   max-width: 48rem;
   margin: 0 auto;
   width: 100%;
+  /* Aligner avec la marge de la zone messages */
+  margin-inline: var(--lufa-spacing-default);
+  margin-bottom: var(--lufa-spacing-default);
+  border-top: none;
 }
 
 @media (max-width: 64rem) {

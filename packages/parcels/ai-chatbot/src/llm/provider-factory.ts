@@ -69,6 +69,18 @@ async function getWebLLMModule() {
 }
 
 /**
+ * Check if a model is cached in IndexedDB
+ */
+export async function isModelCached(modelId: string): Promise<boolean> {
+  try {
+    const { hasModelInCache } = await getWebLLMModule();
+    return await hasModelInCache(modelId);
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Creates an LLM provider instance (WebLLM only)
  */
 export function createProvider(model: ModelConfig): LLMProviderInstance {

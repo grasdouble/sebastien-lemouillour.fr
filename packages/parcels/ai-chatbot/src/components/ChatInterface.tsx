@@ -2,7 +2,7 @@ import type { CSSProperties, FC } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Box, Button, Container, Divider, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
+import { Box, Button, Container, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
 
 import type { ChatMessage, ModelConfig } from '../llm/types';
 import type { Message } from '../types/message';
@@ -217,19 +217,31 @@ export const ChatInterface: FC = () => {
 
         {/* Main chat area */}
         <Stack direction="vertical" spacing="none" className={styles.main} data-testid="chat-main-region">
+          {/* Show loading indicator in place of messages during download/loading */}
           {(loadingStatus === 'downloading' || loadingStatus === 'loading') && (
-            <>
-              <Box padding="default">
-                <LoadingIndicator progress={progressPercent} status={loadingStatus} modelName={selectedModel?.name} />
+            <Box className={styles.messages}>
+              <Box
+                padding="default"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
+              >
+                <LoadingIndicator
+                  progress={progressPercent}
+                  status={loadingStatus}
+                  modelName={selectedModel?.name}
+                  loadingFromCache={loadProgress.loadingFromCache ?? false}
+                />
               </Box>
-              <Divider spacing="compact" />
-            </>
+            </Box>
           )}
 
+          {/* Show error state in place of messages */}
           {loadingStatus === 'error' && (
-            <>
-              <Box padding="default">
-                <Stack direction="vertical" spacing="default">
+            <Box className={styles.messages}>
+              <Box
+                padding="default"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
+              >
+                <Stack direction="vertical" spacing="default" style={{ maxWidth: '32rem', textAlign: 'center' }}>
                   <Text variant="body" color="warning">
                     {t('chatbot.chat.loadError')}
                   </Text>
@@ -238,17 +250,21 @@ export const ChatInterface: FC = () => {
                   </Button>
                 </Stack>
               </Box>
-              <Divider spacing="compact" />
-            </>
+            </Box>
           )}
 
-          <Box className={styles.messages}>
-            <MessageList messages={messages} isReady={isReady} modelName={selectedModel?.name} />
-          </Box>
+          {/* Show normal chat only when not loading/error */}
+          {loadingStatus !== 'downloading' && loadingStatus !== 'loading' && loadingStatus !== 'error' && (
+            <>
+              <Box className={styles.messages}>
+                <MessageList messages={messages} isReady={isReady} modelName={selectedModel?.name} />
+              </Box>
 
-          <Box className={styles.inputArea}>
-            <MessageInput onSend={handleSendMessage} disabled={!isReady || Boolean(isGenerating)} />
-          </Box>
+              <Box className={styles.inputArea}>
+                <MessageInput onSend={handleSendMessage} disabled={!isReady || Boolean(isGenerating)} />
+              </Box>
+            </>
+          )}
         </Stack>
       </Flex>
     </Container>

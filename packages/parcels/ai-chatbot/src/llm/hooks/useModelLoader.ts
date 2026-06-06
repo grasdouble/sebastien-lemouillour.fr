@@ -6,7 +6,7 @@ import { useCallback, useState } from 'react';
 
 import type { LLMProviderInstance } from '../provider-factory';
 import type { ModelConfig, ModelLoadProgress } from '../types';
-import { createProvider } from '../provider-factory';
+import { createProvider, isModelCached } from '../provider-factory';
 
 /**
  * React hook for loading LLM models with progress tracking
@@ -32,10 +32,15 @@ export function useModelLoader() {
       let cancelled = false;
 
       setLastAttemptedModel(model);
+
+      // Check if model is in cache
+      const modelInCache = model.webllmModelId ? await isModelCached(model.webllmModelId) : false;
+
       setProgress({
         loaded: false,
         progress: 0,
         status: 'downloading',
+        loadingFromCache: modelInCache,
         timeElapsedMs: 0,
       });
 
@@ -50,6 +55,7 @@ export function useModelLoader() {
               ...prev,
               progress: progressValue,
               status: progressValue === 100 ? 'loading' : 'downloading',
+              loadingFromCache: modelInCache,
               timeElapsedMs: Date.now() - startTime,
             }));
           }
@@ -61,6 +67,7 @@ export function useModelLoader() {
             loaded: true,
             progress: 100,
             status: 'ready',
+            loadingFromCache: modelInCache,
             timeElapsedMs: Date.now() - startTime,
           });
         } else {
@@ -73,6 +80,7 @@ export function useModelLoader() {
             loaded: false,
             progress: 0,
             status: 'error',
+            loadingFromCache: false,
             error: error as Error,
             timeElapsedMs: Date.now() - startTime,
           });

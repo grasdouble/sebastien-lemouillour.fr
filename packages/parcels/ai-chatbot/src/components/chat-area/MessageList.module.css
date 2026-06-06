@@ -54,8 +54,6 @@
 /* Wrapper for constrained width */
 .messageWrapper {
   max-width: 48rem;
-  margin: 0 auto;
-  padding: 0 var(--lufa-spacing-default);
 }
 
 .messageContent {
