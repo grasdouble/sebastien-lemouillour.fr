@@ -71,7 +71,7 @@ export const VENDORS = [
   {
     name: 'rehype-highlight',
     entry: 'src/rehype-highlight.ts',
-    external: ['highlight.js'],
+    external: [],
   },
   {
     name: 'highlight',

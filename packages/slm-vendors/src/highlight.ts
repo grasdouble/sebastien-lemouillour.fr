@@ -22,4 +22,19 @@ hljs.registerLanguage('html', xml); // alias
 // CSS theme URL for consumers (relative to vendor CDN base URL)
 export const HIGHLIGHT_CSS_ATOM_ONE_DARK = '/styles/atom-one-dark.css';
 
+// Export language definitions for rehype-highlight configuration
+// These are bundled here so they're available in production without needing
+// to resolve subpaths of the peer dependency highlight.js
+export const LANGUAGES = {
+  bash,
+  css,
+  javascript,
+  json,
+  markdown,
+  python,
+  typescript,
+  xml,
+  html: xml, // alias
+};
+
 export default hljs;
