@@ -15,6 +15,7 @@
     "rehype-highlight": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm-vendors@1.0.2/rehype-highlight.mjs",
     "rehype-sanitize": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm-vendors@1.0.2/rehype-sanitize.mjs",
     "highlight.js": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm-vendors@1.0.2/highlight.mjs",
+    "highlight.js/": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm-vendors@1.0.2/highlight.mjs",
     "@grasdouble/slm_parcel_header-bar": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_header-bar@1.1.0",
     "@grasdouble/slm_parcel_landing-page": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_landing-page@1.2.13",
     "@grasdouble/slm_parcel_professional-experience": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_professional-experience@1.0.11",

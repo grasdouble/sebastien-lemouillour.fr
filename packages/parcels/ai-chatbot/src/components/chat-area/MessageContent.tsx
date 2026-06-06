@@ -1,14 +1,7 @@
 import type { FC } from 'react';
 import React from 'react';
 import type { Components } from 'react-markdown';
-import bash from 'highlight.js/lib/languages/bash';
-import css from 'highlight.js/lib/languages/css';
-import javascript from 'highlight.js/lib/languages/javascript';
-import json from 'highlight.js/lib/languages/json';
-import markdown from 'highlight.js/lib/languages/markdown';
-import python from 'highlight.js/lib/languages/python';
-import typescript from 'highlight.js/lib/languages/typescript';
-import xml from 'highlight.js/lib/languages/xml';
+import { LANGUAGES } from 'highlight.js';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSanitize from 'rehype-sanitize';
@@ -23,19 +16,6 @@ const HIGHLIGHT_CSS_URL =
   import.meta.env.MODE === 'development' || import.meta.env.MODE === 'preview'
     ? 'http://localhost:4099/styles/atom-one-dark.css'
     : 'https://cdn.sebastien-lemouillour.fr/@grasdouble/slm-vendors@1.0.1/styles/atom-one-dark.css';
-
-// Configure highlighting with only supported languages to prevent module resolution errors
-const highlightLanguages = {
-  bash,
-  css,
-  javascript,
-  json,
-  markdown,
-  python,
-  typescript,
-  xml,
-  html: xml, // alias
-};
 
 type MessageContentProps = {
   content: string;
@@ -76,7 +56,7 @@ export const MessageContent: FC<MessageContentProps> = ({ content, role }) => {
     <div className={styles.markdown}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeSanitize, [rehypeHighlight, { languages: highlightLanguages }]]}
+        rehypePlugins={[rehypeSanitize, [rehypeHighlight, { languages: LANGUAGES }]]}
         components={components}
       >
         {content}
