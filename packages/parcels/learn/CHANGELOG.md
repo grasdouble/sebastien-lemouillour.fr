@@ -1,5 +1,46 @@
 # @grasdouble/slm_parcel_learn
 
+## 1.4.0
+
+### Minor Changes
+
+- e895eb0: feat: add subcategory field to catalogs for hierarchical organization.
+
+  Added a new `subcategory` field to all catalog metadata (catalog.json files) with bilingual support (FR/EN). Subcategories represent a level within the parent category: "fondamentaux"/"fundamentals", "usage", "avancé"/"advanced", or "engineering".
+
+  This change distinguishes catalog subcategories from guide tags:
+  - **Catalog.subcategory** (string) — represents the catalog's level/purpose within its category
+  - **Tutorial.tags** (string[]) — represents guide-specific topics/keywords
+
+  Implementation includes:
+  - Updated type definitions (Catalog, CatalogTranslations) with `subcategory: string` field
+  - Added subcategory to all 16 catalogs across all categories (ia-llm, ia-llm-old, tooling, architecture)
+  - Updated data parsing logic to extract subcategory from translations
+  - Added comprehensive tests to ensure all catalogs have valid bilingual subcategories
+  - Updated CatalogCard component to display subcategory as a green badge alongside the guide count
+
+  Subcategories help users quickly identify the level and purpose of each catalog at a glance, while keeping the namespace separate from guide tags for future filtering features.
+
+- e895eb0: feat: split single-catalog subcategories into multiple catalogs.
+
+  Split 3 large catalogs with isolated subcategories into 6 balanced catalogs for better navigation:
+  - `prompting` (12) → `prompting-fundamentals` (6) + `prompting-advanced` (6)
+  - `agents-orchestration` (13) → `agents-fundamentals` (7) + `agents-orchestration-workflows` (6)
+  - `fine-tuning-optimization` (11) → `model-training-alignment` (5) + `model-optimization-deployment` (6)
+
+  This ensures every subcategory now has at least 2 catalogs, improving discoverability and organization.
+
+### Patch Changes
+
+- e895eb0: fix: use `--max-warnings 0` param with eslint
+- 5c7f700: fix: move markdown rendering dependencies to peer/dev dependencies.
+
+  Moved `react-markdown` and `remark-gfm` from direct dependencies to peerDependencies and devDependencies to reduce bundle size and clarify dependency relationships in the learn parcel.
+
+- e895eb0: chore: remove obsolete cross-guide references after catalog reorganization. Cleaned up 27 guide files (18 FR + 9 EN) to remove references like "read the guide on X" or "the next guide" that became outdated after splitting catalogs. Guides are now fully autonomous without navigation assumptions.
+- Updated dependencies [e895eb0]
+  - @grasdouble/slm_shared@1.1.2
+
 ## 1.3.4
 
 ### Patch Changes

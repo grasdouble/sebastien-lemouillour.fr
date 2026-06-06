@@ -1,5 +1,11 @@
 # @grasdouble/slm_plugin_vite_react-preamble
 
+## 1.0.5
+
+### Patch Changes
+
+- e895eb0: fix: use `--max-warnings 0` param with eslint
+
 ## 1.0.4
 
 ### Patch Changes

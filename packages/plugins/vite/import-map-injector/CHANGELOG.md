@@ -1,5 +1,11 @@
 # @grasdouble/slm_plugin_vite_import-map-injector
 
+## 2.0.1
+
+### Patch Changes
+
+- e895eb0: fix: use `--max-warnings 0` param with eslint
+
 ## 2.0.0
 
 ### Major Changes
