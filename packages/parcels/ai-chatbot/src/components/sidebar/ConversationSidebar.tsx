@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { Box, Button, Card, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
 
 import type { Conversation } from '../../types/conversation';
-import styles from './ConversationHistory.module.css';
+import styles from './ConversationSidebar.module.css';
 
-type ConversationHistoryProps = {
+type ConversationSidebarProps = {
   conversations: Conversation[];
   currentConversationId: string | null;
   onSelectConversation: (id: string) => void;
@@ -14,7 +14,7 @@ type ConversationHistoryProps = {
   onNewConversation: () => void;
 };
 
-export const ConversationHistory: FC<ConversationHistoryProps> = ({
+export const ConversationSidebar: FC<ConversationSidebarProps> = ({
   conversations,
   currentConversationId,
   onSelectConversation,

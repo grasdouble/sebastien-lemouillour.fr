@@ -4,16 +4,16 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, Button, Container, Divider, Flex, Stack, Text } from '@grasdouble/lufa_design-system';
 
-import type { ChatMessage, ModelConfig } from '../../llm/types';
-import type { Message } from '../../types/message';
-import { useConversationHistory } from '../../hooks/useConversationHistory';
-import { useCapabilities, useModelLoader } from '../../llm';
-import { ConversationHistory } from '../conversation/ConversationHistory';
-import { LoadingIndicator, ModelSelector } from '../model';
-import { CapabilitiesWarning } from '../model/CapabilitiesWarning';
+import type { ChatMessage, ModelConfig } from '../llm/types';
+import type { Message } from '../types/message';
+import { useConversationHistory } from '../hooks/useConversationHistory';
+import { useCapabilities, useModelLoader } from '../llm';
+import { MessageInput } from './chat-area/MessageInput';
+import { MessageList } from './chat-area/MessageList';
 import styles from './ChatInterface.module.css';
-import { MessageInput } from './MessageInput';
-import { MessageList } from './MessageList';
+import { LoadingIndicator, ModelSelector } from './model-setup';
+import { CapabilitiesCheck } from './model-setup/CapabilitiesCheck';
+import { ConversationSidebar } from './sidebar/ConversationSidebar';
 
 export const ChatInterface: FC = () => {
   const { t } = useTranslation('ai-chatbot');
@@ -193,7 +193,7 @@ export const ChatInterface: FC = () => {
         {/* Sidebar with conversation history and settings */}
         <Box className={styles.sidebar} data-testid="chat-conversations-region">
           <Stack direction="vertical" spacing="none" style={{ height: '100%' }}>
-            <ConversationHistory
+            <ConversationSidebar
               conversations={conversations}
               currentConversationId={currentConversation?.id ?? null}
               onSelectConversation={handleLoadConversation}
@@ -209,10 +209,7 @@ export const ChatInterface: FC = () => {
                   disabled={Boolean(isGenerating) || loadingStatus === 'downloading' || loadingStatus === 'loading'}
                 />
 
-                <CapabilitiesWarning
-                  capabilities={capabilities}
-                  minRequiredMemoryGB={selectedModel?.minMemoryGB ?? 4}
-                />
+                <CapabilitiesCheck capabilities={capabilities} minRequiredMemoryGB={selectedModel?.minMemoryGB ?? 4} />
               </Stack>
             </Box>
           </Stack>

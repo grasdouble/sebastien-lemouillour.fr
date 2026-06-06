@@ -6,12 +6,12 @@ import { Badge, Box, Stack, Text } from '@grasdouble/lufa_design-system';
 
 import type { BrowserCapabilities } from '../../llm/types';
 
-type CapabilitiesWarningProps = {
+type CapabilitiesCheckProps = {
   capabilities: BrowserCapabilities;
   minRequiredMemoryGB?: number;
 };
 
-export const CapabilitiesWarning: FC<CapabilitiesWarningProps> = ({ capabilities, minRequiredMemoryGB = 4 }) => {
+export const CapabilitiesCheck: FC<CapabilitiesCheckProps> = ({ capabilities, minRequiredMemoryGB = 4 }) => {
   const { t } = useTranslation('ai-chatbot');
 
   const hasWebGPU = capabilities.hasWebGPU;

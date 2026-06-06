@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 import { Label, Stack, Text } from '@grasdouble/lufa_design-system';
 
-import type { ModelConfig } from '../../../llm/types';
-import { MODEL_REGISTRY } from '../../../llm/model-registry';
+import type { ModelConfig } from '../../llm/types';
+import { MODEL_REGISTRY } from '../../llm/model-registry';
 import styles from './ModelSelector.module.css';
 
 export type ModelSelectorProps = {

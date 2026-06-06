@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Badge, Box, Flex, Text } from '@grasdouble/lufa_design-system';
 
-import type { BrowserCapabilities } from '../../../llm/types';
+import type { BrowserCapabilities } from '../../llm/types';
 import styles from './CapabilitiesInfo.module.css';
 
 export type CapabilitiesInfoProps = {

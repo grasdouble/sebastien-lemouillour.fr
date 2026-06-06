@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { CapabilitiesWarning } from './CapabilitiesWarning';
+import { CapabilitiesCheck } from './CapabilitiesCheck';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -11,7 +11,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-describe('CapabilitiesWarning', () => {
+describe('CapabilitiesCheck', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
@@ -26,7 +26,7 @@ describe('CapabilitiesWarning', () => {
       canRunLargeModels: false,
     };
 
-    render(<CapabilitiesWarning capabilities={capabilities} />);
+    render(<CapabilitiesCheck capabilities={capabilities} />);
 
     expect(screen.getByText('chatbot.capabilities.noWebGPU.title')).toBeDefined();
   });
@@ -40,7 +40,7 @@ describe('CapabilitiesWarning', () => {
       canRunLargeModels: false,
     };
 
-    render(<CapabilitiesWarning capabilities={capabilities} minRequiredMemoryGB={4} />);
+    render(<CapabilitiesCheck capabilities={capabilities} minRequiredMemoryGB={4} />);
 
     expect(screen.getByText('chatbot.capabilities.lowMemory.title')).toBeDefined();
   });
@@ -54,7 +54,7 @@ describe('CapabilitiesWarning', () => {
       canRunLargeModels: true,
     };
 
-    const { container } = render(<CapabilitiesWarning capabilities={capabilities} minRequiredMemoryGB={4} />);
+    const { container } = render(<CapabilitiesCheck capabilities={capabilities} minRequiredMemoryGB={4} />);
 
     expect(container.firstChild).toBeNull();
   });
