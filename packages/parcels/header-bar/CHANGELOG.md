@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.0
+
+### Minor Changes
+
+- 5c7f700: feat: add AI chatbot parcel with browser-based LLM, conversation history, and navigation integration.
+
+### Patch Changes
+
+- e895eb0: fix: use `--max-warnings 0` param with eslint
+- Updated dependencies [e895eb0]
+  - @grasdouble/slm_shared@1.1.2
+
 ## 1.0.10
 
 ### Patch Changes

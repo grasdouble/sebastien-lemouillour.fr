@@ -1,5 +1,11 @@
 # @grasdouble/slm-vendors
 
+## 1.0.2
+
+### Patch Changes
+
+- 5c7f700: fix: configure ESLint and TypeScript properly to lint all source files without disabling safety rules.
+
 ## 1.0.1
 
 ### Patch Changes

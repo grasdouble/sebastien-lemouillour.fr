@@ -1,5 +1,11 @@
 # @grasdouble/slm_shared
 
+## 1.1.2
+
+### Patch Changes
+
+- e895eb0: fix: use `--max-warnings 0` param with eslint
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4
+
+### Patch Changes
+
+- e895eb0: fix: use `--max-warnings 0` param with eslint
+
 ## 1.0.3
 
 ### Patch Changes

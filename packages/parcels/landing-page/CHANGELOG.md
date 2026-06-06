@@ -1,5 +1,13 @@
 # @grasdouble/slm_parcel_landing-page
 
+## 1.2.13
+
+### Patch Changes
+
+- e895eb0: fix: use `--max-warnings 0` param with eslint
+- Updated dependencies [e895eb0]
+  - @grasdouble/slm_shared@1.1.2
+
 ## 1.2.12
 
 ### Patch Changes
