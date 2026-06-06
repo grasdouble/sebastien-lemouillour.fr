@@ -1,13 +1,25 @@
-import lufaNodeConfig from '@grasdouble/lufa_config_eslint/light.mjs';
+import lufaNodeConfig from '@grasdouble/lufa_config_eslint/node.mjs';
 
 export default [
   ...lufaNodeConfig,
   {
-    ignores: ['dist/**', 'src/**'],
+    ignores: ['dist/**'],
   },
   {
-    files: ['scripts/**/*.mjs'],
+    files: ['src/**/*.ts'],
     languageOptions: {
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
+    files: ['scripts/**/*.mjs', '*.config.mjs'],
+    languageOptions: {
+      parserOptions: {
+        project: false,
+      },
       globals: {
         console: 'readonly',
         process: 'readonly',

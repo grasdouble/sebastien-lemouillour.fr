@@ -1,0 +1,26 @@
+/* Custom textarea sizing with DS tokens - DS doesn't provide textarea component yet */
+.textarea {
+  flex: 1;
+  padding: var(--lufa-semantic-ui-spacing-default);
+  border: 1px solid var(--lufa-semantic-ui-border-default);
+  border-radius: var(--lufa-semantic-ui-border-radius-base);
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 80px;
+  background-color: var(--lufa-semantic-ui-background-input);
+  color: var(--lufa-semantic-ui-text-primary);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--lufa-semantic-ui-border-focus);
+  box-shadow: 0 0 0 2px var(--lufa-semantic-ui-background-focus-ring);
+}
+
+.textarea:disabled {
+  background-color: var(--lufa-semantic-ui-background-disabled);
+  color: var(--lufa-semantic-ui-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}

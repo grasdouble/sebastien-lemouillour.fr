@@ -10,9 +10,15 @@
     "@tanstack/react-router": "http://localhost:4099/tanstack-react-router.mjs",
     "clsx": "http://localhost:4099/clsx.mjs",
     "mermaid": "http://localhost:4099/mermaid.mjs",
+    "react-markdown": "http://localhost:4099/react-markdown.mjs",
+    "remark-gfm": "http://localhost:4099/remark-gfm.mjs",
+    "rehype-highlight": "http://localhost:4099/rehype-highlight.mjs",
+    "rehype-sanitize": "http://localhost:4099/rehype-sanitize.mjs",
+    "highlight.js": "http://localhost:4099/highlight.mjs",
     "@grasdouble/slm_parcel_header-bar": "http://localhost:4100/header-bar.mjs",
     "@grasdouble/slm_parcel_landing-page": "http://localhost:4101/home.mjs",
     "@grasdouble/slm_parcel_professional-experience": "http://localhost:4102/professional-experience.mjs",
-    "@grasdouble/slm_parcel_learn": "http://localhost:4103/learn.mjs"
+    "@grasdouble/slm_parcel_learn": "http://localhost:4103/learn.mjs",
+    "@grasdouble/slm_parcel_ai-chatbot": "http://localhost:4105/ai-chatbot.mjs"
   }
 }

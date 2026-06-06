@@ -1,0 +1,10 @@
+.container {
+  border-radius: var(--lufa-semantic-ui-border-radius-base);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--lufa-semantic-ui-spacing-default);
+  margin-top: var(--lufa-semantic-ui-spacing-default);
+}

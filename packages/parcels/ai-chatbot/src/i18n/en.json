@@ -1,0 +1,78 @@
+{
+  "chatbot": {
+    "title": "AI Chatbot",
+    "subtitle": "Chat with a language model running directly in your browser",
+    "capabilities": {
+      "title": "Browser capabilities",
+      "noWebGPU": {
+        "title": "WebGPU not available",
+        "description": "Your browser does not support WebGPU. High-performance models will not be available. Please use a recent browser (Chrome 113+, Edge 113+, etc.).",
+        "fallback": "You can still use lighter models with Transformers.js."
+      },
+      "lowMemory": {
+        "title": "Insufficient memory",
+        "description": "Your device has {{current}} GB of memory, but {{required}} GB is recommended for this model.",
+        "suggestion": "Try a smaller model."
+      }
+    },
+    "model": {
+      "title": "Model selection",
+      "select": "Select a model",
+      "loading": "Loading model...",
+      "loadingFromCache": "Loading from cache...",
+      "preparing": "Preparing download...",
+      "downloadProgress": "Downloading: {{progress}}%",
+      "ready": "Model ready",
+      "error": "Error loading model",
+      "unload": "Unload model",
+      "info": {
+        "size": "Size",
+        "parameters": "Parameters",
+        "minMemory": "Min. memory",
+        "requiresWebGPU": "Requires WebGPU"
+      }
+    },
+    "chat": {
+      "empty": "Start a conversation by selecting a model and typing a message.",
+      "welcome": "How can I help you today?",
+      "welcomeSubtitle": "Powered by {{modelName}}",
+      "selectModel": "Select a model from the sidebar to get started",
+      "placeholder": "Type your message...",
+      "send": "Send",
+      "clear": "Clear conversation",
+      "emptyState": "Start a conversation by selecting a model and typing a message.",
+      "generating": "Generating...",
+      "error": "An error occurred",
+      "loadError": "Error loading model. Please try again.",
+      "retry": "Retry",
+      "input": {
+        "placeholder": "Type your message...",
+        "label": "Message",
+        "send": "Send"
+      }
+    },
+    "examples": {
+      "creative": "Creative",
+      "creativeExample": "Write me a poem about nature",
+      "explain": "Explain",
+      "explainExample": "Explain how machine learning works",
+      "code": "Code",
+      "codeExample": "Create a JavaScript function to sort an array"
+    },
+    "message": {
+      "user": "You",
+      "assistant": "Assistant",
+      "copy": "Copy",
+      "copied": "Copied!"
+    },
+    "history": {
+      "new": "New conversation",
+      "empty": "No saved conversations",
+      "load": "Load conversation",
+      "delete": "Delete conversation",
+      "confirmDelete": "Are you sure you want to delete this conversation?",
+      "messages": "messages",
+      "defaultTitle": "New conversation"
+    }
+  }
+}

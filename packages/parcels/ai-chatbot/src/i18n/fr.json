@@ -1,0 +1,78 @@
+{
+  "chatbot": {
+    "title": "Chatbot IA",
+    "subtitle": "Discutez avec un modèle de langage exécuté directement dans votre navigateur",
+    "capabilities": {
+      "title": "Capacités du navigateur",
+      "noWebGPU": {
+        "title": "WebGPU non disponible",
+        "description": "Votre navigateur ne supporte pas WebGPU. Les modèles performants ne seront pas disponibles. Veuillez utiliser un navigateur récent (Chrome 113+, Edge 113+, etc.).",
+        "fallback": "Vous pouvez quand même utiliser des modèles plus légers avec Transformers.js."
+      },
+      "lowMemory": {
+        "title": "Mémoire insuffisante",
+        "description": "Votre appareil dispose de {{current}} GB de mémoire, mais {{required}} GB sont recommandés pour ce modèle.",
+        "suggestion": "Essayez un modèle plus petit."
+      }
+    },
+    "model": {
+      "title": "Sélection du modèle",
+      "select": "Sélectionnez un modèle",
+      "loading": "Chargement du modèle...",
+      "loadingFromCache": "Chargement depuis le cache...",
+      "preparing": "Préparation du téléchargement...",
+      "downloadProgress": "Téléchargement : {{progress}}%",
+      "ready": "Modèle prêt",
+      "error": "Erreur lors du chargement du modèle",
+      "unload": "Décharger le modèle",
+      "info": {
+        "size": "Taille",
+        "parameters": "Paramètres",
+        "minMemory": "Mémoire min.",
+        "requiresWebGPU": "Nécessite WebGPU"
+      }
+    },
+    "chat": {
+      "empty": "Commencez une conversation en sélectionnant un modèle et en tapant un message.",
+      "welcome": "Comment puis-je vous aider aujourd'hui ?",
+      "welcomeSubtitle": "Alimenté par {{modelName}}",
+      "selectModel": "Sélectionnez un modèle dans la barre latérale pour commencer",
+      "placeholder": "Saisissez votre message...",
+      "send": "Envoyer",
+      "clear": "Effacer la conversation",
+      "emptyState": "Commencez une conversation en sélectionnant un modèle et en tapant un message.",
+      "generating": "Génération...",
+      "error": "Une erreur s'est produite",
+      "loadError": "Erreur lors du chargement du modèle. Veuillez réessayer.",
+      "retry": "Réessayer",
+      "input": {
+        "placeholder": "Saisissez votre message...",
+        "label": "Message",
+        "send": "Envoyer"
+      }
+    },
+    "examples": {
+      "creative": "Créativité",
+      "creativeExample": "Écris-moi un poème sur la nature",
+      "explain": "Explication",
+      "explainExample": "Explique-moi comment fonctionne le machine learning",
+      "code": "Code",
+      "codeExample": "Crée une fonction JavaScript pour trier un tableau"
+    },
+    "message": {
+      "user": "Vous",
+      "assistant": "Assistant",
+      "copy": "Copier",
+      "copied": "Copié !"
+    },
+    "history": {
+      "new": "Nouvelle conversation",
+      "empty": "Aucune conversation enregistrée",
+      "load": "Charger la conversation",
+      "delete": "Supprimer la conversation",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette conversation ?",
+      "messages": "messages",
+      "defaultTitle": "Nouvelle conversation"
+    }
+  }
+}

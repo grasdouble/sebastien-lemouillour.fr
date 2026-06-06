@@ -41,14 +41,22 @@ export function useSyncExternalStoreWithSelector<Snapshot, Selection>(
 
     // Only apply isEqual optimisation when selector/isEqual are stable references
     if (cache !== null && cache.selector === selector && cache.isEqual === isEqual) {
-      if (isEqual ? isEqual(cache.sel, nextSel) : objectIs(cache.sel, nextSel)) {
+      const isEqualResult = isEqual ? isEqual(cache.sel, nextSel) : objectIs(cache.sel, nextSel);
+      if (isEqualResult) {
         // Selection is referentially equal — keep cached instance to avoid re-renders
-        cacheRef.current = { snap, sel: cache.sel, selector, isEqual };
+        const updatedCache: Cache<Snapshot, Selection> = {
+          snap,
+          sel: cache.sel,
+          selector,
+          isEqual,
+        };
+        cacheRef.current = updatedCache;
         return cache.sel;
       }
     }
 
-    cacheRef.current = { snap, sel: nextSel, selector, isEqual };
+    const newCache: Cache<Snapshot, Selection> = { snap, sel: nextSel, selector, isEqual };
+    cacheRef.current = newCache;
     return nextSel;
   };
 
