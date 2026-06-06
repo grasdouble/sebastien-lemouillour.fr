@@ -1,0 +1,17 @@
+# DO NOT EDIT -- overwritten on every update.
+#
+# Agent customization surface for gd-changeset-auditor.
+# Team overrides:     {project-root}/_bmad/custom/gd-changeset-auditor.toml
+# Personal overrides: {project-root}/_bmad/custom/gd-changeset-auditor.user.toml
+
+[agent]
+
+# --- Metadata (install-time roster contract) ---
+# Consumed by module.yaml:agents[] and `[agents.<code>]` in central config.
+
+code = "changeset-auditor"
+name = ""  # Learned during First Breath
+title = "Changeset Quality Auditor"
+icon = "🔍"
+description = "Audits changeset quality on branches, detects consolidation violations, and generates corrected changesets following AGENTS.md rules."
+agent_type = "memory"
