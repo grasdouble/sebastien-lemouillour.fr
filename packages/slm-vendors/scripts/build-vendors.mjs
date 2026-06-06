@@ -13,7 +13,7 @@
  * package version in the CDN URL.
  */
 
-import { mkdirSync, rmSync } from 'fs';
+import { cpSync, mkdirSync, rmSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { build } from 'esbuild';
@@ -44,5 +44,11 @@ for (const vendor of VENDORS) {
     minifySyntax: true,
   });
 }
+
+// Copy highlight.js CSS themes to dist/styles/ (always synced with installed version)
+console.log('Copying highlight.js styles…');
+cpSync(resolve(packageRoot, 'node_modules/highlight.js/styles'), resolve(packageRoot, 'dist/styles'), {
+  recursive: true,
+});
 
 console.log('✓ All vendor bundles built in dist/');

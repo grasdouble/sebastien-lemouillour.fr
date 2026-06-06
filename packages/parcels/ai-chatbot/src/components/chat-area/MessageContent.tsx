@@ -6,10 +6,15 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
 
-// Import highlight.js theme for code syntax highlighting
-import 'highlight.js/styles/atom-one-dark.css';
-
+import { useStylesheet } from '../../hooks/useStylesheet';
 import styles from './MessageContent.module.css';
+
+// Highlight.js CSS theme URL (served from slm-vendors)
+// In dev: localhost:4099, in prod: CDN
+const HIGHLIGHT_CSS_URL =
+  import.meta.env.MODE === 'development' || import.meta.env.MODE === 'preview'
+    ? 'http://localhost:4099/styles/atom-one-dark.css'
+    : 'https://cdn.sebastien-lemouillour.fr/@grasdouble/slm-vendors@1.0.1/styles/atom-one-dark.css';
 
 type MessageContentProps = {
   content: string;
@@ -17,6 +22,9 @@ type MessageContentProps = {
 };
 
 export const MessageContent: FC<MessageContentProps> = ({ content, role }) => {
+  // Load highlight.js CSS theme dynamically
+  useStylesheet(HIGHLIGHT_CSS_URL);
+
   // User messages are plain text, assistant messages support markdown
   if (role === 'user') {
     return <p className={styles.plainText}>{content}</p>;

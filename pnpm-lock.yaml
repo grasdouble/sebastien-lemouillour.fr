@@ -56,21 +56,6 @@ importers:
       '@xenova/transformers':
         specifier: ^2.17.2
         version: 2.17.2
-      highlight.js:
-        specifier: ^11.11.1
-        version: 11.11.1
-      react-markdown:
-        specifier: ^10.1.0
-        version: 10.1.0(@types/react@19.2.16)(react@19.2.7)
-      rehype-highlight:
-        specifier: ^7.0.2
-        version: 7.0.2
-      rehype-sanitize:
-        specifier: ^6.0.0
-        version: 6.0.0
-      remark-gfm:
-        specifier: ^4.0.1
-        version: 4.0.1
     devDependencies:
       '@grasdouble/lufa_config_eslint':
         specifier: ^0.1.11
@@ -126,6 +111,9 @@ importers:
       happy-dom:
         specifier: ^20.9.0
         version: 20.9.0
+      highlight.js:
+        specifier: ^11.11.1
+        version: 11.11.1
       i18next:
         specifier: ^26.3.0
         version: 26.3.0(typescript@6.0.3)
@@ -147,6 +135,18 @@ importers:
       react-i18next:
         specifier: ^17.0.8
         version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.2.16)(react@19.2.7)
+      rehype-highlight:
+        specifier: ^7.0.2
+        version: 7.0.2
+      rehype-sanitize:
+        specifier: ^6.0.0
+        version: 6.0.0
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
       sort-package-json:
         specifier: ^3.6.1
         version: 3.6.1
@@ -377,12 +377,6 @@ importers:
       '@grasdouble/slm_shared':
         specifier: workspace:*
         version: link:../../shared
-      react-markdown:
-        specifier: ^10.1.0
-        version: 10.1.0(@types/react@19.2.16)(react@19.2.7)
-      remark-gfm:
-        specifier: ^4.0.1
-        version: 4.0.1
     devDependencies:
       '@grasdouble/lufa_config_eslint':
         specifier: ^0.1.11
@@ -465,6 +459,12 @@ importers:
       react-i18next:
         specifier: ^17.0.8
         version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.2.16)(react@19.2.7)
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
       sort-package-json:
         specifier: ^3.6.1
         version: 3.6.1
@@ -879,9 +879,24 @@ importers:
       '@grasdouble/lufa_config_eslint':
         specifier: ^0.1.10
         version: 0.1.11(eslint@10.4.1)(typescript@6.0.3)
+      '@grasdouble/lufa_config_prettier':
+        specifier: ^0.1.5
+        version: 0.1.5(prettier@3.8.3)
+      '@grasdouble/lufa_config_tsconfig':
+        specifier: ^0.1.4
+        version: 0.1.4
+      '@ianvs/prettier-plugin-sort-imports':
+        specifier: ^4.7.1
+        version: 4.7.1(prettier@3.8.3)
       '@tanstack/react-router':
         specifier: ^1.170.10
         version: 1.170.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@types/react':
+        specifier: ^19.2.16
+        version: 19.2.16
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.16)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -891,6 +906,9 @@ importers:
       eslint:
         specifier: ^10.4.1
         version: 10.4.1
+      highlight.js:
+        specifier: ^11.11.1
+        version: 11.11.1
       i18next:
         specifier: ^26.3.0
         version: 26.3.0(typescript@6.0.3)
@@ -900,6 +918,9 @@ importers:
       mermaid:
         specifier: ^11.15.0
         version: 11.15.0
+      prettier:
+        specifier: ^3.8.3
+        version: 3.8.3
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -909,6 +930,24 @@ importers:
       react-i18next:
         specifier: ^17.0.8
         version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.2.16)(react@19.2.7)
+      rehype-highlight:
+        specifier: ^7.0.2
+        version: 7.0.2
+      rehype-sanitize:
+        specifier: ^6.0.0
+        version: 6.0.0
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
+      sort-package-json:
+        specifier: ^3.6.1
+        version: 3.6.1
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
 
 packages:
 
