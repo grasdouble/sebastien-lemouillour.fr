@@ -1,5 +1,11 @@
 # @grasdouble/slm_parcel_ai-chatbot
 
+## 1.0.2
+
+### Patch Changes
+
+- d765370: fix: bundle highlight.js with rehype-highlight and add importmap subpath routing to prevent module resolution errors in production.
+
 ## 1.0.1
 
 ### Patch Changes
