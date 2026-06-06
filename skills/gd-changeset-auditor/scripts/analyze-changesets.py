@@ -13,7 +13,6 @@ Output: JSON structured data for LLM analysis.
 """
 
 import json
-import os
 import re
 import subprocess
 import sys
