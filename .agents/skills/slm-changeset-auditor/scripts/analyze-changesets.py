@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Changeset analysis script for gd-changeset-auditor.
+Changeset analysis script for slm-changeset-auditor.
 
 Performs mechanical analysis tasks:
 - Lists files modified on the current branch vs target branch

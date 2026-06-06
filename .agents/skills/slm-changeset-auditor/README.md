@@ -14,10 +14,10 @@ Catches every consolidation violation that familiarity with development flow mak
 
 ```bash
 # Interactive mode (default)
-gd-changeset-auditor
+slm-changeset-auditor
 
 # Analyze specific target branch
-gd-changeset-auditor --target=develop
+slm-changeset-auditor --target=develop
 ```
 
 ## Capabilities
@@ -54,7 +54,7 @@ gd-changeset-auditor --target=develop
 
 ### Memory Architecture
 
-- **Sanctum location:** `{project-root}/_bmad/memory/gd-changeset-auditor/`
+- **Sanctum location:** `{project-root}/_bmad/memory/slm-changeset-auditor/`
 - **Files:** PERSONA, CREED, BOND, MEMORY, CAPABILITIES, INDEX
 - **Session logs:** `sessions/YYYY-MM-DD.md`
 
@@ -90,7 +90,7 @@ Meticulous, strict, methodical. Zero tolerance for violations. Evidence-based fi
 ## Files
 
 ```
-gd-changeset-auditor/
+slm-changeset-auditor/
 ├── SKILL.md                           # Agent bootloader
 ├── customize.toml                     # Metadata (no override surface)
 ├── README.md                          # This file
@@ -113,10 +113,10 @@ gd-changeset-auditor/
 
 ```bash
 # First time (triggers First Breath)
-gd-changeset-auditor
+slm-changeset-auditor
 
 # Subsequent uses (normal rebirth)
-gd-changeset-auditor
+slm-changeset-auditor
 
 # The agent will:
 # 1. Read its sanctum (load its identity and learned patterns)

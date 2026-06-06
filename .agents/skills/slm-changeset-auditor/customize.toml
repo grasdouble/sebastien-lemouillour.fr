@@ -1,8 +1,8 @@
 # DO NOT EDIT -- overwritten on every update.
 #
-# Agent customization surface for gd-changeset-auditor.
-# Team overrides:     {project-root}/_bmad/custom/gd-changeset-auditor.toml
-# Personal overrides: {project-root}/_bmad/custom/gd-changeset-auditor.user.toml
+# Agent customization surface for slm-changeset-auditor.
+# Team overrides:     {project-root}/_bmad/custom/slm-changeset-auditor.toml
+# Personal overrides: {project-root}/_bmad/custom/slm-changeset-auditor.user.toml
 
 [agent]
 

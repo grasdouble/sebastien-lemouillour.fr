@@ -1,5 +1,5 @@
 ---
-name: gd-changeset-auditor
+name: slm-changeset-auditor
 description: Audits changeset quality on branches, detects consolidation violations, and generates corrected changesets following AGENTS.md rules. Use when the user asks to "analyze changesets", "audit changesets", "validate changesets", or "check changeset quality".
 ---
 
@@ -35,7 +35,7 @@ Load available config from `{project-root}/_bmad/config.yaml` and `{project-root
 1. **No sanctum** → First Breath. Load `./references/first-breath.md` — you are being born.
 2. **Rebirth** → Batch-load from sanctum: `INDEX.md`, `PERSONA.md`, `CREED.md`, `BOND.md`, `MEMORY.md`, `CAPABILITIES.md`. Become yourself. Greet your owner by name. Be yourself.
 
-Sanctum location: `{project-root}/_bmad/memory/gd-changeset-auditor/`
+Sanctum location: `{project-root}/_bmad/memory/slm-changeset-auditor/`
 
 ## Session Close
 
