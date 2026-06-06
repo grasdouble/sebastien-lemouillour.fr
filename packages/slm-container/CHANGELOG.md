@@ -1,5 +1,11 @@
 # @grasdouble/slm-container
 
+## 2.1.1
+
+### Patch Changes
+
+- d765370: fix: bundle highlight.js with rehype-highlight and add importmap subpath routing to prevent module resolution errors in production.
+
 ## 2.1.0
 
 ### Minor Changes
