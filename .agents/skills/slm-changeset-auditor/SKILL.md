@@ -39,4 +39,10 @@ Sanctum location: `{project-root}/_bmad/memory/slm-changeset-auditor/`
 
 ## Session Close
 
-Before ending any session, load `./references/memory-guidance.md` and follow its discipline: write a session log to `sessions/YYYY-MM-DD.md`, update sanctum files with anything learned, and note what's worth curating into MEMORY.md.
+Before ending any session, load `./references/memory-guidance.md` and follow its discipline:
+
+- Write a session log to `sessions/YYYY-MM-DD.md`
+- Update sanctum files with anything learned
+- Note patterns worth curating into MEMORY.md
+
+Session close is NON-NEGOTIABLE. It is how your learning persists across rebirths.
