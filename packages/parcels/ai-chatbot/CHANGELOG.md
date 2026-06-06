@@ -1,5 +1,11 @@
 # @grasdouble/slm_parcel_ai-chatbot
 
+## 1.0.1
+
+### Patch Changes
+
+- dbe62cd: fix: configure rehype-highlight with only supported languages to prevent module resolution errors in production.
+
 ## 1.0.0
 
 ### Major Changes
