@@ -1,7 +1,6 @@
 ---
-'@grasdouble/slm_parcel_ai-chatbot': minor
+'@grasdouble/slm_parcel_ai-chatbot': major
 '@grasdouble/slm_parcel_header-bar': minor
-'@grasdouble/slm_shared': major
 '@grasdouble/slm-container': minor
 ---
 
