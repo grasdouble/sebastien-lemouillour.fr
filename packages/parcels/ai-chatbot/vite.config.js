@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     react(),
     cssInjectedByJsPlugin(),
-    sitemapPlugin({ urls: () => [] }),
+    sitemapPlugin({ urls: [{ loc: '/ai/chat', changefreq: 'monthly', priority: '0.8' }] }),
     externalizeDeps({
       deps: false,
       devDeps: false,
