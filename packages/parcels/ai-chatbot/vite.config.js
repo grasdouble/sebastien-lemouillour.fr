@@ -28,11 +28,8 @@ export default defineConfig({
     lib: {
       assetsDir: 'assets',
       formats: ['es'],
-      entry: {
-        index: 'src/parcel.tsx',
-      },
+      entry: 'src/parcel.tsx',
       fileName: () => 'ai-chatbot.mjs',
-      preserveEntrySignatures: 'strict',
     },
     sourcemap: true,
   },
