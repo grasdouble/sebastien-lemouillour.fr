@@ -1,5 +1,11 @@
 # @grasdouble/slm_parcel_ai-chatbot
 
+## 1.1.0
+
+### Minor Changes
+
+- c044a4b: feat: add thinking indicator while model generates response
+
 ## 1.0.4
 
 ### Patch Changes
