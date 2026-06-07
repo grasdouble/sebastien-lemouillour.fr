@@ -1,5 +1,13 @@
 # @grasdouble/slm-container
 
+## 2.2.1
+
+### Patch Changes
+
+- 8334b31: fix: change default theme/mode for ocean light
+- Updated dependencies [49b213a]
+  - @grasdouble/slm_shared@1.1.3
+
 ## 2.2.0
 
 ### Minor Changes
