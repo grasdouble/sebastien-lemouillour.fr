@@ -3,7 +3,6 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { externalizeDeps } from 'vite-plugin-externalize-deps';
 
-import importMapInjectorPlugin from '@grasdouble/slm_plugin_vite_import-map-injector';
 import reactPreamblePlugin from '@grasdouble/slm_plugin_vite_react-preamble';
 
 import { PARCELS } from './src/parcels.ts';
@@ -48,11 +47,6 @@ export default defineConfig(() => {
     plugins: [
       dsVersionPlugin(),
       sitemapGeneratorPlugin(),
-      importMapInjectorPlugin({
-        devImportMap: 'src/importMap.dev.json',
-        previewImportMap: 'src/importMap.preview.json',
-        prodImportMap: 'src/importMap.json',
-      }),
       externalizeDeps({
         deps: false,
         devDeps: false,

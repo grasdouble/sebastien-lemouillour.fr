@@ -21,7 +21,7 @@ export const MessageList: FC<MessageListProps> = ({ messages, isReady, modelName
     return (
       <Box className={styles.emptyState}>
         <Flex direction="column" align="center" justify="center" gap="spacious">
-          <Text variant="h2" align="center">
+          <Text variant="h3" align="center">
             {isReady ? t('chatbot.chat.welcome') : t('chatbot.chat.selectModel')}
           </Text>
           {isReady && modelName && (

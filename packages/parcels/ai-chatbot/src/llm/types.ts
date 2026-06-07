@@ -30,6 +30,7 @@ export type ModelConfig = {
   requiresWebGPU: boolean;
   webllmModelId: string;
   description?: string;
+  descriptionKey?: string;
 };
 
 export type ModelLoadProgress = {

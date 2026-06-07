@@ -45,27 +45,56 @@
     </div>
     <div id="lufa-container"></div>
     <script type="module">
-      const isLocalMapMode = import.meta.env.DEV || import.meta.env.MODE === 'preview';
+      const isDev = import.meta.env.DEV;
+      const isPreview = import.meta.env.MODE === 'preview';
+      const isProd = !isDev && !isPreview;
 
-      if (isLocalMapMode) {
-        localStorage.setItem('devtools', 'true');
-        import('/src/main.js').catch((err) => {
-          console.error('Failed to load main.js in local import-map mode:', err);
-        });
-      } else {
-        fetch('https://cdn.sebastien-lemouillour.fr/importMap.json', { cache: 'no-cache' })
-          .then((res) => res.json())
-          .then((importMap) => {
-            const script = document.createElement('script');
-            script.type = 'overridable-importmap';
-            script.textContent = JSON.stringify(importMap, null, 2);
-            document.head.appendChild(script);
-          })
-          .then(() => import('/src/main.js'))
-          .catch((err) => {
-            console.error('Failed to load import map or main.js:', err);
-          });
+      async function loadJson(path) {
+        const res = await fetch(path, { cache: 'no-cache' });
+        return res.json();
       }
+
+      function deepMerge(base, overrides) {
+        const result = { ...base };
+        if (overrides.imports) {
+          result.imports = { ...result.imports, ...overrides.imports };
+        }
+        return result;
+      }
+
+      async function injectImportMap() {
+        let baseMapPath = '/importMap.json';
+        if (isProd) {
+          baseMapPath = 'https://cdn.sebastien-lemouillour.fr/importMap.json';
+        }
+
+        const baseMap = await loadJson(baseMapPath);
+        let finalMap = baseMap;
+
+        if (isDev) {
+          const devOverrides = await loadJson('/importMap.overrides.dev.json');
+          finalMap = deepMerge(baseMap, devOverrides);
+        } else if (isPreview) {
+          const previewOverrides = await loadJson('/importMap.overrides.preview.json');
+          finalMap = deepMerge(baseMap, previewOverrides);
+        }
+
+        const script = document.createElement('script');
+        script.type = 'importmap';
+        script.textContent = JSON.stringify(finalMap, null, 2);
+        document.head.insertBefore(script, document.head.firstChild);
+      }
+
+      async function initialize() {
+        localStorage.setItem('devtools', 'true');
+
+        await injectImportMap();
+        return import('/src/main.js');
+      }
+
+      initialize().catch((err) => {
+        console.error('Failed to initialize application:', err);
+      });
     </script>
   </body>
 </html>
