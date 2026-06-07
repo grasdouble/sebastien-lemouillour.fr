@@ -48,6 +48,7 @@ export function MermaidBlock({ chart }: MermaidBlockProps) {
   if (svg) {
     return (
       <div
+        data-testid="mermaid-block"
         dangerouslySetInnerHTML={{ __html: svg }}
         role="img"
         aria-label="Diagram"
@@ -58,6 +59,7 @@ export function MermaidBlock({ chart }: MermaidBlockProps) {
 
   return (
     <pre
+      data-testid="mermaid-block"
       aria-busy={!error}
       aria-label={error ? 'Diagram (error)' : 'Diagram (loading)'}
       className={styles['mermaid-container']}
