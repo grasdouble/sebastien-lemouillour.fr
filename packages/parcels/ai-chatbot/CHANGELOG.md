@@ -1,5 +1,11 @@
 # @grasdouble/slm_parcel_ai-chatbot
 
+## 1.0.3
+
+### Patch Changes
+
+- ec0af19: refactor: convert ai-chatbot model descriptions to i18n keys for better localization support.
+
 ## 1.0.2
 
 ### Patch Changes

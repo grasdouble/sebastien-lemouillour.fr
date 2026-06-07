@@ -1,5 +1,11 @@
 # @grasdouble/slm-container
 
+## 2.2.0
+
+### Minor Changes
+
+- ec0af19: feat: add import map overrides for preview environment and migrate to environment-based configuration. Refactor container's import map injection to use environment-specific override files and remove plugin dependency.
+
 ## 2.1.1
 
 ### Patch Changes
