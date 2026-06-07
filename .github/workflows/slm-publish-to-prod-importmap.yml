@@ -37,7 +37,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p /tmp/importmap-deploy
-          cp packages/slm-container/src/importMap.json /tmp/importmap-deploy/
+          cp packages/slm-container/public/importMap.json /tmp/importmap-deploy/
 
       - name: 📂 Deploy to FTP
         uses: ./.github/actions/ftp-deploy
