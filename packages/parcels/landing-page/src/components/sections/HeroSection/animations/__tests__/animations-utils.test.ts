@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { debounce, getOpacityScale, getThemeColor } from '../components/sections/HeroSection/animations/utils';
-import { getImageUrl } from '../getImageUrl';
+import { getImageUrl } from '../../../../../getImageUrl';
+import { debounce, getOpacityScale, getThemeColor } from '../utils';
 
 describe('animations utils', () => {
   beforeEach(() => {

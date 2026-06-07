@@ -3,7 +3,7 @@ import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import mermaid from 'mermaid';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MermaidBlock } from '../components/MermaidBlock/MermaidBlock';
+import { MermaidBlock } from '../MermaidBlock';
 
 vi.mock('mermaid', () => ({
   default: {

@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { CATEGORY_KEYS, DIFFICULTIES, isPublished, RAW_CATALOGS, RAW_LEARN_ITEMS } from '../data/learn';
-import { useCatalogs } from '../hooks/useCatalogs';
-import { useLearn } from '../hooks/useLearn';
+import { CATEGORY_KEYS, DIFFICULTIES, isPublished, RAW_CATALOGS, RAW_LEARN_ITEMS } from '../../data/learn';
+import { useCatalogs } from '../useCatalogs';
+import { useLearn } from '../useLearn';
 
 const i18nState = vi.hoisted(
   (): {

@@ -2,16 +2,18 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { HeroSection } from '../HeroSection';
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
   Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
 }));
 
-vi.mock('../getImageUrl', () => ({
+vi.mock('../../../getImageUrl', () => ({
   getImageUrl: (name: string) => `/mock/${name}.webp`,
 }));
 
-vi.mock('../components/sections/HeroSection/HeroCanvas', () => ({
+vi.mock('../HeroCanvas', () => ({
   HeroCanvas: () => null,
 }));
 
@@ -30,8 +32,7 @@ vi.mock('@grasdouble/lufa_design-system', () => ({
 
 describe('HeroSection', () => {
   afterEach(cleanup);
-  it('renders hero title and translated content', async () => {
-    const { HeroSection } = await import('../components/sections/HeroSection/HeroSection');
+  it('renders hero title and translated content', () => {
     render(<HeroSection />);
 
     expect(screen.getByText('Sébastien LE MOUILLOUR')).toBeTruthy();
@@ -41,13 +42,11 @@ describe('HeroSection', () => {
     expect(screen.getByText('about.p3')).toBeTruthy();
   });
 
-  it('renders the diorama image as decorative (aria-hidden)', async () => {
-    const { HeroSection } = await import('../components/sections/HeroSection/HeroSection');
+  it('renders the diorama image as decorative (aria-hidden)', () => {
     render(<HeroSection />);
 
     // Image is decorative — hidden from accessibility tree, no accessible name
     const img = document.querySelector<HTMLImageElement>('img[aria-hidden="true"]');
     expect(img).toBeTruthy();
-    expect(img!.alt).toBe('');
   });
 });

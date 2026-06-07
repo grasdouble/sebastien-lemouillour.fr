@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ChatInterface } from './ChatInterface';
+import { ChatInterface } from '../ChatInterface';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

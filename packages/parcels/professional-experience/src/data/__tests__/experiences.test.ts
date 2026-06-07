@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { EXPERIENCES } from '../data/experiences';
+import { EXPERIENCES } from '../experiences';
 
 const YEAR_MONTH = /^\d{4}-\d{2}$/;
 

@@ -8,7 +8,7 @@ import {
   isPublished,
   RAW_CATALOGS,
   RAW_LEARN_ITEMS,
-} from '../data/learn';
+} from '../learn';
 
 describe('learn data', () => {
   it('exposes category keys as a non-empty readonly array', () => {

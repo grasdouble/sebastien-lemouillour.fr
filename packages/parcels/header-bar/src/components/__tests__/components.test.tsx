@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LANG_CHANGE_EVENT, LangSwitcher } from '@grasdouble/slm_shared';
 
-import { NavBar, ThemeSelector } from '../components';
+import { NavBar, ThemeSelector } from '..';
 
 const mockState = vi.hoisted(
   (): {

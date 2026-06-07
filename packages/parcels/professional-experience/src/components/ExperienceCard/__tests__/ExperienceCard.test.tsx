@@ -2,8 +2,8 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { Experience } from '../data/experiences';
-import { ExperienceCard } from '../components/ExperienceCard/ExperienceCard';
+import type { Experience } from '../../../data/experiences';
+import { ExperienceCard } from '../ExperienceCard';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'fr' } }),

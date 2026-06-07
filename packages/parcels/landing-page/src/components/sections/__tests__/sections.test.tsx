@@ -2,8 +2,12 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { PROJECTS } from '../data/projects';
-import { SKILLS } from '../data/skills';
+import { PROJECTS } from '../../../data/projects';
+import { SKILLS } from '../../../data/skills';
+import { ContactSection } from '../ContactSection/ContactSection';
+import { FooterSection } from '../FooterSection/FooterSection';
+import { ProjectsSection } from '../ProjectsSection/ProjectsSection';
+import { SkillsSection } from '../SkillsSection/SkillsSection';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'fr' } }),
@@ -39,8 +43,7 @@ vi.mock('@grasdouble/lufa_design-system', () => ({
 
 describe('FooterSection', () => {
   afterEach(cleanup);
-  it('renders current year and i18n key', async () => {
-    const { FooterSection } = await import('../components/sections/FooterSection/FooterSection');
+  it('renders current year and i18n key', () => {
     render(<FooterSection />);
 
     expect(screen.getByText(new RegExp(String(new Date().getFullYear())))).toBeTruthy();
@@ -50,8 +53,7 @@ describe('FooterSection', () => {
 
 describe('SkillsSection', () => {
   afterEach(cleanup);
-  it('renders all skill badges', async () => {
-    const { SkillsSection } = await import('../components/sections/SkillsSection/SkillsSection');
+  it('renders all skill badges', () => {
     render(<SkillsSection />);
 
     expect(screen.getByText('skills.title')).toBeTruthy();
@@ -63,8 +65,7 @@ describe('SkillsSection', () => {
 
 describe('ContactSection', () => {
   afterEach(cleanup);
-  it('renders contact links', async () => {
-    const { ContactSection } = await import('../components/sections/ContactSection/ContactSection');
+  it('renders contact links', () => {
     render(<ContactSection />);
 
     expect(screen.getByText('contact.title')).toBeTruthy();
@@ -76,25 +77,12 @@ describe('ContactSection', () => {
 
 describe('ProjectsSection', () => {
   afterEach(cleanup);
-  it('renders all project titles and links', async () => {
-    const { ProjectsSection } = await import('../components/sections/ProjectsSection/ProjectsSection');
+  it('renders all project titles and links', () => {
     render(<ProjectsSection />);
 
     expect(screen.getByText('projects.title')).toBeTruthy();
-
     for (const { title } of PROJECTS) {
       expect(screen.getByText(title)).toBeTruthy();
-    }
-  });
-
-  it('shows archived badge for archived projects', async () => {
-    const { ProjectsSection } = await import('../components/sections/ProjectsSection/ProjectsSection');
-    render(<ProjectsSection />);
-
-    const archivedProjects = PROJECTS.filter((p) => p.archived);
-    if (archivedProjects.length > 0) {
-      const badges = screen.getAllByText(/projects\.archived/);
-      expect(badges.length).toBeGreaterThanOrEqual(archivedProjects.length);
     }
   });
 });

@@ -2,8 +2,8 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { Catalog } from '../data/learn';
-import { CatalogDetail } from '../components/CatalogDetail/CatalogDetail';
+import type { Catalog } from '../../../data/learn';
+import { CatalogDetail } from '../CatalogDetail';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

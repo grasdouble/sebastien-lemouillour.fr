@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { MessageList } from './MessageList';
+import { MessageList } from '../MessageList';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

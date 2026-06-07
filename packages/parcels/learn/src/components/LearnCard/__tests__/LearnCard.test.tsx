@@ -4,8 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type * as DesignSystem from '@grasdouble/lufa_design-system';
 
-import type { Tutorial } from '../data/learn';
-import { LearnCard } from '../components/LearnCard/LearnCard';
+import type { Tutorial } from '../../../data/learn';
+import { LearnCard } from '../LearnCard';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

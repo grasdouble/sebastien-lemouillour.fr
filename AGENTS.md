@@ -339,6 +339,25 @@ Parcel bundles are distributed via CDN as single files. Dynamic imports (`await 
 
 ---
 
+## Test files — Colocalize in `__tests__` at the same level as source
+
+All test files must be placed in a `__tests__` folder **at the same directory level as the file being tested**, not in a central location.
+
+- ✅ `src/components/Button/Button.tsx` → `src/components/Button/__tests__/Button.test.tsx`
+- ✅ `src/utils/format.ts` → `src/utils/__tests__/format.test.ts`
+- ✅ `src/hooks/useAuth.ts` → `src/hooks/__tests__/useAuth.test.ts`
+- ❌ `src/components/Button/Button.tsx` → `src/__tests__/Button.test.tsx` — wrong, centralizes tests
+- ❌ `src/components/Button/Button.tsx` → `src/components/Button/Button.test.tsx` — wrong, not in `__tests__` folder
+
+**Why this matters:**
+
+- Makes it easy to find tests for any file (look in the same directory)
+- Scales well as the project grows
+- Follows common JavaScript/TypeScript conventions (Jest, Vitest, etc.)
+- Reduces mental overhead when adding new tests
+
+---
+
 ## `index.ts` files — Barrels only, never logic
 
 `src/**/index.ts` files are globally excluded from coverage in the shared Vitest config. This means any logic placed in an `index.ts` will be silently invisible to coverage.
