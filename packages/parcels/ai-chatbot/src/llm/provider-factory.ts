@@ -2,6 +2,8 @@
  * Factory for creating LLM providers (WebLLM only)
  */
 
+import { CreateMLCEngine, hasModelInCache } from '@mlc-ai/web-llm';
+
 import type { ChatMessage, GenerationConfig, GenerationResult, ModelConfig, OnStreamCallback } from './types';
 
 /**
@@ -56,24 +58,11 @@ export type LLMProviderInstance = {
   unload(): Promise<void>;
 };
 
-// Memoized WebLLM module to avoid re-importing
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-let webLLMModule: Awaited<typeof import('@mlc-ai/web-llm')> | null = null;
-
-/**
- * Get or load WebLLM module (memoized)
- */
-async function getWebLLMModule() {
-  webLLMModule ??= await import('@mlc-ai/web-llm');
-  return webLLMModule;
-}
-
 /**
  * Check if a model is cached in IndexedDB
  */
 export async function isModelCached(modelId: string): Promise<boolean> {
   try {
-    const { hasModelInCache } = await getWebLLMModule();
     return await hasModelInCache(modelId);
   } catch {
     return false;
@@ -103,9 +92,6 @@ function createWebLLMProvider(model: ModelConfig): LLMProviderInstance {
 
   return {
     async load(onProgress?: (progress: number) => void): Promise<void> {
-      // Dynamic import to avoid bundling WebLLM in all parcels (memoized)
-      const { CreateMLCEngine } = await getWebLLMModule();
-
       engine = (await CreateMLCEngine(modelId, {
         initProgressCallback: (report: WebLLMProgressReport) => {
           if (onProgress && report.progress !== undefined) {

@@ -319,6 +319,26 @@ Run these commands to validate your changes before presenting them to the user. 
 
 ---
 
+## Parcels — No dynamic imports
+
+Parcel bundles are distributed via CDN as single files. Dynamic imports (`await import()`) cause Vite to create separate chunks, which are not deployed to the CDN and result in 404 errors in production.
+
+**Rule:** Always use static imports in parcels. If a dependency is needed, import it at the top of the file.
+
+- ✅ `import { CreateMLCEngine } from '@mlc-ai/web-llm';` — static import, bundled in the parcel
+- ❌ `await import('@mlc-ai/web-llm')` — creates a separate chunk that won't be on the CDN
+- ❌ `const module = await import('./utils')` — same issue, even for internal modules
+
+**Why this matters:**
+
+- Vite 8 removed support for `inlineDynamicImports` (deprecated)
+- CDN deployment copies only the main bundle file, not auto-generated chunks
+- Dynamic imports in parcels always fail in production with 404 errors
+
+**Exceptions:** None for parcels. If you need lazy loading, refactor the architecture or use route-based code splitting at the container level.
+
+---
+
 ## `index.ts` files — Barrels only, never logic
 
 `src/**/index.ts` files are globally excluded from coverage in the shared Vitest config. This means any logic placed in an `index.ts` will be silently invisible to coverage.
