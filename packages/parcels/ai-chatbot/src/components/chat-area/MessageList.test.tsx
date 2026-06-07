@@ -66,4 +66,35 @@ describe('MessageList', () => {
 
     expect(messageList).toBeDefined();
   });
+
+  it('displays thinking indicator when isGenerating is true', () => {
+    const messages = [
+      {
+        id: '1',
+        role: 'user' as const,
+        content: 'Tell me a story',
+        timestamp: new Date(),
+      },
+    ];
+
+    render(<MessageList messages={messages} isGenerating modelName="SmolLM2 135M" />);
+
+    expect(screen.getByText('chatbot.chat.generating')).toBeDefined();
+    expect(screen.getByLabelText('chatbot.message.assistant')).toBeDefined();
+  });
+
+  it('does not display thinking indicator when isGenerating is false', () => {
+    const messages = [
+      {
+        id: '1',
+        role: 'user' as const,
+        content: 'Tell me a story',
+        timestamp: new Date(),
+      },
+    ];
+
+    render(<MessageList messages={messages} isGenerating={false} />);
+
+    expect(screen.queryByText('chatbot.chat.generating')).toBeNull();
+  });
 });

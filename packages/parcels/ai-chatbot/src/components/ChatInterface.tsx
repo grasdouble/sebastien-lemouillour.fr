@@ -257,7 +257,12 @@ export const ChatInterface: FC = () => {
           {loadingStatus !== 'downloading' && loadingStatus !== 'loading' && loadingStatus !== 'error' && (
             <>
               <Box className={styles.messages}>
-                <MessageList messages={messages} isReady={isReady} modelName={selectedModel?.name} />
+                <MessageList
+                  messages={messages}
+                  isReady={isReady}
+                  modelName={selectedModel?.name}
+                  isGenerating={isGenerating}
+                />
               </Box>
 
               <Box className={styles.inputArea}>

@@ -12,9 +12,10 @@ type MessageListProps = {
   messages: Message[];
   isReady?: boolean;
   modelName?: string;
+  isGenerating?: boolean;
 };
 
-export const MessageList: FC<MessageListProps> = ({ messages, isReady, modelName }) => {
+export const MessageList: FC<MessageListProps> = ({ messages, isReady, modelName, isGenerating = false }) => {
   const { t } = useTranslation('ai-chatbot');
 
   if (messages.length === 0) {
@@ -89,6 +90,28 @@ export const MessageList: FC<MessageListProps> = ({ messages, isReady, modelName
             </Box>
           </div>
         ))}
+        {isGenerating && (
+          <div
+            className={`${styles.messageRow} ${styles.assistantRow}`}
+            role="article"
+            aria-label={t('chatbot.message.assistant')}
+            aria-live="polite"
+          >
+            <Box className={styles.messageWrapper}>
+              <Flex gap="default" align="start" className={styles.messageContent}>
+                <div className={styles.avatar}>🤖</div>
+                <Stack direction="vertical" spacing="tight" style={{ flex: 1, minWidth: 0 }}>
+                  <Text variant="body" weight="medium" size="sm">
+                    {modelName ? `${t('chatbot.message.assistant')} (${modelName})` : t('chatbot.message.assistant')}
+                  </Text>
+                  <Text variant="body" color="secondary">
+                    {t('chatbot.chat.generating')}
+                  </Text>
+                </Stack>
+              </Flex>
+            </Box>
+          </div>
+        )}
       </Stack>
     </Box>
   );
