@@ -16,11 +16,11 @@
     "rehype-sanitize": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm-vendors@1.0.4/rehype-sanitize.mjs",
     "highlight.js": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm-vendors@1.0.4/highlight.mjs",
     "highlight.js/": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm-vendors@1.0.4/highlight.mjs",
-    "@grasdouble/slm_parcel_header-bar": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_header-bar@1.1.0",
-    "@grasdouble/slm_parcel_landing-page": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_landing-page@1.2.13",
-    "@grasdouble/slm_parcel_professional-experience": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_professional-experience@1.0.11",
-    "@grasdouble/slm_parcel_learn": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_learn@1.4.0",
-    "@grasdouble/slm_parcel_ai-chatbot": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_ai-chatbot@1.1.0",
+    "@grasdouble/slm_parcel_header-bar": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_header-bar@1.1.1",
+    "@grasdouble/slm_parcel_landing-page": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_landing-page@1.2.14",
+    "@grasdouble/slm_parcel_professional-experience": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_professional-experience@1.0.12",
+    "@grasdouble/slm_parcel_learn": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_learn@1.4.1",
+    "@grasdouble/slm_parcel_ai-chatbot": "https://cdn.sebastien-lemouillour.fr/@grasdouble/slm_parcel_ai-chatbot@1.1.1",
     "@grasdouble/lufa_design-system": "https://cdn.sebastien-lemouillour.fr/@grasdouble/lufa_design-system@3.4.0",
     "@grasdouble/lufa_design-system-themes/": "https://cdn.sebastien-lemouillour.fr/@grasdouble/lufa_design-system-themes@1.1.7/"
   }

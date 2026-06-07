@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.1
+
+### Patch Changes
+
+- 49b213a: chore: colocalize test files in `__tests__` at the same level as source.
+
+  Test files are now organized according to the convention: tests are placed in a `__tests__` folder at the same directory level as the file being tested, not in a central location. This improves discoverability and follows standard JavaScript/TypeScript practices.
+
+- 8334b31: fix: change default theme/mode for ocean light
+- Updated dependencies [49b213a]
+  - @grasdouble/slm_shared@1.1.3
+
 ## 1.1.0
 
 ### Minor Changes
