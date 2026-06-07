@@ -1,5 +1,11 @@
 # @grasdouble/slm-vendors
 
+## 1.0.4
+
+### Patch Changes
+
+- ec0af19: refactor: update highlight.js import to use full library with automatic language detection instead of manual registration.
+
 ## 1.0.3
 
 ### Patch Changes
