@@ -73,6 +73,19 @@
       "confirmDelete": "Are you sure you want to delete this conversation?",
       "messages": "messages",
       "defaultTitle": "New conversation"
+    },
+    "models": {
+      "smollm2-360m": "Ultra-fast, ideal for testing",
+      "llama-3.2-1b": "Fast, great for simple conversations",
+      "qwen2.5-3b": "Excellent multilingual, native French support",
+      "llama-3.2-3b": "Balanced, versatile for daily use",
+      "hermes-3-llama-3.2-3b": "Optimized for complex instructions",
+      "phi-4-mini": "Excellent for reasoning and code",
+      "qwen2.5-7b": "Powerful multilingual, excellent French",
+      "llama-3.1-8b": "High quality, creativity and nuances",
+      "hermes-2-pro-llama-3-8b": "Better for instructions than Llama standard",
+      "deepseek-r1-qwen-7b": "Expert in complex reasoning and math",
+      "hermes-2-pro-mistral-7b": "Powerful for code and reasoning"
     }
   }
 }

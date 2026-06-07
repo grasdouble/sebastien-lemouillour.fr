@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import React from 'react';
 import type { Components } from 'react-markdown';
-import { LANGUAGES } from 'highlight.js';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSanitize from 'rehype-sanitize';
@@ -56,7 +55,7 @@ export const MessageContent: FC<MessageContentProps> = ({ content, role }) => {
     <div className={styles.markdown}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeSanitize, [rehypeHighlight, { languages: LANGUAGES }]]}
+        rehypePlugins={[rehypeSanitize, rehypeHighlight]}
         components={components}
       >
         {content}

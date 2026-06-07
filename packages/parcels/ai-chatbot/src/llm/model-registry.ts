@@ -16,7 +16,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 2,
     requiresWebGPU: true,
     webllmModelId: 'SmolLM2-360M-Instruct-q4f16_1-MLC',
-    description: 'Ultra-rapide, idéal pour tester',
+    descriptionKey: 'chatbot.models.smollm2-360m',
   },
   {
     id: 'llama-3.2-1b',
@@ -28,7 +28,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 2,
     requiresWebGPU: true,
     webllmModelId: 'Llama-3.2-1B-Instruct-q4f16_1-MLC',
-    description: 'Rapide, bon pour conversations simples',
+    descriptionKey: 'chatbot.models.llama-3.2-1b',
   },
 
   // Small models (~2-4B parameters) - Balanced performance
@@ -42,7 +42,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 3,
     requiresWebGPU: true,
     webllmModelId: 'Qwen2.5-3B-Instruct-q4f16_1-MLC',
-    description: 'Excellent multilingue, support français natif',
+    descriptionKey: 'chatbot.models.qwen2.5-3b',
   },
   {
     id: 'llama-3.2-3b',
@@ -54,7 +54,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 3,
     requiresWebGPU: true,
     webllmModelId: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',
-    description: 'Équilibré, polyvalent pour usage quotidien',
+    descriptionKey: 'chatbot.models.llama-3.2-3b',
   },
   {
     id: 'hermes-3-llama-3.2-3b',
@@ -66,7 +66,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 3,
     requiresWebGPU: true,
     webllmModelId: 'Hermes-3-Llama-3.2-3B-q4f16_1-MLC',
-    description: 'Optimisé pour instructions complexes',
+    descriptionKey: 'chatbot.models.hermes-3-llama-3.2-3b',
   },
   {
     id: 'phi-4-mini',
@@ -78,7 +78,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 4,
     requiresWebGPU: true,
     webllmModelId: 'Phi-4-mini-instruct-q4f16_1-MLC',
-    description: 'Excellent pour raisonnement et code',
+    descriptionKey: 'chatbot.models.phi-4-mini',
   },
 
   // Medium models (~7-8B parameters) - High quality responses
@@ -92,7 +92,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 6,
     requiresWebGPU: true,
     webllmModelId: 'Qwen2.5-7B-Instruct-q4f16_1-MLC',
-    description: 'Puissant multilingue, excellent en français',
+    descriptionKey: 'chatbot.models.qwen2.5-7b',
   },
   {
     id: 'llama-3.1-8b',
@@ -104,7 +104,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 6,
     requiresWebGPU: true,
     webllmModelId: 'Llama-3.1-8B-Instruct-q4f16_1-MLC',
-    description: 'Haute qualité, créativité et nuances',
+    descriptionKey: 'chatbot.models.llama-3.1-8b',
   },
   {
     id: 'hermes-2-pro-llama-3-8b',
@@ -116,7 +116,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 6,
     requiresWebGPU: true,
     webllmModelId: 'Hermes-2-Pro-Llama-3-8B-q4f16_1-MLC',
-    description: 'Meilleur pour instructions que Llama standard',
+    descriptionKey: 'chatbot.models.hermes-2-pro-llama-3-8b',
   },
   {
     id: 'deepseek-r1-qwen-7b',
@@ -128,7 +128,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 6,
     requiresWebGPU: true,
     webllmModelId: 'DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC',
-    description: 'Expert en raisonnement complexe et maths',
+    descriptionKey: 'chatbot.models.deepseek-r1-qwen-7b',
   },
   {
     id: 'hermes-2-pro-mistral-7b',
@@ -140,7 +140,7 @@ export const MODEL_REGISTRY: ModelConfig[] = [
     minMemoryGB: 6,
     requiresWebGPU: true,
     webllmModelId: 'Hermes-2-Pro-Mistral-7B-q4f16_1-MLC',
-    description: 'Performant pour code et raisonnement',
+    descriptionKey: 'chatbot.models.hermes-2-pro-mistral-7b',
   },
 ];
 

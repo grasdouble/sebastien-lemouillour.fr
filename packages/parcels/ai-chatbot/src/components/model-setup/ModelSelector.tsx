@@ -28,6 +28,13 @@ export const ModelSelector: FC<ModelSelectorProps> = ({ onSelect, selectedModel,
     [onSelect, disabled]
   );
 
+  const getModelDescription = (model: ModelConfig): string => {
+    if (model.descriptionKey) {
+      return t(model.descriptionKey);
+    }
+    return model.description ?? '';
+  };
+
   return (
     <Stack direction="vertical" spacing="compact">
       <Label htmlFor="model-select">
@@ -46,12 +53,15 @@ export const ModelSelector: FC<ModelSelectorProps> = ({ onSelect, selectedModel,
         <option value="" disabled>
           {t('chatbot.model.select')}
         </option>
-        {MODEL_REGISTRY.map((model) => (
-          <option key={model.id} value={model.id}>
-            {model.name} — {model.estimatedSizeGB}GB • {model.minMemoryGB}GB RAM
-            {model.description ? ` • ${model.description}` : ''}
-          </option>
-        ))}
+        {MODEL_REGISTRY.map((model) => {
+          const description = getModelDescription(model);
+          return (
+            <option key={model.id} value={model.id}>
+              {model.name} — {model.estimatedSizeGB}GB • {model.minMemoryGB}GB RAM
+              {description ? ` • ${description}` : ''}
+            </option>
+          );
+        })}
       </select>
     </Stack>
   );

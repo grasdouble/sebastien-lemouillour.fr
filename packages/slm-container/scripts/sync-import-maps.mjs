@@ -138,7 +138,7 @@ const parseCdnUrl = (url) => {
 
 // --- Sync logic ---
 
-const IMPORT_MAPS_DIR = resolve(PKG_ROOT, 'src');
+const IMPORT_MAPS_DIR = resolve(PKG_ROOT, 'public');
 const importMapFiles = readdirSync(IMPORT_MAPS_DIR).filter((f) => f.startsWith('importMap') && f.endsWith('.json'));
 
 let hasChanges = false;
@@ -160,7 +160,7 @@ for (const fileName of importMapFiles) {
     importMap.imports[key] = `${urlPrefix}${installedVersion}${urlSuffix}`;
     fileChanged = true;
     hasChanges = true;
-    console.log(`  src/${fileName}`);
+    console.log(`  public/${fileName}`);
     console.log(`    ${key} (${pkgName}): ${currentVersion} → ${installedVersion}`);
   }
 
