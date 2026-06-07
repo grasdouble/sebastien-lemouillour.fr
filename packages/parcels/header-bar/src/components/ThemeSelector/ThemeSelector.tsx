@@ -31,7 +31,7 @@ const MODE_EMOJI: Record<ThemeMode, string> = { light: '☀️', dark: '🌙', a
 export function ThemeSelector() {
   const { theme, mode, setTheme, setMode } = useTheme({
     defaultTheme: 'ocean' as ThemeName,
-    defaultMode: 'dark',
+    defaultMode: 'light',
   });
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
