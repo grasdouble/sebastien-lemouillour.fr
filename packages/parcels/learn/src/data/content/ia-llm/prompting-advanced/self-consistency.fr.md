@@ -3,8 +3,8 @@ id: self-consistency
 order: 8
 difficulty: intermediate
 tags: [prompting, reasoning, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Tu finis par stabiliser un prompt de raisonnement, puis la prod renvoie 42, 39, et « sans doute 41 » pour la même tâche. C’est à ce moment-là que l’auto-cohérence arrête de sentir le labo et commence à devenir utile.

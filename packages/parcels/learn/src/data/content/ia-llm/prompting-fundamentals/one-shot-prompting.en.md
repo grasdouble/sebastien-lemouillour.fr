@@ -3,8 +3,8 @@ id: one-shot-prompting
 order: 5
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 You ask an LLM, short for large language model, for one clean label, and it still adds a sentence you never wanted. That kind of miss is common, so if you feel stuck here, you are not doing anything wrong.

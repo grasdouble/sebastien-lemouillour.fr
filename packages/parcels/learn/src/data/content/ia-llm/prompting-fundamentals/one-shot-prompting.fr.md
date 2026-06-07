@@ -3,8 +3,8 @@ id: one-shot-prompting
 order: 5
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Vous demandez à un LLM, c'est-à-dire un grand modèle de langage, de renvoyer un seul label propre, et il ajoute quand même une phrase inutile. Ce raté est très courant, donc si vous bloquez ici, vous n'êtes pas en train de mal faire les choses.

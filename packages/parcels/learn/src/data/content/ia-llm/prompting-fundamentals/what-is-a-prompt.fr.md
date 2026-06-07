@@ -3,8 +3,8 @@ id: what-is-a-prompt
 order: 1
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Vous avez déjà tapé quelque chose dans ChatGPT, appuyé sur Entrée, puis reçu une réponse si vague que vous ne saviez même pas quoi en faire. Si ça vous arrive souvent, vous n'êtes pas en retard. Les débutants commencent presque toujours par une demande trop courte en espérant que le modèle devinera le reste.
@@ -34,6 +34,4 @@ C'est la partie qui évite beaucoup de frustration. Un meilleur prompt peut guid
 
 C'est aussi pour ça que le prompting paraît bizarre au début. Vous n'écrivez pas du code au sens classique, mais vous guidez quand même un comportement. Si cela vous semble encore flou, tant mieux, presque tout le monde passe par là au départ.
 
-### Et ensuite
-
-Ensuite, passez à **La structure d'un bon prompt** et entraînez-vous à découper une demande brouillonne en tâche, contexte, contraintes et sortie. Ma règle de décision est simple : si deux réécritures soignées ratent encore la cible, arrêtez de polir la phrase et ajoutez de la structure, des exemples, ou un autre outil.
+Ma règle de décision est simple : si deux réécritures soignées ratent encore la cible, arrêtez de polir la phrase et ajoutez de la structure, des exemples, ou un autre outil.

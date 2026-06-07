@@ -3,8 +3,8 @@ id: few-shot-prompting
 order: 6
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Vous avez écrit un exemple propre, et le modèle se trompe encore sur les cas voisins. C'est souvent le moment d'arrêter de polir la formulation et de commencer à enseigner par l'exemple.
@@ -56,6 +56,6 @@ Ce prompt reste lisible parce que chaque exemple garde la même forme, que chaqu
 
 ### La limite à respecter
 
-Ajouter des exemples n'est pas gratuit. Chaque exemple ajoute des **tokens**, c'est-à-dire les morceaux de texte que le modèle lit, donc le prompt devient plus long, plus coûteux et plus pénible à maintenir. OpenAI présente l'amélioration comme une boucle entre évaluation, prompt engineering et, pour certains cas, fine-tuning, ce qui en fait la bonne étape suivante quand ajouter des exemples ne change plus les résultats réels ([guide OpenAI tuning](https://platform.openai.com/docs/guides/fine-tuning)).
+Ajouter des exemples n'est pas gratuit. Chaque exemple ajoute des **tokens**, c'est-à-dire les morceaux de texte que le modèle lit, donc le prompt devient plus long, plus coûteux et plus pénible à maintenir. L'amélioration suit une progression : d'abord mesurer vos résultats, puis affiner le prompt avec des exemples, et seulement si ça ne suffit plus, envisager le fine-tuning. Le fine-tuning vous permet d'imprégner ces motifs réussis directement dans le modèle au lieu de les entasser tous dans le prompt ([guide fine-tuning](https://platform.openai.com/docs/guides/fine-tuning)).
 
 Ma règle est simple : si chaque nouvel exemple ne corrige que son minuscule coin de problème, arrêtez d'allonger le prompt. La suite logique consiste à mesurer le comportement avec des évaluations, puis à regarder le fine-tuning seulement si les tests répétés montrent clairement que le few-shot a plafonné.

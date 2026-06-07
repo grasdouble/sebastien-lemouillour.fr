@@ -3,8 +3,8 @@ id: common-prompting-mistakes
 order: 3
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 You asked for a short answer and got a wall of text. Then you asked for something concise, and the next reply somehow got weirder. If that keeps happening, the model is not being dramatic, it is guessing.

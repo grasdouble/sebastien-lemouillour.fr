@@ -54,3 +54,12 @@ Before/after pairs for common antipatterns:
 ## EN and FR parity
 
 EN and FR must match in voice: same opinions, stance, and personality — not just structure. FR is not a reduced version; translate the narrative including the lightness and the humor. If a sentence punches in EN, it must punch in FR too — rephrase rather than translate literally when needed.
+
+**Literal translation trap:** Word-for-word translation from EN to FR produces phrases that are technically correct but sound unnatural or unclear. Always prioritize meaning and readability over lexical accuracy.
+
+- ❌ "Le cycle d'amélioration progresse des évaluations vers le prompt engineering, puis vers le fine-tuning" — literal, stiff, unclear progression
+- ✅ "Vous commencez par évaluer vos résultats, affinez le prompt, et vous ne tournez vers le fine-tuning que quand ajouter des exemples ne change plus rien" — active voice, clear steps
+- ❌ "Le fine-tuning vous permet de brocoder ces motifs réussis directement dans le modèle" — invented literal word, no meaning in French
+- ✅ "Le fine-tuning vous permet d'imprégner ces motifs réussis directement dans le modèle" — natural metaphor
+- ❌ "Le fine-tuning vous permet de cuire ces motifs" — misleading (cuire = cook, not appropriate)
+- ✅ "Le fine-tuning vous permet d'ancrer ces motifs" — alternative: anchors the patterns permanently

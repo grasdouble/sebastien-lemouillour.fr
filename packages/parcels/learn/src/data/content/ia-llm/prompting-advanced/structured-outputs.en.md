@@ -3,8 +3,8 @@ id: structured-outputs
 order: 12
 difficulty: intermediate
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Your parser passes every test until the model invents one enum value your queue worker has never seen. The JSON parses, the deploy looks green, and the failure lands in the next service.

@@ -3,8 +3,8 @@ id: structured-outputs
 order: 12
 difficulty: intermediate
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Ton parseur passe tous les tests jusqu’au jour où le modèle invente une valeur d’enum que ton worker n’a jamais vue. Le JSON se parse, le déploiement a l’air propre, et la casse arrive dans le service d’après.

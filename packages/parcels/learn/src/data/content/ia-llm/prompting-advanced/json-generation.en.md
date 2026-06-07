@@ -3,8 +3,8 @@ id: json-generation
 order: 11
 difficulty: intermediate
 tags: [prompting, evaluation, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Your parser does not fail during the demo. It fails when one polite sentence lands before the first brace and a cron job starts choking on it at 2 a.m.

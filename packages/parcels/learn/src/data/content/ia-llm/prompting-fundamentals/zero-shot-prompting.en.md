@@ -3,8 +3,8 @@ id: zero-shot-prompting
 order: 4
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 You ask for a short label, and the model sends back a tiny essay with opinions you never requested. That kind of wobble is common when you are starting out, and zero-shot prompting is the first fix I would try.
@@ -31,7 +31,7 @@ Message:
 "The new dashboard is easier to use, but exports still fail half the time."
 ```
 
-This works because the task is narrow, the allowed labels are explicit, and the output format is constrained. [Anthropic practices](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices) recommends being clear and specifying the format you want, and this prompt does exactly that.
+This works because the task is narrow, the allowed labels are explicit, and the output format is constrained. [Research on prompting strategies](https://arxiv.org/abs/2102.07350) shows that explicit task definitions improve model reliability, and this prompt does exactly that.
 
 ### When zero-shot starts to wobble
 

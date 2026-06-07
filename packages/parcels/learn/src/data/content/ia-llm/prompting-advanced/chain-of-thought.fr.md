@@ -3,15 +3,15 @@ id: chain-of-thought
 order: 7
 difficulty: intermediate
 tags: [prompting, reasoning, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Ton prompt a l’air solide jusqu’au moment où une exception et deux totaux débarquent dans la même entrée. Là, le modèle saute sur un verdict, oublie l’arithmétique, et te livre une réponse fausse avec beaucoup trop d’assurance.
 
 Le chain-of-thought devient utile précisément dans ce cas. Dans [Wei et al. 2022](https://arxiv.org/abs/2201.11903), le gain venait d’exemples few-shot avec des étapes intermédiaires explicites, ce qui améliore les tâches d’arithmétique, de bon sens et de raisonnement symbolique quand plusieurs étapes doivent s’enchaîner.
 
-Ma position : en 2026, le chain-of-thought visible n’est pas le réglage par défaut. Le [reasoning guide](https://platform.openai.com/docs/guides/reasoning) d’OpenAI explique que les reasoning models utilisent déjà des reasoning tokens internes, expose des niveaux d’effort comme `low` à `xhigh`, et indique que `gpt-5.5` part par défaut sur `medium`. L’[overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) d’Anthropic pousse la même logique sous un autre angle : pose d’abord des critères de réussite et des evals, parce que la latence et le coût se règlent souvent en choisissant le bon modèle avant de retoucher le prompt.
+En 2026, le chain-of-thought visible n’est pas le réglage par défaut. Le [reasoning guide](https://platform.openai.com/docs/guides/reasoning) d’OpenAI explique que les reasoning models utilisent déjà des reasoning tokens internes, expose des niveaux d’effort comme `low` à `xhigh`, et indique que `gpt-5.5` part par défaut sur `medium`. L’[overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) d’Anthropic pousse la même logique sous un autre angle : pose d’abord des critères de réussite et des evals, parce que la latence et le coût se règlent souvent en choisissant le bon modèle avant de retoucher le prompt.
 
 Du coup, je pars sur un raisonnement court et inspectable, pas sur un journal intime. Le [prompt guide](https://platform.openai.com/docs/guides/prompt-engineering) d’OpenAI rappelle aussi que la sortie Responses peut contenir des éléments liés au raisonnement en plus du texte. Raison de plus pour garder la réponse visible propre, valider le résultat final dans le code, et éviter de déverser de longues traces dans les logs si tu n’en as pas vraiment besoin.
 

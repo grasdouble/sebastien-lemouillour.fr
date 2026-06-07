@@ -3,8 +3,8 @@ id: few-shot-prompting
 order: 6
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 You wrote one clean example, and the model still gets the neighboring cases wrong. That is usually the moment to stop polishing the wording and start teaching by example.
@@ -56,6 +56,6 @@ This prompt stays readable because every example uses the same shape, each label
 
 ### The limit to respect
 
-More examples are not free. Each one adds **tokens**, the chunks of text the model reads, so the prompt gets longer, more expensive, and harder to maintain. OpenAI describes improvement as a loop of evals, prompt engineering, and, for some use cases, fine-tuning, which is the right next step once adding examples stops changing real results ([OpenAI tuning](https://platform.openai.com/docs/guides/fine-tuning)).
+More examples are not free. Each one adds **tokens**, the chunks of text the model reads, so the prompt gets longer, more expensive, and harder to maintain. The improvement cycle moves from evals, to prompt engineering, and then, for some use cases, to fine-tuning, which is the right next step once adding examples stops changing real results. Fine-tuning lets you bake those successful patterns directly into the model instead of packing them all into the prompt ([fine-tuning guide](https://platform.openai.com/docs/guides/fine-tuning)).
 
 My rule is simple: if each new example only fixes its own tiny corner case, stop growing the prompt. Next, measure the behavior with evals, and only look at fine-tuning if repeated tests show few-shot has clearly plateaued.

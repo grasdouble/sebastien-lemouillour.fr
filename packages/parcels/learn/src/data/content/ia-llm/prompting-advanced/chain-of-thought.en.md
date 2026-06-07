@@ -3,15 +3,15 @@ id: chain-of-thought
 order: 7
 difficulty: intermediate
 tags: [prompting, reasoning, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Your prompt looks solid until one exception and two totals land in the same input. Then the model jumps to a verdict, skips the arithmetic, and hands you a polished wrong answer.
 
 Chain-of-thought earns its keep in that exact situation. In [Wei et al. 2022](https://arxiv.org/abs/2201.11903), the gain came from few-shot examples that included intermediate reasoning, which improved arithmetic, commonsense, and symbolic tasks when the model had to make several linked steps.
 
-My stance: in 2026, visible chain-of-thought is not the default. OpenAI's [reasoning guide](https://platform.openai.com/docs/guides/reasoning) says reasoning models already spend internal reasoning tokens, exposes effort controls such as `low` to `xhigh`, and defaults `gpt-5.5` to `medium`. Anthropic's [overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) makes the same practical point from another angle: define success criteria and evals before tuning wording, because latency and cost are often a model-choice problem before they are a prompt problem.
+In 2026, visible chain-of-thought is not the default. OpenAI's [reasoning guide](https://platform.openai.com/docs/guides/reasoning) says reasoning models already spend internal reasoning tokens, exposes effort controls such as `low` to `xhigh`, and defaults `gpt-5.5` to `medium`. Anthropic's [overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) makes the same practical point from another angle: define success criteria and evals before tuning wording, because latency and cost are often a model-choice problem before they are a prompt problem.
 
 So I start with short, inspectable reasoning, not a diary. OpenAI's [prompt guide](https://platform.openai.com/docs/guides/prompt-engineering) also reminds you that Responses output can contain reasoning-related items in addition to text. That is one more reason to keep the customer-facing answer clean, validate the final result in code, and avoid dumping long traces into logs unless you truly need them.
 

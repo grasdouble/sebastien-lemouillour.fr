@@ -3,8 +3,8 @@ id: structure-of-a-good-prompt
 order: 2
 difficulty: beginner
 tags: [prompting, tokens, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 La boîte vide du chat est trompeuse. Elle vous pousse à écrire un paragraphe flou, puis le modèle, c'est-à-dire l'IA qui répond, traite surtout la version qu'il a devinée au lieu de celle que vous aviez en tête.
@@ -66,4 +66,4 @@ Contraintes : Utilise moins de 150 mots, évite le jargon, ajoute une analogie d
 Sortie : Un paragraphe court suivi de deux puces intitulées « Pourquoi c'est utile ».
 ```
 
-Si ce schéma vous paraît déjà naturel, lisez ensuite **zero-shot prompting**, puis **prompt templates** quand vous commencez à réutiliser la même structure. Ma règle est simple : dès qu'un prompt dépasse vraiment ces quatre blocs ou qu'il commence à être copié partout, arrêtez de le polir et transformez-le en template.
+Ma règle est simple : dès qu'un prompt dépasse vraiment ces quatre blocs ou qu'il commence à être copié partout, arrêtez de le polir et transformez-le en template.

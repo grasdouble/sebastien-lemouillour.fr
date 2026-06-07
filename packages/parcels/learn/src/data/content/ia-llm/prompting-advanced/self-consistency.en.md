@@ -3,8 +3,8 @@ id: self-consistency
 order: 8
 difficulty: intermediate
 tags: [prompting, reasoning, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 You finally get a reasoning prompt to behave, then production returns 42, 39, and "probably 41" for the same task. That is when self-consistency stops sounding academic and starts paying rent.

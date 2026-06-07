@@ -3,8 +3,8 @@ id: common-prompting-mistakes
 order: 3
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Vous avez demandé une réponse courte, et vous avez reçu un pavé. Puis vous avez demandé quelque chose de concis, et la réponse suivante est devenue encore plus étrange. Quand ça arrive, le modèle ne fait pas du théâtre, il devine.

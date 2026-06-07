@@ -3,8 +3,8 @@ id: zero-shot-prompting
 order: 4
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Vous demandez un label court, et le modèle vous renvoie un mini essai avec des opinions que vous n'avez jamais demandées. Ce genre d'écart est courant quand on débute, et le zero-shot prompting est le premier correctif que j'essaierais.
@@ -31,7 +31,7 @@ Message :
 "Le nouveau dashboard est plus simple à utiliser, mais les exports échouent encore une fois sur deux."
 ```
 
-Cela fonctionne parce que la tâche est étroite, les labels autorisés sont explicites et le format de sortie est contraint. Les [pratiques Anthropic](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices) recommandent d'être clair et de préciser le format attendu, et ce prompt le fait exactement.
+Cela fonctionne parce que la tâche est étroite, les labels autorisés sont explicites et le format de sortie est contraint. La [recherche sur les stratégies de prompting](https://arxiv.org/abs/2102.07350) montre que des définitions claires de tâches améliorent la fiabilité des modèles, et ce prompt le fait exactement.
 
 ### Quand le zero-shot commence à vaciller
 

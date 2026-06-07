@@ -3,8 +3,8 @@ id: json-generation
 order: 11
 difficulty: intermediate
 tags: [prompting, evaluation, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 Ton parseur ne casse pas pendant la démo. Il casse quand une phrase trop polie se glisse avant la première accolade et qu’un cron commence à s’étouffer à 2 heures du matin.

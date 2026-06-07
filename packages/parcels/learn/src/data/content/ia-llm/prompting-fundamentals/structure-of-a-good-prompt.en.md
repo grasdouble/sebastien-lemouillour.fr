@@ -3,8 +3,8 @@ id: structure-of-a-good-prompt
 order: 2
 difficulty: beginner
 tags: [prompting, tokens, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 The blank chat box is sneaky. It invites you to type one fuzzy paragraph, then the model, meaning the AI system answering you, replies to the version it guessed instead of the one you meant.
@@ -66,4 +66,4 @@ Constraints: Use fewer than 150 words, avoid jargon, include one everyday analog
 Output: One short paragraph followed by two bullet points titled "Why it helps".
 ```
 
-If this feels manageable, read **zero-shot prompting** next, then **prompt templates** when you start reusing the same structure. My rule is simple: once a prompt needs more than four fields or keeps getting copied around, stop polishing it and turn it into a template.
+My rule is simple: once a prompt needs more than four fields or keeps getting copied around, stop polishing it and turn it into a template.

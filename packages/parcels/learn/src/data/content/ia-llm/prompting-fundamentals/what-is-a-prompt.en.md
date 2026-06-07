@@ -3,8 +3,8 @@ id: what-is-a-prompt
 order: 1
 difficulty: beginner
 tags: [prompting, llm]
-publishedAt: 2026-06-08
-updatedAt: 2026-06-08
+publishedAt: 2026-06-07
+updatedAt: 2026-06-07
 ---
 
 You've typed something into ChatGPT, hit enter, and gotten an answer so vague you had no idea what to do with it. If that keeps happening, you are not behind. Beginners usually start with a short request and hope the model will guess the rest.
@@ -34,6 +34,4 @@ This is the part that saves a lot of frustration. A better prompt can guide the 
 
 That limitation is why prompting feels odd at first. You are not writing code in the classic sense, but you are still shaping behavior. If that still feels fuzzy, good, it feels that way for almost everyone at the start.
 
-### What next
-
-Next, move to **Structure of a Good Prompt** and practice splitting one messy request into task, context, constraints, and output. My decision rule is simple: if two careful rewrites still miss the mark, stop polishing the sentence and add structure, examples, or a different tool.
+My decision rule is simple: if two careful rewrites still miss the mark, stop polishing the sentence and add structure, examples, or a different tool.
