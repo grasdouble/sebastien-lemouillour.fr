@@ -1,5 +1,11 @@
 # @grasdouble/slm_parcel_ai-chatbot
 
+## 1.0.4
+
+### Patch Changes
+
+- d5fa4b0: fix: remove dynamic import of @mlc-ai/web-llm to prevent 404 errors on CDN and avoid deprecated Vite options.
+
 ## 1.0.3
 
 ### Patch Changes
