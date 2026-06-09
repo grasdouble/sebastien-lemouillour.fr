@@ -1,5 +1,11 @@
 # @grasdouble/slm-container
 
+## 2.2.2
+
+### Patch Changes
+
+- cd551b1: chore: add robots meta tag for SEO indexation
+
 ## 2.2.1
 
 ### Patch Changes
