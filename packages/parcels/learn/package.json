@@ -12,7 +12,7 @@
     ".": {
       "import": "./dist/learn.mjs"
     },
-    "./sitemap.xml": "./dist/sitemap.xml",
+    "./sitemap-publishedAt-filter.json": "./dist/sitemap-publishedAt-filter.json",
     "./package.json": "./package.json"
   },
   "files": [
