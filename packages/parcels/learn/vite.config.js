@@ -3,15 +3,15 @@ import { defineConfig } from 'vite';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 import { externalizeDeps } from 'vite-plugin-externalize-deps';
 
-import sitemapPlugin from '@grasdouble/slm_plugin_vite_sitemap-generator';
+import { sitemapPublishedAtFilterPlugin } from '@grasdouble/slm_plugin_vite_sitemap-generator';
 
-import { buildLearnUrls } from './build/sitemap-urls.js';
+import { buildLearnManifestUrls } from './build/sitemap-urls.js';
 
 export default defineConfig({
   plugins: [
     react(),
     cssInjectedByJsPlugin(),
-    sitemapPlugin({ urls: buildLearnUrls }),
+    sitemapPublishedAtFilterPlugin({ urls: buildLearnManifestUrls }),
     externalizeDeps({
       deps: false,
       devDeps: false,

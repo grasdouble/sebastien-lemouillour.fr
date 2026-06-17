@@ -4,13 +4,14 @@
  * @property {string} [lastmod] - ISO date (YYYY-MM-DD). Defaults to today.
  * @property {string} [changefreq] - Change frequency. Defaults to 'monthly'.
  * @property {string} [priority] - Priority (0.0–1.0). Defaults to '0.5'.
+ * @property {string} [publishedAt] - ISO date (YYYY-MM-DD). When present, used by sitemap-publishedAt-filter consumers to filter unpublished URLs.
  */
 
 /**
  * @typedef {Object} SitemapPluginOptions
  * @property {string} [baseUrl] - Base URL prepended to any `loc` starting with `/`.
- * @property {SitemapUrl[] | (() => SitemapUrl[])} urls
- *   Static array of URL entries, or a factory function returning them.
+ * @property {SitemapUrl[] | (() => SitemapUrl[] | Promise<SitemapUrl[]>)} urls
+ *   Static array of URL entries, or a factory function returning them (sync or async).
  *   Pass an empty array to emit an empty urlset (e.g. for utility parcels).
  */
 
@@ -61,9 +62,37 @@ function buildSitemapXml(entries, baseUrl) {
 export default function sitemapPlugin({ baseUrl = 'https://sebastien-lemouillour.fr', urls = [] } = {}) {
   return {
     name: 'slm-sitemap',
-    generateBundle() {
-      const resolvedUrls = typeof urls === 'function' ? urls() : urls;
+    async generateBundle() {
+      const raw = typeof urls === 'function' ? urls() : urls;
+      const resolvedUrls = Array.isArray(raw) ? raw : await raw;
       this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: buildSitemapXml(resolvedUrls, baseUrl) });
+    },
+  };
+}
+
+/**
+ * Vite plugin that generates `dist/sitemap-publishedAt-filter.json` at build time.
+ *
+ * Designed for parcels that publish content with a publication date (guides, articles…).
+ * The file contains all URL entries (unfiltered) with their optional `publishedAt` fields.
+ * Consumers (e.g. a server-side proxy) filter by `publishedAt <= today` at request time
+ * so unpublished content never appears in the sitemap without a rebuild.
+ *
+ * @param {SitemapPluginOptions} options
+ * @returns {import('vite').Plugin}
+ *
+ * @example
+ * sitemapPublishedAtFilterPlugin({ baseUrl: 'https://example.com', urls: () => buildLearnManifestUrls() })
+ * sitemapPublishedAtFilterPlugin({ baseUrl: 'https://example.com', urls: async () => fetchUrls() })
+ */
+export function sitemapPublishedAtFilterPlugin({ baseUrl = 'https://sebastien-lemouillour.fr', urls = [] } = {}) {
+  return {
+    name: 'slm-sitemap-publishedAt-filter',
+    async generateBundle() {
+      const raw = typeof urls === 'function' ? urls() : urls;
+      const resolvedUrls = Array.isArray(raw) ? raw : await raw;
+      const manifest = JSON.stringify({ baseUrl, urls: resolvedUrls }, null, 2);
+      this.emitFile({ type: 'asset', fileName: 'sitemap-publishedAt-filter.json', source: manifest });
     },
   };
 }

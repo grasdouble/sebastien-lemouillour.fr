@@ -4,12 +4,14 @@ import { resolve } from 'node:path';
 const CONTENT_PATH = resolve(import.meta.dirname, '../src/data/content');
 const BASE_ROUTE = '/learn';
 
-/** Parses the `id:` field from YAML frontmatter delimited by `---`. */
-function parseGuideId(raw) {
+/** Parses `id` and `publishedAt` fields from YAML frontmatter delimited by `---`. */
+function parseFrontmatterFields(raw) {
   const parts = raw.split(/^---$/m);
   if (parts.length < 3) return null;
-  const match = /^id:\s*(\S+)/m.exec(parts[1]);
-  return match ? match[1] : null;
+  const idMatch = /^id:\s*(\S+)/m.exec(parts[1]);
+  if (!idMatch) return null;
+  const publishedAtMatch = /^publishedAt:\s*(\S+)/m.exec(parts[1]);
+  return { id: idMatch[1], publishedAt: publishedAtMatch ? publishedAtMatch[1] : null };
 }
 
 /** Returns the ISO date (YYYY-MM-DD) of a file's last modification. */
@@ -53,16 +55,87 @@ export function buildLearnUrls() {
       for (const file of readdirSync(catalogPath)) {
         if (!file.endsWith('.en.md')) continue;
         const filePath = resolve(catalogPath, file);
-        const guideId = parseGuideId(readFileSync(filePath, 'utf8'));
-        if (!guideId) continue;
+        const fields = parseFrontmatterFields(readFileSync(filePath, 'utf8'));
+        if (!fields) continue;
 
         urls.push({
-          loc: `${BASE_ROUTE}/${catalogDir}/${guideId}`,
+          loc: `${BASE_ROUTE}/${catalogDir}/${fields.id}`,
           lastmod: fileDate(filePath),
           changefreq: 'monthly',
           priority: '0.6',
         });
       }
+    }
+  }
+
+  return urls;
+}
+
+/**
+ * Builds the manifest URL list for the learn parcel.
+ * Each guide entry includes `publishedAt` from frontmatter so the sitemap proxy
+ * can filter dynamically at request time (publishedAt <= today).
+ * Catalog entries use the earliest guide publishedAt so they only appear when
+ * at least one guide is published.
+ */
+export function buildLearnManifestUrls() {
+  const today = new Date().toISOString().split('T')[0];
+  const urls = [{ loc: BASE_ROUTE, lastmod: today, changefreq: 'weekly', priority: '0.8' }];
+
+  if (!existsSync(CONTENT_PATH)) return urls;
+
+  for (const categoryDir of readdirSync(CONTENT_PATH)) {
+    const categoryPath = resolve(CONTENT_PATH, categoryDir);
+    if (!statSync(categoryPath).isDirectory()) continue;
+
+    for (const catalogDir of readdirSync(categoryPath)) {
+      const catalogPath = resolve(categoryPath, catalogDir);
+      if (!statSync(catalogPath).isDirectory()) continue;
+
+      const allFiles = readdirSync(catalogPath);
+      const enFiles = allFiles.filter((f) => f.endsWith('.en.md'));
+      if (enFiles.length === 0) continue;
+
+      const catalogFiles = allFiles.map((f) => resolve(catalogPath, f));
+      const catalogLastmod = catalogFiles
+        .map((f) => statSync(f).mtime)
+        .reduce((latest, mtime) => (mtime > latest ? mtime : latest), new Date(0))
+        .toISOString()
+        .split('T')[0];
+
+      const guideEntries = [];
+      for (const file of enFiles) {
+        const filePath = resolve(catalogPath, file);
+        const fields = parseFrontmatterFields(readFileSync(filePath, 'utf8'));
+        if (!fields) continue;
+
+        guideEntries.push({
+          loc: `${BASE_ROUTE}/${catalogDir}/${fields.id}`,
+          lastmod: fileDate(filePath),
+          changefreq: 'monthly',
+          priority: '0.6',
+          publishedAt: fields.publishedAt,
+        });
+      }
+
+      if (guideEntries.length === 0) continue;
+
+      // The catalog page appears when its earliest guide is published.
+      // If any guide has no publishedAt (always visible), the catalog is also always visible.
+      const hasAlwaysVisibleGuide = guideEntries.some((e) => !e.publishedAt);
+      const earliestPublishedAt = hasAlwaysVisibleGuide
+        ? null
+        : (guideEntries.map((e) => e.publishedAt).sort()[0] ?? null);
+
+      urls.push({
+        loc: `${BASE_ROUTE}/${catalogDir}`,
+        lastmod: catalogLastmod,
+        changefreq: 'monthly',
+        priority: '0.7',
+        ...(earliestPublishedAt ? { publishedAt: earliestPublishedAt } : {}),
+      });
+
+      urls.push(...guideEntries);
     }
   }
 

@@ -9,10 +9,10 @@ export default mergeConfig(
       setupFiles: ['./src/components/__tests__/setup.ts'],
       coverage: {
         thresholds: {
-          statements: 80,
-          branches: 80,
-          functions: 80,
-          lines: 80,
+          statements: 85,
+          branches: 79,
+          functions: 86,
+          lines: 87,
         },
       },
     },

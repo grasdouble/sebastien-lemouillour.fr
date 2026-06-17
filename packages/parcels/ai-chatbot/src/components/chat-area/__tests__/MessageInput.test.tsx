@@ -48,4 +48,55 @@ describe('MessageInput', () => {
     expect((textarea as HTMLTextAreaElement).disabled).toBe(true);
     expect((sendButton as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it('sends message on form submit', () => {
+    const mockOnSend = vi.fn();
+    render(<MessageInput onSend={mockOnSend} disabled={false} />);
+
+    const textarea = screen.getByPlaceholderText('chatbot.chat.input.placeholder');
+    fireEvent.change(textarea, { target: { value: 'Form submit' } });
+    fireEvent.submit(textarea.closest('form')!);
+
+    expect(mockOnSend).toHaveBeenCalledWith('Form submit');
+  });
+
+  it('does not send on form submit when message is empty', () => {
+    const mockOnSend = vi.fn();
+    render(<MessageInput onSend={mockOnSend} disabled={false} />);
+
+    fireEvent.submit(screen.getByPlaceholderText('chatbot.chat.input.placeholder').closest('form')!);
+    expect(mockOnSend).not.toHaveBeenCalled();
+  });
+
+  it('sends message when Enter key is pressed without Shift', () => {
+    const mockOnSend = vi.fn();
+    render(<MessageInput onSend={mockOnSend} disabled={false} />);
+
+    const textarea = screen.getByPlaceholderText('chatbot.chat.input.placeholder');
+    fireEvent.change(textarea, { target: { value: 'Enter send' } });
+    fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: false });
+
+    expect(mockOnSend).toHaveBeenCalledWith('Enter send');
+  });
+
+  it('does not send message when Shift+Enter is pressed', () => {
+    const mockOnSend = vi.fn();
+    render(<MessageInput onSend={mockOnSend} disabled={false} />);
+
+    const textarea = screen.getByPlaceholderText('chatbot.chat.input.placeholder');
+    fireEvent.change(textarea, { target: { value: 'Multi-line' } });
+    fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: true });
+
+    expect(mockOnSend).not.toHaveBeenCalled();
+  });
+
+  it('does not send on Enter when message is empty', () => {
+    const mockOnSend = vi.fn();
+    render(<MessageInput onSend={mockOnSend} disabled={false} />);
+
+    const textarea = screen.getByPlaceholderText('chatbot.chat.input.placeholder');
+    fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: false });
+
+    expect(mockOnSend).not.toHaveBeenCalled();
+  });
 });

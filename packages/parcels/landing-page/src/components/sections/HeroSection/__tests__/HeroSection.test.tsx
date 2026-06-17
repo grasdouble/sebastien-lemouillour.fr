@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { HeroSection } from '../HeroSection';
@@ -14,7 +14,7 @@ vi.mock('../../../getImageUrl', () => ({
 }));
 
 vi.mock('../HeroCanvas', () => ({
-  HeroCanvas: () => null,
+  HeroCanvas: () => <div data-testid="hero-canvas" />,
 }));
 
 vi.mock('@grasdouble/lufa_design-system', () => ({
@@ -31,7 +31,11 @@ vi.mock('@grasdouble/lufa_design-system', () => ({
 }));
 
 describe('HeroSection', () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
+
   it('renders hero title and translated content', () => {
     render(<HeroSection />);
 
@@ -48,5 +52,30 @@ describe('HeroSection', () => {
     // Image is decorative — hidden from accessibility tree, no accessible name
     const img = document.querySelector<HTMLImageElement>('img[aria-hidden="true"]');
     expect(img).toBeTruthy();
+  });
+
+  it('uses requestIdleCallback when available and cancels on unmount', () => {
+    let capturedCallback: (() => void) | null = null;
+    const cancelIdleCallback = vi.fn();
+    vi.stubGlobal(
+      'requestIdleCallback',
+      vi.fn((cb: () => void) => {
+        capturedCallback = cb;
+        return 42;
+      })
+    );
+    vi.stubGlobal('cancelIdleCallback', cancelIdleCallback);
+
+    const { unmount } = render(<HeroSection />);
+    expect(window.requestIdleCallback as ReturnType<typeof vi.fn>).toHaveBeenCalled();
+
+    // Invoke the idle callback — triggers setShowCanvas(true) and renders HeroCanvas
+    act(() => {
+      capturedCallback?.();
+    });
+    expect(screen.getByTestId('hero-canvas')).toBeTruthy();
+
+    unmount();
+    expect(cancelIdleCallback).toHaveBeenCalledWith(42);
   });
 });

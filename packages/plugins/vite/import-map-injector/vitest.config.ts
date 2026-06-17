@@ -11,10 +11,10 @@ export default mergeConfig(
         include: ['index.mjs'],
         exclude: ['**/*.test.*'],
         thresholds: {
-          statements: 95,
-          branches: 88,
+          statements: 99,
+          branches: 87,
           functions: 100,
-          lines: 95,
+          lines: 99,
         },
       },
     },

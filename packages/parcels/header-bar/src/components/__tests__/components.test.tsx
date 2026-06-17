@@ -144,4 +144,34 @@ describe('header-bar components', () => {
     expect(screen.getByLabelText('aria.openMenu')).toBeTruthy();
     expect(screen.getAllByRole('link', { name: 'nav.experience' }).length).toBe(1);
   });
+
+  it('does not intercept nav link clicks with modifier keys (ctrl/meta)', () => {
+    render(<NavBar />);
+    const homeLink = screen.getAllByRole('link', { name: 'nav.home' })[0];
+    const preventDefault = vi.fn();
+    // Ctrl+click should not call preventDefault (browser handles it natively)
+    fireEvent.click(homeLink, { ctrlKey: true, preventDefault });
+    expect(preventDefault).not.toHaveBeenCalled();
+  });
+
+  it('closes the mobile menu when Escape is pressed', () => {
+    render(<NavBar />);
+
+    fireEvent.click(screen.getByLabelText('aria.openMenu'));
+    expect(screen.getByLabelText('aria.closeMenu')).toBeTruthy();
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.getByLabelText('aria.openMenu')).toBeTruthy();
+  });
+
+  it('keeps theme panel open when clicking inside the container', () => {
+    render(<ThemeSelector />);
+
+    fireEvent.click(screen.getByLabelText('Open theme selector'));
+    expect(screen.getByLabelText('Select Ocean theme')).toBeTruthy();
+
+    // Click inside the container — panel should stay open
+    fireEvent.mouseDown(screen.getByLabelText('Select Ocean theme'));
+    expect(screen.getByLabelText('Select Ocean theme')).toBeTruthy();
+  });
 });
