@@ -1,5 +1,11 @@
 # @grasdouble/slm_parcel_landing-page
 
+## 1.2.15
+
+### Patch Changes
+
+- 33ec143: test: improve coverage.
+
 ## 1.2.14
 
 ### Patch Changes
