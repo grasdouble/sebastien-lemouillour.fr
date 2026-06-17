@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.2
+
+### Patch Changes
+
+- 33ec143: test: improve coverage.
+
 ## 1.1.1
 
 ### Patch Changes
