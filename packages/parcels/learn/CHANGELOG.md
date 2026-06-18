@@ -1,5 +1,11 @@
 # @grasdouble/slm_parcel_learn
 
+## 1.5.2
+
+### Patch Changes
+
+- 69eb491: fix: use `updatedAt` frontmatter field as `lastmod` for guide entries in the sitemap, with `publishedAt` as fallback.
+
 ## 1.5.1
 
 ### Patch Changes
