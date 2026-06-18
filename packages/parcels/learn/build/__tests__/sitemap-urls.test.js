@@ -27,7 +27,7 @@ const fm = (id, publishedAt) =>
 // ------- setup -------
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
 });
 
 // ------- tests -------
@@ -88,22 +88,17 @@ describe('buildLearnManifestUrls', () => {
   });
 
   it('sets catalog publishedAt to the earliest guide publishedAt when guides have dates', () => {
-    // statSync call order for two files:
-    //   1. category dir   2. catalog dir
-    //   3,4. catalogLastmod reduction (two files)
-    //   5,6. fileDate for guide-a and guide-b
+    // statSync: 1. category dir  2. catalog dir
+    // No fileDate calls — both guides have publishedAt, so lastmod uses publishedAt directly.
+    // catalogLastmod is derived from guideEntries, not from file mtime.
     existsSync.mockReturnValue(true);
     readdirSync
       .mockReturnValueOnce(['ai'])
       .mockReturnValueOnce(['transformers'])
       .mockReturnValueOnce(['guide-a.en.md', 'guide-b.en.md']);
     statSync
-      .mockReturnValueOnce(makeDir()) // 1
-      .mockReturnValueOnce(makeDir()) // 2
-      .mockReturnValueOnce(makeFile()) // 3
-      .mockReturnValueOnce(makeFile()) // 4
-      .mockReturnValueOnce(makeFile()) // 5 guide-a fileDate
-      .mockReturnValueOnce(makeFile()); // 6 guide-b fileDate
+      .mockReturnValueOnce(makeDir()) // 1 category
+      .mockReturnValueOnce(makeDir()); // 2 catalog
     readFileSync.mockReturnValueOnce(fm('guide-a', '2025-06-01')).mockReturnValueOnce(fm('guide-b', '2025-03-01'));
 
     const urls = buildLearnManifestUrls();
@@ -113,19 +108,17 @@ describe('buildLearnManifestUrls', () => {
   });
 
   it('sets catalog publishedAt to null when some guides have no publishedAt (mixed dates)', () => {
-    // One guide with date, one without → filter(Boolean) removes null → earliest is the one with date
+    // guide-a: has publishedAt → lastmod = publishedAt (no statSync)
+    // guide-b: no publishedAt, no updatedAt → lastmod = fileDate (1 statSync)
     existsSync.mockReturnValue(true);
     readdirSync
       .mockReturnValueOnce(['ai'])
       .mockReturnValueOnce(['transformers'])
       .mockReturnValueOnce(['guide-a.en.md', 'guide-b.en.md']);
     statSync
-      .mockReturnValueOnce(makeDir())
-      .mockReturnValueOnce(makeDir())
-      .mockReturnValueOnce(makeFile())
-      .mockReturnValueOnce(makeFile())
-      .mockReturnValueOnce(makeFile())
-      .mockReturnValueOnce(makeFile());
+      .mockReturnValueOnce(makeDir()) // 1 category
+      .mockReturnValueOnce(makeDir()) // 2 catalog
+      .mockReturnValueOnce(makeFile()); // 3 fileDate for guide-b (no publishedAt/updatedAt)
     readFileSync.mockReturnValueOnce(fm('guide-a', '2025-06-01')).mockReturnValueOnce(fm('guide-b', null)); // no publishedAt
 
     const urls = buildLearnManifestUrls();

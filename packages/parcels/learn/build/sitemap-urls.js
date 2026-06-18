@@ -4,14 +4,19 @@ import { resolve } from 'node:path';
 const CONTENT_PATH = resolve(import.meta.dirname, '../src/data/content');
 const BASE_ROUTE = '/learn';
 
-/** Parses `id` and `publishedAt` fields from YAML frontmatter delimited by `---`. */
+/** Parses `id`, `publishedAt` and `updatedAt` fields from YAML frontmatter delimited by `---`. */
 function parseFrontmatterFields(raw) {
   const parts = raw.split(/^---$/m);
   if (parts.length < 3) return null;
   const idMatch = /^id:\s*(\S+)/m.exec(parts[1]);
   if (!idMatch) return null;
   const publishedAtMatch = /^publishedAt:\s*(\S+)/m.exec(parts[1]);
-  return { id: idMatch[1], publishedAt: publishedAtMatch ? publishedAtMatch[1] : null };
+  const updatedAtMatch = /^updatedAt:\s*(\S+)/m.exec(parts[1]);
+  return {
+    id: idMatch[1],
+    publishedAt: publishedAtMatch ? publishedAtMatch[1] : null,
+    updatedAt: updatedAtMatch ? updatedAtMatch[1] : null,
+  };
 }
 
 /** Returns the ISO date (YYYY-MM-DD) of a file's last modification. */
@@ -60,7 +65,7 @@ export function buildLearnUrls() {
 
         urls.push({
           loc: `${BASE_ROUTE}/${catalogDir}/${fields.id}`,
-          lastmod: fileDate(filePath),
+          lastmod: fields.updatedAt ?? fields.publishedAt ?? fileDate(filePath),
           changefreq: 'monthly',
           priority: '0.6',
         });
@@ -96,13 +101,6 @@ export function buildLearnManifestUrls() {
       const enFiles = allFiles.filter((f) => f.endsWith('.en.md'));
       if (enFiles.length === 0) continue;
 
-      const catalogFiles = allFiles.map((f) => resolve(catalogPath, f));
-      const catalogLastmod = catalogFiles
-        .map((f) => statSync(f).mtime)
-        .reduce((latest, mtime) => (mtime > latest ? mtime : latest), new Date(0))
-        .toISOString()
-        .split('T')[0];
-
       const guideEntries = [];
       for (const file of enFiles) {
         const filePath = resolve(catalogPath, file);
@@ -111,7 +109,7 @@ export function buildLearnManifestUrls() {
 
         guideEntries.push({
           loc: `${BASE_ROUTE}/${catalogDir}/${fields.id}`,
-          lastmod: fileDate(filePath),
+          lastmod: fields.updatedAt ?? fields.publishedAt ?? fileDate(filePath),
           changefreq: 'monthly',
           priority: '0.6',
           publishedAt: fields.publishedAt,
@@ -119,6 +117,14 @@ export function buildLearnManifestUrls() {
       }
 
       if (guideEntries.length === 0) continue;
+
+      // Catalog lastmod = most recent guide updatedAt (falls back to fileDate via guide entry)
+      const catalogLastmod =
+        guideEntries
+          .map((e) => e.lastmod)
+          .filter(Boolean)
+          .sort()
+          .at(-1) ?? new Date().toISOString().split('T')[0];
 
       // The catalog page appears when its earliest guide is published.
       // If any guide has no publishedAt (always visible), the catalog is also always visible.
