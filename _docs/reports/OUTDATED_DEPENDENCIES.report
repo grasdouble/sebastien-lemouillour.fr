@@ -3,7 +3,7 @@
 ┌─────────────────────────┬─────────┬────────┬────────────────────────────────┐
 │ Package                 │ Current │ Latest │ Dependents                     │
 ├─────────────────────────┼─────────┼────────┼────────────────────────────────┤
-│ concurrently (dev)      │ 9.2.3   │ 10.0.3 │ @grasdouble/sebastien-         │
+│ concurrently (dev)      │ 9.2.4   │ 10.0.3 │ @grasdouble/sebastien-         │
 │                         │         │        │ lemouillour.fr                 │
 ├─────────────────────────┼─────────┼────────┼────────────────────────────────┤
 │ sort-package-json (dev) │ 3.7.1   │ 4.0.0  │ @grasdouble/sebastien-         │
@@ -25,4 +25,23 @@
 │                         │         │        │ react-preamble,                │
 │                         │         │        │ @grasdouble/slm_plugin_vite_   │
 │                         │         │        │ sitemap-generator              │
+├─────────────────────────┼─────────┼────────┼────────────────────────────────┤
+│ typescript (dev)        │ 6.0.3   │ 7.0.2  │ @grasdouble/slm-container,     │
+│                         │         │        │ @grasdouble/slm-vendors,       │
+│                         │         │        │ @grasdouble/slm_parcel_ai-     │
+│                         │         │        │ chatbot,                       │
+│                         │         │        │ @grasdouble/slm_parcel_header- │
+│                         │         │        │ bar,                           │
+│                         │         │        │ @grasdouble/slm_parcel_        │
+│                         │         │        │ landing-page,                  │
+│                         │         │        │ @grasdouble/slm_parcel_learn,  │
+│                         │         │        │ @grasdouble/slm_parcel_        │
+│                         │         │        │ professional-experience,       │
+│                         │         │        │ @grasdouble/slm_plugin_vite_   │
+│                         │         │        │ import-map-injector,           │
+│                         │         │        │ @grasdouble/slm_plugin_vite_   │
+│                         │         │        │ react-preamble,                │
+│                         │         │        │ @grasdouble/slm_plugin_vite_   │
+│                         │         │        │ sitemap-generator,             │
+│                         │         │        │ @grasdouble/slm_shared         │
 └─────────────────────────┴─────────┴────────┴────────────────────────────────┘
