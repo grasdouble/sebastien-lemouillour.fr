@@ -3,7 +3,7 @@
 ┌─────────────────────────┬─────────┬────────┬────────────────────────────────┐
 │ Package                 │ Current │ Latest │ Dependents                     │
 ├─────────────────────────┼─────────┼────────┼────────────────────────────────┤
-│ concurrently (dev)      │ 9.2.4   │ 10.0.3 │ @grasdouble/sebastien-         │
+│ concurrently (dev)      │ 9.2.4   │ 10.0.4 │ @grasdouble/sebastien-         │
 │                         │         │        │ lemouillour.fr                 │
 ├─────────────────────────┼─────────┼────────┼────────────────────────────────┤
 │ sort-package-json (dev) │ 3.7.1   │ 4.0.0  │ @grasdouble/sebastien-         │
