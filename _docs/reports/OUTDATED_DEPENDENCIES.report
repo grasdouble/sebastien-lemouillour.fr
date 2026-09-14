@@ -27,6 +27,10 @@
 │ concurrently (dev)        │ 9.2.4   │ 10.0.5 │ @grasdouble/sebastien-         │
 │                           │         │        │ lemouillour.fr                 │
 ├───────────────────────────┼─────────┼────────┼────────────────────────────────┤
+│ mermaid (dev)             │ 11.17.2 │ 12.0.0 │ @grasdouble/slm-container,     │
+│                           │         │        │ @grasdouble/slm-vendors,       │
+│                           │         │        │ @grasdouble/slm_parcel_learn   │
+├───────────────────────────┼─────────┼────────┼────────────────────────────────┤
 │ sort-package-json (dev)   │ 3.7.1   │ 4.0.0  │ @grasdouble/sebastien-         │
 │                           │         │        │ lemouillour.fr,                │
 │                           │         │        │ @grasdouble/slm-container,     │
