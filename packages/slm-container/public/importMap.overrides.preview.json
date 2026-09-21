@@ -21,7 +21,7 @@
     "@grasdouble/slm_parcel_professional-experience": "http://localhost:4102/professional-experience.mjs",
     "@grasdouble/slm_parcel_learn": "http://localhost:4103/learn.mjs",
     "@grasdouble/slm_parcel_ai-chatbot": "http://localhost:4105/ai-chatbot.mjs",
-    "@grasdouble/lufa_design-system": "https://cdn.sebastien-lemouillour.fr/@grasdouble/lufa_design-system@3.4.0",
-    "@grasdouble/lufa_design-system-themes/": "https://cdn.sebastien-lemouillour.fr/@grasdouble/lufa_design-system-themes@1.1.7/"
+    "@grasdouble/lufa_design-system": "https://cdn.sebastien-lemouillour.fr/@grasdouble/lufa_design-system@3.5.0",
+    "@grasdouble/lufa_design-system-themes/": "https://cdn.sebastien-lemouillour.fr/@grasdouble/lufa_design-system-themes@1.1.8/"
   }
 }
