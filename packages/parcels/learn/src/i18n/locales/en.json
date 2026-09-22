@@ -52,5 +52,9 @@
   },
   "badge": {
     "draft": "Draft"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "This guide or catalog is not available."
   }
 }

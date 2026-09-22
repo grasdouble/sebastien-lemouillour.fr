@@ -67,15 +67,26 @@ function AppContent() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<Difficulty[]>([]);
 
-  const activeGuide = useMemo(
-    () => (activeGuideId ? (tutorials.find((t) => t.id === activeGuideId) ?? null) : null),
-    [activeGuideId, tutorials]
-  );
-
   const activeCatalog = useMemo(
-    () => (activeCatalogId ? (catalogs.find((c) => c.id === activeCatalogId) ?? null) : null),
+    () => (activeCatalogId ? (catalogs.find((catalog) => catalog.id === activeCatalogId) ?? null) : null),
     [activeCatalogId, catalogs]
   );
+  const activeGuide = useMemo(
+    () =>
+      activeGuideId && activeCatalog
+        ? (tutorials.find(
+            (guide) =>
+              guide.id === activeGuideId &&
+              guide.catalogId === activeCatalog.id &&
+              activeCatalog.guideIds.includes(guide.id)
+          ) ?? null)
+        : null,
+    [activeGuideId, activeCatalog, tutorials]
+  );
+  const notFound =
+    routerState.statusCode === 404 ||
+    Boolean(activeCatalogId && !activeCatalog) ||
+    Boolean(activeGuideId && !activeGuide);
 
   const catalogGuides = useMemo<Tutorial[]>(() => {
     if (!activeCatalog) return [];
@@ -103,7 +114,16 @@ function AppContent() {
             url: BASE_URL,
           };
 
-  usePageSeo(seoConfig);
+  usePageSeo(
+    notFound
+      ? {
+          title: `${t('notFound.title')} | ${SITE_NAME}`,
+          description: t('notFound.description'),
+          url: `https://sebastien-lemouillour.fr${routerState.location.pathname}`,
+          trackPageView: false,
+        }
+      : seoConfig
+  );
 
   // Always navigate to /$catalogId/$guideId so the URL includes full catalog context.
   const openGuide = (tutorial: Tutorial) => {
@@ -176,7 +196,15 @@ function AppContent() {
   return (
     <Box id="lufa-learn" className={styles['lufa-learn']}>
       <Container as="main" size="lg" paddingBlock="spacious">
-        {activeGuide ? (
+        {notFound ? (
+          <Stack direction="vertical" spacing="comfortable">
+            <Text as="h1" variant="h1">
+              {t('notFound.title')}
+            </Text>
+            <Text as="p">{t('notFound.description')}</Text>
+            <Button onClick={closeCatalog}>{t('detail.backToList')}</Button>
+          </Stack>
+        ) : activeGuide ? (
           <LearnDetail tutorial={activeGuide} onBack={closeGuide} />
         ) : activeCatalog ? (
           <CatalogDetail catalog={activeCatalog} guides={catalogGuides} onBack={closeCatalog} onOpenGuide={openGuide} />
@@ -324,16 +352,17 @@ const catalogRoute = createRoute({ getParentRoute: () => rootRoute, path: '$cata
 const guideRoute = createRoute({ getParentRoute: () => catalogRoute, path: '$guideId' });
 
 const routeTree = rootRoute.addChildren([indexRoute, catalogRoute.addChildren([guideRoute])]);
-const router = createRouter({ routeTree, basepath: '/learn' });
+const createLearnRouter = () => createRouter({ routeTree, basepath: '/learn' });
 
 declare module '@tanstack/react-router' {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- required by TanStack Router's module augmentation API
   interface Register {
-    router: typeof router;
+    router: ReturnType<typeof createLearnRouter>;
   }
 }
 
 function App() {
+  const [router] = useState(createLearnRouter);
   return <RouterProvider router={router} />;
 }
 
