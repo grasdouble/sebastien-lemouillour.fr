@@ -20,12 +20,8 @@ export default defineConfig({
       nodeBuiltins: true,
     }),
   ],
-  define: {
-    'process.env.NODE_ENV': JSON.stringify('dev'),
-    'process.env': {},
-  },
   build: {
-    minify: false,
+    minify: true,
     assetsDir: 'assets',
     lib: {
       assetsDir: 'assets',
