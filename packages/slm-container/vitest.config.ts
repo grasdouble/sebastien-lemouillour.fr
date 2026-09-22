@@ -6,8 +6,11 @@ export default mergeConfig(
   baseConfig,
   defineConfig({
     test: {
+      include: ['src/**/*.test.ts'],
+      environmentOptions: {
+        happyDOM: { settings: { disableCSSFileLoading: true, handleDisabledFileLoadingAsSuccess: true } },
+      },
       coverage: {
-        exclude: ['src/main.ts', 'src/i18n.ts', 'src/loader.ts'],
         thresholds: {
           statements: 99,
           branches: 99,

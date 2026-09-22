@@ -28,4 +28,10 @@ jobs:
         run: pnpm all:build
 
       - name: 🧪 Run tests
-        run: pnpm all:test
+        run: pnpm all:test:coverage
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Test production bundles in the browser
+        run: pnpm test:e2e
