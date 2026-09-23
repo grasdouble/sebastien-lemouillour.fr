@@ -84,7 +84,7 @@ function AppContent() {
     [activeGuideId, activeCatalog, tutorials]
   );
   const notFound =
-    routerState.statusCode === 404 ||
+    routerState.matches.some((match) => match.routeId === notFoundRoute.id) ||
     Boolean(activeCatalogId && !activeCatalog) ||
     Boolean(activeGuideId && !activeGuide);
 
@@ -228,7 +228,7 @@ function AppContent() {
               >
                 <Button
                   id="tab-catalogs"
-                  ref={(el) => {
+                  ref={(el: HTMLButtonElement | null) => {
                     tabRefs.current.catalogs = el;
                   }}
                   type={activeView === 'catalogs' ? 'solid' : 'ghost'}
@@ -244,7 +244,7 @@ function AppContent() {
                 </Button>
                 <Button
                   id="tab-guides"
-                  ref={(el) => {
+                  ref={(el: HTMLButtonElement | null) => {
                     tabRefs.current.guides = el;
                   }}
                   type={activeView === 'guides' ? 'solid' : 'ghost'}
@@ -350,8 +350,9 @@ const rootRoute = createRootRoute({ component: AppContent });
 const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/' });
 const catalogRoute = createRoute({ getParentRoute: () => rootRoute, path: '$catalogId' });
 const guideRoute = createRoute({ getParentRoute: () => catalogRoute, path: '$guideId' });
+const notFoundRoute = createRoute({ getParentRoute: () => rootRoute, path: '$' });
 
-const routeTree = rootRoute.addChildren([indexRoute, catalogRoute.addChildren([guideRoute])]);
+const routeTree = rootRoute.addChildren([indexRoute, catalogRoute.addChildren([guideRoute]), notFoundRoute]);
 const createLearnRouter = () => createRouter({ routeTree, basepath: '/learn' });
 
 declare module '@tanstack/react-router' {

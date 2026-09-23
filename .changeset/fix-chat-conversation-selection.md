@@ -9,3 +9,5 @@ fix: serialize model replacement and release engines on cancellation and unmount
 perf: minify the chatbot bundle and use the production runtime environment.
 
 test: isolate stylesheet loading from the network.
+
+chore: remove the redundant style assertion reported by the updated lint rules.

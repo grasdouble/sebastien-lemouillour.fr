@@ -8,8 +8,8 @@
   "scripts": {
     "all:build": "pnpm --filter @grasdouble/* run build",
     "all:lint": "pnpm --filter @grasdouble/* run lint",
-    "all:prettier:check": "pnpm --filter @grasdouble/* run prettier:check",
-    "all:prettier:write": "pnpm --filter @grasdouble/* run prettier:write",
+    "all:prettier:check": "pnpm --filter @grasdouble/* run prettier:check --ignore-path \"$PWD/.prettierignore\"",
+    "all:prettier:write": "pnpm --filter @grasdouble/* run prettier:write --ignore-path \"$PWD/.prettierignore\"",
     "all:test": "pnpm --filter @grasdouble/* run test",
     "all:test:coverage": "pnpm --filter @grasdouble/* run test:coverage",
     "all:test:coverage:update": "pnpm --filter @grasdouble/* run test:coverage:update",
@@ -39,9 +39,9 @@
     "sync:agents": "lufa-agents-sync",
     "sync:agents:local": "lufa-agents-sync --local ../Lufa-Core",
     "sync-----------------------------": "",
+    "test:e2e": "playwright test",
     "tools:generate-outdated-report": "node .github/actions/dependency-update/generateOutdatedReport.js",
-    "tools---------------------------------------------": "",
-    "test:e2e": "playwright test"
+    "tools---------------------------------------------": ""
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
@@ -74,5 +74,5 @@
     "terser": "^5.51.2",
     "vite": "^8.3.0"
   },
-  "packageManager": "pnpm@11.1.2"
+  "packageManager": "pnpm@12.5.1"
 }

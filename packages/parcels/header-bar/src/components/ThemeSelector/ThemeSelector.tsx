@@ -26,7 +26,7 @@ const THEMES: ThemeEntry[] = [
 ];
 
 const MODE_CYCLE: ThemeMode[] = ['light', 'dark', 'auto'];
-const MODE_EMOJI: Record<ThemeMode, string> = { light: '☀️', dark: '🌙', auto: '🔄' };
+const MODE_EMOJI: Record<ThemeMode, string> = { light: '☀️', dark: '🌙', auto: '🔄', 'high-contrast': '◐' };
 
 export function ThemeSelector() {
   const { theme, mode, setTheme, setMode } = useTheme({

@@ -16,6 +16,9 @@ build
 
 # Generated files
 *.d.ts
+coverage
+playwright-report
+test-results
 
 #BNAD
 _bmad
