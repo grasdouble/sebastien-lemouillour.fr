@@ -60,7 +60,7 @@ export default defineConfig(() => {
     build: {
       target: 'esnext',
       modulePreload: false, // Single-SPA manages the loading of modules
-      minify: false,
+      minify: true,
       rolldownOptions: {
         output: {
           format: 'esm',

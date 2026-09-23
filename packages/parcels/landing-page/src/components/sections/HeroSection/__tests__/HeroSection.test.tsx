@@ -57,17 +57,15 @@ describe('HeroSection', () => {
   it('uses requestIdleCallback when available and cancels on unmount', () => {
     let capturedCallback: (() => void) | null = null;
     const cancelIdleCallback = vi.fn();
-    vi.stubGlobal(
-      'requestIdleCallback',
-      vi.fn((cb: () => void) => {
-        capturedCallback = cb;
-        return 42;
-      })
-    );
+    const requestIdleCallback = vi.fn((cb: () => void) => {
+      capturedCallback = cb;
+      return 42;
+    });
+    vi.stubGlobal('requestIdleCallback', requestIdleCallback);
     vi.stubGlobal('cancelIdleCallback', cancelIdleCallback);
 
     const { unmount } = render(<HeroSection />);
-    expect(window.requestIdleCallback as ReturnType<typeof vi.fn>).toHaveBeenCalled();
+    expect(requestIdleCallback).toHaveBeenCalled();
 
     // Invoke the idle callback — triggers setShowCanvas(true) and renders HeroCanvas
     act(() => {

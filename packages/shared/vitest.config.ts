@@ -6,6 +6,9 @@ export default mergeConfig(
   baseConfig,
   defineConfig({
     test: {
+      environmentOptions: {
+        happyDOM: { settings: { disableJavaScriptFileLoading: true, handleDisabledFileLoadingAsSuccess: true } },
+      },
       coverage: {
         thresholds: {
           statements: 100,

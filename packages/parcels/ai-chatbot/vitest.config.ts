@@ -6,6 +6,9 @@ export default mergeConfig(
   baseConfig,
   defineConfig({
     test: {
+      environmentOptions: {
+        happyDOM: { settings: { disableCSSFileLoading: true, handleDisabledFileLoadingAsSuccess: true } },
+      },
       setupFiles: ['./src/components/__tests__/setup.ts'],
       coverage: {
         thresholds: {

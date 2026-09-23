@@ -1,7 +1,8 @@
-import { act, renderHook } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, cleanup, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ModelConfig } from '../../types';
+import { createProvider } from '../../provider-factory';
 import { useModelLoader } from '../useModelLoader';
 
 const mockProvider = vi.hoisted(() => ({
@@ -29,6 +30,81 @@ const baseModel: ModelConfig = {
 };
 
 describe('useModelLoader', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockProvider.load.mockResolvedValue(undefined);
+    vi.mocked(createProvider).mockReturnValue(mockProvider);
+  });
+  afterEach(async () => {
+    cleanup();
+    await act(async () => {
+      await Promise.resolve();
+    });
+  });
+
+  it('releases the model when the hook unmounts', async () => {
+    const { result, unmount } = renderHook(() => useModelLoader());
+    await act(async () => {
+      await result.current.loadModel(baseModel);
+    });
+    unmount();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(mockProvider.unload).toHaveBeenCalledOnce();
+  });
+
+  it('releases an in-flight model after unmount without publishing it', async () => {
+    const loading = Promise.withResolvers<void>();
+    mockProvider.load.mockReturnValue(loading.promise);
+    const { result, unmount } = renderHook(() => useModelLoader());
+    let task: Promise<unknown>;
+    await act(async () => {
+      task = result.current.loadModel(baseModel);
+      await Promise.resolve();
+    });
+    unmount();
+    await act(async () => {
+      loading.resolve();
+      await task;
+    });
+    expect(mockProvider.unload).toHaveBeenCalledOnce();
+  });
+
+  it('keeps the newest requested model and releases the superseded load', async () => {
+    const loading = Promise.withResolvers<void>();
+    const first = {
+      ...mockProvider,
+      load: vi.fn().mockReturnValue(loading.promise),
+      unload: vi.fn().mockResolvedValue(undefined),
+    };
+    const second = {
+      ...mockProvider,
+      load: vi.fn().mockResolvedValue(undefined),
+      unload: vi.fn().mockResolvedValue(undefined),
+    };
+    vi.mocked(createProvider).mockReturnValueOnce(first).mockReturnValueOnce(second);
+    const { result } = renderHook(() => useModelLoader());
+    let firstTask: Promise<unknown>;
+    let secondTask: Promise<unknown>;
+    await act(async () => {
+      firstTask = result.current.loadModel(baseModel);
+      await Promise.resolve();
+    });
+    await act(async () => {
+      secondTask = result.current.loadModel({ ...baseModel, id: 'second' });
+      await Promise.resolve();
+    });
+    await act(async () => {
+      loading.resolve();
+      await firstTask;
+      await secondTask;
+    });
+    expect(first.unload).toHaveBeenCalledOnce();
+    expect(result.current.provider).toBe(second);
+    expect(result.current.progress.status).toBe('ready');
+  });
+
   it('starts with idle status', () => {
     const { result } = renderHook(() => useModelLoader());
     expect(result.current.progress.status).toBe('idle');

@@ -38,6 +38,7 @@ type WebLLMResponse = {
 };
 
 type WebLLMEngine = {
+  unload(): Promise<void>;
   chat: {
     completions: {
       create: (options: {
@@ -160,11 +161,10 @@ function createWebLLMProvider(model: ModelConfig): LLMProviderInstance {
       onStream({ token: '', cumulativeText, done: true });
     },
 
-    unload(): Promise<void> {
-      // WebLLM doesn't expose unload in the current API
-      // The engine will be garbage collected
+    async unload(): Promise<void> {
+      const previous = engine;
       engine = null;
-      return Promise.resolve();
+      await previous?.unload();
     },
   };
 }

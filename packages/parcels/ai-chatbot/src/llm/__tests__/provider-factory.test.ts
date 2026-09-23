@@ -10,6 +10,7 @@ import { createProvider, isModelCached } from '../provider-factory';
 const mockInitProgressCallback = vi.hoisted(() => ({
   fn: null as ((report: { progress?: number; text?: string }) => void) | null,
 }));
+const unloadEngine = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 // Mock WebLLM
 vi.mock('@mlc-ai/web-llm', () => ({
@@ -21,6 +22,7 @@ vi.mock('@mlc-ai/web-llm', () => ({
         mockInitProgressCallback.fn = options.initProgressCallback;
       }
       return Promise.resolve({
+        unload: unloadEngine,
         chat: {
           completions: {
             create: vi.fn(({ messages, stream }: { messages: ChatMessage[]; stream?: boolean }) => {
@@ -186,6 +188,15 @@ describe('provider-factory', () => {
   });
 
   describe('unload', () => {
+    it('calls the engine cleanup exactly once and prevents further generation', async () => {
+      unloadEngine.mockClear();
+      const provider = createProvider(testModel);
+      await provider.load();
+      await provider.unload();
+      await provider.unload();
+      expect(unloadEngine).toHaveBeenCalledOnce();
+      await expect(provider.generate([])).rejects.toThrow('WebLLM engine not loaded');
+    });
     it('unloads the engine without error', async () => {
       const provider = createProvider(testModel);
       await provider.load();

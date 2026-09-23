@@ -52,5 +52,9 @@
   },
   "badge": {
     "draft": "Brouillon"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "Ce guide ou ce catalogue n’est pas disponible."
   }
 }

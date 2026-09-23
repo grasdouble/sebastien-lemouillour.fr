@@ -1,12 +1,12 @@
 import type { LifeCycles } from 'single-spa';
-import { registerApplication, start } from 'single-spa';
+import { addErrorHandler, registerApplication, start } from 'single-spa';
 
 import { initializeGoogleAnalytics } from '@grasdouble/slm_shared';
 
-import 'import-map-overrides';
 import './i18n';
 import './reset.css';
 
+import { showStartupError } from './bootstrap';
 import { hideLoader, loaderPreview, showLoader } from './loader';
 import { PARCELS } from './parcels';
 
@@ -105,6 +105,12 @@ for (const parcel of PARCELS) {
     app: loadApp(`@grasdouble/slm_parcel_${parcel.name}`),
     activeWhen: buildActiveWhen(parcel),
   });
+}
+
+addErrorHandler(() => showStartupError());
+
+if (import.meta.env.DEV) {
+  void import('./devtools');
 }
 
 start();

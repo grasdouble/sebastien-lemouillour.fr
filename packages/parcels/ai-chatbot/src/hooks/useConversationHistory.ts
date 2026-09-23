@@ -102,13 +102,12 @@ const generateTitle = (messages: Message[]): string | null => {
 export const useConversationHistory = () => {
   // Initialize conversations from localStorage on mount
   const [conversations, setConversations] = useState<Conversation[]>(() => loadConversationsFromStorage());
-  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const currentConversation = conversations.find((conversation) => conversation.id === currentConversationId) ?? null;
 
   // Save to localStorage whenever conversations change
   useEffect(() => {
-    if (conversations.length > 0 || localStorage.getItem(STORAGE_KEY)) {
-      saveConversationsToStorage(conversations);
-    }
+    saveConversationsToStorage(conversations);
   }, [conversations]);
 
   const createConversation = useCallback((title: string, modelId?: string) => {
@@ -122,65 +121,48 @@ export const useConversationHistory = () => {
     };
 
     setConversations((prev) => [newConversation, ...prev]);
-    setCurrentConversation(newConversation);
+    setCurrentConversationId(newConversation.id);
   }, []);
 
-  const loadConversation = useCallback((id: string) => {
-    setConversations((prev) => {
-      const conversation = prev.find((conv) => conv.id === id);
-      if (conversation) {
-        setCurrentConversation(conversation);
+  const loadConversation = useCallback(
+    (id: string) => {
+      if (conversations.some((conversation) => conversation.id === id)) {
+        setCurrentConversationId(id);
       }
-      return prev;
+    },
+    [conversations]
+  );
+
+  const updateConversation = useCallback((id: string, messages: Message[]) => {
+    setConversations((prev) => {
+      const updated = prev.map((conv) => {
+        if (conv.id !== id) return conv;
+
+        const updatedConv: Conversation = {
+          ...conv,
+          messages,
+          updatedAt: new Date(),
+        };
+
+        // Auto-generate title from first user message if title is still default
+        if (messages.length > 0 && (conv.title === DEFAULT_TITLE_FR || conv.title === DEFAULT_TITLE_EN)) {
+          const generatedTitle = generateTitle(messages);
+          if (generatedTitle) {
+            updatedConv.title = generatedTitle;
+          }
+        }
+
+        return updatedConv;
+      });
+
+      return updated;
     });
   }, []);
 
-  const updateConversation = useCallback(
-    (id: string, messages: Message[]) => {
-      setConversations((prev) => {
-        const updated = prev.map((conv) => {
-          if (conv.id !== id) return conv;
-
-          const updatedConv: Conversation = {
-            ...conv,
-            messages,
-            updatedAt: new Date(),
-          };
-
-          // Auto-generate title from first user message if title is still default
-          if (messages.length > 0 && (conv.title === DEFAULT_TITLE_FR || conv.title === DEFAULT_TITLE_EN)) {
-            const generatedTitle = generateTitle(messages);
-            if (generatedTitle) {
-              updatedConv.title = generatedTitle;
-            }
-          }
-
-          return updatedConv;
-        });
-
-        // Update current conversation if it's the one being updated
-        const updatedCurrent = updated.find((conv) => conv.id === id);
-        if (updatedCurrent && currentConversation?.id === id) {
-          setCurrentConversation(updatedCurrent);
-        }
-
-        return updated;
-      });
-    },
-    [currentConversation?.id]
-  );
-
-  const deleteConversation = useCallback(
-    (id: string) => {
-      setConversations((prev) => prev.filter((conv) => conv.id !== id));
-
-      // Clear current conversation if it's the one being deleted
-      if (currentConversation?.id === id) {
-        setCurrentConversation(null);
-      }
-    },
-    [currentConversation?.id]
-  );
+  const deleteConversation = useCallback((id: string) => {
+    setConversations((prev) => prev.filter((conv) => conv.id !== id));
+    setCurrentConversationId((currentId) => (currentId === id ? null : currentId));
+  }, []);
 
   return {
     conversations,

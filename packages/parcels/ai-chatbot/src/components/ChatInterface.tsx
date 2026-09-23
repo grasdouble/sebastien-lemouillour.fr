@@ -1,4 +1,4 @@
-import type { CSSProperties, FC } from 'react';
+import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -187,7 +187,7 @@ export const ChatInterface: FC = () => {
       paddingBlock="none"
       fluid
       className={styles.chatContainer}
-      style={{ '--chat-header-offset': `${headerOffset}px` } as CSSProperties}
+      style={{ '--chat-header-offset': `${headerOffset}px` }}
     >
       <Flex className={styles.layout}>
         {/* Sidebar with conversation history and settings */}

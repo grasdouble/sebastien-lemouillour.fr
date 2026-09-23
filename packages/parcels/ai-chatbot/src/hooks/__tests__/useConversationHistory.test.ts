@@ -138,6 +138,34 @@ describe('useConversationHistory', () => {
   });
 
   describe('updateConversation', () => {
+    it('keeps the selected conversation when an older generation completes', () => {
+      const { result } = renderHook(() => useConversationHistory());
+      act(() => result.current.createConversation('A'));
+      const firstId = result.current.currentConversation!.id;
+      const finishGeneration = result.current.updateConversation;
+      act(() => result.current.createConversation('B'));
+      act(() =>
+        finishGeneration(firstId, [{ id: 'reply', role: 'assistant', content: 'Done', timestamp: new Date() }])
+      );
+      expect(result.current.currentConversation?.title).toBe('B');
+      expect(result.current.conversations.find((conversation) => conversation.id === firstId)?.messages).toHaveLength(
+        1
+      );
+    });
+
+    it('ignores a late reply to a deleted conversation', () => {
+      const { result } = renderHook(() => useConversationHistory());
+      act(() => result.current.createConversation('A'));
+      const firstId = result.current.currentConversation!.id;
+      const finishGeneration = result.current.updateConversation;
+      act(() => result.current.deleteConversation(firstId));
+      act(() =>
+        finishGeneration(firstId, [{ id: 'reply', role: 'assistant', content: 'Done', timestamp: new Date() }])
+      );
+      expect(result.current.currentConversation).toBeNull();
+      expect(result.current.conversations).toEqual([]);
+    });
+
     it('should update conversation messages', () => {
       const { result } = renderHook(() => useConversationHistory());
 

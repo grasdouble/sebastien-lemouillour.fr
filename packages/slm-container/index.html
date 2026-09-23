@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
@@ -45,57 +45,14 @@
       </div>
     </div>
     <div id="lufa-container"></div>
+    <div id="startup-error" hidden>
+      <p role="alert"></p>
+      <button type="button">Réessayer</button>
+    </div>
     <script type="module">
-      const isDev = import.meta.env.DEV;
-      const isPreview = import.meta.env.MODE === 'preview';
-      const isProd = !isDev && !isPreview;
+      import { bootstrap } from '/src/bootstrap.ts';
 
-      async function loadJson(path) {
-        const res = await fetch(path, { cache: 'no-cache' });
-        return res.json();
-      }
-
-      function deepMerge(base, overrides) {
-        const result = { ...base };
-        if (overrides.imports) {
-          result.imports = { ...result.imports, ...overrides.imports };
-        }
-        return result;
-      }
-
-      async function injectImportMap() {
-        let baseMapPath = '/importMap.json';
-        if (isProd) {
-          baseMapPath = 'https://cdn.sebastien-lemouillour.fr/importMap.json';
-        }
-
-        const baseMap = await loadJson(baseMapPath);
-        let finalMap = baseMap;
-
-        if (isDev) {
-          const devOverrides = await loadJson('/importMap.overrides.dev.json');
-          finalMap = deepMerge(baseMap, devOverrides);
-        } else if (isPreview) {
-          const previewOverrides = await loadJson('/importMap.overrides.preview.json');
-          finalMap = deepMerge(baseMap, previewOverrides);
-        }
-
-        const script = document.createElement('script');
-        script.type = 'importmap';
-        script.textContent = JSON.stringify(finalMap, null, 2);
-        document.head.insertBefore(script, document.head.firstChild);
-      }
-
-      async function initialize() {
-        localStorage.setItem('devtools', 'true');
-
-        await injectImportMap();
-        return import('/src/main.js');
-      }
-
-      initialize().catch((err) => {
-        console.error('Failed to initialize application:', err);
-      });
+      void bootstrap(import.meta.env.MODE, () => import('/src/main.ts'));
     </script>
   </body>
 </html>
