@@ -429,3 +429,12 @@ feat: add new shared component and consume it in landing-page.
 ```
 
 - ❌ One file for a refactor that touches N packages independently — create N files instead
+
+---
+
+## Pull requests — Write all PR content in English
+
+Keep PR titles, descriptions, and agent-authored comments in English, even when the conversation is in French.
+
+- ✅ `fix: improve startup reliability and validate Learn routes` with an English description and validation comments.
+- ❌ French PR titles, descriptions, or comments based on the conversation language.
