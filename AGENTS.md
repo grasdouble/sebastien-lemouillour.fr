@@ -438,3 +438,14 @@ Keep PR titles, descriptions, and agent-authored comments in English, even when 
 
 - ✅ `fix: improve startup reliability and validate Learn routes` with an English description and validation comments.
 - ❌ French PR titles, descriptions, or comments based on the conversation language.
+
+---
+
+## CI package downloads — Prefer GITHUB_TOKEN over a PAT
+
+Use the workflow's built-in token to download Lufa packages so Dependabot-triggered CI does not depend on unavailable Actions secrets.
+
+- ✅ Pass `${{ secrets.GITHUB_TOKEN }}` to `.github/actions/setup-node-pnpm` and grant `packages: read` in the consuming job's effective permissions.
+- ✅ For cross-repository packages, grant `sebastien-lemouillour.fr` **Read** access under each package's **Manage Actions access** settings.
+- ❌ Require `LUFA_CI_SECRET_READ` solely for package downloads or recommend duplicating that PAT into Dependabot secrets before considering `GITHUB_TOKEN`.
+- ✅ Evaluate credentials used for pushing commits or triggering other workflows separately; package download access does not establish that those operations can use the same token.
