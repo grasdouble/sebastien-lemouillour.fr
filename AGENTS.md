@@ -445,7 +445,7 @@ Keep PR titles, descriptions, and agent-authored comments in English, even when 
 
 Use the workflow's built-in token to download Lufa packages so Dependabot-triggered CI does not depend on unavailable Actions secrets.
 
-- ✅ Pass `${{ secrets.GITHUB_TOKEN }}` to `.github/actions/setup-node-pnpm` and grant `packages: read` in the consuming job's effective permissions.
+- ✅ Pass `${{ secrets.GITHUB_TOKEN }}` to `grasdouble/Lufa-CICD/actions/setup-node-pnpm@setup-node-pnpm-v1` and grant `packages: read` in the consuming job's effective permissions.
 - ✅ For cross-repository packages, grant `sebastien-lemouillour.fr` **Read** access under each package's **Manage Actions access** settings.
 - ❌ Require `LUFA_CI_SECRET_READ` solely for package downloads or recommend duplicating that PAT into Dependabot secrets before considering `GITHUB_TOKEN`.
 - ✅ Evaluate credentials used for pushing commits or triggering other workflows separately; package download access does not establish that those operations can use the same token.
