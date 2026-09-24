@@ -1,5 +1,22 @@
 # @grasdouble/slm_parcel_ai-chatbot
 
+## 1.1.3
+
+### Patch Changes
+
+- ed7ad59: fix: preserve the selected conversation when an earlier reply arrives.
+
+  fix: serialize model replacement and release engines on cancellation and unmount.
+
+  perf: minify the chatbot bundle and use the production runtime environment.
+
+  test: isolate stylesheet loading from the network.
+
+  chore: remove the redundant style assertion reported by the updated lint rules.
+
+- Updated dependencies [ed7ad59]
+  - @grasdouble/slm_shared@1.1.4
+
 ## 1.1.2
 
 ### Patch Changes

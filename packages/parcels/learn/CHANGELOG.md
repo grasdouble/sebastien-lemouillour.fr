@@ -1,5 +1,18 @@
 # @grasdouble/slm_parcel_learn
 
+## 1.5.3
+
+### Patch Changes
+
+- ed7ad59: fix: validate catalog and guide routes and display a localized not-found page.
+
+  fix: handle unmatched paths through an explicit fallback route compatible with the updated router.
+
+  perf: minify the Learn bundle and use the production runtime environment.
+
+- Updated dependencies [ed7ad59]
+  - @grasdouble/slm_shared@1.1.4
+
 ## 1.5.2
 
 ### Patch Changes
