@@ -5,7 +5,7 @@ These rules apply to every session, including after a compact or checkpoint. Bef
 ---
 
 <!-- BEGIN:AGENTS.shared -->
-<!-- source: @grasdouble/lufa_config_agents@1.1.3 — DO NOT EDIT this block manually, run `pnpm sync:agents` -->
+<!-- source: @grasdouble/lufa_config_agents@1.1.4 — DO NOT EDIT this block manually, run `pnpm sync:agents` -->
 
 # Shared Agent Rules — Grasdouble Ecosystem
 
@@ -146,32 +146,6 @@ The `tsconfig` files in Grasdouble repos have `declaration: true` and `sourceMap
 - ❌ `tsc -p tsconfig.json` with any flags, including `--noEmit` or `--listEmittedFiles`
 
 If stray generated files appear in `src/` (`.js`, `.js.map`, `.d.ts`, `.d.ts.map`), delete them immediately.
-
----
-
-## Lint & Type Errors — Fix the root cause, don't disable rules
-
-When ESLint or TypeScript reports errors, always investigate and fix the root cause rather than disabling rules.
-
-**Common root causes:**
-
-- **"File ignored" / "no matching configuration"** → Check `eslint.config.mjs` has proper file patterns and parser configuration
-- **`@typescript-eslint/no-unsafe-*` errors** → Usually means TypeScript types are missing, not that code is unsafe
-  - ✅ Install missing `@types/*` packages (e.g., `@types/react`, `@types/node`)
-  - ✅ Verify `tsconfig.json` extends the right base config (`react-app.json` for React projects, `node.json` for Node)
-  - ❌ Never disable `@typescript-eslint/no-unsafe-*` rules without first checking if types are properly installed
-- **"Could not find declaration file for module"** → Missing `@types/*` package or missing `typescript` itself
-
-**Process:**
-
-1. Read the error message carefully — it often tells you exactly what's missing
-2. Check if required dependencies are installed (`@types/*`, `typescript`, parser packages)
-3. Verify configuration files (`tsconfig.json`, `eslint.config.mjs`) are correct for the project type
-4. Only disable a rule if the code is genuinely correct and the rule doesn't apply (document why in a comment)
-
-- ✅ `pnpm add -D @types/react @types/react-dom typescript` when TypeScript can't resolve React types
-- ✅ Change `extends: ["@grasdouble/lufa_config_tsconfig/react-app.json"]` when working with React
-- ❌ `'@typescript-eslint/no-unsafe-assignment': 'off'` without investigating why TypeScript sees the value as `any`
 
 ---
 
