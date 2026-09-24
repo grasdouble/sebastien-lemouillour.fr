@@ -1,5 +1,18 @@
 # @grasdouble/slm-container
 
+## 2.2.4
+
+### Patch Changes
+
+- ed7ad59: fix: recover from startup failures and keep import-map devtools out of production.
+
+  perf: minify the container bundle.
+
+  test: cover startup, language and loader behavior and exercise production bundles in Chromium.
+
+- Updated dependencies [ed7ad59]
+  - @grasdouble/slm_shared@1.1.4
+
 ## 2.2.3
 
 ### Patch Changes

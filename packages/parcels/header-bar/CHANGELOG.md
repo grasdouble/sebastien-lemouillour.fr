@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.1.3
+
+### Patch Changes
+
+- ed7ad59: perf: minify production bundles and let Vite select the correct runtime environment.
+
+  fix: display the high-contrast mode indicator supported by the updated design system in the header.
+
+  test: assert directly on the idle callback mock in the landing page tests.
+
+- Updated dependencies [ed7ad59]
+  - @grasdouble/slm_shared@1.1.4
+
 ## 1.1.2
 
 ### Patch Changes
