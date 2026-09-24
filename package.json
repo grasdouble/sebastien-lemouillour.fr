@@ -39,9 +39,7 @@
     "sync:agents": "lufa-agents-sync",
     "sync:agents:local": "lufa-agents-sync --local ../Lufa-Core",
     "sync-----------------------------": "",
-    "test:e2e": "playwright test",
-    "tools:generate-outdated-report": "node .github/actions/dependency-update/generateOutdatedReport.js",
-    "tools---------------------------------------------": ""
+    "test:e2e": "playwright test"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [

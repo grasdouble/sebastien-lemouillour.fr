@@ -29,11 +29,20 @@ jobs:
           node-version-file: '.tool-versions'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 📦 Install dependencies
+        id: install-dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build packages
+        id: build
+        run: pnpm all:build
+
       - name: Run shared pnpm quality checks
-        uses: grasdouble/Lufa-CICD/actions/check-quality@check-quality-v1
+        id: check-quality
+        if: always() && steps.install-dependencies.outcome == 'success'
+        uses: grasdouble/Lufa-CICD/actions/check-quality@check-quality-v2
         with:
-          install-command: pnpm install --frozen-lockfile
-          build-command: pnpm all:build
+          check-agent-rules: 'true'
           lint-command: pnpm all:lint
-          typecheck-command: pnpm all:typecheck
+          typecheck-command: ${{ steps.build.outcome == 'success' && 'pnpm all:typecheck' || '' }}
           format-command: pnpm all:prettier:check
