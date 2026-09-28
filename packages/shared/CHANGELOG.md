@@ -1,5 +1,11 @@
 # @grasdouble/slm_shared
 
+## 1.1.4
+
+### Patch Changes
+
+- ed7ad59: test: prevent analytics unit tests from loading external scripts.
+
 ## 1.1.3
 
 ### Patch Changes
