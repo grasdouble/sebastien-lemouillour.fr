@@ -19,20 +19,21 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
-    "@grasdouble/lufa_config_eslint": "^0.1.11",
-    "@grasdouble/lufa_config_prettier": "^0.1.5",
-    "@grasdouble/lufa_config_tsconfig": "^0.1.4",
-    "@grasdouble/lufa_config_vitest": "^1.0.3",
+    "@grasdouble/lufa_config_eslint": "^0.1.15",
+    "@grasdouble/lufa_config_prettier": "^0.1.7",
+    "@grasdouble/lufa_config_tsconfig": "^0.1.6",
+    "@grasdouble/lufa_config_vitest": "^2.0.4",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@types/react": "^19.3.0",
-    "@vitest/coverage-v8": "^4.1.11",
-    "eslint": "^10.11.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "@vitest/coverage-v8": "^5.1.0",
+    "eslint": "^10.14.0",
     "happy-dom": "^21.0.4",
-    "prettier": "^3.9.8",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.11"
+    "prettier": "^3.9.10",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vitest": "^5.1.0"
   },
   "peerDependencies": {
     "@grasdouble/lufa_design-system": "^3.4.0",
