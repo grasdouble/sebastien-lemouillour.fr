@@ -1,5 +1,11 @@
 # @grasdouble/slm_plugin_vite_import-map-injector
 
+## 2.0.2
+
+### Patch Changes
+
+- 0ea9e45: chore: update workspace dependencies.
+
 ## 2.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @grasdouble/slm-vendors
 
+## 1.0.5
+
+### Patch Changes
+
+- 0ea9e45: chore: update workspace dependencies.
+
 ## 1.0.4
 
 ### Patch Changes

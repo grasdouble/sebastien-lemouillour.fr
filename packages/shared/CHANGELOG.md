@@ -1,5 +1,12 @@
 # @grasdouble/slm_shared
 
+## 1.1.5
+
+### Patch Changes
+
+- 26dacb5: Dependency updates
+- 0ea9e45: chore: update workspace dependencies.
+
 ## 1.1.4
 
 ### Patch Changes

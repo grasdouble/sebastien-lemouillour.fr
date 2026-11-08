@@ -1,5 +1,16 @@
 # @grasdouble/slm_parcel_learn
 
+## 1.5.4
+
+### Patch Changes
+
+- 26dacb5: Dependency updates
+- 99e6ca8: Dependency updates
+- 0ea9e45: chore: update workspace dependencies.
+- Updated dependencies [26dacb5]
+- Updated dependencies [0ea9e45]
+  - @grasdouble/slm_shared@1.1.5
+
 ## 1.5.3
 
 ### Patch Changes

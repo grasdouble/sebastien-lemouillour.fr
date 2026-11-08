@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1
+
+### Patch Changes
+
+- 0ea9e45: chore: update workspace dependencies.
+
 ## 1.1.0
 
 ### Minor Changes
