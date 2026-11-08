@@ -58,18 +58,18 @@
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
-    "@grasdouble/lufa_config_eslint": "^0.1.11",
-    "@grasdouble/lufa_config_prettier": "^0.1.5",
+    "@grasdouble/lufa_config_eslint": "^0.1.15",
+    "@grasdouble/lufa_config_prettier": "^0.1.7",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-    "@playwright/test": "^1.63.0",
-    "concurrently": "^9.2.4",
-    "eslint": "^10.11.0",
+    "@playwright/test": "^1.65.0",
+    "concurrently": "^10.0.6",
+    "eslint": "^10.14.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.5.1",
-    "prettier": "^3.9.8",
-    "sort-package-json": "^3.7.1",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
+    "sort-package-json": "^4.1.0",
     "terser": "^5.51.2",
-    "vite": "^8.3.3"
+    "vite": "^8.3.6"
   },
   "packageManager": "pnpm@12.5.1"
 }
