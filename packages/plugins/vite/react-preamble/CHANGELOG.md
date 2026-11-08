@@ -1,5 +1,11 @@
 # @grasdouble/slm_plugin_vite_react-preamble
 
+## 1.0.6
+
+### Patch Changes
+
+- 0ea9e45: chore: update workspace dependencies.
+
 ## 1.0.5
 
 ### Patch Changes
