@@ -26,5 +26,8 @@ const localStorageMock = (() => {
 })();
 
 beforeAll(() => {
-  global.localStorage = localStorageMock;
+  Object.defineProperty(global, 'localStorage', {
+    configurable: true,
+    value: localStorageMock,
+  });
 });
