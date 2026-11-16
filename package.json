@@ -62,14 +62,14 @@
     "@grasdouble/lufa_config_prettier": "^0.1.7",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@playwright/test": "^1.65.0",
-    "concurrently": "^10.0.6",
+    "concurrently": "^10.0.7",
     "eslint": "^10.14.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "sort-package-json": "^4.1.0",
     "terser": "^5.51.2",
-    "vite": "^8.3.6"
+    "vite": "^8.3.8"
   },
   "packageManager": "pnpm@12.5.1"
 }

@@ -55,7 +55,7 @@
     "@typescript/native": "npm:typescript@^7.0.2",
     "@vitest/coverage-v8": "^5.1.0",
     "eslint": "^10.14.0",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "sort-package-json": "^4.1.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "vitest": "^5.1.0"
