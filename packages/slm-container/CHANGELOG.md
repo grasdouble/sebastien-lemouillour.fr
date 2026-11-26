@@ -1,5 +1,13 @@
 # @grasdouble/slm-container
 
+## 3.0.0
+
+### Major Changes
+
+- e0a3238: feat: remove the Learn section from the portfolio now that Handbook is independently hosted.
+
+  Remove the `/learn` routes without redirects, the menu entry, the sitemap entry, and the import map mappings. The vendor bundle no longer exports Mermaid or TanStack Router, which were only used by Learn.
+
 ## 2.2.5
 
 ### Patch Changes
