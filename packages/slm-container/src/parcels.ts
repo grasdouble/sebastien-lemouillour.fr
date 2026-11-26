@@ -6,12 +6,11 @@
  * runtime and build-time code can import it safely.
  */
 
-export type ParcelConfig = { name: string; alwaysActive: true } | { name: string; path: string; pathPrefix?: boolean };
+export type ParcelConfig = { name: string; alwaysActive: true } | { name: string; path: string };
 
 export const PARCELS: ParcelConfig[] = [
   { name: 'header-bar', alwaysActive: true },
   { name: 'landing-page', path: '/' },
   { name: 'professional-experience', path: '/experience' },
-  { name: 'learn', path: '/learn', pathPrefix: true },
   { name: 'ai-chatbot', path: '/ai/chat' },
 ];

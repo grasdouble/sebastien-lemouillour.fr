@@ -129,9 +129,9 @@ A parcel opts into dynamic sitemaps by publishing a `sitemap-publishedAt-filter.
 {
   "baseUrl": "https://sebastien-lemouillour.fr",
   "urls": [
-    { "loc": "/learn", "lastmod": "2026-06-15", "changefreq": "weekly", "priority": "0.8" },
+    { "loc": "/announcements", "lastmod": "2026-06-15", "changefreq": "weekly", "priority": "0.8" },
     {
-      "loc": "/learn/my-catalog",
+      "loc": "/announcements/upcoming",
       "publishedAt": "2026-07-01",
       "lastmod": "2026-06-10",
       "changefreq": "monthly",
@@ -150,3 +150,7 @@ Use `sitemapPublishedAtFilterPlugin` from `@grasdouble/slm_plugin_vite_sitemap-g
 ### Static mode — static sitemap.xml
 
 Parcels that don't provide a `sitemap-publishedAt-filter.json` are served their static `sitemap.xml` as-is (no filtering). This is a fully supported mode for parcels whose content is always public.
+
+## Removing a parcel
+
+Release the updated header and vendor bundles, then deploy the container and publish the CDN import map. The container deployment removes the parcel’s routes and sitemap index entry. The CDN import map deployment removes the old package mapping used by the sitemap proxy.

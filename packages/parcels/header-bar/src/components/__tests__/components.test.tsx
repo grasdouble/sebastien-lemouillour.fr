@@ -128,9 +128,9 @@ describe('header-bar components', () => {
     fireEvent.click(screen.getByLabelText('aria.openMenu'));
     expect(screen.getByLabelText('aria.closeMenu')).toBeTruthy();
 
-    fireEvent.click(screen.getAllByRole('link', { name: 'nav.learn' })[0]);
+    fireEvent.click(screen.getAllByRole('link', { name: 'nav.experience' })[0]);
 
-    expect(window.location.pathname).toBe('/learn');
+    expect(window.location.pathname).toBe('/experience');
     expect(screen.getByLabelText('aria.openMenu')).toBeTruthy();
   });
 

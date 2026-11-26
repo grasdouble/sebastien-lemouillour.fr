@@ -1,9 +1,0 @@
-.lufa-learn {
-  min-height: 100vh;
-  background: var(--lufa-semantic-ui-background-page);
-}
-
-.view-tabs {
-  display: flex;
-  gap: var(--lufa-semantic-ui-spacing-tight);
-}

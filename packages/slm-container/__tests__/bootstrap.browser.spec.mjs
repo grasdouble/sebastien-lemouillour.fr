@@ -21,9 +21,9 @@ async function serveBuild(route) {
   const [, name, asset] = match;
   const packages = {
     'slm-vendors': 'packages/slm-vendors',
-    'lufa_design-system': 'packages/parcels/learn/node_modules/@grasdouble/lufa_design-system',
+    'lufa_design-system': 'packages/parcels/header-bar/node_modules/@grasdouble/lufa_design-system',
     ...Object.fromEntries(
-      ['header-bar', 'landing-page', 'professional-experience', 'learn', 'ai-chatbot'].map((name) => [
+      ['header-bar', 'landing-page', 'professional-experience', 'ai-chatbot'].map((name) => [
         `slm_parcel_${name}`,
         `packages/parcels/${name}`,
       ])
@@ -80,31 +80,21 @@ test('shows the error fallback when a parcel cannot be downloaded', async ({ pag
   await expect(page.locator('#startup-error')).toBeVisible();
 });
 
-test('renders unknown Learn routes and can return to the catalog list', async ({ page }) => {
-  await page.goto('/learn/missing-catalog');
-  await expect(page.getByRole('heading', { name: 'Page introuvable' })).toBeVisible();
-  await page.getByRole('button', { name: 'Retour à la liste' }).click();
-  await expect(page.getByRole('heading', { name: 'Guides', exact: true })).toBeVisible();
-  await expect(page).toHaveURL(/\/learn\/?$/);
+test('does not expose Learn in the portfolio menu or sitemap', async ({ page, request }) => {
+  await page.goto('/');
+  await expect(page.locator('#lufa-container h1')).toBeVisible();
+  await expect(page.locator('a[href="/experience"]')).toBeVisible();
+  await expect(page.locator('a[href^="/learn"], a[href*="handbook.grasdouble.fr"]')).toHaveCount(0);
+
+  const sitemap = await request.get('/sitemap.xml');
+  expect(sitemap.ok()).toBe(true);
+  expect(await sitemap.text()).not.toContain('/learn/sitemap.xml');
 });
 
 test('mounts the experience parcel on direct navigation', async ({ page }) => {
   await page.goto('/experience');
   await expect(page.locator('#lufa-container h1')).toBeVisible();
   await expect(page.locator('#startup-error')).toBeHidden();
-});
-
-test('loads a real guide and rejects an unrelated catalog', async ({ page }) => {
-  const manifest = JSON.parse(
-    await readFile(resolve(root, 'packages/parcels/learn/dist/sitemap-publishedAt-filter.json'), 'utf8')
-  );
-  const guide = manifest.urls.find(({ loc }) => loc.split('/').length === 4);
-  await page.goto(`${guide.loc}?dev=true`);
-  await expect(page.locator('#learn-detail-title')).toBeVisible();
-  const guideId = guide.loc.split('/').at(-1);
-  await page.goto(`/learn/missing-catalog/${guideId}?dev=true`);
-  await expect(page.getByRole('heading', { name: 'Page introuvable' })).toBeVisible();
-  await expect(page.locator('#learn-detail-title')).toHaveCount(0);
 });
 
 test('mounts the chatbot without downloading a model', async ({ page }) => {

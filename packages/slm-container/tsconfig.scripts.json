@@ -7,5 +7,5 @@
     "checkJs": false,
     "noEmit": true
   },
-  "include": ["scripts/**/*.mjs", "*.config.js", "*.config.mjs"]
+  "include": ["scripts/**/*.mjs", "__tests__/**/*.mjs", "*.config.js", "*.config.mjs"]
 }

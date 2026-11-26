@@ -38,18 +38,19 @@ describe('container registration', () => {
     const registrations = vi
       .mocked(registerApplication)
       .mock.calls.map(([config]) => config as RegisterApplicationConfig);
-    expect(registrations).toHaveLength(6);
+    expect(registrations).toHaveLength(5);
     const location = (pathname: string) => ({ pathname }) as Location;
     for (const registration of registrations) {
       const active = registration.activeWhen as (location: Location) => boolean;
       expect(typeof active(location('/'))).toBe('boolean');
       active(location('/not-found'));
     }
-    const learn = registrations.find((registration) => registration.name.endsWith('_learn'))!;
-    const active = learn.activeWhen as (location: Location) => boolean;
-    expect(active(location('/learn'))).toBe(true);
-    expect(active(location('/learn/catalog/guide'))).toBe(true);
-    expect(active(location('/learning'))).toBe(false);
+    for (const pathname of ['/learn', '/learn/catalog/guide']) {
+      const active = registrations.filter((registration) =>
+        (registration.activeWhen as (location: Location) => boolean)(location(pathname))
+      );
+      expect(active.map(({ name }) => name)).toEqual(['@grasdouble/slm_parcel_header-bar']);
+    }
     const preview = registrations[0];
     expect((preview.activeWhen as (location: Location) => boolean)(location('/loader'))).toBe(true);
     expect(await (preview.app as () => Promise<unknown>)()).toBeTruthy();

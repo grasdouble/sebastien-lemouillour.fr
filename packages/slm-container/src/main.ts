@@ -88,8 +88,6 @@ const loadApp =
 
 function buildActiveWhen(parcel: (typeof PARCELS)[number]): (location: Location) => boolean {
   if ('alwaysActive' in parcel) return () => true;
-  if (parcel.pathPrefix)
-    return (location) => location.pathname === parcel.path || location.pathname.startsWith(`${parcel.path}/`);
   return (location) => location.pathname === parcel.path;
 }
 

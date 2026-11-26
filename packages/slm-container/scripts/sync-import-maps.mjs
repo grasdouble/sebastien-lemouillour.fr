@@ -28,7 +28,7 @@ const WRITE = process.argv.includes('--write');
 /**
  * Candidate node_modules locations, in resolution order.
  * Covers local package, workspace root, siblings (depth 1), and nested packages
- * (depth 2, e.g. packages/parcels/learn/node_modules in pnpm workspaces).
+ * (depth 2, e.g. packages/parcels/header-bar/node_modules in pnpm workspaces).
  */
 const collectNodeModulesRoots = (dir, depth = 0, acc = []) => {
   if (depth > 2) return acc;

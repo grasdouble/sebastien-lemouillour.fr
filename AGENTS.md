@@ -287,6 +287,11 @@ Run these commands to validate your changes before presenting them to the user. 
 - Changed shared code (DS tokens, container, config) → run root-level commands
 - Unsure → run root-level to be safe
 
+When a change touches an `.mjs` Playwright spec under `packages/slm-container/__tests__/`, run ESLint on the changed spec explicitly. The container’s `pnpm lint` only checks `src`, while the pre-commit hook also lints staged specs. Keep the spec glob in both the ESLint override and `tsconfig.scripts.json`.
+
+- ✅ From the repository root: `rtk pnpm exec eslint --max-warnings 0 packages/slm-container/__tests__/bootstrap.browser.spec.mjs`
+- ❌ Treating a passing Playwright run or `pnpm lint` in the container as proof that the spec passes pre-commit lint.
+
 **On failure:** Stop. Fix the error. Re-run the failing command. Do not stage with `git add` or report to the user until the relevant commands pass. Never edit generated files (`dist/`, `node_modules/`, `.pnpm-store/`, `*.map`, `*.d.ts` in build output) to work around a failure.
 
 > The repo is a monorepo. Explore `packages/` to discover available packages — never assume their paths.

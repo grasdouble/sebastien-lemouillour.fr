@@ -38,24 +38,8 @@ export const VENDORS = [
     external: ['i18next'],
   },
   {
-    name: 'tanstack-react-router',
-    entry: 'src/tanstack-react-router.ts',
-    external: ['react', 'react-dom'],
-    // Same CJS shim issue as react-i18next — @tanstack/react-store uses
-    // use-sync-external-store/shim/with-selector which also requires react at runtime.
-    alias: {
-      'use-sync-external-store/shim': 'src/use-sync-external-store-shim.ts',
-      'use-sync-external-store/shim/with-selector': 'src/use-sync-external-store-shim-with-selector.ts',
-    },
-  },
-  {
     name: 'clsx',
     entry: 'src/clsx.ts',
-    external: [],
-  },
-  {
-    name: 'mermaid',
-    entry: 'src/mermaid.ts',
     external: [],
   },
   {

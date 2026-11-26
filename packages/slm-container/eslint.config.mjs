@@ -11,8 +11,8 @@ export default [
     },
   },
   {
-    // Build scripts are plain JS running in Node.js — type-aware rules don't apply
-    files: ['scripts/**/*.mjs', '*.config.js', '*.config.mjs'],
+    // Node.js scripts and Playwright specs are plain JavaScript.
+    files: ['scripts/**/*.mjs', '__tests__/**/*.mjs', '*.config.js', '*.config.mjs'],
     languageOptions: {
       parserOptions: {
         project: './tsconfig.scripts.json',
