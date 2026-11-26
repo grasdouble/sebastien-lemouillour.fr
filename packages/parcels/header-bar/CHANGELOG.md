@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.5
+
+### Patch Changes
+
+- e0a3238: feat: remove the Learn section from the portfolio now that Handbook is independently hosted.
+
+  Remove the `/learn` routes without redirects, the menu entry, the sitemap entry, and the import map mappings. The vendor bundle no longer exports Mermaid or TanStack Router, which were only used by Learn.
+
 ## 1.1.4
 
 ### Patch Changes
