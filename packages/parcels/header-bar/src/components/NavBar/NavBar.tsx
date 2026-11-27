@@ -15,7 +15,6 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { href: '/', labelKey: 'nav.home' },
   { href: '/experience', labelKey: 'nav.experience' },
-  { href: '/ai/chat', labelKey: 'nav.aiChat' },
 ];
 
 export function NavBar() {

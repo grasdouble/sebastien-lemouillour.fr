@@ -38,14 +38,14 @@ describe('container registration', () => {
     const registrations = vi
       .mocked(registerApplication)
       .mock.calls.map(([config]) => config as RegisterApplicationConfig);
-    expect(registrations).toHaveLength(5);
+    expect(registrations).toHaveLength(4);
     const location = (pathname: string) => ({ pathname }) as Location;
     for (const registration of registrations) {
       const active = registration.activeWhen as (location: Location) => boolean;
       expect(typeof active(location('/'))).toBe('boolean');
       active(location('/not-found'));
     }
-    for (const pathname of ['/learn', '/learn/catalog/guide']) {
+    for (const pathname of ['/learn', '/learn/catalog/guide', '/ai/chat']) {
       const active = registrations.filter((registration) =>
         (registration.activeWhen as (location: Location) => boolean)(location(pathname))
       );

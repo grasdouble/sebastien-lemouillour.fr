@@ -23,7 +23,7 @@ async function serveBuild(route) {
     'slm-vendors': 'packages/slm-vendors',
     'lufa_design-system': 'packages/parcels/header-bar/node_modules/@grasdouble/lufa_design-system',
     ...Object.fromEntries(
-      ['header-bar', 'landing-page', 'professional-experience', 'ai-chatbot'].map((name) => [
+      ['header-bar', 'landing-page', 'professional-experience'].map((name) => [
         `slm_parcel_${name}`,
         `packages/parcels/${name}`,
       ])
@@ -80,26 +80,22 @@ test('shows the error fallback when a parcel cannot be downloaded', async ({ pag
   await expect(page.locator('#startup-error')).toBeVisible();
 });
 
-test('does not expose Learn in the portfolio menu or sitemap', async ({ page, request }) => {
+test('does not expose retired sections in the portfolio menu or sitemap', async ({ page, request }) => {
   await page.goto('/');
   await expect(page.locator('#lufa-container h1')).toBeVisible();
   await expect(page.locator('a[href="/experience"]')).toBeVisible();
   await expect(page.locator('a[href^="/learn"], a[href*="handbook.grasdouble.fr"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/ai/chat"]')).toHaveCount(0);
 
   const sitemap = await request.get('/sitemap.xml');
   expect(sitemap.ok()).toBe(true);
-  expect(await sitemap.text()).not.toContain('/learn/sitemap.xml');
+  const xml = await sitemap.text();
+  expect(xml).not.toContain('/learn/sitemap.xml');
+  expect(xml).not.toContain('/ai-chatbot/sitemap.xml');
 });
 
 test('mounts the experience parcel on direct navigation', async ({ page }) => {
   await page.goto('/experience');
   await expect(page.locator('#lufa-container h1')).toBeVisible();
-  await expect(page.locator('#startup-error')).toBeHidden();
-});
-
-test('mounts the chatbot without downloading a model', async ({ page }) => {
-  await page.goto('/ai/chat');
-  await expect(page.getByTestId('chat-main-region')).toBeVisible();
-  await expect(page.locator('textarea')).toBeDisabled();
   await expect(page.locator('#startup-error')).toBeHidden();
 });

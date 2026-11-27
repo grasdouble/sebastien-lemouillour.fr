@@ -1,8 +1,7 @@
 {
   "nav": {
     "home": "Home",
-    "experience": "Experience",
-    "aiChat": "AI Chat"
+    "experience": "Experience"
   },
   "aria": {
     "openMenu": "Open menu",

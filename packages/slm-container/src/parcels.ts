@@ -12,5 +12,4 @@ export const PARCELS: ParcelConfig[] = [
   { name: 'header-bar', alwaysActive: true },
   { name: 'landing-page', path: '/' },
   { name: 'professional-experience', path: '/experience' },
-  { name: 'ai-chatbot', path: '/ai/chat' },
 ];

@@ -42,29 +42,4 @@ export const VENDORS = [
     entry: 'src/clsx.ts',
     external: [],
   },
-  {
-    name: 'react-markdown',
-    entry: 'src/react-markdown.ts',
-    external: ['react', 'react-dom'],
-  },
-  {
-    name: 'remark-gfm',
-    entry: 'src/remark-gfm.ts',
-    external: [],
-  },
-  {
-    name: 'rehype-highlight',
-    entry: 'src/rehype-highlight.ts',
-    external: [],
-  },
-  {
-    name: 'highlight',
-    entry: 'src/highlight.ts',
-    external: [],
-  },
-  {
-    name: 'rehype-sanitize',
-    entry: 'src/rehype-sanitize.ts',
-    external: [],
-  },
 ];
